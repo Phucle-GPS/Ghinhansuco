@@ -208,6 +208,9 @@ main{flex:1;overflow-y:auto;padding:16px 18px 100px;}
 .guide-h{font-size:14px;font-weight:700;margin:16px 0 8px;}
 .guide-list{margin:0;padding-left:18px;font-size:13px;color:var(--text-2);line-height:1.6;}
 .map-mode{margin-bottom:12px;}
+.scp-tag{display:inline-block;margin-top:6px;padding:3px 8px;border-radius:6px;font-size:11.5px;font-weight:700;background:color-mix(in srgb,#1A73E8 18%,transparent);color:#1A73E8;}
+.scp-result{margin-top:12px;font-size:13px;line-height:1.6;}
+.scp-result .blk{background:var(--surface-2);border-radius:10px;padding:9px 11px;margin-top:8px;}
 .locate-bar{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
 .locate-btn{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;padding:10px 14px;border-radius:100px;border:none;background:#1A73E8;color:#fff;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer;box-shadow:0 2px 8px rgba(26,115,232,.35);}
 .locate-btn svg{width:18px;height:18px;}
@@ -397,6 +400,7 @@ nav svg{width:21px;height:21px;}
     <section class="view" id="view-list">
       <div class="list-head">
         <div class="filters" id="statusFilters"></div>
+        <button class="export-btn" id="scpBtn" style="display:none">🔄 SCP</button>
         <button class="export-btn" id="exportBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
           Excel
@@ -523,6 +527,33 @@ nav svg{width:21px;height:21px;}
         <li>Chọn "Thêm vào màn hình chính" (hoặc "Cài đặt ứng dụng") → Thêm.</li>
       </ol>
       <div class="guide-note">Biểu tượng app sẽ xuất hiện trên màn hình chính như một ứng dụng. Đăng nhập bằng tài khoản do quản trị viên cấp; tick "Ghi nhớ đăng nhập" để không phải nhập lại.</div>
+    </div>
+  </div>
+  <div class="modal-scrim" id="scpScrim">
+    <div class="modal-sheet">
+      <div class="mtop">
+        <h2>Đồng bộ lỗi từ SCP</h2>
+        <button class="mclose" id="scpClose" aria-label="Đóng">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <div class="guide-note">Mở <b>smarthcm.city</b> → danh sách tủ đang báo lỗi → bôi đen toàn bộ bảng (Ctrl+A) → Ctrl+C → dán vào ô dưới. Hoặc chọn file Excel/CSV xuất từ SCP. App tự nhận mã PE và loại lỗi (PLC, PW, PM, 4G, DATA).</div>
+      <div class="field" style="margin-top:12px"><textarea id="scpText" placeholder="Dán danh sách tủ lỗi từ SCP vào đây…" style="min-height:120px"></textarea></div>
+      <div class="field"><input type="file" id="scpFile" accept=".xlsx,.xls,.csv,.txt"></div>
+      <div class="gps-result" id="scpPreview"></div>
+      <label class="au-active"><input type="checkbox" id="scpBaseline"> Lần đầu – chỉ ghi nhận làm mốc, <b>không gửi thông báo</b> (các lỗi tồn đọng hiện có)</label>
+      <button class="submit-btn" id="scpSync" disabled>Đồng bộ</button>
+      <div id="scpResult" class="scp-result"></div>
+
+      <div class="guide-h">Nơi nhận thông báo</div>
+      <div class="field"><input type="text" id="ntEmails" placeholder="Email nhận báo cáo, cách nhau dấu phẩy"></div>
+      <div class="field"><input type="text" id="ntTgToken" placeholder="Telegram Bot Token (tùy chọn)"></div>
+      <div class="field"><input type="text" id="ntTgChat" placeholder="Telegram Chat ID (tùy chọn)"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="gps-btn" id="ntSave">Lưu cài đặt</button>
+        <button class="gps-btn" id="ntTest">Gửi thử</button>
+      </div>
+      <div class="gps-result" id="ntMsg"></div>
     </div>
   </div>
   <div class="modal-scrim" id="accountScrim">
@@ -902,6 +933,8 @@ function renderIncList(){
         <span class="badge ${levelClass(i.mucDo)}">${i.mucDo}</span>
       </div>
       <div class="desc">${escapeHtml(i.moTa)}</div>
+      ${i.nguon==="SCP" ? `<div class="scp-tag">SCP · ${escapeHtml(i.loiSCP||"")}${i.trangThai!=="Đã xử lý" ? " · tồn " + tonDong(i) : ""}</div>` : ""}
+      ${i.ghiChuXuLy ? `<div class="who" style="margin-top:4px">📝 ${escapeHtml(i.ghiChuXuLy)}</div>` : ""}
       <div class="who" style="margin-top:6px">👤 Quản lý tuyến: ${escapeHtml(i.nguoiQuanLy||"—")}</div>
       ${i.anhHienTruong ? `<img class="inc-photo" src="${i.anhHienTruong}" data-full="${i.anhHienTruong}">` : ""}
       <div class="row2">
@@ -963,13 +996,13 @@ async function exportExcel(){
   if(typeof XLSX==="undefined"){ alert("Không tải được thư viện xuất Excel, thử lại."); return; }
 
   btn.disabled=true;
-  const header = ["STT","Mã PE","Tên tủ","Đường","Quận","Người quản lý","Ngày ghi nhận","Mô tả sự cố","Mức độ","Người ghi nhận","Trạng thái","Tọa độ GPS","Ảnh hiện trường"];
+  const header = ["STT","Mã PE","Tên tủ","Đường","Quận","Người quản lý","Ngày ghi nhận","Mô tả sự cố","Mức độ","Người ghi nhận","Trạng thái","Tọa độ GPS","Ảnh hiện trường","Nguồn","Lỗi SCP","Ghi chú xử lý"];
   const rows = list.map((i,idx)=>[
     idx+1, (i.cabinetPE||i.pe||i.cabinetCode||""), i.cabinetName, i.duong||"", i.quan, i.nguoiQuanLy||"", i.ngay, i.moTa, i.mucDo, i.nguoiGhiNhan, i.trangThai,
-    i.gpsLat!=null ? (i.gpsLat+", "+i.gpsLng) : "", i.anhHienTruong || ""
+    i.gpsLat!=null ? (i.gpsLat+", "+i.gpsLng) : "", i.anhHienTruong || "", i.nguon||"Thủ công", i.loiSCP||"", i.ghiChuXuLy||""
   ]);
   const ws = XLSX.utils.aoa_to_sheet([header, ...rows]);
-  ws["!cols"] = [{wch:5},{wch:16},{wch:24},{wch:20},{wch:16},{wch:18},{wch:12},{wch:40},{wch:12},{wch:18},{wch:16},{wch:20},{wch:18}];
+  ws["!cols"] = [{wch:5},{wch:16},{wch:24},{wch:20},{wch:16},{wch:18},{wch:12},{wch:40},{wch:12},{wch:18},{wch:16},{wch:20},{wch:18},{wch:10},{wch:16},{wch:40}];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Ghi nhan su co");
   const buf = XLSX.write(wb, {bookType:"xlsx", type:"array"});
@@ -1190,6 +1223,7 @@ function applyUser(u){
   role.classList.toggle("ro", u.role==="viewer");
   const inp=$("#nguoiGhiNhan"); if(!inp.value) inp.value=viewerName;
   $("#adminPanel").style.display = u.role==="admin" ? "block" : "none";
+  $("#scpBtn").style.display = u.role==="admin" ? "" : "none";
   $("#acctInfo").textContent = "Đăng nhập: " + u.username + " · " + (u.fullName||"") + " · Quyền: " + (ROLE_LABEL[u.role]||u.role);
   if(!canWrite){
     $("#submitBtn").disabled=true; $("#submitBtn").textContent="Bạn chỉ có quyền xem";
@@ -1233,6 +1267,85 @@ $("#auSave").onclick=async ()=>{
   const r = await api("saveUser",{user:{username:$("#auUser").value.trim(), fullName:$("#auName").value.trim(), password:$("#auPass").value, role:auRole, active:$("#auActive").checked}});
   $("#auMsg").textContent = r.ok ? (r.created?"Đã tạo tài khoản.":"Đã cập nhật tài khoản.") : (r.error||"Lỗi");
   if(r.ok){ $("#auPass").value=""; loadUsers(); }
+};
+
+
+/* ---------- đồng bộ SCP ---------- */
+function tonDong(i){
+  const d = Math.floor((Date.now() - (i.createdAt||Date.now()))/86400000);
+  return d<=0 ? "hôm nay" : d+" ngày";
+}
+const PE_INDEX = {}; CABINETS.forEach(c=>{ PE_INDEX[c.pe]=c; });
+function parseSCP(text){
+  const out={}, order=[];
+  const re=/PE\s?\d{8,}/gi; let m, prevEnd=0;
+  const tagRe=/\b(PLC|PW|PM|4G|DATA)\b|mất kết nối|lỗi/gi;
+  const matches=[]; while((m=re.exec(text))){ matches.push({pe:m[0].replace(/\s/g,"").toUpperCase(), s:m.index, e:m.index+m[0].length}); }
+  matches.forEach((mm,k)=>{
+    const lineEnd = text.indexOf("\n", mm.e); const after = text.slice(mm.e, lineEnd<0?text.length:lineEnd);
+    const win = text.slice(prevEnd, mm.s) + " " + after;
+    prevEnd = mm.e;
+    const tags=[...new Set((win.match(tagRe)||[]).map(t=>t.toUpperCase()))];
+    const codeM = text.slice(Math.max(0,mm.s-200), mm.s).match(/([A-Z]{1,3}\d{2,3}\.\d{2})(?![\s\S]*[A-Z]{1,3}\d{2,3}\.\d{2})/);
+    if(!out[mm.pe]){ out[mm.pe]={pe:mm.pe, tags:tags.join("; "), code:codeM?codeM[1]:""}; order.push(mm.pe); }
+  });
+  return order.map(pe=>{
+    const x=out[pe], c=PE_INDEX[pe];
+    return {pe, tags:x.tags, code:x.code, name:c?c.n:"", quan:c?c.q:"", duong:c?c.duong:"", ql:c?c.ql:"", duyTri:c?c.duyTri:"", known:!!c};
+  });
+}
+let scpItems=[];
+function refreshSCPPreview(){
+  scpItems = parseSCP($("#scpText").value||"");
+  const unk = scpItems.filter(x=>!x.known).length;
+  $("#scpPreview").textContent = scpItems.length
+    ? `Nhận được ${scpItems.length} tủ đang báo lỗi` + (unk?` (${unk} mã PE chưa có trong danh sách tủ – vẫn ghi nhận)`:"") + "."
+    : "Chưa nhận được mã PE nào.";
+  $("#scpSync").disabled = scpItems.length===0;
+}
+$("#scpText").addEventListener("input", refreshSCPPreview);
+$("#scpFile").addEventListener("change", async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  let text="";
+  if(/\.(xlsx|xls)$/i.test(f.name) && typeof XLSX!=="undefined"){
+    const wb=XLSX.read(await f.arrayBuffer(),{type:"array"});
+    wb.SheetNames.forEach(n=>{ text += XLSX.utils.sheet_to_csv(wb.Sheets[n],{FS:"\t"}) + "\n"; });
+  } else { text = await f.text(); }
+  $("#scpText").value = text; refreshSCPPreview();
+});
+$("#scpBtn").onclick=async ()=>{
+  $("#scpScrim").classList.add("show"); $("#scpResult").innerHTML="";
+  const r = await api("getNotify");
+  if(r.ok){ $("#ntEmails").value=r.notify.emails; $("#ntTgToken").value=r.notify.tgToken; $("#ntTgChat").value=r.notify.tgChat; }
+};
+$("#scpClose").onclick=()=>$("#scpScrim").classList.remove("show");
+$("#scpSync").onclick=async ()=>{
+  const btn=$("#scpSync"); btn.disabled=true; btn.textContent="Đang đồng bộ…";
+  const baseline=$("#scpBaseline").checked;
+  const r = await api("syncSCP",{items:scpItems, baseline});
+  btn.textContent="Đồng bộ"; btn.disabled=false;
+  const el=$("#scpResult"); el.innerHTML="";
+  if(!r.ok){ el.textContent = r.error||"Lỗi đồng bộ"; return; }
+  const add=(title,arr,fmt)=>{ const b=document.createElement("div"); b.className="blk"; const t=document.createElement("b"); t.textContent=title; b.appendChild(t);
+    arr.slice(0,40).forEach(x=>{ const d=document.createElement("div"); d.textContent=fmt(x); b.appendChild(d); }); if(arr.length>40){ const d=document.createElement("div"); d.textContent="… và "+(arr.length-40)+" tủ khác"; b.appendChild(d);} el.appendChild(b); };
+  add(`🔴 Sự cố mới: ${r.moi.length}`, r.moi, x=>`${x.name} – ${x.quan} – ${x.tags||""}`);
+  const b2=document.createElement("div"); b2.className="blk"; b2.textContent=`⏳ Vẫn còn lỗi (đã báo trước, không báo lại): ${r.vanCon}`; el.appendChild(b2);
+  add(`🟢 Hết lỗi – tự reset: ${r.reset.length}`, r.reset, x=>`${x.name} – ${x.quan}`);
+  const n=document.createElement("div"); n.className="who"; n.style.marginTop="8px";
+  n.textContent = r.baseline ? "Chế độ làm mốc: không gửi thông báo." : (r.notified ? "Đã gửi thông báo." : ((r.moi.length||r.reset.length) ? "Chưa gửi thông báo (chưa cài email/Telegram)." : "Không có thay đổi, không gửi thông báo."));
+  el.appendChild(n);
+  $("#scpBaseline").checked=false;
+  loadIncidents();
+};
+$("#ntSave").onclick=async ()=>{
+  $("#ntMsg").textContent="Đang lưu…";
+  const r=await api("saveNotify",{notify:{emails:$("#ntEmails").value, tgToken:$("#ntTgToken").value, tgChat:$("#ntTgChat").value}});
+  $("#ntMsg").textContent = r.ok ? "Đã lưu." : (r.error||"Lỗi");
+};
+$("#ntTest").onclick=async ()=>{
+  $("#ntMsg").textContent="Đang gửi thử…";
+  const r=await api("testNotify");
+  $("#ntMsg").textContent = r.ok ? "Đã gửi thử – kiểm tra email/Telegram." : (r.error||"Lỗi");
 };
 
 /* ---------- khởi động ---------- */
