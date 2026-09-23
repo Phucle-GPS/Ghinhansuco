@@ -207,6 +207,25 @@ main{flex:1;overflow-y:auto;padding:16px 18px 100px;}
 .field input[type=password]{width:100%;padding:11px 13px;border-radius:11px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:15px;font-family:inherit;}
 .guide-h{font-size:14px;font-weight:700;margin:16px 0 8px;}
 .guide-list{margin:0;padding-left:18px;font-size:13px;color:var(--text-2);line-height:1.6;}
+.map-mode{margin-bottom:12px;}
+.locate-bar{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.locate-btn{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;padding:10px 14px;border-radius:100px;border:none;background:#1A73E8;color:#fff;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer;box-shadow:0 2px 8px rgba(26,115,232,.35);}
+.locate-btn svg{width:18px;height:18px;}
+.locate-btn.busy svg{animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.locate-info{font-size:12px;color:var(--text-2);line-height:1.4;}
+.locate-info a{color:var(--accent);font-weight:600;text-decoration:none;}
+.near-panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:10px 12px;margin-bottom:12px;box-shadow:var(--shadow);}
+.near-panel .nh{font-size:12.5px;font-weight:700;color:var(--text-2);margin-bottom:4px;}
+.near-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--border);}
+.near-row:first-of-type{border-top:none;}
+.near-row .nn{font-weight:600;font-size:13.5px;}
+.near-row .ns{font-size:11.5px;color:var(--text-2);}
+.near-row .na{display:flex;gap:6px;flex:0 0 auto;}
+.near-row .na a,.near-row .na button{font-size:11.5px;padding:6px 9px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font-family:inherit;font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap;}
+.near-row .na button{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+.gmm-wrap{border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow);height:calc(100vh - 330px);min-height:360px;}
+.gmm-wrap iframe{width:100%;height:100%;border:0;display:block;}
 .map-hint{font-size:12.5px;color:var(--text-2);margin-bottom:10px;line-height:1.5;}
 #mapLayers{margin-bottom:12px;}
 .map-chip{display:inline-flex;align-items:center;gap:6px;}
@@ -388,10 +407,29 @@ nav svg{width:21px;height:21px;}
 
     <!-- BAN DO VIEW -->
     <section class="view" id="view-map">
+      <div class="seg map-mode" id="mapModeSeg">
+        <button data-v="gmm" class="mid on">Google My Maps</button>
+        <button data-v="svg" class="low">Sơ đồ nhanh</button>
+      </div>
+      <div class="locate-bar">
+        <button class="locate-btn" id="locateBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="7.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3"/></svg>
+          <span>Vị trí của tôi</span>
+        </button>
+        <span class="locate-info" id="locateInfo">Bấm để định vị và xem các tủ gần bạn nhất</span>
+      </div>
+      <div id="nearPanel" class="near-panel" style="display:none"></div>
+      <div id="gmmPane">
+        <div class="map-hint">Bấm biểu tượng ☰ góc trái trên bản đồ để tắt/mở lớp từng quận. Chạm vào điểm tủ để xem thông tin.</div>
+        <div class="gmm-wrap" id="gmmWrap"></div>
+        <a class="pin-link" id="gmmOpen" href="#" target="_blank" rel="noopener" style="margin-top:10px;display:none">↗ Mở toàn màn hình trong Google Maps</a>
+      </div>
+      <div id="svgPane" style="display:none">
       <div class="map-hint">Chạm chip quận để tắt/mở lớp tủ trên bản đồ. Chạm 1 chấm để xem thông tin tủ.</div>
       <div class="chips" id="mapLayers"></div>
       <div class="map-wrap">
         <svg id="mapSvg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
       </div>
       <div class="map-popup" id="mapPopup" style="display:none">
         <button class="mclose" id="mapPopupClose" aria-label="Đóng">
@@ -452,12 +490,12 @@ nav svg{width:21px;height:21px;}
       <div class="guide-step">
         <div class="num">5</div>
         <div class="txt"><h3>Theo dõi, cập nhật &amp; xuất Excel</h3>
-          <p>Sang tab "Danh sách sự cố": chạm vào nhãn trạng thái để chuyển Mới ghi nhận → Đang xử lý → Đã xử lý; chạm "Cập nhật tọa độ tại chỗ" để bổ sung/cập nhật GPS cho sự cố cũ; bấm nút "Excel" để tải danh sách đang lọc ra file .xlsx.</p></div>
+          <p>Sang tab "Danh sách sự cố": quản trị viên chạm vào nhãn trạng thái để chuyển Mới ghi nhận → Đang xử lý → Đã xử lý; người ghi nhận chạm "Cập nhật tọa độ tại chỗ" để bổ sung GPS cho sự cố của mình; bấm nút "Excel" để tải danh sách đang lọc ra file .xlsx.</p></div>
       </div>
       <div class="guide-step">
         <div class="num">6</div>
         <div class="txt"><h3>Xem bản đồ tủ theo quận</h3>
-          <p>Tab "Bản đồ" hiện vị trí tất cả tủ điều khiển (theo tọa độ đã đăng ký). Chạm chip quận để tắt/mở từng lớp; chạm 1 chấm để xem thông tin tủ và mở đúng vị trí trên Google Maps.</p></div>
+          <p>Tab "Bản đồ" có 2 chế độ: "Google My Maps" (bản đồ đường phố thật, bấm ☰ để tắt/mở lớp từng quận, chạm điểm tủ xem thông tin) và "Sơ đồ nhanh" (chấm màu theo quận, dùng được cả khi mạng yếu). Nút xanh "Vị trí của tôi" định vị bạn, đưa bản đồ về chỗ bạn đứng và liệt kê 5 tủ gần nhất kèm nút Chỉ đường / Ghi sự cố.</p></div>
       </div>
       <div class="guide-note">
         Lưu ý: dữ liệu lưu tập trung trên Google Sheets và tự làm mới mỗi phút. Ảnh hiện trường được lưu vào Google Drive của đơn vị.
@@ -868,15 +906,15 @@ function renderIncList(){
       ${i.anhHienTruong ? `<img class="inc-photo" src="${i.anhHienTruong}" data-full="${i.anhHienTruong}">` : ""}
       <div class="row2">
         <span class="who">${escapeHtml(i.nguoiGhiNhan)} · ${i.ngay}</span>
-        <button class="badge status-btn ${statusClass(i.trangThai)}" data-id="${i.id}">${i.trangThai}</button>
+        <button class="badge status-btn ${statusClass(i.trangThai)}" data-id="${i.id}" ${isAdmin()?'':'disabled style="cursor:default"'}>${i.trangThai}</button>
       </div>
       <div class="row2" style="margin-top:7px">
         ${i.gpsLat!=null
-          ? `<a class="pin-link" href="${mapsLink(i.gpsLat,i.gpsLng)}" target="_blank" rel="noopener">📍 ${i.gpsLat}, ${i.gpsLng}</a><button class="pin-btn" data-pin="${i.id}">Cập nhật lại</button>`
-          : `<span></span><button class="pin-btn" data-pin="${i.id}">📍 Cập nhật tọa độ tại chỗ</button>`}
+          ? `<a class="pin-link" href="${mapsLink(i.gpsLat,i.gpsLng)}" target="_blank" rel="noopener">📍 ${i.gpsLat}, ${i.gpsLng}</a>${canEditInc(i)?`<button class="pin-btn" data-pin="${i.id}">Cập nhật lại</button>`:""}`
+          : (canEditInc(i) ? `<span></span><button class="pin-btn" data-pin="${i.id}">📍 Cập nhật tọa độ tại chỗ</button>` : `<span></span>`)}
       </div>`;
     card.querySelector(".status-btn").onclick=(ev)=>cycleStatus(i, ev.currentTarget);
-    card.querySelector(".pin-btn").onclick=(ev)=>updateIncidentGPS(i, ev.currentTarget);
+    const pinB=card.querySelector(".pin-btn"); if(pinB) pinB.onclick=(ev)=>updateIncidentGPS(i, ev.currentTarget);
     const photoEl = card.querySelector(".inc-photo");
     if(photoEl) photoEl.onclick=()=>window.open(photoEl.dataset.full, "_blank");
     el.appendChild(card);
@@ -885,8 +923,10 @@ function renderIncList(){
 
 function escapeHtml(s){ const d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
 
+function isAdmin(){ return !!(SESSION && SESSION.user && SESSION.user.role==="admin"); }
+function canEditInc(i){ return isAdmin() || (canWrite && SESSION && i.nguoiTao===SESSION.user.username); }
 async function cycleStatus(i, btn){
-  if(!canWrite){ alert("Bạn chỉ có quyền xem."); return; }
+  if(!isAdmin()){ return; }
   const next = STATUS[(STATUS.indexOf(i.trangThai)+1) % STATUS.length];
   const prev = i.trangThai;
   i.trangThai = next;
@@ -1023,7 +1063,79 @@ function showMapPopup(c){
 }
 $("#mapPopupClose").onclick=()=>{ $("#mapPopup").style.display="none"; };
 
+function loadMyMaps(center){
+  const id=myMapsId(); if(!id) return;
+  const w=$("#gmmWrap");
+  let q="mid="+encodeURIComponent(id)+"&ehbc=2E312F";
+  if(center) q+="&ll="+center.lat+"%2C"+center.lng+"&z=17";
+  w.innerHTML='<iframe loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps/d/embed?'+q+'"></iframe>';
+  const a=$("#gmmOpen"); a.href="https://www.google.com/maps/d/viewer?"+q; a.style.display="inline-flex";
+}
+
+/* ---------- vị trí hiện tại & tủ gần nhất ---------- */
+let myPos=null;
+function distM(a,b){
+  const R=6371000, toR=x=>x*Math.PI/180;
+  const dLa=toR(b.lat-a.lat), dLo=toR(b.lng-a.lng);
+  const s=Math.sin(dLa/2)**2+Math.cos(toR(a.lat))*Math.cos(toR(b.lat))*Math.sin(dLo/2)**2;
+  return 2*R*Math.asin(Math.sqrt(s));
+}
+function fmtDist(m){ return m<1000 ? Math.round(m)+" m" : (m/1000).toFixed(m<10000?2:1)+" km"; }
+function renderNearest(){
+  const panel=$("#nearPanel");
+  if(!myPos){ panel.style.display="none"; return; }
+  const near = CABINETS.filter(c=>c.lat!=null).map(c=>({c, d:distM(myPos,c)})).sort((a,b)=>a.d-b.d).slice(0,5);
+  panel.innerHTML='<div class="nh" style="display:flex;justify-content:space-between;align-items:center"><span>5 tủ gần bạn nhất</span><button class="pin-btn" id="nearToggle">Thu gọn</button></div><div id="nearRows"></div>';
+  const rowsEl=panel.querySelector("#nearRows");
+  panel.querySelector("#nearToggle").onclick=(e)=>{ const hide=rowsEl.style.display!=="none"; rowsEl.style.display=hide?"none":""; e.target.textContent=hide?"Mở rộng":"Thu gọn"; };
+  near.forEach(({c,d})=>{
+    const row=document.createElement("div"); row.className="near-row";
+    row.innerHTML='<div><div class="nn"></div><div class="ns"></div></div><div class="na"><a target="_blank" rel="noopener">Chỉ đường</a><button>Ghi sự cố</button></div>';
+    row.querySelector(".nn").textContent=c.n;
+    row.querySelector(".ns").textContent=fmtDist(d)+" · "+c.q+" · "+(c.duong||c.diaChi||"")+" · "+c.pe;
+    row.querySelector("a").href="https://www.google.com/maps/dir/?api=1&destination="+c.lat+","+c.lng;
+    row.querySelector("button").onclick=()=>{ showView("new"); selectCabinet(c); window.scrollTo(0,0); };
+    rowsEl.appendChild(row);
+  });
+  panel.style.display="block";
+}
+function drawMyPosOnSvg(){
+  const svg=$("#mapSvg"); if(!svg || !myPos) return;
+  let g=svg.querySelector("#mePos"); if(g) g.remove();
+  const {minLat,maxLat,minLng,maxLng}=MAP_BOUNDS;
+  if(myPos.lat<minLat-0.05||myPos.lat>maxLat+0.05||myPos.lng<minLng-0.05||myPos.lng>maxLng+0.05) return;
+  const {x,y}=projectPoint(myPos.lat,myPos.lng);
+  svg.insertAdjacentHTML("beforeend",'<g id="mePos" pointer-events="none"><circle cx="'+x+'" cy="'+y+'" r="16" fill="#1A73E8" fill-opacity=".18"/><circle cx="'+x+'" cy="'+y+'" r="7" fill="#1A73E8" stroke="#fff" stroke-width="2.5"/></g>');
+}
+$("#locateBtn").onclick=()=>{
+  const btn=$("#locateBtn"); btn.classList.add("busy"); btn.disabled=true;
+  $("#locateInfo").textContent="Đang lấy vị trí…";
+  captureGPS((g,err)=>{
+    btn.classList.remove("busy"); btn.disabled=false;
+    if(err){ $("#locateInfo").textContent=err; return; }
+    myPos=g;
+    $("#locateInfo").innerHTML='Bạn đang ở <a target="_blank" rel="noopener" href="'+mapsLink(g.lat,g.lng)+'">'+g.lat+', '+g.lng+'</a> (±'+g.acc+'m) · bấm lại để cập nhật';
+    if(myMapsId()) loadMyMaps(g);
+    drawMyPosOnSvg();
+    renderNearest();
+  });
+};
+
+function myMapsId(){ return (typeof MYMAPS_ID!=="undefined" && MYMAPS_ID) ? String(MYMAPS_ID).trim() : ""; }
+function setMapMode(v){
+  $("#mapModeSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on", b.dataset.v===v));
+  $("#gmmPane").style.display = v==="gmm" ? "" : "none";
+  $("#svgPane").style.display = v==="svg" ? "" : "none";
+  if(v==="gmm"){
+    const id=myMapsId(), w=$("#gmmWrap");
+    if(!id){ w.innerHTML='<div class="empty">Chưa gắn bản đồ Google My Maps.<br>Quản trị viên điền MYMAPS_ID trong config.js.</div>'; return; }
+    if(!w.querySelector("iframe")) loadMyMaps();
+  }
+}
+$("#mapModeSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>setMapMode(b.dataset.v));
+
 function initMap(){
+  if(!initMap._mode){ initMap._mode=true; setMapMode(myMapsId() ? "gmm" : "svg"); }
   if(mapBuilt) return;
   mapBuilt=true;
   renderMapLayerChips();
