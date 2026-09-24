@@ -608,6 +608,7 @@ nav svg{width:21px;height:21px;}
       <label class="au-active"><input type="checkbox" id="scpBaseline"> Lần đầu – chỉ ghi nhận làm mốc, <b>không gửi thông báo</b> (các lỗi tồn đọng hiện có)</label>
       <button class="submit-btn" id="scpSync" disabled>Đồng bộ</button>
       <div id="scpResult" class="scp-result"></div>
+      <button class="pin-btn" id="scpClear" style="margin-top:12px;color:var(--high)">🗑 Xóa toàn bộ sự cố SCP đã đồng bộ (để làm lại mốc)</button>
 
       <div class="guide-h">Nơi nhận thông báo</div>
       <div class="field"><input type="text" id="ntEmails" placeholder="Email nhận báo cáo, cách nhau dấu phẩy"></div>
@@ -1025,8 +1026,9 @@ function renderSourceTabs(){
   const sum=$("#scpSum");
   if(activeSource==="scp"){
     const s=incidents.filter(i=>isScp(i)&&inQ(i)&&open(i));
-    const loi=s.filter(isLoiScp).length;
-    sum.innerHTML = `<span>Đang tồn: ${s.length}</span><span style="color:var(--high)">🔴 Lỗi: ${loi}</span><span style="color:#E8710A">🟠 Mất kết nối: ${s.length-loi}</span>`;
+    const unk=s.filter(i=>{ const p=scpParts(i); return !p.codes.length && !p.text; }).length;
+    const loi=s.filter(i=>isLoiScp(i) && (scpParts(i).codes.length||scpParts(i).text)).length;
+    sum.innerHTML = `<span>Đang tồn: ${s.length}</span><span style="color:var(--high)">🔴 Lỗi: ${loi}</span><span style="color:#E8710A">🟠 Mất kết nối: ${s.length-loi-unk}</span>` + (unk?`<span style="color:var(--text-2)">❔ Chưa rõ lỗi: ${unk}</span>`:"");
     sum.style.display="flex";
   } else sum.style.display="none";
 }
@@ -1468,14 +1470,14 @@ function parseSCPTable(text){
     }
     if(sc && !byKey[key]._sc.includes(sc)) byKey[key]._sc.push(sc);
   });
-  const items = order.map(k=>{ const x=byKey[k]; x.tags = x._sc.join("; ") + (x.batDau?` (từ ${x.batDau})`:""); delete x._sc; return x; });
+  const items = order.map(k=>{ const x=byKey[k]; x.tags = (x._sc.join("; ")||"Sự cố trên SCP") + (x.batDau?` (từ ${x.batDau})`:""); delete x._sc; return x; });
   return {items, resolved, unmatched};
 }
 function parseSCPByPE(text){
 
   const out={}, order=[];
   const re=/PE\s?\d{8,}/gi; let m, prevEnd=0;
-  const tagRe=/\b(PLC|PW|PM|4G|DATA)\b|mất kết nối|lỗi/gi;
+  const tagRe=/\b(PLC|PW|PM|4G|DATA)\b|mất kết nối/gi;
   const matches=[]; while((m=re.exec(text))){ matches.push({pe:m[0].replace(/\s/g,"").toUpperCase(), s:m.index, e:m.index+m[0].length}); }
   matches.forEach((mm,k)=>{
     const lineEnd = text.indexOf("\n", mm.e); const after = text.slice(mm.e, lineEnd<0?text.length:lineEnd);
@@ -1490,17 +1492,28 @@ function parseSCPByPE(text){
     return {pe, tags:x.tags, code:x.code, name:c?c.n:"", quan:c?c.q:"", duong:c?c.duong:"", ql:c?c.ql:"", duyTri:c?c.duyTri:"", lat:c?c.lat:null, lng:c?c.lng:null, known:!!c};
   });
 }
+function looksLikeAssetList(text){
+  // file danh mục tủ (Export tài sản / TĐK): có các cột kiểu "Tên mới đầy đủ", "Chiều dài tuyến", "Loại tủ"...
+  const head = vnNorm(String(text).slice(0,4000)).replace(/[^a-z0-9]/g,"");
+  const hits = ["tenmoidaydu","chieudaituyen","donvivanhanh","loaitu","congtacquanlyvanhanh","trangtri","vn2000"].filter(k=>head.includes(k)).length;
+  return hits>=2;
+}
 function parseSCP(text){
+  if(looksLikeAssetList(text)) return {items:[], resolved:0, unmatched:0, error:"Đây là file DANH MỤC TỦ (toàn bộ tủ), không phải danh sách tủ đang lỗi trên SCP – không đồng bộ."};
   const t = parseSCPTable(text);
   if(t) return t;
-  const items = parseSCPByPE(text);
-  return {items, resolved:0, unmatched:items.filter(x=>!x.known).length};
+  const all = parseSCPByPE(text);
+  const items = all.filter(x=>x.tags);            // chỉ nhận tủ có mã lỗi PLC/PW/PM/4G/DATA hoặc chữ "lỗi/mất kết nối"
+  return {items, resolved:0, unmatched:items.filter(x=>!x.known).length, skipped:all.length-items.length};
 }
 let scpItems=[];
 function refreshSCPPreview(){
   const r = parseSCP($("#scpText").value||"");
   scpItems = r.items;
-  let msg = scpItems.length ? `Nhận được ${scpItems.length} tủ đang lỗi / mất kết nối` : "Chưa nhận được tủ nào – kiểm tra lại nội dung dán/file.";
+  if(r.error){ scpItems=[]; $("#scpPreview").textContent="⛔ "+r.error; $("#scpSync").disabled=true; return; }
+  let msg = scpItems.length ? `Nhận được ${scpItems.length} tủ đang lỗi / mất kết nối` : "Chưa nhận được tủ nào đang lỗi – kiểm tra lại nội dung dán/file.";
+  if(r.skipped) msg += ` · bỏ qua ${r.skipped} mã PE không kèm mã lỗi`;
+  if(scpItems.length > 200) msg += `\n⚠️ Số tủ lỗi nhiều bất thường (${scpItems.length}). Kiểm tra lại có đúng danh sách tủ đang LỖI không.`;
   if(r.resolved) msg += ` · bỏ qua ${r.resolved} dòng đã xử lý xong`;
   if(r.unmatched) msg += ` · ${r.unmatched} tủ chưa khớp danh sách (vẫn ghi nhận theo tên)`;
   if(scpItems.length) msg += "\nVí dụ: " + scpItems.slice(0,3).map(x=>`${x.name} – ${x.tags}`).join(" | ");
@@ -1524,6 +1537,7 @@ $("#scpBtn").onclick=async ()=>{
 };
 $("#scpClose").onclick=()=>$("#scpScrim").classList.remove("show");
 $("#scpSync").onclick=async ()=>{
+  if(scpItems.length > 200 && !confirm(`Có ${scpItems.length} tủ được nhận là đang lỗi – nhiều bất thường.\nBạn chắc chắn đây là danh sách tủ đang LỖI trên SCP?`)) return;
   const btn=$("#scpSync"); btn.disabled=true; btn.textContent="Đang đồng bộ…";
   const baseline=$("#scpBaseline").checked;
   const r = await api("syncSCP",{items:scpItems, baseline});
@@ -1541,6 +1555,14 @@ $("#scpSync").onclick=async ()=>{
   $("#scpBaseline").checked=false;
   activeSource="scp"; try{localStorage.setItem("gnsc_src","scp");}catch(e){}
   loadIncidents();
+};
+$("#scpClear").onclick=async ()=>{
+  const n = incidents.filter(isScp).length;
+  if(!confirm(`Xóa toàn bộ ${n} sự cố nguồn SCP khỏi dữ liệu?\nSự cố do nhân viên ghi nhận KHÔNG bị ảnh hưởng.`)) return;
+  if(!confirm("Xác nhận lần 2: thao tác này không hoàn tác được trong app (có thể khôi phục qua Nhật ký phiên bản của Google Sheet). Tiếp tục?")) return;
+  const r = await api("clearSCP");
+  $("#scpResult").textContent = r.ok ? `Đã xóa ${r.deleted} sự cố SCP. Hãy dán danh sách tủ đang lỗi và đồng bộ lại với ô "Lần đầu – làm mốc".` : (r.error||"Lỗi");
+  if(r.ok){ $("#scpBaseline").checked=true; loadIncidents(); }
 };
 $("#ntSave").onclick=async ()=>{
   $("#ntMsg").textContent="Đang lưu…";
