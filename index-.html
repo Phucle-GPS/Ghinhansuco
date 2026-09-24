@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ghi nhận sự cố</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Sự cố TĐK">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0B1420">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --bg:#EEF2F4; --surface:#FFFFFF; --surface-2:#F5F8F9;
+  --text:#0F2030; --text-2:#5B6B77; --border:#DCE3E7;
+  --accent:#B8860B; --accent-ink:#FFFFFF;
+  --low:#5B6B77; --mid:#B8860B; --high:#C1440E; --done:#2E7D4F;
+  --shadow: 0 1px 2px rgba(15,32,48,.06), 0 6px 16px rgba(15,32,48,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B1420; --surface:#16273B; --surface-2:#1D3049;
+    --text:#EDF1F5; --text-2:#9FB0BF; --border:rgba(255,255,255,.10);
+    --accent:#F2B705; --accent-ink:#0B1420;
+    --low:#9FB0BF; --mid:#F2B705; --high:#FF6A3D; --done:#4CC382;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0B1420; --surface:#16273B; --surface-2:#1D3049;
+  --text:#EDF1F5; --text-2:#9FB0BF; --border:rgba(255,255,255,.10);
+  --accent:#F2B705; --accent-ink:#0B1420;
+  --low:#9FB0BF; --mid:#F2B705; --high:#FF6A3D; --done:#4CC382;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:"IBM Plex Sans",-apple-system,sans-serif;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  -webkit-tap-highlight-color:transparent;
+}
+.mono{font-family:"IBM Plex Mono",monospace;}
+#app{max-width:480px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;}
+
+/* header */
+header{
+  padding:16px 18px 14px; border-bottom:1px solid var(--border);
+  position:sticky; top:env(safe-area-inset-top,0px); background:var(--bg); z-index:5;
+}
+header .eyebrow{font-size:12px;color:var(--text-2);letter-spacing:.02em;}
+header h1{margin:2px 0 0;font-size:20px;font-weight:700;line-height:1.25;}
+header h1 span{color:var(--accent);}
+.head-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+#helpBtn{
+  flex:0 0 auto; width:34px;height:34px;border-radius:100px;border:1px solid var(--border);
+  background:var(--surface); color:var(--text-2); display:flex;align-items:center;justify-content:center;
+  cursor:pointer; margin-top:1px;
+}
+#helpBtn svg{width:18px;height:18px;}
+.chips{display:flex;gap:6px;overflow-x:auto;margin-top:12px;padding-bottom:2px;scrollbar-width:none;}
+.chips::-webkit-scrollbar{display:none;}
+.chip{
+  flex:0 0 auto; padding:7px 13px; border-radius:100px; border:1px solid var(--border);
+  background:var(--surface); color:var(--text-2); font-size:13px; font-weight:500; cursor:pointer;
+  white-space:nowrap;
+}
+.chip.active{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+
+main{flex:1;overflow-y:auto;padding:16px 18px 100px;}
+.view{display:none;}
+.view.active{display:block;}
+
+/* search + cabinet list */
+.search-wrap{position:relative;margin-bottom:10px;}
+.search-wrap input{
+  width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--border);
+  background:var(--surface); color:var(--text); font-size:15px; font-family:inherit;
+}
+.search-wrap input:focus{outline:2px solid var(--accent);outline-offset:1px;}
+.ql-select{
+  width:100%; margin-top:8px; padding:10px 13px; border-radius:11px; border:1px solid var(--border);
+  background:var(--surface); color:var(--text-2); font-size:13.5px; font-family:inherit;
+}
+.cab-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+.cab-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  padding:11px 13px; cursor:pointer; display:flex; justify-content:space-between; gap:10px; align-items:center;
+}
+.cab-card:active{background:var(--surface-2);}
+.cab-card .name{font-weight:600;font-size:14.5px;}
+.cab-card .meta{font-size:12px;color:var(--text-2);margin-top:2px;}
+.cab-card mark{background:color-mix(in srgb,var(--accent) 35%,transparent);color:inherit;border-radius:3px;padding:0 1px;}
+.search-info{font-size:12px;color:var(--text-2);margin:2px 2px 0;}
+.unfilter-btn{width:100%;padding:10px 12px;border-radius:10px;border:1px dashed var(--accent);background:transparent;color:var(--accent);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;text-align:left;}
+.cab-card .code{font-size:12px;color:var(--accent);flex:0 0 auto;text-align:right;}
+.empty{padding:36px 10px;text-align:center;color:var(--text-2);font-size:14px;line-height:1.6;}
+
+/* selected cabinet summary */
+.selected-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:14px;
+  padding:14px 15px; margin-bottom:16px; box-shadow:var(--shadow);
+}
+.selected-card .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.selected-card .name{font-weight:700;font-size:16px;}
+.selected-card .code{color:var(--accent);font-size:13px;margin-top:2px;}
+.selected-card .change{font-size:12.5px;color:var(--text-2);text-decoration:underline;cursor:pointer;flex:0 0 auto;}
+.selected-card .details{margin-top:8px;font-size:12.5px;color:var(--text-2);display:flex;flex-wrap:wrap;gap:6px 14px;}
+.selected-card .manager-row{margin-top:10px;font-size:13px;color:var(--text);}
+.selected-card .maint-note{margin-top:6px;font-size:12px;color:var(--text-2);background:var(--surface-2);border-radius:8px;padding:8px 10px;line-height:1.5;}
+
+/* form */
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:6px;}
+.field input[type=text],.field input[type=date],.field textarea{
+  width:100%; padding:11px 13px; border-radius:11px; border:1px solid var(--border);
+  background:var(--surface); color:var(--text); font-size:15px; font-family:inherit; resize:vertical;
+}
+.field textarea{min-height:88px;line-height:1.45;}
+.field input:focus,.field textarea:focus{outline:2px solid var(--accent);outline-offset:1px;}
+.seg{display:flex;gap:8px;}
+.seg button{
+  flex:1; padding:10px 0; border-radius:10px; border:1px solid var(--border); background:var(--surface);
+  color:var(--text-2); font-size:13.5px; font-weight:600; font-family:inherit; cursor:pointer;
+}
+.seg button.on.low{background:var(--low);border-color:var(--low);color:var(--surface);}
+.seg button.on.mid{background:var(--mid);border-color:var(--mid);color:var(--accent-ink);}
+.seg button.on.high{background:var(--high);border-color:var(--high);color:#fff;}
+
+.submit-btn{
+  width:100%; padding:14px; border-radius:12px; border:none; background:var(--accent); color:var(--accent-ink);
+  font-size:15.5px; font-weight:700; font-family:inherit; cursor:pointer; margin-top:4px;
+}
+.submit-btn:disabled{opacity:.45;cursor:not-allowed;}
+.toast{
+  margin-top:12px; padding:11px 13px; border-radius:10px; background:var(--done); color:#fff;
+  font-size:13.5px; font-weight:600; display:none;
+}
+.toast.show{display:block;}
+.offline-note{font-size:12px;color:var(--text-2);background:var(--surface-2);border-radius:10px;padding:9px 12px;margin-bottom:14px;}
+
+/* GPS */
+.gps-btn{
+  display:inline-flex; align-items:center; gap:6px; padding:9px 13px; border-radius:10px;
+  border:1px solid var(--border); background:var(--surface-2); color:var(--text); font-size:13px;
+  font-weight:600; font-family:inherit; cursor:pointer;
+}
+.gps-btn svg{width:15px;height:15px;flex:0 0 auto;}
+.gps-result{margin-top:8px;font-size:12.5px;color:var(--text-2);}
+.gps-result a{color:var(--accent);font-weight:600;text-decoration:none;}
+.photo-preview{display:block;width:100%;max-width:260px;border-radius:12px;margin-top:10px;border:1px solid var(--border);}
+#photoPreviewWrap{display:flex;flex-direction:column;align-items:flex-start;gap:6px;}
+.inc-photo{width:100%;border-radius:10px;margin-top:9px;display:block;cursor:pointer;border:1px solid var(--border);}
+
+/* incident list */
+.list-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;}
+.list-head .filters{flex:1;min-width:0;margin-bottom:0;}
+.export-btn{
+  flex:0 0 auto; display:flex; align-items:center; gap:6px; padding:8px 13px; border-radius:10px;
+  border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:12.5px;
+  font-weight:600; font-family:inherit; cursor:pointer;
+}
+.export-btn svg{width:14px;height:14px;}
+.export-btn:disabled{opacity:.45;cursor:not-allowed;}
+.filters{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;scrollbar-width:none;}
+.filters::-webkit-scrollbar{display:none;}
+.inc-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:13px;
+  padding:13px 14px; margin-bottom:10px; box-shadow:var(--shadow);
+}
+.inc-card .row1{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;}
+.inc-card .name{font-weight:700;font-size:14.5px;}
+.inc-card .code{color:var(--accent);font-size:12px;margin-top:1px;}
+.inc-card .desc{font-size:13.5px;color:var(--text);margin-top:8px;line-height:1.45;}
+.inc-card .row2{display:flex;justify-content:space-between;align-items:center;margin-top:11px;gap:8px;flex-wrap:wrap;}
+.inc-card .who{font-size:12px;color:var(--text-2);}
+.badge{padding:5px 10px;border-radius:100px;font-size:11.5px;font-weight:700;white-space:nowrap;}
+.badge.level-low{background:color-mix(in srgb,var(--low) 18%,transparent);color:var(--low);}
+.badge.level-mid{background:color-mix(in srgb,var(--mid) 20%,transparent);color:var(--mid);}
+.badge.level-high{background:color-mix(in srgb,var(--high) 18%,transparent);color:var(--high);}
+.status-btn{border:none;cursor:pointer;font-family:inherit;}
+.status-btn.st-0{background:color-mix(in srgb,var(--text-2) 20%,transparent);color:var(--text-2);}
+.status-btn.st-1{background:color-mix(in srgb,var(--mid) 22%,transparent);color:var(--mid);}
+.status-btn.st-2{background:color-mix(in srgb,var(--done) 20%,transparent);color:var(--done);}
+.pin-link{font-size:12px;color:var(--accent);text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:4px;}
+.pin-btn{border:none;background:none;color:var(--text-2);font-size:12px;font-family:inherit;cursor:pointer;text-decoration:underline;padding:0;}
+
+/* map */
+.user-bar #userRole{margin-right:auto;}
+.user-bar{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12.5px;color:var(--text-2);flex-wrap:wrap;}
+.role-badge{padding:3px 9px;border-radius:100px;font-size:11px;font-weight:700;background:color-mix(in srgb,var(--accent) 20%,transparent);color:var(--accent);}
+.role-badge.ro{background:color-mix(in srgb,var(--text-2) 20%,transparent);color:var(--text-2);}
+.install-btn{padding:6px 11px;border-radius:100px;border:1px solid var(--accent);background:transparent;color:var(--accent);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;}
+.au-active{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2);margin:12px 0;}
+.user-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--border);font-size:13px;cursor:pointer;}
+.user-row .u-sub{font-size:11.5px;color:var(--text-2);}
+.field input[type=password]{width:100%;padding:11px 13px;border-radius:11px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:15px;font-family:inherit;}
+.guide-h{font-size:14px;font-weight:700;margin:16px 0 8px;}
+.guide-list{margin:0;padding-left:18px;font-size:13px;color:var(--text-2);line-height:1.6;}
+.map-mode{margin-bottom:12px;}
+.scp-fault{margin-top:8px;}
+.scp-codes{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.scp-codes .lbl{font-size:12.5px;font-weight:700;color:var(--text-2);margin-right:2px;}
+.code-chip{padding:3px 9px;border-radius:6px;font-size:12.5px;font-weight:800;letter-spacing:.02em;font-family:"IBM Plex Mono",monospace;color:#fff;}
+.code-chip.c-PW{background:#D93025;} .code-chip.c-PLC{background:#C5221F;} .code-chip.c-PM{background:#E8710A;}
+.code-chip.c-4G{background:#1A73E8;} .code-chip.c-DATA{background:#5F6368;}
+.src-tabs{display:flex;gap:8px;margin-bottom:12px;}
+.src-tabs button{flex:1;padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+.src-tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+.src-tabs .cnt{min-width:24px;padding:2px 8px;border-radius:100px;background:color-mix(in srgb,currentColor 18%,transparent);font-size:12px;}
+.scp-sum{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.scp-sum span{padding:6px 11px;border-radius:9px;font-size:12.5px;font-weight:700;background:var(--surface);border:1px solid var(--border);}
+.inc-card.scp{border-left:4px solid #E8710A;}
+.inc-card.scp.loi{border-left-color:var(--high);}
+@media (min-width:1000px){ .src-tabs{max-width:640px;} }
+.lt-hint{font-weight:400;font-size:11.5px;}
+.lt-list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;}
+.field .lt-item,.lt-item{display:flex;align-items:flex-start;gap:9px;padding:9px 11px;border-radius:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:13px;line-height:1.4;}
+.lt-item input{margin-top:2px;width:16px;height:16px;flex:0 0 auto;accent-color:var(--accent);}
+.lt-item.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--surface));}
+.lt-item .lt-sub{font-size:11.5px;color:var(--text-2);}
+.inc-lt{margin-top:5px;font-size:12px;color:var(--text-2);}
+/* ===== máy tính: giao diện rộng ===== */
+@media (min-width: 1000px){
+  #app{max-width:1360px;padding:0 24px;}
+  header{padding:18px 6px 14px;}
+  #app > nav{max-width:1360px;left:0;right:0;border-radius:14px 14px 0 0;}
+  main{padding:20px 6px 100px;}
+  #view-new.active{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start;}
+  #view-new #offlineNote{grid-column:1 / -1;}
+  #pickStep,#formStep{min-width:0;}
+  #pickStep{display:block !important;}
+  #changeCab{display:none;}
+  .cab-card.sel{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 40%,transparent);}
+  #formStep{position:sticky;top:130px;max-height:calc(100vh - 230px);overflow-y:auto;padding-right:4px;}
+  .cab-list{max-height:calc(100vh - 290px);overflow-y:auto;padding-right:4px;}
+  #incList{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px;align-items:start;}
+  #incList .inc-card{margin-bottom:0;}
+  #incList .empty{grid-column:1 / -1;}
+  #view-map.active{display:grid;grid-template-columns:360px minmax(0,1fr);grid-template-rows:auto auto 1fr;gap:0 20px;}
+  #view-map .map-mode,#view-map .locate-bar,#view-map #nearPanel{grid-column:1;}
+  #view-map #gmmPane,#view-map #svgPane{grid-column:2;grid-row:1 / span 3;}
+  .gmm-wrap{height:calc(100vh - 230px);}
+  #app .modal-scrim{align-items:center;}
+  #app .modal-sheet{max-width:640px;border-radius:18px;max-height:88vh;}
+}
+.fs-btn{flex:0 0 auto;width:34px;height:34px;border-radius:100px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);display:none;align-items:center;justify-content:center;cursor:pointer;margin-right:8px;}
+.fs-btn svg{width:17px;height:17px;}
+@media (min-width: 1000px){ .fs-btn{display:flex;} }
+.scp-tag{display:inline-block;margin-top:6px;padding:3px 8px;border-radius:6px;font-size:11.5px;font-weight:700;background:color-mix(in srgb,#1A73E8 18%,transparent);color:#1A73E8;}
+.scp-result{margin-top:12px;font-size:13px;line-height:1.6;}
+.scp-result .blk{background:var(--surface-2);border-radius:10px;padding:9px 11px;margin-top:8px;}
+.locate-bar{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.locate-btn{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;padding:10px 14px;border-radius:100px;border:none;background:#1A73E8;color:#fff;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer;box-shadow:0 2px 8px rgba(26,115,232,.35);}
+.locate-btn svg{width:18px;height:18px;}
+.locate-btn.busy svg{animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.locate-info{font-size:12px;color:var(--text-2);line-height:1.4;}
+.locate-info a{color:var(--accent);font-weight:600;text-decoration:none;}
+.near-panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:10px 12px;margin-bottom:12px;box-shadow:var(--shadow);}
+.near-panel .nh{font-size:12.5px;font-weight:700;color:var(--text-2);margin-bottom:4px;}
+.near-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--border);}
+.near-row:first-of-type{border-top:none;}
+.near-row .nn{font-weight:600;font-size:13.5px;}
+.near-row .ns{font-size:11.5px;color:var(--text-2);}
+.near-row .na{display:flex;gap:6px;flex:0 0 auto;}
+.near-row .na a,.near-row .na button{font-size:11.5px;padding:6px 9px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font-family:inherit;font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap;}
+.near-row .na button{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+.gmm-wrap{border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow);height:calc(100vh - 330px);min-height:360px;}
+.gmm-wrap iframe{width:100%;height:100%;border:0;display:block;}
+.map-hint{font-size:12.5px;color:var(--text-2);margin-bottom:10px;line-height:1.5;}
+#mapLayers{margin-bottom:12px;}
+.map-chip{display:inline-flex;align-items:center;gap:6px;}
+.map-chip .dot{width:9px;height:9px;border-radius:100px;flex:0 0 auto;}
+.map-chip.off{opacity:.4;}
+.map-wrap{
+  background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden;
+  box-shadow:var(--shadow);
+}
+#mapSvg{width:100%;height:auto;display:block;aspect-ratio:1/1;cursor:pointer;}
+#mapSvg circle{transition:opacity .15s;}
+.map-popup{
+  position:relative; margin-top:14px; background:var(--surface); border:1px solid var(--border); border-radius:14px;
+  padding:16px 16px 16px; box-shadow:var(--shadow);
+}
+.map-popup .mclose{
+  position:absolute; top:10px; right:10px; width:28px;height:28px;border-radius:100px;border:1px solid var(--border);
+  background:var(--surface-2); color:var(--text-2); display:flex;align-items:center;justify-content:center;cursor:pointer;
+}
+.map-popup .mclose svg{width:14px;height:14px;}
+.map-popup .name{font-weight:700;font-size:15.5px;padding-right:30px;}
+.map-popup .code{color:var(--accent);font-size:12.5px;margin-top:2px;}
+.map-popup .details{margin-top:8px;font-size:12.5px;color:var(--text-2);display:flex;flex-wrap:wrap;gap:6px 14px;}
+
+/* bottom nav */
+nav{
+  position:fixed; left:0; right:0; bottom:0; max-width:480px; margin:0 auto;
+  background:var(--surface); border-top:1px solid var(--border);
+  display:flex; padding-bottom:env(safe-area-inset-bottom,0px);
+  box-shadow:0 -2px 10px rgba(0,0,0,.05);
+}
+nav button{
+  flex:1; padding:11px 0 9px; background:none; border:none; font-family:inherit; cursor:pointer;
+  color:var(--text-2); display:flex; flex-direction:column; align-items:center; gap:3px; font-size:11.5px; font-weight:600;
+}
+nav button.active{color:var(--accent);}
+nav svg{width:21px;height:21px;}
+
+/* help modal */
+.modal-scrim{
+  position:fixed; inset:0; background:rgba(8,14,20,.55); z-index:20;
+  display:none; align-items:flex-end; justify-content:center;
+}
+.modal-scrim.show{display:flex;}
+.modal-sheet{
+  width:100%; max-width:480px; max-height:82vh; overflow-y:auto;
+  background:var(--surface); border-radius:20px 20px 0 0; padding:20px 20px calc(24px + env(safe-area-inset-bottom,0px));
+  box-shadow:0 -8px 30px rgba(0,0,0,.25);
+}
+.modal-sheet .mtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.modal-sheet h2{font-size:17px;margin:0;font-weight:700;}
+.modal-sheet .mclose{
+  width:30px;height:30px;border-radius:100px;border:1px solid var(--border);background:var(--surface-2);
+  color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;
+}
+.modal-sheet .mclose svg{width:15px;height:15px;}
+.guide-step{display:flex;gap:12px;margin-bottom:16px;}
+.guide-step .num{
+  flex:0 0 auto; width:26px;height:26px;border-radius:100px;background:var(--accent);color:var(--accent-ink);
+  display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;
+}
+.guide-step .txt h3{margin:0 0 3px;font-size:14px;font-weight:700;}
+.guide-step .txt p{margin:0;font-size:13px;color:var(--text-2);line-height:1.55;}
+.guide-note{
+  margin-top:6px; padding:11px 13px; border-radius:10px; background:var(--surface-2);
+  font-size:12.5px; color:var(--text-2); line-height:1.55;
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="head-row">
+      <div>
+        <div class="eyebrow">Hệ thống chiếu sáng đô thị</div>
+        <h1><span>Ghi nhận</span> sự cố</h1>
+      </div>
+      <div style="display:flex;align-items:center">
+      <button class="fs-btn" id="fsBtn" title="Toàn màn hình" aria-label="Toàn màn hình">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+      </button>
+      <button id="helpBtn" aria-label="Hướng dẫn sử dụng">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 4.7 1.2c0 1.6-2.2 1.8-2.2 3.3"/><path d="M12 17h.01"/></svg>
+      </button>
+      </div>
+    </div>
+    <div class="user-bar">
+      <span id="userName">Đang xác định người dùng…</span>
+      <span class="role-badge" id="userRole" style="display:none"></span>
+      <button class="install-btn" id="installBtn">📲 Cài app</button>
+      <button class="install-btn" id="accountBtn">⚙️ Tài khoản</button>
+    </div>
+    <div class="chips" id="quanChips"></div>
+  </header>
+
+  <main>
+    <!-- GHI NHAN VIEW -->
+    <section class="view active" id="view-new">
+      <div id="offlineNote" class="offline-note" style="display:none">Không kết nối được máy chủ — kiểm tra mạng rồi tải lại trang.</div>
+
+      <div id="pickStep">
+        <div class="search-wrap">
+          <input type="text" id="searchInput" placeholder="Gõ tên tủ, đường, mã PE… (có dấu hoặc không dấu)" autocomplete="off">
+        </div>
+        <select id="qlFilter" class="ql-select"></select>
+        <div class="cab-list" id="cabList"></div>
+      </div>
+
+      <div id="formStep" style="display:none">
+        <div class="selected-card">
+          <div class="top">
+            <div>
+              <div class="name" id="selName"></div>
+              <div class="code mono" id="selCode"></div>
+            </div>
+            <div class="change" id="changeCab">Đổi tủ</div>
+          </div>
+          <div class="details">
+            <span id="selQuan"></span><span id="selDuong"></span><span id="selDai"></span><span id="selDen"></span><span id="selLoaiTu"></span>
+          </div>
+          <div class="manager-row">👤 <b id="selQL"></b></div>
+          <div class="maint-note" id="selDuyTri"></div>
+          <a href="#" target="_blank" rel="noopener" id="selMapsLink" class="pin-link" style="margin-top:8px;display:none">🗺️ Xem vị trí tủ trên Google Maps</a>
+        </div>
+
+        <div class="field" id="ltField" style="display:none">
+          <label>Lý trình / tuyến bị ảnh hưởng <span class="lt-hint">(chạm để chọn; không chọn = cả tủ)</span></label>
+          <div class="lt-list" id="ltList"></div>
+        </div>
+
+        <div class="field">
+          <label for="ngay">Ngày ghi nhận</label>
+          <input type="date" id="ngay">
+        </div>
+        <div class="field">
+          <label for="moTa">Mô tả sự cố</label>
+          <textarea id="moTa" placeholder="Ví dụ: hư modem sim, mất kết nối 4G, tủ không sáng…"></textarea>
+        </div>
+        <div class="field">
+          <label>Mức độ</label>
+          <div class="seg" id="mucDoSeg">
+            <button data-v="Thấp" class="low">Thấp</button>
+            <button data-v="Trung bình" class="mid on">Trung bình</button>
+            <button data-v="Cao" class="high">Cao</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="nguoiGhiNhan">Người ghi nhận</label>
+          <input type="text" id="nguoiGhiNhan" placeholder="Họ tên người báo cáo">
+        </div>
+        <div class="field">
+          <label>Tọa độ GPS tại chỗ</label>
+          <button type="button" class="gps-btn" id="gpsBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-7.2 7-12a7 7 0 1 0-14 0c0 4.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            Lấy vị trí hiện tại
+          </button>
+          <div class="gps-result" id="gpsResult"></div>
+        </div>
+        <div class="field">
+          <label>Ảnh hiện trường (gắn định vị GPS)</label>
+          <input type="file" accept="image/*" capture="environment" id="photoInput" style="display:none">
+          <button type="button" class="gps-btn" id="photoBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h2l1.5-2h5L16 4h2a2 2 0 0 1 2 2v2"/><rect x="2" y="8" width="20" height="13" rx="2"/><circle cx="12" cy="14.5" r="3.5"/></svg>
+            Chụp ảnh hiện trường
+          </button>
+          <div id="photoPreviewWrap" style="display:none">
+            <img id="photoPreview" class="photo-preview">
+            <button type="button" class="pin-btn" id="photoRemove">Xóa ảnh</button>
+          </div>
+          <canvas id="photoCanvas" style="display:none"></canvas>
+        </div>
+
+        <button class="submit-btn" id="submitBtn" disabled>Gửi ghi nhận sự cố</button>
+        <div class="toast" id="toast">Đã ghi nhận sự cố thành công.</div>
+      </div>
+    </section>
+
+    <!-- DANH SACH VIEW -->
+    <section class="view" id="view-list">
+      <div class="src-tabs" id="srcTabs">
+        <button data-v="manual" class="on">📝 Sự cố ghi nhận <span class="cnt" id="cntManual">0</span></button>
+        <button data-v="scp">🖥️ Sự cố tủ SCP <span class="cnt" id="cntScp">0</span></button>
+      </div>
+      <div class="scp-sum" id="scpSum" style="display:none"></div>
+      <div class="list-head">
+        <div class="filters" id="statusFilters"></div>
+        <button class="export-btn" id="scpBtn" style="display:none">🔄 SCP</button>
+        <button class="export-btn" id="exportBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          Excel
+        </button>
+      </div>
+      <div id="incList"></div>
+    </section>
+
+    <!-- BAN DO VIEW -->
+    <section class="view" id="view-map">
+      <div class="seg map-mode" id="mapModeSeg">
+        <button data-v="gmm" class="mid on">Google My Maps</button>
+        <button data-v="svg" class="low">Sơ đồ nhanh</button>
+      </div>
+      <div class="locate-bar">
+        <button class="locate-btn" id="locateBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="7.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3"/></svg>
+          <span>Vị trí của tôi</span>
+        </button>
+        <span class="locate-info" id="locateInfo">Bấm để định vị và xem các tủ gần bạn nhất</span>
+      </div>
+      <div id="nearPanel" class="near-panel" style="display:none"></div>
+      <div id="gmmPane">
+        <div class="map-hint">Bấm biểu tượng ☰ góc trái trên bản đồ để tắt/mở lớp từng quận. Chạm vào điểm tủ để xem thông tin.</div>
+        <div class="gmm-wrap" id="gmmWrap"></div>
+        <a class="pin-link" id="gmmOpen" href="#" target="_blank" rel="noopener" style="margin-top:10px;display:none">↗ Mở toàn màn hình trong Google Maps</a>
+      </div>
+      <div id="svgPane" style="display:none">
+      <div class="map-hint">Chạm chip quận để tắt/mở lớp tủ trên bản đồ. Chạm 1 chấm để xem thông tin tủ.</div>
+      <div class="chips" id="mapLayers"></div>
+      <div class="map-wrap">
+        <svg id="mapSvg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+      </div>
+      <div class="map-popup" id="mapPopup" style="display:none">
+        <button class="mclose" id="mapPopupClose" aria-label="Đóng">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+        <div class="name" id="mpName"></div>
+        <div class="code mono" id="mpCode"></div>
+        <div class="details" id="mpMeta"></div>
+        <a href="#" target="_blank" rel="noopener" class="gps-btn" id="mpMapsLink" style="margin-top:10px;text-decoration:none">Mở trên Google Maps</a>
+      </div>
+    </section>
+  </main>
+
+  <nav>
+    <button class="active" id="tabNew">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+      Ghi nhận mới
+    </button>
+    <button id="tabList">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+      Danh sách sự cố
+    </button>
+    <button id="tabMap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20l-6-2.5V5l6 2.5M9 20l6-2.5M9 20V4.5M15 17.5l6 2.5V5l-6-2.5M15 17.5V2.5M9 4.5L15 2.5"/></svg>
+      Bản đồ
+    </button>
+  </nav>
+
+  <div class="modal-scrim" id="helpScrim">
+    <div class="modal-sheet">
+      <div class="mtop">
+        <h2>Hướng dẫn sử dụng</h2>
+        <button class="mclose" id="helpClose" aria-label="Đóng">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+
+      <div class="guide-step">
+        <div class="num">1</div>
+        <div class="txt"><h3>Chọn tủ điều khiển</h3>
+          <p>Ở tab "Ghi nhận mới", gõ mã tủ (VD: T020.10) hoặc tên tuyến đường vào ô tìm kiếm, hoặc bấm chip quận để lọc nhanh. Chạm vào tủ cần báo cáo trong danh sách.</p></div>
+      </div>
+      <div class="guide-step">
+        <div class="num">2</div>
+        <div class="txt"><h3>Điền thông tin sự cố</h3>
+          <p>Kiểm tra thẻ tủ đã chọn (mã, PE, quận, loại thiết bị), sau đó nhập ngày ghi nhận, mô tả sự cố, chọn mức độ (Thấp / Trung bình / Cao) và tên người báo cáo.</p></div>
+      </div>
+      <div class="guide-step">
+        <div class="num">3</div>
+        <div class="txt"><h3>Lấy tọa độ GPS tại chỗ</h3>
+          <p>Bấm "Lấy vị trí hiện tại" khi đang đứng tại tủ để ghi lại tọa độ thực tế (cho phép ứng dụng truy cập vị trí khi được hỏi). Đây là bước tùy chọn.</p></div>
+      </div>
+      <div class="guide-step">
+        <div class="num">4</div>
+        <div class="txt"><h3>Gửi ghi nhận</h3>
+          <p>Bấm "Gửi ghi nhận sự cố". Sự cố sẽ xuất hiện ngay trong tab "Danh sách sự cố" cho mọi người có tài khoản cùng xem.</p></div>
+      </div>
+      <div class="guide-step">
+        <div class="num">5</div>
+        <div class="txt"><h3>Theo dõi, cập nhật &amp; xuất Excel</h3>
+          <p>Sang tab "Danh sách sự cố": quản trị viên chạm vào nhãn trạng thái để chuyển Mới ghi nhận → Đang xử lý → Đã xử lý; người ghi nhận chạm "Cập nhật tọa độ tại chỗ" để bổ sung GPS cho sự cố của mình; bấm nút "Excel" để tải danh sách đang lọc ra file .xlsx.</p></div>
+      </div>
+      <div class="guide-step">
+        <div class="num">6</div>
+        <div class="txt"><h3>Xem bản đồ tủ theo quận</h3>
+          <p>Tab "Bản đồ" có 2 chế độ: "Google My Maps" (bản đồ đường phố thật, bấm ☰ để tắt/mở lớp từng quận, chạm điểm tủ xem thông tin) và "Sơ đồ nhanh" (chấm màu theo quận, dùng được cả khi mạng yếu). Nút xanh "Vị trí của tôi" định vị bạn, đưa bản đồ về chỗ bạn đứng và liệt kê 5 tủ gần nhất kèm nút Chỉ đường / Ghi sự cố.</p></div>
+      </div>
+      <div class="guide-note">
+        Lưu ý: dữ liệu lưu tập trung trên Google Sheets và tự làm mới mỗi phút. Ảnh hiện trường được lưu vào Google Drive của đơn vị.
+      </div>
+    </div>
+  </div>
+  <div class="modal-scrim" id="installScrim">
+    <div class="modal-sheet">
+      <div class="mtop">
+        <h2>Cài app vào điện thoại</h2>
+        <button class="mclose" id="installClose" aria-label="Đóng">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <div class="guide-h">iPhone (Safari)</div>
+      <ol class="guide-list">
+        <li>Mở link app bằng Safari.</li>
+        <li>Bấm nút Chia sẻ (ô vuông có mũi tên lên).</li>
+        <li>Chọn "Thêm vào MH chính" → đặt tên "Sự cố TĐK" → Thêm.</li>
+      </ol>
+      <div class="guide-h">Android (Chrome)</div>
+      <ol class="guide-list">
+        <li>Mở link app bằng Chrome.</li>
+        <li>Bấm menu ⋮ góc phải trên.</li>
+        <li>Chọn "Thêm vào màn hình chính" (hoặc "Cài đặt ứng dụng") → Thêm.</li>
+      </ol>
+      <div class="guide-note">Biểu tượng app sẽ xuất hiện trên màn hình chính như một ứng dụng. Đăng nhập bằng tài khoản do quản trị viên cấp; tick "Ghi nhớ đăng nhập" để không phải nhập lại.</div>
+    </div>
+  </div>
+  <div class="modal-scrim" id="scpScrim">
+    <div class="modal-sheet">
+      <div class="mtop">
+        <h2>Đồng bộ lỗi từ SCP</h2>
+        <button class="mclose" id="scpClose" aria-label="Đóng">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <div class="guide-note">Mở <b>smarthcm.city</b> → danh sách tủ đang báo lỗi → bôi đen toàn bộ bảng (Ctrl+A) → Ctrl+C → dán vào ô dưới. Hoặc chọn file Excel/CSV xuất từ SCP. App tự nhận tủ theo tên/mã PE, đọc cột Sự cố và bỏ qua các dòng đã có thời gian xử lý.</div>
+      <div class="field" style="margin-top:12px"><textarea id="scpText" placeholder="Dán danh sách tủ lỗi từ SCP vào đây…" style="min-height:120px"></textarea></div>
+      <div class="field"><input type="file" id="scpFile" accept=".xlsx,.xls,.csv,.txt"></div>
+      <div class="gps-result" id="scpPreview" style="white-space:pre-line"></div>
+      <label class="au-active"><input type="checkbox" id="scpBaseline"> Lần đầu – chỉ ghi nhận làm mốc, <b>không gửi thông báo</b> (các lỗi tồn đọng hiện có)</label>
+      <button class="submit-btn" id="scpSync" disabled>Đồng bộ</button>
+      <div id="scpResult" class="scp-result"></div>
+
+      <div class="guide-h">Nơi nhận thông báo</div>
+      <div class="field"><input type="text" id="ntEmails" placeholder="Email nhận báo cáo, cách nhau dấu phẩy"></div>
+      <div class="field"><input type="text" id="ntTgToken" placeholder="Telegram Bot Token (tùy chọn)"></div>
+      <div class="field"><input type="text" id="ntTgChat" placeholder="Telegram Chat ID (tùy chọn)"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="gps-btn" id="ntSave">Lưu cài đặt</button>
+        <button class="gps-btn" id="ntTest">Gửi thử</button>
+      </div>
+      <div class="gps-result" id="ntMsg"></div>
+    </div>
+  </div>
+  <div class="modal-scrim" id="accountScrim">
+    <div class="modal-sheet">
+      <div class="mtop">
+        <h2>Tài khoản</h2>
+        <button class="mclose" id="accountClose" aria-label="Đóng">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <div class="guide-note" id="acctInfo"></div>
+      <div class="guide-h">Đổi mật khẩu</div>
+      <div class="field"><input type="password" id="pwOld" placeholder="Mật khẩu hiện tại" autocomplete="current-password"></div>
+      <div class="field"><input type="password" id="pwNew" placeholder="Mật khẩu mới (tối thiểu 6 ký tự)" autocomplete="new-password"></div>
+      <button class="gps-btn" id="pwSave">Lưu mật khẩu mới</button>
+      <div class="gps-result" id="pwMsg"></div>
+      <div id="adminPanel" style="display:none">
+        <div class="guide-h">Quản lý tài khoản &amp; phân quyền</div>
+        <div class="field"><input type="text" id="auUser" placeholder="Tên đăng nhập (vd: cuong.px)" autocapitalize="off"></div>
+        <div class="field"><input type="text" id="auName" placeholder="Họ tên đầy đủ"></div>
+        <div class="field"><input type="password" id="auPass" placeholder="Mật khẩu (bắt buộc khi tạo mới)" autocomplete="new-password"></div>
+        <div class="seg" id="auRoleSeg">
+          <button data-v="user" class="mid on">Ghi nhận</button>
+          <button data-v="viewer" class="low">Chỉ xem</button>
+          <button data-v="admin" class="high">Quản trị</button>
+        </div>
+        <label class="au-active"><input type="checkbox" id="auActive" checked> Đang hoạt động (bỏ chọn để khóa)</label>
+        <button class="gps-btn" id="auSave">Lưu tài khoản</button>
+        <div class="gps-result" id="auMsg"></div>
+        <div id="userList" style="margin-top:14px"></div>
+      </div>
+      <button class="submit-btn" id="logoutBtn" style="margin-top:20px;background:var(--high);color:#fff">Đăng xuất</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="config.js"></script>
+<script src="cabinets.js"></script>
+<script>
+const STATUS = ["Mới ghi nhận","Đang xử lý","Đã xử lý"];
+
+let SESSION=null;
+let selectedCabinet=null, activeQuan="Tất cả", activeStatus="Tất cả", mucDo="Trung bình", activeQL="";
+let capturedGPS=null; // {lat,lng,acc}
+let capturedPhoto=null; // dataURL string
+let incidents=[]; // {id, cabinetCode, cabinetName, pe, quan, moTa, mucDo, nguoiGhiNhan, ngay, trangThai, createdAt}
+let localMode=false;
+
+const $ = s=>document.querySelector(s);
+const todayISO = ()=> new Date().toISOString().slice(0,10);
+
+/* ---------- quận chips (header) ---------- */
+function renderQuanChips(){
+  const wrap = $("#quanChips"); wrap.innerHTML="";
+  QUANS.forEach(q=>{
+    const b=document.createElement("button");
+    b.className="chip"+(q===activeQuan?" active":"");
+    b.textContent = q==="Tất cả" ? q : q.replace("Quận ","");
+    b.onclick=()=>{activeQuan=q; renderQuanChips(); renderCabList(); renderIncList();};
+    wrap.appendChild(b);
+  });
+}
+
+/* ---------- pick-cabinet step ---------- */
+function populateQLFilter(){
+  const sel = $("#qlFilter");
+  sel.innerHTML = '<option value="">Tất cả người quản lý</option>' +
+    MANAGERS.map(m=>`<option value="${m}">${m}</option>`).join("");
+  sel.onchange = ()=>{ activeQL=sel.value; renderCabList(); };
+}
+
+/* ---------- tìm kiếm thông minh: không dấu, nhiều từ, gợi ý ---------- */
+function vnNorm(s){
+  return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").normalize("NFC");
+}
+function vnNormChars(s){ // chuẩn hóa từng ký tự, giữ nguyên độ dài để tô đậm đúng vị trí
+  return Array.from(String(s||"").normalize("NFC")).map(ch=>{ const n=vnNorm(ch); return n.length===1?n:ch.toLowerCase(); }).join("");
+}
+function escHtml(s){ return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])); }
+function prepCab(c){
+  if(c._s!==undefined) return;
+  c._n = vnNorm(c.n);
+  c._s = vnNorm([c.pe,c.n,c.duong,c.diaChi,c.phuong,c.q,c.ql,(c.lt||[]).map(l=>l[0]).join(" ")].join(" | "));
+}
+function highlight(text, tokens){
+  const chars = Array.from(String(text||"").normalize("NFC"));
+  if(!tokens.length) return escHtml(chars.join(""));
+  const low = vnNormChars(chars.join(""));
+  const mark = new Array(chars.length).fill(false);
+  tokens.forEach(t=>{
+    let i = low.indexOf(t);
+    while(i>=0){ for(let k=i;k<i+t.length && k<mark.length;k++) mark[k]=true; i = low.indexOf(t, i+t.length); }
+  });
+  let out="", on=false;
+  chars.forEach((ch,i)=>{
+    if(mark[i] && !on){ out+="<mark>"; on=true; }
+    if(!mark[i] && on){ out+="</mark>"; on=false; }
+    out+=escHtml(ch);
+  });
+  if(on) out+="</mark>";
+  return out;
+}
+function searchCabinets(term, useFilters){
+  const full = vnNorm(term).trim();
+  const tokens = full.split(/\s+/).filter(Boolean);
+  const res = [];
+  for(const c of CABINETS){
+    if(useFilters){
+      if(activeQuan!=="Tất cả" && c.q!==activeQuan) continue;
+      if(activeQL && c.ql!==activeQL) continue;
+    }
+    if(!tokens.length){ res.push({c, score:9}); continue; }
+    prepCab(c);
+    if(!tokens.every(t=>c._s.includes(t))) continue;
+    let score = 5;
+    if(c._n.startsWith(full)) score = 0;
+    else if(c._n.includes(full)) score = 1;
+    else if(tokens.every(t=>c._n.includes(t))) score = 2;
+    else if(vnNorm(c.pe).includes(full)) score = 3;
+    res.push({c, score});
+  }
+  if(tokens.length) res.sort((a,b)=> a.score-b.score || a.c.n.localeCompare(b.c.n,"vi",{numeric:true}));
+  return {list: res.map(r=>r.c), tokens};
+}
+function renderCabList(){
+  const term = $("#searchInput").value;
+  const {list, tokens} = searchCabinets(term, true);
+  const el = $("#cabList");
+  el.innerHTML="";
+  const filtered = (activeQuan!=="Tất cả" || !!activeQL);
+  if(tokens.length){
+    const info=document.createElement("div"); info.className="search-info";
+    info.textContent = list.length ? `Tìm thấy ${list.length} tủ${list.length>60?" (hiện 60 kết quả đầu, gõ thêm để thu hẹp)":""}` : "";
+    if(list.length) el.appendChild(info);
+  }
+  if(list.length===0){
+    const empty=document.createElement("div"); empty.className="empty";
+    empty.textContent = tokens.length ? "Không tìm thấy tủ phù hợp." : "Không có tủ trong bộ lọc này.";
+    el.appendChild(empty);
+  }
+  if(filtered && tokens.length){
+    const all = searchCabinets(term, false).list;
+    const hidden = all.length - list.length;
+    if(hidden>0){
+      const b=document.createElement("button"); b.className="unfilter-btn";
+      b.textContent = `Có thêm ${hidden} tủ khớp ở quận / người quản lý khác — Bỏ lọc để xem`;
+      b.onclick=()=>{ activeQuan="Tất cả"; activeQL=""; $("#qlFilter").value=""; renderQuanChips(); renderCabList(); };
+      el.appendChild(b);
+    }
+  }
+  list.slice(0,60).forEach(c=>{
+    const d=document.createElement("div"); d.className="cab-card";
+    d.innerHTML = `<div><div class="name">${highlight(c.n,tokens)}</div><div class="meta">${escHtml(c.q)} · ${highlight(c.duong || c.diaChi,tokens)} · 👤 ${highlight(c.ql||"—",tokens)}</div></div><div class="code mono">${String(c.pe).startsWith("CHUA-PE") ? "Chưa có PE" : highlight(c.pe,tokens)}</div>`;
+    if(selectedCabinet && selectedCabinet.pe===c.pe && selectedCabinet.n===c.n) d.classList.add("sel");
+    d.onclick=()=>{ selectCabinet(c); el.querySelectorAll(".cab-card.sel").forEach(x=>x.classList.remove("sel")); d.classList.add("sel"); };
+    el.appendChild(d);
+  });
+}
+
+function selectCabinet(c){
+  selectedCabinet=c;
+  $("#pickStep").style.display="none";
+  $("#formStep").style.display="block";
+  $("#selName").textContent=c.n;
+  $("#selCode").textContent = peLabel(c);
+  $("#selQuan").textContent=c.q;
+  $("#selDuong").textContent=c.duong || c.diaChi || "";
+  $("#selDai").textContent= c.dai!=null ? c.dai+"m tuyến" : "";
+  $("#selDen").textContent= c.den!=null ? c.den+" đèn" : "";
+  $("#selLoaiTu").textContent=c.loaiTu || "";
+  $("#selQL").textContent=c.ql || "Chưa rõ";
+  $("#selDuyTri").textContent = [c.duyTri || c.loaiTram || "", c.ghiChu||""].filter(Boolean).join(" · ");
+  renderLyTrinh(c);
+  const mlink = $("#selMapsLink");
+  if(c.lat!=null && c.lng!=null){ mlink.href = mapsLink(c.lat,c.lng); mlink.style.display="inline-flex"; }
+  else{ mlink.style.display="none"; }
+  $("#ngay").value=todayISO();
+  const savedName = localStorage.getItem("gnsc_nguoi_ghi_nhan");
+  $("#nguoiGhiNhan").value = savedName || viewerName || "";
+  capturedGPS=null; $("#gpsResult").innerHTML="";
+  clearPhoto();
+  updateSubmitState();
+}
+
+function mapsLink(lat,lng){ return "https://www.google.com/maps?q="+lat+","+lng; }
+
+function captureGPS(onDone){
+  if(!navigator.geolocation){
+    onDone(null, "Thiết bị không hỗ trợ định vị GPS.");
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      const g = {lat:+pos.coords.latitude.toFixed(6), lng:+pos.coords.longitude.toFixed(6), acc: Math.round(pos.coords.accuracy||0)};
+      onDone(g, null);
+    },
+    err=>{
+      const msg = err.code===1 ? "Bạn chưa cho phép truy cập vị trí." : "Không lấy được vị trí, thử lại.";
+      onDone(null, msg);
+    },
+    {enableHighAccuracy:true, timeout:12000, maximumAge:0}
+  );
+}
+
+$("#gpsBtn").onclick=()=>{
+  $("#gpsBtn").disabled=true; $("#gpsBtn").querySelector("svg").style.display="none";
+  $("#gpsResult").textContent="Đang lấy vị trí…";
+  captureGPS((g, err)=>{
+    $("#gpsBtn").disabled=false; $("#gpsBtn").querySelector("svg").style.display="";
+    if(err){ $("#gpsResult").textContent=err; return; }
+    capturedGPS=g;
+    $("#gpsResult").innerHTML = `Đã lấy: <a href="${mapsLink(g.lat,g.lng)}" target="_blank" rel="noopener">${g.lat}, ${g.lng}</a> (±${g.acc}m)`;
+  });
+};
+
+/* ---------- chụp ảnh hiện trường có định vị GPS ---------- */
+function fmtTimestamp(d){
+  const p2=n=>String(n).padStart(2,"0");
+  return `${p2(d.getHours())}:${p2(d.getMinutes())}:${p2(d.getSeconds())} ${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()}`;
+}
+
+function drawWatermark(ctx, w, h, lines){
+  const pad=14, lh=Math.max(16, Math.round(w*0.032));
+  ctx.font = lh+"px Arial"; ctx.textBaseline="bottom";
+  const blockH = lines.length*lh*1.25 + pad*1.6;
+  const grad = ctx.createLinearGradient(0, h-blockH, 0, h);
+  grad.addColorStop(0,"rgba(0,0,0,0)"); grad.addColorStop(1,"rgba(0,0,0,.62)");
+  ctx.fillStyle = grad; ctx.fillRect(0, h-blockH, w, blockH);
+  ctx.fillStyle="#6BFF7A";
+  lines.slice().reverse().forEach((line,i)=>{
+    ctx.fillText(line, pad, h - pad - i*lh*1.25);
+  });
+}
+
+function compressCanvasToLimit(canvas, maxBytes){
+  let quality=0.72;
+  let url = canvas.toDataURL("image/jpeg", quality);
+  while(url.length*0.75 > maxBytes && quality>0.25){
+    quality -= 0.12;
+    url = canvas.toDataURL("image/jpeg", quality);
+  }
+  return url;
+}
+
+function setPhoto(dataUrl){
+  capturedPhoto = dataUrl;
+  $("#photoPreview").src = dataUrl;
+  $("#photoPreviewWrap").style.display="flex";
+  $("#photoBtn").style.display="none";
+}
+function clearPhoto(){
+  capturedPhoto=null;
+  $("#photoPreviewWrap").style.display="none";
+  $("#photoBtn").style.display="";
+  $("#photoInput").value="";
+}
+$("#photoRemove").onclick=clearPhoto;
+$("#photoBtn").onclick=()=> $("#photoInput").click();
+
+$("#photoInput").addEventListener("change", (e)=>{
+  const file = e.target.files && e.target.files[0];
+  if(!file) return;
+  $("#photoBtn").disabled=true; $("#photoBtn").textContent="Đang xử lý ảnh…";
+
+  const finish=()=>{ $("#photoBtn").disabled=false; $("#photoBtn").textContent="Chụp ảnh hiện trường"; };
+
+  const useGps = (g)=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const maxW = 1280;
+      const scale = Math.min(1, maxW/img.width);
+      const w = Math.round(img.width*scale), h = Math.round(img.height*scale);
+      const canvas = $("#photoCanvas"); canvas.width=w; canvas.height=h;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, w, h);
+      const lines = [fmtTimestamp(new Date())];
+      if(selectedCabinet){ lines.push(selectedCabinet.n+" · "+selectedCabinet.q); lines.push(selectedCabinet.duong || selectedCabinet.diaChi || ""); }
+      if(g) lines.push(`GPS: ${g.lat}, ${g.lng} (±${g.acc}m)`);
+      drawWatermark(ctx, w, h, lines.filter(Boolean));
+      const dataUrl = compressCanvasToLimit(canvas, 140000);
+      setPhoto(dataUrl);
+      finish();
+    };
+    img.onerror = ()=>{ alert("Không đọc được ảnh, thử lại."); finish(); };
+    img.src = URL.createObjectURL(file);
+  };
+
+  if(capturedGPS){ useGps(capturedGPS); }
+  else{
+    captureGPS((g, err)=>{
+      if(g){ capturedGPS=g; $("#gpsResult").innerHTML = `Đã lấy: <a href="${mapsLink(g.lat,g.lng)}" target="_blank" rel="noopener">${g.lat}, ${g.lng}</a> (±${g.acc}m)`; }
+      useGps(g);
+    });
+  }
+});
+
+$("#changeCab").onclick=()=>{ $("#formStep").style.display="none"; $("#pickStep").style.display="block"; };
+$("#searchInput").addEventListener("input", renderCabList);
+
+/* mức độ segmented control */
+$("#mucDoSeg").querySelectorAll("button").forEach(btn=>{
+  btn.onclick=()=>{
+    mucDo=btn.dataset.v;
+    $("#mucDoSeg").querySelectorAll("button").forEach(b=>b.classList.remove("on"));
+    btn.classList.add("on");
+  };
+});
+
+function updateSubmitState(){
+  $("#submitBtn").disabled = !canWrite || !(selectedCabinet && $("#moTa").value.trim().length>2);
+}
+$("#moTa").addEventListener("input", updateSubmitState);
+
+$("#submitBtn").onclick=async ()=>{
+  if(!selectedCabinet) return;
+  const nguoi = $("#nguoiGhiNhan").value.trim() || "Chưa rõ";
+  localStorage.setItem("gnsc_nguoi_ghi_nhan", nguoi);
+  const record = {
+    cabinetPE: selectedCabinet.pe, cabinetName: selectedCabinet.n, quan: selectedCabinet.q,
+    duong: selectedCabinet.duong, nguoiQuanLy: selectedCabinet.ql, duyTri: selectedCabinet.duyTri,
+    moTa: $("#moTa").value.trim(), mucDo, nguoiGhiNhan: nguoi, ngay: $("#ngay").value || todayISO(),
+    trangThai: STATUS[0], createdAt: Date.now(),
+    gpsLat: capturedGPS ? capturedGPS.lat : null, gpsLng: capturedGPS ? capturedGPS.lng : null, gpsAcc: capturedGPS ? capturedGPS.acc : null,
+    anhHienTruong: capturedPhoto || null,
+    lyTrinh: lyTrinhValue(),
+    tuLat: selectedCabinet.lat!=null ? selectedCabinet.lat : null, tuLng: selectedCabinet.lng!=null ? selectedCabinet.lng : null
+  };
+  $("#submitBtn").disabled=true; $("#submitBtn").textContent="Đang gửi…";
+  const okSaved = await saveIncident(record);
+  if(!okSaved){ $("#submitBtn").textContent="Gửi ghi nhận sự cố"; updateSubmitState(); return; }
+  $("#submitBtn").textContent="Gửi ghi nhận sự cố";
+  $("#moTa").value="";
+  capturedGPS=null; $("#gpsResult").innerHTML="";
+  clearPhoto();
+  renderLyTrinh(selectedCabinet);
+  mucDo="Trung bình";
+  $("#mucDoSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on", b.dataset.v==="Trung bình"));
+  const t=$("#toast"); t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2600);
+  updateSubmitState();
+};
+
+async function saveIncident(record){
+  const r = await api("addIncident",{record});
+  if(!r.ok){ alert("Không gửi được: "+(r.error||"lỗi máy chủ")); return false; }
+  await loadIncidents();
+  return true;
+}
+
+/* ---------- danh sách view ---------- */
+function renderStatusFilters(){
+  const opts = ["Tất cả", ...STATUS];
+  const wrap = $("#statusFilters"); wrap.innerHTML="";
+  opts.forEach(s=>{
+    const b=document.createElement("button");
+    b.className="chip"+(s===activeStatus?" active":"");
+    b.textContent=s;
+    b.onclick=()=>{activeStatus=s; renderStatusFilters(); renderIncList();};
+    wrap.appendChild(b);
+  });
+}
+
+function levelClass(m){ return m==="Cao"?"level-high":(m==="Thấp"?"level-low":"level-mid"); }
+function statusClass(s){ return "st-"+STATUS.indexOf(s); }
+
+let activeSource = (function(){ try{ return localStorage.getItem("gnsc_src")||"manual"; }catch(e){ return "manual"; } })();
+function isScp(i){ return i.nguon==="SCP"; }
+function isLoiScp(i){ const t=(i.loiSCP||"")+" "+(i.moTa||""); return /cúp điện|mất điện|mất nguồn|cháy|chập|hỏng|\bPLC\b|\bPW\b|\bPM\b/i.test(t) || (/SCP – Lỗi/.test(i.moTa||"") && !/4G|DATA|kết nối/i.test(t)); }
+const SCP_CODES=["PLC","PW","PM","4G","DATA"];
+const SCP_CODE_NAME={PLC:"Bộ điều khiển PLC",PW:"Nguồn điện",PM:"Đồng hồ đo điện (PM)","4G":"Kết nối 4G",DATA:"Truyền dữ liệu"};
+function scpParts(i){
+  const raw = String(i.loiSCP||"") || String(i.moTa||"").replace(/^SCP\s*–\s*[^:]*:?\s*/,"");
+  const codes = SCP_CODES.filter(c=>new RegExp("\\b"+c+"\\b","i").test(raw));
+  const tu = (raw.match(/\(từ ([^)]+)\)/)||[])[1]||"";
+  let text = raw.replace(/\(từ [^)]+\)/,"");
+  SCP_CODES.forEach(c=>{ text = text.replace(new RegExp("\\b"+c+"\\b","gi"),""); });
+  text = text.replace(/[;,\s]+/g," ").replace(/^[\s;,-]+|[\s;,-]+$/g,"").trim();
+  return {codes, text, tu};
+}
+function scpFaultHtml(i){
+  const {codes,text,tu}=scpParts(i);
+  const chips = codes.map(c=>`<span class="code-chip c-${c}" title="${SCP_CODE_NAME[c]}">${c}</span>`).join("");
+  let html = `<div class="scp-fault">`;
+  if(codes.length) html += `<div class="scp-codes"><span class="lbl">Lỗi SCP:</span>${chips}</div>`;
+  if(text) html += `<div class="desc">${escapeHtml(text)}</div>`;
+  if(!codes.length && !text) html += `<div class="desc" style="color:var(--text-2)">Chưa có chi tiết lỗi – sẽ cập nhật ở lần đồng bộ sau</div>`;
+  if(tu) html += `<div class="who">⏱ Bắt đầu: ${escapeHtml(tu)}</div>`;
+  return html + `</div>`;
+}
+function filteredIncidents(){
+  return incidents.filter(i=>{
+    if((activeSource==="scp") !== isScp(i)) return false;
+    if(activeQuan!=="Tất cả" && i.quan!==activeQuan) return false;
+    if(activeStatus!=="Tất cả" && i.trangThai!==activeStatus) return false;
+    return true;
+  });
+}
+function renderSourceTabs(){
+  const inQ = i => activeQuan==="Tất cả" || i.quan===activeQuan;
+  const open = i => i.trangThai!=="Đã xử lý";
+  $("#cntManual").textContent = incidents.filter(i=>!isScp(i)&&inQ(i)&&open(i)).length;
+  $("#cntScp").textContent = incidents.filter(i=>isScp(i)&&inQ(i)&&open(i)).length;
+  $("#srcTabs").querySelectorAll("button").forEach(b=>b.classList.toggle("on", b.dataset.v===activeSource));
+  const sum=$("#scpSum");
+  if(activeSource==="scp"){
+    const s=incidents.filter(i=>isScp(i)&&inQ(i)&&open(i));
+    const loi=s.filter(isLoiScp).length;
+    sum.innerHTML = `<span>Đang tồn: ${s.length}</span><span style="color:var(--high)">🔴 Lỗi: ${loi}</span><span style="color:#E8710A">🟠 Mất kết nối: ${s.length-loi}</span>`;
+    sum.style.display="flex";
+  } else sum.style.display="none";
+}
+$("#srcTabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{ activeSource=b.dataset.v; try{localStorage.setItem("gnsc_src",activeSource);}catch(e){} renderIncList(); });
+function renderIncList(){
+  renderSourceTabs();
+  let list = filteredIncidents();
+  list = list.slice().sort((a,b)=>b.createdAt-a.createdAt);
+  const el = $("#incList");
+  if(list.length===0){ el.innerHTML = activeSource==="scp" ? '<div class="empty">Không có sự cố tủ SCP trong bộ lọc này.</div>' : '<div class="empty">Chưa có sự cố nào được ghi nhận.<br>Chuyển sang tab "Ghi nhận mới" để thêm.</div>'; return; }
+  el.innerHTML="";
+  list.forEach(i=>{
+    const card=document.createElement("div"); card.className="inc-card"+(isScp(i)?(" scp"+(isLoiScp(i)?" loi":"")):"");
+    card.innerHTML = `
+      <div class="row1">
+        <div><div class="name">${i.cabinetName}</div><div class="code mono">${i.cabinetPE || i.pe || i.cabinetCode || ""} · ${i.quan}</div></div>
+        <span class="badge ${levelClass(i.mucDo)}">${i.mucDo}</span>
+      </div>
+      ${isScp(i) ? scpFaultHtml(i) : `<div class="desc">${escapeHtml(i.moTa)}</div>`}
+      ${i.lyTrinh ? `<div class="inc-lt">🛣️ Lý trình: ${escapeHtml(i.lyTrinh)}</div>` : ""}
+      ${i.nguon==="SCP" ? `<div class="scp-tag">${["Nguồn SCP", i.trangThai!=="Đã xử lý" ? "tồn "+tonDong(i) : ""].filter(Boolean).join(" · ")}</div>` : ""}
+      ${i.ghiChuXuLy ? `<div class="who" style="margin-top:4px">📝 ${escapeHtml(i.ghiChuXuLy)}</div>` : ""}
+      <div class="who" style="margin-top:6px">👤 Quản lý tuyến: ${escapeHtml(i.nguoiQuanLy||"—")}</div>
+      ${i.anhHienTruong ? `<img class="inc-photo" src="${i.anhHienTruong}" data-full="${i.anhHienTruong}">` : ""}
+      <div class="row2">
+        <span class="who">${escapeHtml(i.nguoiGhiNhan)} · ${i.ngay}</span>
+        <button class="badge status-btn ${statusClass(i.trangThai)}" data-id="${i.id}" ${isAdmin()?'':'disabled style="cursor:default"'}>${i.trangThai}</button>
+      </div>
+      <div class="row2" style="margin-top:7px">
+        ${isScp(i) ? ((i.tuLat!=null && i.tuLat!=="") ? `<a class="pin-link" href="${mapsLink(i.tuLat,i.tuLng)}" target="_blank" rel="noopener">📍 Vị trí tủ</a><span></span>` : `<span></span>`) : i.gpsLat!=null
+          ? `<a class="pin-link" href="${mapsLink(i.gpsLat,i.gpsLng)}" target="_blank" rel="noopener">📍 ${i.gpsLat}, ${i.gpsLng}</a>${canEditInc(i)?`<button class="pin-btn" data-pin="${i.id}">Cập nhật lại</button>`:""}`
+          : (canEditInc(i) ? `<span></span><button class="pin-btn" data-pin="${i.id}">📍 Cập nhật tọa độ tại chỗ</button>` : `<span></span>`)}
+      </div>`;
+    card.querySelector(".status-btn").onclick=(ev)=>cycleStatus(i, ev.currentTarget);
+    const pinB=card.querySelector(".pin-btn"); if(pinB) pinB.onclick=(ev)=>updateIncidentGPS(i, ev.currentTarget);
+    const photoEl = card.querySelector(".inc-photo");
+    if(photoEl) photoEl.onclick=()=>window.open(photoEl.dataset.full, "_blank");
+    el.appendChild(card);
+  });
+}
+
+function escapeHtml(s){ const d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
+
+function isAdmin(){ return !!(SESSION && SESSION.user && SESSION.user.role==="admin"); }
+function canEditInc(i){ return isAdmin() || (canWrite && SESSION && i.nguoiTao===SESSION.user.username); }
+async function cycleStatus(i, btn){
+  if(!isAdmin()){ return; }
+  const next = STATUS[(STATUS.indexOf(i.trangThai)+1) % STATUS.length];
+  const prev = i.trangThai;
+  i.trangThai = next;
+  btn.textContent = next;
+  btn.className = "badge status-btn "+statusClass(next);
+  const r = await api("updateIncident",{id:i.id, patch:{trangThai:next}});
+  if(!r.ok){ i.trangThai=prev; btn.textContent=prev; btn.className="badge status-btn "+statusClass(prev); alert(r.error||"Không cập nhật được"); }
+}
+
+async function updateIncidentGPS(i, btn){
+  if(!canWrite){ alert("Bạn chỉ có quyền xem."); return; }
+  const orig = btn.textContent;
+  btn.textContent="Đang lấy vị trí…"; btn.disabled=true;
+  captureGPS(async (g, err)=>{
+    btn.disabled=false;
+    if(err){ btn.textContent=orig; alert(err); return; }
+    i.gpsLat=g.lat; i.gpsLng=g.lng; i.gpsAcc=g.acc;
+    const r = await api("updateIncident",{id:i.id, patch:{gpsLat:g.lat, gpsLng:g.lng, gpsAcc:g.acc}});
+    if(!r.ok) alert(r.error||"Không cập nhật được tọa độ");
+    renderIncList();
+  });
+}
+
+/* ---------- xuất Excel ---------- */
+async function exportExcel(){
+  const btn = $("#exportBtn");
+  const list = filteredIncidents().slice().sort((a,b)=>b.createdAt-a.createdAt);
+
+  if(list.length===0){ alert("Chưa có sự cố nào để xuất."); return; }
+  if(typeof XLSX==="undefined"){ alert("Không tải được thư viện xuất Excel, thử lại."); return; }
+
+  btn.disabled=true;
+  const header = ["STT","Mã PE","Tên tủ","Đường","Quận","Người quản lý","Ngày ghi nhận","Mô tả sự cố","Mức độ","Người ghi nhận","Trạng thái","Tọa độ GPS","Ảnh hiện trường","Nguồn","Lỗi SCP","Ghi chú xử lý","Lý trình"];
+  const rows = list.map((i,idx)=>[
+    idx+1, (i.cabinetPE||i.pe||i.cabinetCode||""), i.cabinetName, i.duong||"", i.quan, i.nguoiQuanLy||"", i.ngay, i.moTa, i.mucDo, i.nguoiGhiNhan, i.trangThai,
+    i.gpsLat!=null ? (i.gpsLat+", "+i.gpsLng) : "", i.anhHienTruong || "", i.nguon||"Thủ công", i.loiSCP||"", i.ghiChuXuLy||"", i.lyTrinh||""
+  ]);
+  const ws = XLSX.utils.aoa_to_sheet([header, ...rows]);
+  ws["!cols"] = [{wch:5},{wch:16},{wch:24},{wch:20},{wch:16},{wch:18},{wch:12},{wch:40},{wch:12},{wch:18},{wch:16},{wch:20},{wch:18},{wch:10},{wch:16},{wch:40},{wch:36}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Ghi nhan su co");
+  const buf = XLSX.write(wb, {bookType:"xlsx", type:"array"});
+  const blob = new Blob([buf], {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+  const filename = (activeSource==="scp"?"Su_co_tu_SCP_":"Ghi_nhan_su_co_")+todayISO()+".xlsx";
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 4000);
+  btn.disabled=false;
+}
+$("#exportBtn").onclick=exportExcel;
+
+
+/* ---------- lý trình thuộc tủ ---------- */
+function peLabel(c){ return String(c.pe||"").startsWith("CHUA-PE") ? "Chưa có mã PE (mã tủ "+(c.maTu||"?")+")" : c.pe; }
+let selectedLT = new Set();
+function renderLyTrinh(c){
+  selectedLT = new Set();
+  const lt = c.lt || [], box=$("#ltList");
+  $("#ltField").style.display = lt.length ? "" : "none";
+  box.innerHTML="";
+  lt.forEach((l,i)=>{
+    const [ten,ly,dai,den,tru]=l;
+    const row=document.createElement("label"); row.className="lt-item";
+    const cb=document.createElement("input"); cb.type="checkbox";
+    const t=document.createElement("div");
+    const a=document.createElement("div"); a.textContent = ten + (ly ? " · trụ "+ly : "");
+    const b=document.createElement("div"); b.className="lt-sub";
+    b.textContent = [dai!=null&&dai!==""?Math.round(dai)+" m":"", den!=null&&den!==""?den+" đèn":"", tru!=null&&tru!==""?tru+" trụ":""].filter(Boolean).join(" · ");
+    t.appendChild(a); t.appendChild(b); row.appendChild(cb); row.appendChild(t);
+    cb.onchange=()=>{ const key=ten+(ly?" (trụ "+ly+")":""); if(cb.checked) selectedLT.add(key); else selectedLT.delete(key); row.classList.toggle("on",cb.checked); };
+    box.appendChild(row);
+  });
+}
+function lyTrinhValue(){ return selectedLT.size ? [...selectedLT].join("; ") : ((selectedCabinet && (selectedCabinet.lt||[]).length) ? "Cả tủ" : ""); }
+
+/* ---------- toàn màn hình ---------- */
+$("#fsBtn").onclick=()=>{
+  const d=document;
+  if(!d.fullscreenElement){ (d.documentElement.requestFullscreen||d.documentElement.webkitRequestFullscreen||function(){}).call(d.documentElement); }
+  else { (d.exitFullscreen||d.webkitExitFullscreen||function(){}).call(d); }
+};
+
+/* ---------- tabs ---------- */
+function showView(name){
+  $("#view-new").classList.toggle("active", name==="new");
+  $("#view-list").classList.toggle("active", name==="list");
+  $("#view-map").classList.toggle("active", name==="map");
+  $("#tabNew").classList.toggle("active", name==="new");
+  $("#tabList").classList.toggle("active", name==="list");
+  $("#tabMap").classList.toggle("active", name==="map");
+}
+$("#tabNew").onclick=()=>showView("new");
+$("#tabList").onclick=()=>{showView("list"); renderIncList();};
+$("#tabMap").onclick=()=>{showView("map"); initMap();};
+
+/* ---------- bản đồ tủ điều khiển ---------- */
+const QUAN_COLORS = {
+  "Quận 1":"#E2571C","Quận 3":"#2E86AB","Quận 5":"#5B8C5A","Quận 8":"#8E5572",
+  "Quận 10":"#C9A227","Quận 11":"#4C6EF5","Quận Bình Thạnh":"#D64550","Quận Phú Nhuận":"#17A398"
+};
+let mapBuilt=false;
+const activeLayers = new Set(QUANS.filter(q=>q!=="Tất cả"));
+const geoCabinets = CABINETS.filter(c=>c.lat!=null && c.lng!=null);
+
+function projectPoint(lat,lng){
+  const {minLat,maxLat,minLng,maxLng} = MAP_BOUNDS;
+  const x = 30 + (lng-minLng)/(maxLng-minLng)*940;
+  const y = 970 - (lat-minLat)/(maxLat-minLat)*940;
+  return {x,y};
+}
+
+function renderMapLayerChips(){
+  const wrap = $("#mapLayers"); wrap.innerHTML="";
+  QUANS.filter(q=>q!=="Tất cả").forEach(q=>{
+    const on = activeLayers.has(q);
+    const b=document.createElement("button");
+    b.className="chip map-chip"+(on?"":" off");
+    b.innerHTML = `<span class="dot" style="background:${QUAN_COLORS[q]}"></span>${q.replace("Quận ","")}`;
+    b.onclick=()=>{
+      if(activeLayers.has(q)) activeLayers.delete(q); else activeLayers.add(q);
+      const g = $("#mapSvg").querySelector('g[data-q="'+CSS.escape(q)+'"]');
+      if(g) g.style.display = activeLayers.has(q) ? "" : "none";
+      b.classList.toggle("off", !activeLayers.has(q));
+    };
+    wrap.appendChild(b);
+  });
+}
+
+function buildMapSVG(){
+  const svg = $("#mapSvg");
+  const byQuan = {};
+  geoCabinets.forEach((c,i)=>{ (byQuan[c.q] = byQuan[c.q]||[]).push(i); });
+  let html="";
+  Object.keys(byQuan).forEach(q=>{
+    const color = QUAN_COLORS[q] || "#888";
+    html += `<g data-q="${q}">`;
+    byQuan[q].forEach(i=>{
+      const c = geoCabinets[i];
+      const {x,y} = projectPoint(c.lat, c.lng);
+      html += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.6" fill="${color}" fill-opacity="0.82" data-i="${i}"></circle>`;
+    });
+    html += `</g>`;
+  });
+  svg.innerHTML = html;
+  svg.addEventListener("click", (e)=>{
+    if(e.target.tagName!=="circle") return;
+    const i = +e.target.dataset.i;
+    showMapPopup(geoCabinets[i]);
+  });
+}
+
+function showMapPopup(c){
+  $("#mpName").textContent = c.n;
+  $("#mpCode").textContent = peLabel(c);
+  const bits = [c.q, c.duong || c.diaChi, c.dai!=null ? c.dai+"m tuyến" : "", c.ql ? "👤 "+c.ql : ""].filter(Boolean);
+  $("#mpMeta").innerHTML = bits.map(b=>`<span>${b}</span>`).join("");
+  $("#mpMapsLink").href = mapsLink(c.lat, c.lng);
+  $("#mapPopup").style.display="block";
+}
+$("#mapPopupClose").onclick=()=>{ $("#mapPopup").style.display="none"; };
+
+function loadMyMaps(center){
+  const id=myMapsId(); if(!id) return;
+  const w=$("#gmmWrap");
+  let q="mid="+encodeURIComponent(id)+"&ehbc=2E312F";
+  if(center) q+="&ll="+center.lat+"%2C"+center.lng+"&z=17";
+  w.innerHTML='<iframe loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps/d/embed?'+q+'"></iframe>';
+  const a=$("#gmmOpen"); a.href="https://www.google.com/maps/d/viewer?"+q; a.style.display="inline-flex";
+}
+
+/* ---------- vị trí hiện tại & tủ gần nhất ---------- */
+let myPos=null;
+function distM(a,b){
+  const R=6371000, toR=x=>x*Math.PI/180;
+  const dLa=toR(b.lat-a.lat), dLo=toR(b.lng-a.lng);
+  const s=Math.sin(dLa/2)**2+Math.cos(toR(a.lat))*Math.cos(toR(b.lat))*Math.sin(dLo/2)**2;
+  return 2*R*Math.asin(Math.sqrt(s));
+}
+function fmtDist(m){ return m<1000 ? Math.round(m)+" m" : (m/1000).toFixed(m<10000?2:1)+" km"; }
+function renderNearest(){
+  const panel=$("#nearPanel");
+  if(!myPos){ panel.style.display="none"; return; }
+  const near = CABINETS.filter(c=>c.lat!=null).map(c=>({c, d:distM(myPos,c)})).sort((a,b)=>a.d-b.d).slice(0,5);
+  panel.innerHTML='<div class="nh" style="display:flex;justify-content:space-between;align-items:center"><span>5 tủ gần bạn nhất</span><button class="pin-btn" id="nearToggle">Thu gọn</button></div><div id="nearRows"></div>';
+  const rowsEl=panel.querySelector("#nearRows");
+  panel.querySelector("#nearToggle").onclick=(e)=>{ const hide=rowsEl.style.display!=="none"; rowsEl.style.display=hide?"none":""; e.target.textContent=hide?"Mở rộng":"Thu gọn"; };
+  near.forEach(({c,d})=>{
+    const row=document.createElement("div"); row.className="near-row";
+    row.innerHTML='<div><div class="nn"></div><div class="ns"></div></div><div class="na"><a target="_blank" rel="noopener">Chỉ đường</a><button>Ghi sự cố</button></div>';
+    row.querySelector(".nn").textContent=c.n;
+    row.querySelector(".ns").textContent=fmtDist(d)+" · "+c.q+" · "+(c.duong||c.diaChi||"")+" · "+c.pe;
+    row.querySelector("a").href="https://www.google.com/maps/dir/?api=1&destination="+c.lat+","+c.lng;
+    row.querySelector("button").onclick=()=>{ showView("new"); selectCabinet(c); window.scrollTo(0,0); };
+    rowsEl.appendChild(row);
+  });
+  panel.style.display="block";
+}
+function drawMyPosOnSvg(){
+  const svg=$("#mapSvg"); if(!svg || !myPos) return;
+  let g=svg.querySelector("#mePos"); if(g) g.remove();
+  const {minLat,maxLat,minLng,maxLng}=MAP_BOUNDS;
+  if(myPos.lat<minLat-0.05||myPos.lat>maxLat+0.05||myPos.lng<minLng-0.05||myPos.lng>maxLng+0.05) return;
+  const {x,y}=projectPoint(myPos.lat,myPos.lng);
+  svg.insertAdjacentHTML("beforeend",'<g id="mePos" pointer-events="none"><circle cx="'+x+'" cy="'+y+'" r="16" fill="#1A73E8" fill-opacity=".18"/><circle cx="'+x+'" cy="'+y+'" r="7" fill="#1A73E8" stroke="#fff" stroke-width="2.5"/></g>');
+}
+$("#locateBtn").onclick=()=>{
+  const btn=$("#locateBtn"); btn.classList.add("busy"); btn.disabled=true;
+  $("#locateInfo").textContent="Đang lấy vị trí…";
+  captureGPS((g,err)=>{
+    btn.classList.remove("busy"); btn.disabled=false;
+    if(err){ $("#locateInfo").textContent=err; return; }
+    myPos=g;
+    $("#locateInfo").innerHTML='Bạn đang ở <a target="_blank" rel="noopener" href="'+mapsLink(g.lat,g.lng)+'">'+g.lat+', '+g.lng+'</a> (±'+g.acc+'m) · bấm lại để cập nhật';
+    if(myMapsId()) loadMyMaps(g);
+    drawMyPosOnSvg();
+    renderNearest();
+  });
+};
+
+function myMapsId(){ return (typeof MYMAPS_ID!=="undefined" && MYMAPS_ID) ? String(MYMAPS_ID).trim() : ""; }
+function setMapMode(v){
+  $("#mapModeSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on", b.dataset.v===v));
+  $("#gmmPane").style.display = v==="gmm" ? "" : "none";
+  $("#svgPane").style.display = v==="svg" ? "" : "none";
+  if(v==="gmm"){
+    const id=myMapsId(), w=$("#gmmWrap");
+    if(!id){ w.innerHTML='<div class="empty">Chưa gắn bản đồ Google My Maps.<br>Quản trị viên điền MYMAPS_ID trong config.js.</div>'; return; }
+    if(!w.querySelector("iframe")) loadMyMaps();
+  }
+}
+$("#mapModeSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>setMapMode(b.dataset.v));
+
+function initMap(){
+  if(!initMap._mode){ initMap._mode=true; setMapMode(myMapsId() ? "gmm" : "svg"); }
+  if(mapBuilt) return;
+  mapBuilt=true;
+  renderMapLayerChips();
+  buildMapSVG();
+}
+
+/* ---------- help modal ---------- */
+function openHelp(){ $("#helpScrim").classList.add("show"); }
+function closeHelp(){ $("#helpScrim").classList.remove("show"); }
+$("#helpBtn").onclick=openHelp;
+$("#helpClose").onclick=closeHelp;
+$("#helpScrim").addEventListener("click", e=>{ if(e.target.id==="helpScrim") closeHelp(); });
+
+/* ---------- cài vào điện thoại ---------- */
+$("#installBtn").onclick=()=>$("#installScrim").classList.add("show");
+$("#installClose").onclick=()=>$("#installScrim").classList.remove("show");
+$("#installScrim").addEventListener("click", e=>{ if(e.target.id==="installScrim") $("#installScrim").classList.remove("show"); });
+if(window.matchMedia && window.matchMedia("(display-mode: standalone)").matches){ $("#installBtn").style.display="none"; }
+
+/* ---------- API & phiên đăng nhập ---------- */
+function getSession(){
+  try{ return JSON.parse(localStorage.getItem("gnsc_session")||sessionStorage.getItem("gnsc_session")||"null"); }catch(e){ return null; }
+}
+function clearSession(){ localStorage.removeItem("gnsc_session"); sessionStorage.removeItem("gnsc_session"); }
+function goLogin(){ clearSession(); location.replace("login.html"); }
+
+async function api(action, payload){
+  try{
+    const res = await fetch(API_URL, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body: JSON.stringify(Object.assign({action, token: SESSION && SESSION.token}, payload||{}))});
+    const data = await res.json();
+    if(data && data.code==="AUTH"){ goLogin(); return {ok:false, error:"Phiên hết hạn"}; }
+    $("#offlineNote").style.display="none";
+    return data;
+  }catch(e){
+    $("#offlineNote").style.display="block";
+    return {ok:false, error:"Không kết nối được máy chủ"};
+  }
+}
+async function loadIncidents(){
+  const r = await api("listIncidents");
+  if(r.ok){ incidents = r.incidents || []; renderIncList(); }
+}
+
+let viewerName="", canWrite=true;
+const ROLE_LABEL = {admin:"Quản trị", user:"Được ghi nhận", viewer:"Chỉ xem"};
+function applyUser(u){
+  viewerName = u.fullName || u.username;
+  canWrite = u.role !== "viewer";
+  $("#userName").textContent = "👤 " + viewerName;
+  const role=$("#userRole"); role.style.display=""; role.textContent = ROLE_LABEL[u.role]||u.role;
+  role.classList.toggle("ro", u.role==="viewer");
+  const inp=$("#nguoiGhiNhan"); if(!inp.value) inp.value=viewerName;
+  $("#adminPanel").style.display = u.role==="admin" ? "block" : "none";
+  $("#scpBtn").style.display = u.role==="admin" ? "" : "none";
+  $("#acctInfo").textContent = "Đăng nhập: " + u.username + " · " + (u.fullName||"") + " · Quyền: " + (ROLE_LABEL[u.role]||u.role);
+  if(!canWrite){
+    $("#submitBtn").disabled=true; $("#submitBtn").textContent="Bạn chỉ có quyền xem";
+    $("#photoBtn").disabled=true; $("#gpsBtn").disabled=true;
+  }
+}
+
+/* ---------- tài khoản / quản trị ---------- */
+let auRole="user";
+$("#accountBtn").onclick=()=>{ $("#accountScrim").classList.add("show"); if(SESSION.user.role==="admin") loadUsers(); };
+$("#accountClose").onclick=()=>$("#accountScrim").classList.remove("show");
+$("#accountScrim").addEventListener("click", e=>{ if(e.target.id==="accountScrim") $("#accountScrim").classList.remove("show"); });
+$("#logoutBtn").onclick=async ()=>{ await api("logout"); goLogin(); };
+$("#pwSave").onclick=async ()=>{
+  $("#pwMsg").textContent="Đang lưu…";
+  const r = await api("changePassword",{oldPassword:$("#pwOld").value, newPassword:$("#pwNew").value});
+  $("#pwMsg").textContent = r.ok ? "Đã đổi mật khẩu." : (r.error||"Lỗi");
+  if(r.ok){ $("#pwOld").value=""; $("#pwNew").value=""; }
+};
+$("#auRoleSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>setAuRole(b.dataset.v));
+function setAuRole(v){ auRole=v; $("#auRoleSeg").querySelectorAll("button").forEach(x=>x.classList.toggle("on", x.dataset.v===v)); }
+async function loadUsers(){
+  const el=$("#userList"); el.textContent="Đang tải danh sách…";
+  const r = await api("listUsers");
+  if(!r.ok){ el.textContent=r.error||"Lỗi"; return; }
+  el.innerHTML="";
+  r.users.forEach(u=>{
+    const row=document.createElement("div"); row.className="user-row";
+    const left=document.createElement("div");
+    const n=document.createElement("div"); n.textContent=u.fullName||u.username;
+    const sub=document.createElement("div"); sub.className="u-sub"; sub.textContent=u.username+" · "+(ROLE_LABEL[u.role]||u.role);
+    left.appendChild(n); left.appendChild(sub);
+    const st=document.createElement("span"); st.className="badge status-btn "+(u.active?"st-2":"st-0"); st.textContent=u.active?"Hoạt động":"Đã khóa";
+    row.appendChild(left); row.appendChild(st);
+    row.onclick=()=>{ $("#auUser").value=u.username; $("#auName").value=u.fullName||""; $("#auPass").value=""; $("#auActive").checked=!!u.active; setAuRole(u.role); $("#auMsg").textContent="Đang sửa: "+u.username; };
+    el.appendChild(row);
+  });
+}
+$("#auSave").onclick=async ()=>{
+  $("#auMsg").textContent="Đang lưu…";
+  const r = await api("saveUser",{user:{username:$("#auUser").value.trim(), fullName:$("#auName").value.trim(), password:$("#auPass").value, role:auRole, active:$("#auActive").checked}});
+  $("#auMsg").textContent = r.ok ? (r.created?"Đã tạo tài khoản.":"Đã cập nhật tài khoản.") : (r.error||"Lỗi");
+  if(r.ok){ $("#auPass").value=""; loadUsers(); }
+};
+
+
+/* ---------- đồng bộ SCP ---------- */
+function tonDong(i){
+  const d = Math.floor((Date.now() - (i.createdAt||Date.now()))/86400000);
+  return d<=0 ? "hôm nay" : d+" ngày";
+}
+const PE_INDEX = {}; CABINETS.forEach(c=>{ PE_INDEX[c.pe]=c; });
+const NAME_INDEX = {};
+function nameKey(s){ return vnNorm(s).replace(/[^a-z0-9]/g,""); }
+CABINETS.forEach(c=>{ const k=nameKey(c.n); (NAME_INDEX[k]=NAME_INDEX[k]||[]).push(c); });
+function findCabinet(name, area){
+  const list = NAME_INDEX[nameKey(name)];
+  if(!list) return null;
+  if(list.length===1 || !area) return list[0];
+  const a = vnNorm(area);
+  return list.find(c=>vnNorm(c.q)===a || vnNorm(c.q).includes(a) || a.includes(vnNorm(c.q).replace("quan ",""))) || list[0];
+}
+function splitRows(text){
+  return String(text||"").replace(/\r/g,"").split("\n").map(l=>l.split("\t").map(x=>x.trim()));
+}
+/* Định dạng bảng SCP: Mã | Tên tủ | Khu vực | Sự cố | Thời gian bắt đầu | Thời gian xử lý | Trạng thái */
+function parseSCPTable(text){
+  const rows = splitRows(text);
+  let hi=-1, col={};
+  for(let i=0;i<rows.length && i<30;i++){
+    const keys = rows[i].map(nameKey);
+    const iTen = keys.findIndex(k=>k==="tentu"||k==="tentuddieukhien"||k==="tentudieukhien");
+    if(iTen>=0){
+      hi=i;
+      col.ten=iTen;
+      col.ma=keys.findIndex(k=>k==="ma"||k==="matu");
+      col.kv=keys.findIndex(k=>k.startsWith("khuvuc")||k==="quan");
+      col.sc=keys.findIndex(k=>k.includes("suco")||k.startsWith("loi")||k.includes("canhbao"));
+      col.bd=keys.findIndex(k=>k.includes("batdau"));
+      col.xl=keys.findIndex(k=>k.includes("xuly")&&k.includes("thoigian")||k.includes("ketthuc"));
+      break;
+    }
+  }
+  if(hi<0) return null;
+  const byKey={}, order=[]; let resolved=0, unmatched=0;
+  rows.slice(hi+1).forEach(r=>{
+    const ten = r[col.ten]; if(!ten) return;
+    const xl = col.xl>=0 ? (r[col.xl]||"") : "";
+    if(xl && !/chua/.test(vnNorm(xl))){ resolved++; return; }   // đã có thời gian xử lý → không còn lỗi
+    const area = col.kv>=0 ? r[col.kv] : "";
+    const ma = col.ma>=0 ? r[col.ma] : "";
+    const sc = (col.sc>=0 ? r[col.sc] : "").replace(/^\(\d+\)\s*/,"");
+    const bd = col.bd>=0 ? r[col.bd] : "";
+    const c = findCabinet(ten, area);
+    if(!c) unmatched++;
+    const key = c ? c.pe : "SCP-"+(ma||nameKey(ten));
+    if(!byKey[key]){
+      byKey[key] = {pe:key, tags:"", code:ma, name:c?c.n:ten, quan:c?c.q:area, duong:c?c.duong:"", ql:c?c.ql:"", duyTri:c?c.duyTri:"",
+                    lat:c?c.lat:null, lng:c?c.lng:null, known:!!c, batDau:bd, _sc:[]};
+      order.push(key);
+    }
+    if(sc && !byKey[key]._sc.includes(sc)) byKey[key]._sc.push(sc);
+  });
+  const items = order.map(k=>{ const x=byKey[k]; x.tags = x._sc.join("; ") + (x.batDau?` (từ ${x.batDau})`:""); delete x._sc; return x; });
+  return {items, resolved, unmatched};
+}
+function parseSCPByPE(text){
+
+  const out={}, order=[];
+  const re=/PE\s?\d{8,}/gi; let m, prevEnd=0;
+  const tagRe=/\b(PLC|PW|PM|4G|DATA)\b|mất kết nối|lỗi/gi;
+  const matches=[]; while((m=re.exec(text))){ matches.push({pe:m[0].replace(/\s/g,"").toUpperCase(), s:m.index, e:m.index+m[0].length}); }
+  matches.forEach((mm,k)=>{
+    const lineEnd = text.indexOf("\n", mm.e); const after = text.slice(mm.e, lineEnd<0?text.length:lineEnd);
+    const win = text.slice(prevEnd, mm.s) + " " + after;
+    prevEnd = mm.e;
+    const tags=[...new Set((win.match(tagRe)||[]).map(t=>t.toUpperCase()))];
+    const codeM = text.slice(Math.max(0,mm.s-200), mm.s).match(/([A-Z]{1,3}\d{2,3}\.\d{2})(?![\s\S]*[A-Z]{1,3}\d{2,3}\.\d{2})/);
+    if(!out[mm.pe]){ out[mm.pe]={pe:mm.pe, tags:tags.join("; "), code:codeM?codeM[1]:""}; order.push(mm.pe); }
+  });
+  return order.map(pe=>{
+    const x=out[pe], c=PE_INDEX[pe];
+    return {pe, tags:x.tags, code:x.code, name:c?c.n:"", quan:c?c.q:"", duong:c?c.duong:"", ql:c?c.ql:"", duyTri:c?c.duyTri:"", lat:c?c.lat:null, lng:c?c.lng:null, known:!!c};
+  });
+}
+function parseSCP(text){
+  const t = parseSCPTable(text);
+  if(t) return t;
+  const items = parseSCPByPE(text);
+  return {items, resolved:0, unmatched:items.filter(x=>!x.known).length};
+}
+let scpItems=[];
+function refreshSCPPreview(){
+  const r = parseSCP($("#scpText").value||"");
+  scpItems = r.items;
+  let msg = scpItems.length ? `Nhận được ${scpItems.length} tủ đang lỗi / mất kết nối` : "Chưa nhận được tủ nào – kiểm tra lại nội dung dán/file.";
+  if(r.resolved) msg += ` · bỏ qua ${r.resolved} dòng đã xử lý xong`;
+  if(r.unmatched) msg += ` · ${r.unmatched} tủ chưa khớp danh sách (vẫn ghi nhận theo tên)`;
+  if(scpItems.length) msg += "\nVí dụ: " + scpItems.slice(0,3).map(x=>`${x.name} – ${x.tags}`).join(" | ");
+  $("#scpPreview").textContent = msg;
+  $("#scpSync").disabled = scpItems.length===0;
+}
+$("#scpText").addEventListener("input", refreshSCPPreview);
+$("#scpFile").addEventListener("change", async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  let text="";
+  if(/\.(xlsx|xls)$/i.test(f.name) && typeof XLSX!=="undefined"){
+    const wb=XLSX.read(await f.arrayBuffer(),{type:"array"});
+    wb.SheetNames.forEach(n=>{ text += XLSX.utils.sheet_to_csv(wb.Sheets[n],{FS:"\t"}) + "\n"; });
+  } else { text = await f.text(); }
+  $("#scpText").value = text; refreshSCPPreview();
+});
+$("#scpBtn").onclick=async ()=>{
+  $("#scpScrim").classList.add("show"); $("#scpResult").innerHTML="";
+  const r = await api("getNotify");
+  if(r.ok){ $("#ntEmails").value=r.notify.emails; $("#ntTgToken").value=r.notify.tgToken; $("#ntTgChat").value=r.notify.tgChat; }
+};
+$("#scpClose").onclick=()=>$("#scpScrim").classList.remove("show");
+$("#scpSync").onclick=async ()=>{
+  const btn=$("#scpSync"); btn.disabled=true; btn.textContent="Đang đồng bộ…";
+  const baseline=$("#scpBaseline").checked;
+  const r = await api("syncSCP",{items:scpItems, baseline});
+  btn.textContent="Đồng bộ"; btn.disabled=false;
+  const el=$("#scpResult"); el.innerHTML="";
+  if(!r.ok){ el.textContent = r.error||"Lỗi đồng bộ"; return; }
+  const add=(title,arr,fmt)=>{ const b=document.createElement("div"); b.className="blk"; const t=document.createElement("b"); t.textContent=title; b.appendChild(t);
+    arr.slice(0,40).forEach(x=>{ const d=document.createElement("div"); d.textContent=fmt(x); b.appendChild(d); }); if(arr.length>40){ const d=document.createElement("div"); d.textContent="… và "+(arr.length-40)+" tủ khác"; b.appendChild(d);} el.appendChild(b); };
+  add(`🔴 Sự cố mới: ${r.moi.length}`, r.moi, x=>`${x.name} – ${x.quan} – ${x.tags||""}`);
+  const b2=document.createElement("div"); b2.className="blk"; b2.textContent=`⏳ Vẫn còn lỗi (đã báo trước, không báo lại): ${r.vanCon}`; el.appendChild(b2);
+  add(`🟢 Hết lỗi – tự reset: ${r.reset.length}`, r.reset, x=>`${x.name} – ${x.quan}`);
+  const n=document.createElement("div"); n.className="who"; n.style.marginTop="8px";
+  n.textContent = r.baseline ? "Chế độ làm mốc: không gửi thông báo." : (r.notified ? "Đã gửi thông báo." : ((r.moi.length||r.reset.length) ? "Chưa gửi thông báo (chưa cài email/Telegram)." : "Không có thay đổi, không gửi thông báo."));
+  el.appendChild(n);
+  $("#scpBaseline").checked=false;
+  activeSource="scp"; try{localStorage.setItem("gnsc_src","scp");}catch(e){}
+  loadIncidents();
+};
+$("#ntSave").onclick=async ()=>{
+  $("#ntMsg").textContent="Đang lưu…";
+  const r=await api("saveNotify",{notify:{emails:$("#ntEmails").value, tgToken:$("#ntTgToken").value, tgChat:$("#ntTgChat").value}});
+  $("#ntMsg").textContent = r.ok ? "Đã lưu." : (r.error||"Lỗi");
+};
+$("#ntTest").onclick=async ()=>{
+  $("#ntMsg").textContent="Đang gửi thử…";
+  const r=await api("testNotify");
+  $("#ntMsg").textContent = r.ok ? "Đã gửi thử – kiểm tra email/Telegram." : (r.error||"Lỗi");
+};
+
+/* ---------- khởi động ---------- */
+async function init(){
+  SESSION = getSession();
+  if(!SESSION || !SESSION.token){ goLogin(); return; }
+  if(typeof API_URL==="undefined" || !API_URL || API_URL.indexOf("http")!==0){ alert("Chưa cấu hình API_URL trong config.js"); return; }
+  renderQuanChips(); populateQLFilter(); renderCabList(); renderStatusFilters();
+  applyUser(SESSION.user);
+  if(!localStorage.getItem("gnsc_seen_help")){ openHelp(); localStorage.setItem("gnsc_seen_help","1"); }
+  const me = await api("me");
+  if(me.ok){ SESSION.user = me.user; applyUser(me.user); }
+  await loadIncidents();
+  setInterval(()=>{ if(document.visibilityState==="visible") loadIncidents(); }, 60000);
+  document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible") loadIncidents(); });
+}
+if("serviceWorker" in navigator){ navigator.serviceWorker.register("sw.js").catch(()=>{}); }
+init();
+</script>
+</body>
+</html>
