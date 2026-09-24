@@ -101,7 +101,7 @@ main{flex:1;overflow-y:auto;padding:16px 18px 100px;}
 .cab-card:active{background:var(--surface-2);}
 .cab-card .name{font-weight:600;font-size:14.5px;}
 .cab-card .meta{font-size:12px;color:var(--text-2);margin-top:2px;}
-.cab-card mark{background:color-mix(in srgb,var(--accent) 35%,transparent);color:inherit;border-radius:3px;padding:0 1px;}
+.cab-card mark,.inc-card mark{background:color-mix(in srgb,var(--accent) 35%,transparent);color:inherit;border-radius:3px;padding:0 1px;}
 .search-info{font-size:12px;color:var(--text-2);margin:2px 2px 0;}
 .unfilter-btn{width:100%;padding:10px 12px;border-radius:10px;border:1px dashed var(--accent);background:transparent;color:var(--accent);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;text-align:left;}
 .cab-card .code{font-size:12px;color:var(--accent);flex:0 0 auto;text-align:right;}
@@ -231,6 +231,9 @@ main{flex:1;overflow-y:auto;padding:16px 18px 100px;}
 .ms-row b{font-variant-numeric:tabular-nums;}
 .ms-row .ms-c{color:var(--text-2);font-size:11.5px;}
 .ms-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+.inc-search{margin-bottom:12px;}
+.inc-search .ql-select{margin-top:8px;}
+@media (min-width:1000px){ .inc-search{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:0 12px;align-items:start;} .inc-search .ql-select{margin-top:0;} .inc-search .search-info{grid-column:1 / -1;} .inc-search .search-wrap{margin-bottom:0;} }
 .src-tabs{display:flex;gap:8px;margin-bottom:12px;}
 .src-tabs button{flex:1;padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 .src-tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
@@ -479,6 +482,13 @@ nav svg{width:21px;height:21px;}
         <button data-v="scp">🖥️ Sự cố tủ SCP <span class="cnt" id="cntScp">0</span></button>
       </div>
       <div class="scp-sum" id="scpSum" style="display:none"></div>
+      <div class="inc-search">
+        <div class="search-wrap">
+          <input type="text" id="incSearch" placeholder="Gõ tên tủ, đường, mã PE, mô tả… (có dấu hoặc không dấu)" autocomplete="off">
+        </div>
+        <select id="incQL" class="ql-select"></select>
+        <div class="search-info" id="incInfo"></div>
+      </div>
       <div class="list-head">
         <div class="filters" id="statusFilters"></div>
         <button class="export-btn" id="scpBtn" style="display:none">🔄 SCP</button>
@@ -1059,14 +1069,29 @@ function scpFaultHtml(i){
   if(tu) html += `<div class="who">⏱ Bắt đầu: ${escapeHtml(tu)}</div>`;
   return html + `</div>`;
 }
+let incTerm="", incQL="";
+function incHay(i){
+  if(i._s===undefined) i._s = vnNorm([i.cabinetName,i.cabinetPE,i.duong,i.quan,i.moTa,i.loiSCP,i.nguoiQuanLy,i.nguoiGhiNhan,i.lyTrinh,i.ghiChuXuLy,i.ngay].join(" | "));
+  return i._s;
+}
 function filteredIncidents(){
+  const tokens = vnNorm(incTerm).trim().split(/\s+/).filter(Boolean);
   return incidents.filter(i=>{
     if((activeSource==="scp") !== isScp(i)) return false;
     if(activeQuan!=="Tất cả" && i.quan!==activeQuan) return false;
     if(activeStatus!=="Tất cả" && i.trangThai!==activeStatus) return false;
+    if(incQL && (i.nguoiQuanLy||"")!==incQL) return false;
+    if(tokens.length){ const s=incHay(i); if(!tokens.every(t=>s.includes(t))) return false; }
     return true;
   });
 }
+function populateIncQL(){
+  const sel=$("#incQL"); const cur=sel.value;
+  sel.innerHTML='<option value="">Tất cả người quản lý</option>'+MANAGERS.map(m=>`<option value="${m}">${m}</option>`).join("");
+  sel.value=cur;
+}
+$("#incSearch").addEventListener("input", e=>{ incTerm=e.target.value; renderIncList(); });
+$("#incQL").addEventListener("change", e=>{ incQL=e.target.value; renderIncList(); });
 function renderSourceTabs(){
   const inQ = i => activeQuan==="Tất cả" || i.quan===activeQuan;
   const open = i => i.trangThai!=="Đã xử lý";
@@ -1086,6 +1111,7 @@ $("#srcTabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{ activeSource
 function renderIncList(){
   renderSourceTabs();
   let list = filteredIncidents();
+  $("#incInfo").textContent = (incTerm.trim()||incQL) ? `Tìm thấy ${list.length} sự cố` : "";
   list = list.slice().sort((a,b)=>b.createdAt-a.createdAt);
   const el = $("#incList");
   if(list.length===0){ el.innerHTML = activeSource==="scp" ? '<div class="empty">Không có sự cố tủ SCP trong bộ lọc này.</div>' : '<div class="empty">Chưa có sự cố nào được ghi nhận.<br>Chuyển sang tab "Ghi nhận mới" để thêm.</div>'; return; }
@@ -1094,7 +1120,7 @@ function renderIncList(){
     const card=document.createElement("div"); card.className="inc-card"+(isScp(i)?(" scp"+(isLoiScp(i)?" loi":"")):"");
     card.innerHTML = `
       <div class="row1">
-        <div><div class="name">${i.cabinetName}</div><div class="code mono">${i.cabinetPE || i.pe || i.cabinetCode || ""} · ${i.quan}</div></div>
+        <div><div class="name">${highlight(i.cabinetName, vnNorm(incTerm).trim().split(/\s+/).filter(Boolean))}</div><div class="code mono">${i.cabinetPE || i.pe || i.cabinetCode || ""} · ${i.quan}</div></div>
         <span class="badge ${levelClass(i.mucDo)}">${i.mucDo}</span>
       </div>
       ${isScp(i) ? scpFaultHtml(i) : `<div class="desc">${escapeHtml(i.moTa)}</div>`}
@@ -1740,7 +1766,7 @@ async function init(){
   SESSION = getSession();
   if(!SESSION || !SESSION.token){ goLogin(); return; }
   if(typeof API_URL==="undefined" || !API_URL || API_URL.indexOf("http")!==0){ alert("Chưa cấu hình API_URL trong config.js"); return; }
-  renderQuanChips(); populateQLFilter(); renderCabList(); renderStatusFilters();
+  renderQuanChips(); populateQLFilter(); populateIncQL(); renderCabList(); renderStatusFilters();
   applyUser(SESSION.user);
   if(!localStorage.getItem("gnsc_seen_help")){ openHelp(); localStorage.setItem("gnsc_seen_help","1"); }
   const me = await api("me");
