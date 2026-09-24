@@ -208,6 +208,40 @@ main{flex:1;overflow-y:auto;padding:16px 18px 100px;}
 .guide-h{font-size:14px;font-weight:700;margin:16px 0 8px;}
 .guide-list{margin:0;padding-left:18px;font-size:13px;color:var(--text-2);line-height:1.6;}
 .map-mode{margin-bottom:12px;}
+.lt-hint{font-weight:400;font-size:11.5px;}
+.lt-list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;}
+.field .lt-item,.lt-item{display:flex;align-items:flex-start;gap:9px;padding:9px 11px;border-radius:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:13px;line-height:1.4;}
+.lt-item input{margin-top:2px;width:16px;height:16px;flex:0 0 auto;accent-color:var(--accent);}
+.lt-item.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--surface));}
+.lt-item .lt-sub{font-size:11.5px;color:var(--text-2);}
+.inc-lt{margin-top:5px;font-size:12px;color:var(--text-2);}
+/* ===== máy tính: giao diện rộng ===== */
+@media (min-width: 1000px){
+  #app{max-width:1360px;padding:0 24px;}
+  header{padding:18px 6px 14px;}
+  #app > nav{max-width:1360px;left:0;right:0;border-radius:14px 14px 0 0;}
+  main{padding:20px 6px 100px;}
+  #view-new.active{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start;}
+  #view-new #offlineNote{grid-column:1 / -1;}
+  #pickStep,#formStep{min-width:0;}
+  #pickStep{display:block !important;}
+  #changeCab{display:none;}
+  .cab-card.sel{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 40%,transparent);}
+  #formStep{position:sticky;top:130px;max-height:calc(100vh - 230px);overflow-y:auto;padding-right:4px;}
+  .cab-list{max-height:calc(100vh - 290px);overflow-y:auto;padding-right:4px;}
+  #incList{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px;align-items:start;}
+  #incList .inc-card{margin-bottom:0;}
+  #incList .empty{grid-column:1 / -1;}
+  #view-map.active{display:grid;grid-template-columns:360px minmax(0,1fr);grid-template-rows:auto auto 1fr;gap:0 20px;}
+  #view-map .map-mode,#view-map .locate-bar,#view-map #nearPanel{grid-column:1;}
+  #view-map #gmmPane,#view-map #svgPane{grid-column:2;grid-row:1 / span 3;}
+  .gmm-wrap{height:calc(100vh - 230px);}
+  #app .modal-scrim{align-items:center;}
+  #app .modal-sheet{max-width:640px;border-radius:18px;max-height:88vh;}
+}
+.fs-btn{flex:0 0 auto;width:34px;height:34px;border-radius:100px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);display:none;align-items:center;justify-content:center;cursor:pointer;margin-right:8px;}
+.fs-btn svg{width:17px;height:17px;}
+@media (min-width: 1000px){ .fs-btn{display:flex;} }
 .scp-tag{display:inline-block;margin-top:6px;padding:3px 8px;border-radius:6px;font-size:11.5px;font-weight:700;background:color-mix(in srgb,#1A73E8 18%,transparent);color:#1A73E8;}
 .scp-result{margin-top:12px;font-size:13px;line-height:1.6;}
 .scp-result .blk{background:var(--surface-2);border-radius:10px;padding:9px 11px;margin-top:8px;}
@@ -306,9 +340,14 @@ nav svg{width:21px;height:21px;}
         <div class="eyebrow">Hệ thống chiếu sáng đô thị</div>
         <h1><span>Ghi nhận</span> sự cố</h1>
       </div>
+      <div style="display:flex;align-items:center">
+      <button class="fs-btn" id="fsBtn" title="Toàn màn hình" aria-label="Toàn màn hình">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+      </button>
       <button id="helpBtn" aria-label="Hướng dẫn sử dụng">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 4.7 1.2c0 1.6-2.2 1.8-2.2 3.3"/><path d="M12 17h.01"/></svg>
       </button>
+      </div>
     </div>
     <div class="user-bar">
       <span id="userName">Đang xác định người dùng…</span>
@@ -347,6 +386,11 @@ nav svg{width:21px;height:21px;}
           <div class="manager-row">👤 <b id="selQL"></b></div>
           <div class="maint-note" id="selDuyTri"></div>
           <a href="#" target="_blank" rel="noopener" id="selMapsLink" class="pin-link" style="margin-top:8px;display:none">🗺️ Xem vị trí tủ trên Google Maps</a>
+        </div>
+
+        <div class="field" id="ltField" style="display:none">
+          <label>Lý trình / tuyến bị ảnh hưởng <span class="lt-hint">(chạm để chọn; không chọn = cả tủ)</span></label>
+          <div class="lt-list" id="ltList"></div>
         </div>
 
         <div class="field">
@@ -537,10 +581,10 @@ nav svg{width:21px;height:21px;}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
         </button>
       </div>
-      <div class="guide-note">Mở <b>smarthcm.city</b> → danh sách tủ đang báo lỗi → bôi đen toàn bộ bảng (Ctrl+A) → Ctrl+C → dán vào ô dưới. Hoặc chọn file Excel/CSV xuất từ SCP. App tự nhận mã PE và loại lỗi (PLC, PW, PM, 4G, DATA).</div>
+      <div class="guide-note">Mở <b>smarthcm.city</b> → danh sách tủ đang báo lỗi → bôi đen toàn bộ bảng (Ctrl+A) → Ctrl+C → dán vào ô dưới. Hoặc chọn file Excel/CSV xuất từ SCP. App tự nhận tủ theo tên/mã PE, đọc cột Sự cố và bỏ qua các dòng đã có thời gian xử lý.</div>
       <div class="field" style="margin-top:12px"><textarea id="scpText" placeholder="Dán danh sách tủ lỗi từ SCP vào đây…" style="min-height:120px"></textarea></div>
       <div class="field"><input type="file" id="scpFile" accept=".xlsx,.xls,.csv,.txt"></div>
-      <div class="gps-result" id="scpPreview"></div>
+      <div class="gps-result" id="scpPreview" style="white-space:pre-line"></div>
       <label class="au-active"><input type="checkbox" id="scpBaseline"> Lần đầu – chỉ ghi nhận làm mốc, <b>không gửi thông báo</b> (các lỗi tồn đọng hiện có)</label>
       <button class="submit-btn" id="scpSync" disabled>Đồng bộ</button>
       <div id="scpResult" class="scp-result"></div>
@@ -637,7 +681,7 @@ function escHtml(s){ return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<
 function prepCab(c){
   if(c._s!==undefined) return;
   c._n = vnNorm(c.n);
-  c._s = vnNorm([c.pe,c.n,c.duong,c.diaChi,c.phuong,c.q,c.ql].join(" | "));
+  c._s = vnNorm([c.pe,c.n,c.duong,c.diaChi,c.phuong,c.q,c.ql,(c.lt||[]).map(l=>l[0]).join(" ")].join(" | "));
 }
 function highlight(text, tokens){
   const chars = Array.from(String(text||"").normalize("NFC"));
@@ -707,8 +751,9 @@ function renderCabList(){
   }
   list.slice(0,60).forEach(c=>{
     const d=document.createElement("div"); d.className="cab-card";
-    d.innerHTML = `<div><div class="name">${highlight(c.n,tokens)}</div><div class="meta">${escHtml(c.q)} · ${highlight(c.duong || c.diaChi,tokens)} · 👤 ${highlight(c.ql||"—",tokens)}</div></div><div class="code mono">${highlight(c.pe,tokens)}</div>`;
-    d.onclick=()=>selectCabinet(c);
+    d.innerHTML = `<div><div class="name">${highlight(c.n,tokens)}</div><div class="meta">${escHtml(c.q)} · ${highlight(c.duong || c.diaChi,tokens)} · 👤 ${highlight(c.ql||"—",tokens)}</div></div><div class="code mono">${String(c.pe).startsWith("CHUA-PE") ? "Chưa có PE" : highlight(c.pe,tokens)}</div>`;
+    if(selectedCabinet && selectedCabinet.pe===c.pe && selectedCabinet.n===c.n) d.classList.add("sel");
+    d.onclick=()=>{ selectCabinet(c); el.querySelectorAll(".cab-card.sel").forEach(x=>x.classList.remove("sel")); d.classList.add("sel"); };
     el.appendChild(d);
   });
 }
@@ -718,14 +763,15 @@ function selectCabinet(c){
   $("#pickStep").style.display="none";
   $("#formStep").style.display="block";
   $("#selName").textContent=c.n;
-  $("#selCode").textContent="PE "+c.pe;
+  $("#selCode").textContent = peLabel(c);
   $("#selQuan").textContent=c.q;
   $("#selDuong").textContent=c.duong || c.diaChi || "";
   $("#selDai").textContent= c.dai!=null ? c.dai+"m tuyến" : "";
   $("#selDen").textContent= c.den!=null ? c.den+" đèn" : "";
   $("#selLoaiTu").textContent=c.loaiTu || "";
   $("#selQL").textContent=c.ql || "Chưa rõ";
-  $("#selDuyTri").textContent = c.duyTri || c.loaiTram || "";
+  $("#selDuyTri").textContent = [c.duyTri || c.loaiTram || "", c.ghiChu||""].filter(Boolean).join(" · ");
+  renderLyTrinh(c);
   const mlink = $("#selMapsLink");
   if(c.lat!=null && c.lng!=null){ mlink.href = mapsLink(c.lat,c.lng); mlink.style.display="inline-flex"; }
   else{ mlink.style.display="none"; }
@@ -876,7 +922,9 @@ $("#submitBtn").onclick=async ()=>{
     moTa: $("#moTa").value.trim(), mucDo, nguoiGhiNhan: nguoi, ngay: $("#ngay").value || todayISO(),
     trangThai: STATUS[0], createdAt: Date.now(),
     gpsLat: capturedGPS ? capturedGPS.lat : null, gpsLng: capturedGPS ? capturedGPS.lng : null, gpsAcc: capturedGPS ? capturedGPS.acc : null,
-    anhHienTruong: capturedPhoto || null
+    anhHienTruong: capturedPhoto || null,
+    lyTrinh: lyTrinhValue(),
+    tuLat: selectedCabinet.lat!=null ? selectedCabinet.lat : null, tuLng: selectedCabinet.lng!=null ? selectedCabinet.lng : null
   };
   $("#submitBtn").disabled=true; $("#submitBtn").textContent="Đang gửi…";
   const okSaved = await saveIncident(record);
@@ -885,6 +933,7 @@ $("#submitBtn").onclick=async ()=>{
   $("#moTa").value="";
   capturedGPS=null; $("#gpsResult").innerHTML="";
   clearPhoto();
+  renderLyTrinh(selectedCabinet);
   mucDo="Trung bình";
   $("#mucDoSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on", b.dataset.v==="Trung bình"));
   const t=$("#toast"); t.classList.add("show");
@@ -933,6 +982,7 @@ function renderIncList(){
         <span class="badge ${levelClass(i.mucDo)}">${i.mucDo}</span>
       </div>
       <div class="desc">${escapeHtml(i.moTa)}</div>
+      ${i.lyTrinh ? `<div class="inc-lt">🛣️ Lý trình: ${escapeHtml(i.lyTrinh)}</div>` : ""}
       ${i.nguon==="SCP" ? `<div class="scp-tag">SCP · ${escapeHtml(i.loiSCP||"")}${i.trangThai!=="Đã xử lý" ? " · tồn " + tonDong(i) : ""}</div>` : ""}
       ${i.ghiChuXuLy ? `<div class="who" style="margin-top:4px">📝 ${escapeHtml(i.ghiChuXuLy)}</div>` : ""}
       <div class="who" style="margin-top:6px">👤 Quản lý tuyến: ${escapeHtml(i.nguoiQuanLy||"—")}</div>
@@ -996,13 +1046,13 @@ async function exportExcel(){
   if(typeof XLSX==="undefined"){ alert("Không tải được thư viện xuất Excel, thử lại."); return; }
 
   btn.disabled=true;
-  const header = ["STT","Mã PE","Tên tủ","Đường","Quận","Người quản lý","Ngày ghi nhận","Mô tả sự cố","Mức độ","Người ghi nhận","Trạng thái","Tọa độ GPS","Ảnh hiện trường","Nguồn","Lỗi SCP","Ghi chú xử lý"];
+  const header = ["STT","Mã PE","Tên tủ","Đường","Quận","Người quản lý","Ngày ghi nhận","Mô tả sự cố","Mức độ","Người ghi nhận","Trạng thái","Tọa độ GPS","Ảnh hiện trường","Nguồn","Lỗi SCP","Ghi chú xử lý","Lý trình"];
   const rows = list.map((i,idx)=>[
     idx+1, (i.cabinetPE||i.pe||i.cabinetCode||""), i.cabinetName, i.duong||"", i.quan, i.nguoiQuanLy||"", i.ngay, i.moTa, i.mucDo, i.nguoiGhiNhan, i.trangThai,
-    i.gpsLat!=null ? (i.gpsLat+", "+i.gpsLng) : "", i.anhHienTruong || "", i.nguon||"Thủ công", i.loiSCP||"", i.ghiChuXuLy||""
+    i.gpsLat!=null ? (i.gpsLat+", "+i.gpsLng) : "", i.anhHienTruong || "", i.nguon||"Thủ công", i.loiSCP||"", i.ghiChuXuLy||"", i.lyTrinh||""
   ]);
   const ws = XLSX.utils.aoa_to_sheet([header, ...rows]);
-  ws["!cols"] = [{wch:5},{wch:16},{wch:24},{wch:20},{wch:16},{wch:18},{wch:12},{wch:40},{wch:12},{wch:18},{wch:16},{wch:20},{wch:18},{wch:10},{wch:16},{wch:40}];
+  ws["!cols"] = [{wch:5},{wch:16},{wch:24},{wch:20},{wch:16},{wch:18},{wch:12},{wch:40},{wch:12},{wch:18},{wch:16},{wch:20},{wch:18},{wch:10},{wch:16},{wch:40},{wch:36}];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Ghi nhan su co");
   const buf = XLSX.write(wb, {bookType:"xlsx", type:"array"});
@@ -1016,6 +1066,37 @@ async function exportExcel(){
   btn.disabled=false;
 }
 $("#exportBtn").onclick=exportExcel;
+
+
+/* ---------- lý trình thuộc tủ ---------- */
+function peLabel(c){ return String(c.pe||"").startsWith("CHUA-PE") ? "Chưa có mã PE (mã tủ "+(c.maTu||"?")+")" : c.pe; }
+let selectedLT = new Set();
+function renderLyTrinh(c){
+  selectedLT = new Set();
+  const lt = c.lt || [], box=$("#ltList");
+  $("#ltField").style.display = lt.length ? "" : "none";
+  box.innerHTML="";
+  lt.forEach((l,i)=>{
+    const [ten,ly,dai,den,tru]=l;
+    const row=document.createElement("label"); row.className="lt-item";
+    const cb=document.createElement("input"); cb.type="checkbox";
+    const t=document.createElement("div");
+    const a=document.createElement("div"); a.textContent = ten + (ly ? " · trụ "+ly : "");
+    const b=document.createElement("div"); b.className="lt-sub";
+    b.textContent = [dai!=null&&dai!==""?Math.round(dai)+" m":"", den!=null&&den!==""?den+" đèn":"", tru!=null&&tru!==""?tru+" trụ":""].filter(Boolean).join(" · ");
+    t.appendChild(a); t.appendChild(b); row.appendChild(cb); row.appendChild(t);
+    cb.onchange=()=>{ const key=ten+(ly?" (trụ "+ly+")":""); if(cb.checked) selectedLT.add(key); else selectedLT.delete(key); row.classList.toggle("on",cb.checked); };
+    box.appendChild(row);
+  });
+}
+function lyTrinhValue(){ return selectedLT.size ? [...selectedLT].join("; ") : ((selectedCabinet && (selectedCabinet.lt||[]).length) ? "Cả tủ" : ""); }
+
+/* ---------- toàn màn hình ---------- */
+$("#fsBtn").onclick=()=>{
+  const d=document;
+  if(!d.fullscreenElement){ (d.documentElement.requestFullscreen||d.documentElement.webkitRequestFullscreen||function(){}).call(d.documentElement); }
+  else { (d.exitFullscreen||d.webkitExitFullscreen||function(){}).call(d); }
+};
 
 /* ---------- tabs ---------- */
 function showView(name){
@@ -1088,7 +1169,7 @@ function buildMapSVG(){
 
 function showMapPopup(c){
   $("#mpName").textContent = c.n;
-  $("#mpCode").textContent = "PE "+c.pe;
+  $("#mpCode").textContent = peLabel(c);
   const bits = [c.q, c.duong || c.diaChi, c.dai!=null ? c.dai+"m tuyến" : "", c.ql ? "👤 "+c.ql : ""].filter(Boolean);
   $("#mpMeta").innerHTML = bits.map(b=>`<span>${b}</span>`).join("");
   $("#mpMapsLink").href = mapsLink(c.lat, c.lng);
@@ -1276,7 +1357,62 @@ function tonDong(i){
   return d<=0 ? "hôm nay" : d+" ngày";
 }
 const PE_INDEX = {}; CABINETS.forEach(c=>{ PE_INDEX[c.pe]=c; });
-function parseSCP(text){
+const NAME_INDEX = {};
+function nameKey(s){ return vnNorm(s).replace(/[^a-z0-9]/g,""); }
+CABINETS.forEach(c=>{ const k=nameKey(c.n); (NAME_INDEX[k]=NAME_INDEX[k]||[]).push(c); });
+function findCabinet(name, area){
+  const list = NAME_INDEX[nameKey(name)];
+  if(!list) return null;
+  if(list.length===1 || !area) return list[0];
+  const a = vnNorm(area);
+  return list.find(c=>vnNorm(c.q)===a || vnNorm(c.q).includes(a) || a.includes(vnNorm(c.q).replace("quan ",""))) || list[0];
+}
+function splitRows(text){
+  return String(text||"").replace(/\r/g,"").split("\n").map(l=>l.split("\t").map(x=>x.trim()));
+}
+/* Định dạng bảng SCP: Mã | Tên tủ | Khu vực | Sự cố | Thời gian bắt đầu | Thời gian xử lý | Trạng thái */
+function parseSCPTable(text){
+  const rows = splitRows(text);
+  let hi=-1, col={};
+  for(let i=0;i<rows.length && i<30;i++){
+    const keys = rows[i].map(nameKey);
+    const iTen = keys.findIndex(k=>k==="tentu"||k==="tentuddieukhien"||k==="tentudieukhien");
+    if(iTen>=0){
+      hi=i;
+      col.ten=iTen;
+      col.ma=keys.findIndex(k=>k==="ma"||k==="matu");
+      col.kv=keys.findIndex(k=>k.startsWith("khuvuc")||k==="quan");
+      col.sc=keys.findIndex(k=>k.startsWith("suco")||k.startsWith("loi"));
+      col.bd=keys.findIndex(k=>k.startsWith("thoigianbatdau"));
+      col.xl=keys.findIndex(k=>k.startsWith("thoigianxuly")||k.startsWith("thoigianketthuc"));
+      break;
+    }
+  }
+  if(hi<0) return null;
+  const byKey={}, order=[]; let resolved=0, unmatched=0;
+  rows.slice(hi+1).forEach(r=>{
+    const ten = r[col.ten]; if(!ten) return;
+    const xl = col.xl>=0 ? (r[col.xl]||"") : "";
+    if(xl && !/chua/.test(vnNorm(xl))){ resolved++; return; }   // đã có thời gian xử lý → không còn lỗi
+    const area = col.kv>=0 ? r[col.kv] : "";
+    const ma = col.ma>=0 ? r[col.ma] : "";
+    const sc = (col.sc>=0 ? r[col.sc] : "").replace(/^\(\d+\)\s*/,"");
+    const bd = col.bd>=0 ? r[col.bd] : "";
+    const c = findCabinet(ten, area);
+    if(!c) unmatched++;
+    const key = c ? c.pe : "SCP-"+(ma||nameKey(ten));
+    if(!byKey[key]){
+      byKey[key] = {pe:key, tags:"", code:ma, name:c?c.n:ten, quan:c?c.q:area, duong:c?c.duong:"", ql:c?c.ql:"", duyTri:c?c.duyTri:"",
+                    lat:c?c.lat:null, lng:c?c.lng:null, known:!!c, batDau:bd, _sc:[]};
+      order.push(key);
+    }
+    if(sc && !byKey[key]._sc.includes(sc)) byKey[key]._sc.push(sc);
+  });
+  const items = order.map(k=>{ const x=byKey[k]; x.tags = x._sc.join("; ") + (x.batDau?` (từ ${x.batDau})`:""); delete x._sc; return x; });
+  return {items, resolved, unmatched};
+}
+function parseSCPByPE(text){
+
   const out={}, order=[];
   const re=/PE\s?\d{8,}/gi; let m, prevEnd=0;
   const tagRe=/\b(PLC|PW|PM|4G|DATA)\b|mất kết nối|lỗi/gi;
@@ -1291,16 +1427,24 @@ function parseSCP(text){
   });
   return order.map(pe=>{
     const x=out[pe], c=PE_INDEX[pe];
-    return {pe, tags:x.tags, code:x.code, name:c?c.n:"", quan:c?c.q:"", duong:c?c.duong:"", ql:c?c.ql:"", duyTri:c?c.duyTri:"", known:!!c};
+    return {pe, tags:x.tags, code:x.code, name:c?c.n:"", quan:c?c.q:"", duong:c?c.duong:"", ql:c?c.ql:"", duyTri:c?c.duyTri:"", lat:c?c.lat:null, lng:c?c.lng:null, known:!!c};
   });
+}
+function parseSCP(text){
+  const t = parseSCPTable(text);
+  if(t) return t;
+  const items = parseSCPByPE(text);
+  return {items, resolved:0, unmatched:items.filter(x=>!x.known).length};
 }
 let scpItems=[];
 function refreshSCPPreview(){
-  scpItems = parseSCP($("#scpText").value||"");
-  const unk = scpItems.filter(x=>!x.known).length;
-  $("#scpPreview").textContent = scpItems.length
-    ? `Nhận được ${scpItems.length} tủ đang báo lỗi` + (unk?` (${unk} mã PE chưa có trong danh sách tủ – vẫn ghi nhận)`:"") + "."
-    : "Chưa nhận được mã PE nào.";
+  const r = parseSCP($("#scpText").value||"");
+  scpItems = r.items;
+  let msg = scpItems.length ? `Nhận được ${scpItems.length} tủ đang lỗi / mất kết nối` : "Chưa nhận được tủ nào – kiểm tra lại nội dung dán/file.";
+  if(r.resolved) msg += ` · bỏ qua ${r.resolved} dòng đã xử lý xong`;
+  if(r.unmatched) msg += ` · ${r.unmatched} tủ chưa khớp danh sách (vẫn ghi nhận theo tên)`;
+  if(scpItems.length) msg += "\nVí dụ: " + scpItems.slice(0,3).map(x=>`${x.name} – ${x.tags}`).join(" | ");
+  $("#scpPreview").textContent = msg;
   $("#scpSync").disabled = scpItems.length===0;
 }
 $("#scpText").addEventListener("input", refreshSCPPreview);
