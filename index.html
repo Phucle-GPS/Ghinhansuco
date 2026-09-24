@@ -208,6 +208,21 @@ main{flex:1;overflow-y:auto;padding:16px 18px 100px;}
 .guide-h{font-size:14px;font-weight:700;margin:16px 0 8px;}
 .guide-list{margin:0;padding-left:18px;font-size:13px;color:var(--text-2);line-height:1.6;}
 .map-mode{margin-bottom:12px;}
+.scp-fault{margin-top:8px;}
+.scp-codes{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.scp-codes .lbl{font-size:12.5px;font-weight:700;color:var(--text-2);margin-right:2px;}
+.code-chip{padding:3px 9px;border-radius:6px;font-size:12.5px;font-weight:800;letter-spacing:.02em;font-family:"IBM Plex Mono",monospace;color:#fff;}
+.code-chip.c-PW{background:#D93025;} .code-chip.c-PLC{background:#C5221F;} .code-chip.c-PM{background:#E8710A;}
+.code-chip.c-4G{background:#1A73E8;} .code-chip.c-DATA{background:#5F6368;}
+.src-tabs{display:flex;gap:8px;margin-bottom:12px;}
+.src-tabs button{flex:1;padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+.src-tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+.src-tabs .cnt{min-width:24px;padding:2px 8px;border-radius:100px;background:color-mix(in srgb,currentColor 18%,transparent);font-size:12px;}
+.scp-sum{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.scp-sum span{padding:6px 11px;border-radius:9px;font-size:12.5px;font-weight:700;background:var(--surface);border:1px solid var(--border);}
+.inc-card.scp{border-left:4px solid #E8710A;}
+.inc-card.scp.loi{border-left-color:var(--high);}
+@media (min-width:1000px){ .src-tabs{max-width:640px;} }
 .lt-hint{font-weight:400;font-size:11.5px;}
 .lt-list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;}
 .field .lt-item,.lt-item{display:flex;align-items:flex-start;gap:9px;padding:9px 11px;border-radius:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:13px;line-height:1.4;}
@@ -442,6 +457,11 @@ nav svg{width:21px;height:21px;}
 
     <!-- DANH SACH VIEW -->
     <section class="view" id="view-list">
+      <div class="src-tabs" id="srcTabs">
+        <button data-v="manual" class="on">📝 Sự cố ghi nhận <span class="cnt" id="cntManual">0</span></button>
+        <button data-v="scp">🖥️ Sự cố tủ SCP <span class="cnt" id="cntScp">0</span></button>
+      </div>
+      <div class="scp-sum" id="scpSum" style="display:none"></div>
       <div class="list-head">
         <div class="filters" id="statusFilters"></div>
         <button class="export-btn" id="scpBtn" style="display:none">🔄 SCP</button>
@@ -964,26 +984,70 @@ function renderStatusFilters(){
 function levelClass(m){ return m==="Cao"?"level-high":(m==="Thấp"?"level-low":"level-mid"); }
 function statusClass(s){ return "st-"+STATUS.indexOf(s); }
 
-function renderIncList(){
-  let list = incidents.filter(i=>{
+let activeSource = (function(){ try{ return localStorage.getItem("gnsc_src")||"manual"; }catch(e){ return "manual"; } })();
+function isScp(i){ return i.nguon==="SCP"; }
+function isLoiScp(i){ const t=(i.loiSCP||"")+" "+(i.moTa||""); return /cúp điện|mất điện|mất nguồn|cháy|chập|hỏng|\bPLC\b|\bPW\b|\bPM\b/i.test(t) || (/SCP – Lỗi/.test(i.moTa||"") && !/4G|DATA|kết nối/i.test(t)); }
+const SCP_CODES=["PLC","PW","PM","4G","DATA"];
+const SCP_CODE_NAME={PLC:"Bộ điều khiển PLC",PW:"Nguồn điện",PM:"Đồng hồ đo điện (PM)","4G":"Kết nối 4G",DATA:"Truyền dữ liệu"};
+function scpParts(i){
+  const raw = String(i.loiSCP||"") || String(i.moTa||"").replace(/^SCP\s*–\s*[^:]*:?\s*/,"");
+  const codes = SCP_CODES.filter(c=>new RegExp("\\b"+c+"\\b","i").test(raw));
+  const tu = (raw.match(/\(từ ([^)]+)\)/)||[])[1]||"";
+  let text = raw.replace(/\(từ [^)]+\)/,"");
+  SCP_CODES.forEach(c=>{ text = text.replace(new RegExp("\\b"+c+"\\b","gi"),""); });
+  text = text.replace(/[;,\s]+/g," ").replace(/^[\s;,-]+|[\s;,-]+$/g,"").trim();
+  return {codes, text, tu};
+}
+function scpFaultHtml(i){
+  const {codes,text,tu}=scpParts(i);
+  const chips = codes.map(c=>`<span class="code-chip c-${c}" title="${SCP_CODE_NAME[c]}">${c}</span>`).join("");
+  let html = `<div class="scp-fault">`;
+  if(codes.length) html += `<div class="scp-codes"><span class="lbl">Lỗi SCP:</span>${chips}</div>`;
+  if(text) html += `<div class="desc">${escapeHtml(text)}</div>`;
+  if(!codes.length && !text) html += `<div class="desc" style="color:var(--text-2)">Chưa có chi tiết lỗi – sẽ cập nhật ở lần đồng bộ sau</div>`;
+  if(tu) html += `<div class="who">⏱ Bắt đầu: ${escapeHtml(tu)}</div>`;
+  return html + `</div>`;
+}
+function filteredIncidents(){
+  return incidents.filter(i=>{
+    if((activeSource==="scp") !== isScp(i)) return false;
     if(activeQuan!=="Tất cả" && i.quan!==activeQuan) return false;
     if(activeStatus!=="Tất cả" && i.trangThai!==activeStatus) return false;
     return true;
   });
+}
+function renderSourceTabs(){
+  const inQ = i => activeQuan==="Tất cả" || i.quan===activeQuan;
+  const open = i => i.trangThai!=="Đã xử lý";
+  $("#cntManual").textContent = incidents.filter(i=>!isScp(i)&&inQ(i)&&open(i)).length;
+  $("#cntScp").textContent = incidents.filter(i=>isScp(i)&&inQ(i)&&open(i)).length;
+  $("#srcTabs").querySelectorAll("button").forEach(b=>b.classList.toggle("on", b.dataset.v===activeSource));
+  const sum=$("#scpSum");
+  if(activeSource==="scp"){
+    const s=incidents.filter(i=>isScp(i)&&inQ(i)&&open(i));
+    const loi=s.filter(isLoiScp).length;
+    sum.innerHTML = `<span>Đang tồn: ${s.length}</span><span style="color:var(--high)">🔴 Lỗi: ${loi}</span><span style="color:#E8710A">🟠 Mất kết nối: ${s.length-loi}</span>`;
+    sum.style.display="flex";
+  } else sum.style.display="none";
+}
+$("#srcTabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{ activeSource=b.dataset.v; try{localStorage.setItem("gnsc_src",activeSource);}catch(e){} renderIncList(); });
+function renderIncList(){
+  renderSourceTabs();
+  let list = filteredIncidents();
   list = list.slice().sort((a,b)=>b.createdAt-a.createdAt);
   const el = $("#incList");
-  if(list.length===0){ el.innerHTML='<div class="empty">Chưa có sự cố nào được ghi nhận.<br>Chuyển sang tab "Ghi nhận mới" để thêm.</div>'; return; }
+  if(list.length===0){ el.innerHTML = activeSource==="scp" ? '<div class="empty">Không có sự cố tủ SCP trong bộ lọc này.</div>' : '<div class="empty">Chưa có sự cố nào được ghi nhận.<br>Chuyển sang tab "Ghi nhận mới" để thêm.</div>'; return; }
   el.innerHTML="";
   list.forEach(i=>{
-    const card=document.createElement("div"); card.className="inc-card";
+    const card=document.createElement("div"); card.className="inc-card"+(isScp(i)?(" scp"+(isLoiScp(i)?" loi":"")):"");
     card.innerHTML = `
       <div class="row1">
         <div><div class="name">${i.cabinetName}</div><div class="code mono">${i.cabinetPE || i.pe || i.cabinetCode || ""} · ${i.quan}</div></div>
         <span class="badge ${levelClass(i.mucDo)}">${i.mucDo}</span>
       </div>
-      <div class="desc">${escapeHtml(i.moTa)}</div>
+      ${isScp(i) ? scpFaultHtml(i) : `<div class="desc">${escapeHtml(i.moTa)}</div>`}
       ${i.lyTrinh ? `<div class="inc-lt">🛣️ Lý trình: ${escapeHtml(i.lyTrinh)}</div>` : ""}
-      ${i.nguon==="SCP" ? `<div class="scp-tag">SCP · ${escapeHtml(i.loiSCP||"")}${i.trangThai!=="Đã xử lý" ? " · tồn " + tonDong(i) : ""}</div>` : ""}
+      ${i.nguon==="SCP" ? `<div class="scp-tag">${["Nguồn SCP", i.trangThai!=="Đã xử lý" ? "tồn "+tonDong(i) : ""].filter(Boolean).join(" · ")}</div>` : ""}
       ${i.ghiChuXuLy ? `<div class="who" style="margin-top:4px">📝 ${escapeHtml(i.ghiChuXuLy)}</div>` : ""}
       <div class="who" style="margin-top:6px">👤 Quản lý tuyến: ${escapeHtml(i.nguoiQuanLy||"—")}</div>
       ${i.anhHienTruong ? `<img class="inc-photo" src="${i.anhHienTruong}" data-full="${i.anhHienTruong}">` : ""}
@@ -992,7 +1056,7 @@ function renderIncList(){
         <button class="badge status-btn ${statusClass(i.trangThai)}" data-id="${i.id}" ${isAdmin()?'':'disabled style="cursor:default"'}>${i.trangThai}</button>
       </div>
       <div class="row2" style="margin-top:7px">
-        ${i.gpsLat!=null
+        ${isScp(i) ? ((i.tuLat!=null && i.tuLat!=="") ? `<a class="pin-link" href="${mapsLink(i.tuLat,i.tuLng)}" target="_blank" rel="noopener">📍 Vị trí tủ</a><span></span>` : `<span></span>`) : i.gpsLat!=null
           ? `<a class="pin-link" href="${mapsLink(i.gpsLat,i.gpsLng)}" target="_blank" rel="noopener">📍 ${i.gpsLat}, ${i.gpsLng}</a>${canEditInc(i)?`<button class="pin-btn" data-pin="${i.id}">Cập nhật lại</button>`:""}`
           : (canEditInc(i) ? `<span></span><button class="pin-btn" data-pin="${i.id}">📍 Cập nhật tọa độ tại chỗ</button>` : `<span></span>`)}
       </div>`;
@@ -1036,11 +1100,7 @@ async function updateIncidentGPS(i, btn){
 /* ---------- xuất Excel ---------- */
 async function exportExcel(){
   const btn = $("#exportBtn");
-  const list = incidents.filter(i=>{
-    if(activeQuan!=="Tất cả" && i.quan!==activeQuan) return false;
-    if(activeStatus!=="Tất cả" && i.trangThai!==activeStatus) return false;
-    return true;
-  }).slice().sort((a,b)=>b.createdAt-a.createdAt);
+  const list = filteredIncidents().slice().sort((a,b)=>b.createdAt-a.createdAt);
 
   if(list.length===0){ alert("Chưa có sự cố nào để xuất."); return; }
   if(typeof XLSX==="undefined"){ alert("Không tải được thư viện xuất Excel, thử lại."); return; }
@@ -1057,7 +1117,7 @@ async function exportExcel(){
   XLSX.utils.book_append_sheet(wb, ws, "Ghi nhan su co");
   const buf = XLSX.write(wb, {bookType:"xlsx", type:"array"});
   const blob = new Blob([buf], {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
-  const filename = "Ghi_nhan_su_co_"+todayISO()+".xlsx";
+  const filename = (activeSource==="scp"?"Su_co_tu_SCP_":"Ghi_nhan_su_co_")+todayISO()+".xlsx";
 
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a"); a.href=url; a.download=filename;
@@ -1382,9 +1442,9 @@ function parseSCPTable(text){
       col.ten=iTen;
       col.ma=keys.findIndex(k=>k==="ma"||k==="matu");
       col.kv=keys.findIndex(k=>k.startsWith("khuvuc")||k==="quan");
-      col.sc=keys.findIndex(k=>k.startsWith("suco")||k.startsWith("loi"));
-      col.bd=keys.findIndex(k=>k.startsWith("thoigianbatdau"));
-      col.xl=keys.findIndex(k=>k.startsWith("thoigianxuly")||k.startsWith("thoigianketthuc"));
+      col.sc=keys.findIndex(k=>k.includes("suco")||k.startsWith("loi")||k.includes("canhbao"));
+      col.bd=keys.findIndex(k=>k.includes("batdau"));
+      col.xl=keys.findIndex(k=>k.includes("xuly")&&k.includes("thoigian")||k.includes("ketthuc"));
       break;
     }
   }
@@ -1479,6 +1539,7 @@ $("#scpSync").onclick=async ()=>{
   n.textContent = r.baseline ? "Chế độ làm mốc: không gửi thông báo." : (r.notified ? "Đã gửi thông báo." : ((r.moi.length||r.reset.length) ? "Chưa gửi thông báo (chưa cài email/Telegram)." : "Không có thay đổi, không gửi thông báo."));
   el.appendChild(n);
   $("#scpBaseline").checked=false;
+  activeSource="scp"; try{localStorage.setItem("gnsc_src","scp");}catch(e){}
   loadIncidents();
 };
 $("#ntSave").onclick=async ()=>{
