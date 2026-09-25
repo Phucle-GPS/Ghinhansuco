@@ -277,6 +277,50 @@ main{flex:1;overflow-y:auto;padding:16px 18px 100px;}
 .fl-act a,.fl-act button{flex:1;text-align:center;font-size:12px;padding:7px 6px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font-family:inherit;font-weight:600;text-decoration:none;cursor:pointer;white-space:nowrap;}
 .fl-act a.dl{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
 .fl-act button.del{flex:0 0 auto;color:var(--high);}
+.ks-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.ks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+@media (min-width:1000px){ .ks-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));} #view-ks.active{display:block;} }
+.ks-card{text-align:left;padding:13px 13px 11px;border-radius:13px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:inherit;cursor:pointer;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:4px;min-height:96px;}
+.ks-card:hover{border-color:var(--accent);}
+.ks-no{font-size:11.5px;font-weight:800;color:var(--accent);letter-spacing:.03em;}
+.ks-name{font-size:14.5px;font-weight:700;line-height:1.3;flex:1;}
+.ks-cnt{font-size:12px;color:var(--text-2);}
+.ks-desc{font-size:13px;color:var(--text-2);margin:-2px 0 10px;line-height:1.5;}
+.ks-sum{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px;}
+.ks-sum span{padding:5px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--border);font-size:12px;}
+.ks-list{display:grid;grid-template-columns:1fr;gap:10px;}
+@media (min-width:1000px){ .ks-list{grid-template-columns:repeat(auto-fill,minmax(360px,1fr));} }
+.ks-rec{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:12px;padding:12px 13px;cursor:pointer;box-shadow:var(--shadow);}
+.ks-rec-top{display:flex;justify-content:space-between;gap:8px;}
+.ks-rec .name{font-weight:700;font-size:14.5px;}
+.ks-rec .desc{font-size:12.5px;margin-top:6px;color:var(--text);line-height:1.5;}
+.ks-rec mark{background:color-mix(in srgb,var(--accent) 35%,transparent);color:inherit;border-radius:3px;}
+.ks-ph{display:flex;gap:6px;margin-top:8px;align-items:center;}
+.ks-ph img{width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--border);}
+.ks-ph span{font-size:12px;color:var(--text-2);}
+.ks-table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--surface);}
+.ks-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.ks-table th,.ks-table td{padding:8px 9px;border-bottom:1px solid var(--border);text-align:center;white-space:nowrap;}
+.ks-table td:nth-child(2),.ks-table td.kl{text-align:left;white-space:normal;}
+.ks-table thead th{background:var(--surface-2);font-weight:700;}
+.ks-table tbody tr{cursor:pointer;} .ks-table tbody tr:hover{background:var(--surface-2);}
+.ks-table tfoot td{font-weight:700;background:var(--surface-2);}
+.ks-sheet{max-width:760px !important;}
+.ks-fields{display:grid;grid-template-columns:1fr;gap:10px;margin-top:6px;}
+@media (min-width:600px){ .ks-fields{grid-template-columns:1fr 1fr;} }
+.ks-f label{display:block;font-size:12.5px;font-weight:600;color:var(--text-2);margin-bottom:4px;}
+.ks-f input[type=text],.ks-f input[type=date],.ks-f input:not([type]),.ks-f textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:14.5px;font-family:inherit;}
+.ks-f.wide{grid-column:1 / -1;}
+.ks-mrow{display:flex;gap:6px;} .ks-mrow input{flex:1;min-width:0;} .ks-mrow .gps-btn{flex:0 0 auto;padding:8px 10px;}
+.ks-chk{display:flex;align-items:center;gap:8px;font-size:14px;padding:8px 0;}
+.ks-chk input{width:18px;height:18px;accent-color:var(--accent);}
+.ks-g{grid-column:1 / -1;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);font-size:13px;font-weight:800;color:var(--accent);}
+.ks-photos{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.ks-pv{position:relative;width:88px;height:88px;}
+.ks-pv img{width:100%;height:100%;object-fit:cover;border-radius:10px;border:1px solid var(--border);cursor:pointer;}
+.ks-pv button{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:100px;border:none;background:var(--high);color:#fff;font-size:12px;cursor:pointer;}
+nav button{min-width:0;}
+@media (max-width:520px){ .nl-x{display:none;} nav button{font-size:11px;} }
 .src-tabs{display:flex;gap:8px;margin-bottom:12px;}
 .src-tabs button{flex:1;padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 .src-tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
@@ -543,6 +587,12 @@ nav svg{width:21px;height:21px;}
       <div id="incList"></div>
     </section>
 
+    <!-- KHẢO SÁT DUY TU VIEW -->
+    <section class="view" id="view-ks">
+      <div class="fl-head"><h2 id="ksTitle">📋 Khảo sát duy tu</h2><button class="gps-btn" id="ksBack" style="display:none">← Danh mục mẫu</button></div>
+      <div id="ksBody"></div>
+    </section>
+
     <!-- FILE LƯU VIEW -->
     <section class="view" id="view-files">
       <div class="fl-head"><h2>📁 File Lưu</h2><span class="who" id="flCount"></span></div>
@@ -610,15 +660,19 @@ nav svg{width:21px;height:21px;}
   <nav>
     <button class="active" id="tabNew">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-      Ghi nhận mới
+      <span class='nl'>Ghi nhận<span class='nl-x'> mới</span></span>
     </button>
     <button id="tabList">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
-      Danh sách sự cố
+      <span class='nl'><span class='nl-x'>Danh sách </span>Sự cố</span>
     </button>
     <button id="tabMap">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20l-6-2.5V5l6 2.5M9 20l6-2.5M9 20V4.5M15 17.5l6 2.5V5l-6-2.5M15 17.5V2.5M9 4.5L15 2.5"/></svg>
       Bản đồ
+    </button>
+    <button id="tabKs">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2h6V3M9 10h6M9 14h6M9 18h3"/></svg>
+      Khảo sát
     </button>
     <button id="tabFiles">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
@@ -670,6 +724,36 @@ nav svg{width:21px;height:21px;}
       </div>
     </div>
   </div>
+  <div class="modal-scrim" id="ksScrim">
+    <div class="modal-sheet ks-sheet">
+      <div class="mtop">
+        <h2 id="ksFTitle">Phiếu khảo sát</h2>
+        <button class="mclose" id="ksClose" aria-label="Đóng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+      <div class="guide-note" id="ksFDesc"></div>
+      <div class="guide-note" id="ksFHint" style="margin-top:8px"></div>
+      <div class="field" style="margin-top:12px">
+        <label for="ksCabIn">Chọn tủ điều khiển để tự điền (các ô có dấu ⟵ tủ)</label>
+        <input type="text" id="ksCabIn" list="ksCabList" placeholder="Gõ tên tủ hoặc mã PE (có dấu hoặc không dấu)" autocomplete="off">
+        <datalist id="ksCabList"></datalist>
+      </div>
+      <div class="ks-fields" id="ksFields"></div>
+      <div class="ks-g">Ảnh hiện trường & vị trí</div>
+      <div class="fl-btns">
+        <button type="button" class="gps-btn" id="ksCamBtn">📷 Chụp ảnh</button>
+        <button type="button" class="gps-btn" id="ksPhBtn">🖼️ Chọn ảnh</button>
+        <button type="button" class="gps-btn" id="ksGpsBtn">📍 Lấy vị trí</button>
+        <input type="file" id="ksCamIn" accept="image/*" capture="environment" hidden>
+        <input type="file" id="ksPhIn" accept="image/*" multiple hidden>
+      </div>
+      <div class="gps-result" id="ksGpsInfo"></div>
+      <div class="ks-photos" id="ksPhotos"></div>
+      <div class="who" id="ksMeta" style="margin-top:10px"></div>
+      <button class="submit-btn" id="ksSave" style="margin-top:14px">💾 Lưu phiếu</button>
+      <div class="gps-result" id="ksMsg"></div>
+      <button class="pin-btn" id="ksDel" style="margin-top:10px;color:var(--high)">🗑 Xóa phiếu</button>
+    </div>
+  </div>
   <div class="modal-scrim" id="measureScrim">
     <div class="modal-sheet">
       <div class="mtop">
@@ -699,6 +783,7 @@ nav svg{width:21px;height:21px;}
         <button class="gps-btn" id="msToIncident">➕ Chèn vào mô tả sự cố</button>
         <a class="gps-btn" id="msMaps" target="_blank" rel="noopener" style="text-decoration:none">🗺️ Xem trên Google Maps</a>
       </div>
+      <button class="submit-btn" id="msUse" style="display:none;margin-top:12px">✔ Dùng kết quả</button>
       <div class="gps-result" id="msMsg"></div>
     </div>
   </div>
@@ -834,7 +919,7 @@ function renderQuanChips(){
     const b=document.createElement("button");
     b.className="chip"+(q===activeQuan?" active":"");
     b.textContent = q==="Tất cả" ? q : q.replace("Quận ","");
-    b.onclick=()=>{activeQuan=q; renderQuanChips(); renderCabList(); renderIncList(); if(typeof renderFiles==='function') renderFiles();};
+    b.onclick=()=>{activeQuan=q; renderQuanChips(); renderCabList(); renderIncList(); if(typeof renderFiles==='function') renderFiles(); if($("#view-ks").classList.contains("active")) ksRender();};
     wrap.appendChild(b);
   });
 }
@@ -1365,6 +1450,8 @@ function msRender(){
     if(P.length<=12) P.forEach((q,i)=>{ svg+=`<text x="${(q.x+8).toFixed(1)}" y="${(q.y-6).toFixed(1)}" font-size="10" fill="currentColor">${i+1}</text>`; });
     sk.innerHTML=svg; sk.style.display="block"; sk.style.color="var(--text-2)";
   } else sk.style.display="none";
+  const mu=$("#msUse");
+  if(msTarget){ mu.style.display=""; mu.disabled=msPts.length<2; mu.textContent=`✔ Dùng ${fmtM(msTotal())} m cho ô "${msTarget.label}"`; } else mu.style.display="none";
   const mp=$("#msMaps");
   if(msPts.length>=2){ mp.href="https://www.google.com/maps/dir/"+msPts.slice(0,25).map(p=>p.lat.toFixed(6)+","+p.lng.toFixed(6)).join("/"); mp.style.display=""; }
   else mp.style.display="none";
@@ -1439,8 +1526,14 @@ $("#msToIncident").onclick=()=>{
   if(typeof updateSubmitState==="function") updateSubmitState();
   window.scrollTo(0,0);
 };
-$("#measureOpen").onclick=()=>{ $("#measureScrim").classList.add("show"); msRender(); };
-$("#measureClose").onclick=()=>{ $("#measureScrim").classList.remove("show"); };
+let msTarget=null;
+$("#measureOpen").onclick=()=>{ msTarget=null; $("#measureScrim").classList.add("show"); msRender(); };
+$("#measureClose").onclick=()=>{ msTarget=null; $("#measureScrim").classList.remove("show"); };
+$("#msUse").onclick=()=>{
+  if(!msTarget) return; const e=$("#"+msTarget.id);
+  if(e){ e.value = (Math.round(msTotal()*10)/10).toString().replace(".",","); e.dispatchEvent(new Event("input")); }
+  msTarget=null; $("#measureScrim").classList.remove("show");
+};
 
 
 /* ---------- File Lưu ---------- */
@@ -1549,12 +1642,346 @@ $("#flSend").onclick=async ()=>{
 $("#flSearch").addEventListener("input",e=>{ flTerm=e.target.value; renderFiles(); });
 $("#tabFiles").onclick=()=>{ showView("files"); renderFlType(); loadFiles(); };
 
+/* ---------- KHẢO SÁT DUY TU: 16 mẫu theo Biểu Mẫu.xlsx ---------- */
+// type: t=text, n=number, m=mét (có nút đo GPS), d=ngày, s=chọn (opts), c=có/không, a=đoạn văn
+// cab: tự điền từ tủ đã chọn (duong|tu|quan|phuong)
+const KS_FORMS = [
+ {id:1, short:"LED hẻm", title:'Khảo sát lắp đặt tăng cường đèn "LED" chiếu sáng tại các tuyến đường "HẺM" trong khu vực', sub:"(hẻm từ 4m trở lên và khoảng cách trụ là 30m)", fields:[
+  {k:"duong",l:"Tuyến đường",cab:"duong",main:1},{k:"phuong",l:"P",cab:"phuong"},{k:"quan",l:"Q",cab:"quan"},
+  {k:"tuHH",l:"Cấp nguồn từ Tủ điều khiển (hiện hữu)",cab:"tu"},{k:"tuTC",l:"Tăng cường Tủ điều khiển (số nhà)"},{k:"viTri",l:"Vị trí trụ"},
+  {k:"dai",l:"Chiều dài tuyến đường (m)",t:"m"},{k:"rong",l:"Chiều rộng lòng đường (m)",t:"m"},{k:"soTru",l:"Tổng số trụ Bê tông điện lực",t:"n"},{k:"ghiChu",l:"Ghi chú (trồng trụ CS)"}]},
+ {id:2, short:"Đèn xen kẽ", title:'Khảo sát lắp đặt tăng cường đèn "HPS XEN KẼ" tại các tuyến đường trong khu vực (hoặc Công viên)', sub:"(khoảng cách trụ là 60m trở lên)", fields:[
+  {k:"duong",l:"Tuyến đường",cab:"duong",main:1},{k:"tu",l:"Tủ điều khiển (hiện hữu)",cab:"tu"},{k:"quan",l:"Q",cab:"quan"},{k:"viTri",l:"Vị trí trụ"},
+  {k:"kcTru",l:"Khoảng cách trụ (m)",t:"m"},{k:"congSuat",l:"C.Suất đèn hiện hữu (W)"},{k:"soNha",l:"Số nhà (TC đèn)"},{k:"chuanTru",l:"Chuẩn loại trụ"},{k:"ghiChu",l:"Ghi chú (góc cua)"}]},
+ {id:3, short:"Thay cần đèn", title:'Kế hoạch thay thế "CẦN ĐÈN" không đúng quy cách, bị mục, rỉ sét, bong chốc sơn', fields:[
+  {k:"duong",l:"Tuyến đường",cab:"duong",main:1},{k:"tu",l:"Tên tủ điều khiển",cab:"tu"},{k:"quan",l:"Quận",cab:"quan"},
+  {k:"c3",l:"3x2.5mm²",t:"n",g:"Loại cáp lên đèn"},{k:"c5",l:"5x2.5mm²",t:"n",g:"Loại cáp lên đèn"},
+  {k:"l25",l:"2,5m",t:"n",g:"Chiều dài cần đèn"},{k:"l3",l:"3m",t:"n",g:"Chiều dài cần đèn"},{k:"l38",l:"3,8m",t:"n",g:"Chiều dài cần đèn"},
+  {k:"viTri",l:"Vị trí trụ"},{k:"soNha",l:"Số nhà"},{k:"kieng",l:"Kiềng 2TN"},{k:"ghiChu",l:"Ghi chú (kiềng thường)"}],
+  hint:"Cách ghi loại kiềng: HTLTL, HTLBL, HTLLL (đơn / đôi dọc / đôi ngang), B2, B4, B6, B9, PL phải, PL trái, TTLTN, TTLTL, TTLBL, TTLLL (đơn / đôi dọc / đôi ngang)."},
+ {id:4, short:"Thay bộ đèn", title:'Kế hoạch thay thế "BỘ ĐÈN" bị lão hóa (hoặc đã sử dụng trên 4-5 năm)', fields:[
+  {k:"duong",l:"Tuyến đường",cab:"duong",main:1},{k:"tu",l:"Tủ điều khiển",cab:"tu"},{k:"quan",l:"Quận",cab:"quan"},{k:"viTri",l:"Vị trí trụ"},{k:"soNha",l:"Số nhà"},
+  ...["70","100","150","250","400","1000","100/70 TT","150/100 TT","250/150 TT","100/70 TĐ","150/100 TĐ","250/150 TĐ"].map((w,i)=>({k:"w"+i,l:w,t:"n",g:"Công suất đèn HPS (W)"})),
+  {k:"ghiChu",l:"Ghi chú (Bộ đèn)"}]},
+ {id:5, short:"Cáp nổi", title:'Kế hoạch thay thế "CÁP NGUỒN NỔI" chiếu sáng bị lão hóa, nhiều mối nối chạm chập hoặc kẹp dừng nối bát sắt', fields:[
+  {k:"duong",l:"Tuyến đường",cab:"duong",main:1},{k:"soNha",l:"Số nhà"},{k:"phuong",l:"Phường",cab:"phuong"},{k:"tu",l:"Tủ điều khiển",cab:"tu"},{k:"quan",l:"Q",cab:"quan"},{k:"viTri",l:"Vị trí trụ"},
+  {k:"cap",l:"Cáp nguồn nổi",t:"s",o:["Đồng 4x10","Đồng 4x11","Nhôm 4x16+22","Nhôm 4x16+25"]},{k:"klCap",l:"K.lượng cáp (m)",t:"m"},
+  {k:"kepDung",l:"Kẹp dừng",t:"n"},{k:"kepTreo",l:"Kẹp treo cáp",t:"n"},{k:"bulong",l:"Bulông 16x300",t:"n"},{k:"kepNguon",l:"Kẹp nguồn",t:"n"},{k:"kepDen",l:"Kẹp đèn",t:"n"},{k:"ghiChu",l:"Ghi chú (nếu có)"}]},
+ {id:6, short:"Cáp ngầm", title:'Kế hoạch thay thế "CÁP NGẦM" chiếu sáng bị lão hóa, chạm chập', fields:[
+  {k:"duong",l:"Tuyến đường",cab:"duong",main:1},{k:"soNha",l:"Số nhà"},{k:"phuong",l:"Phường",cab:"phuong"},{k:"tu",l:"Tủ điều khiển",cab:"tu"},{k:"quan",l:"Q",cab:"quan"},{k:"viTri",l:"Vị trí trụ"},
+  {k:"cap",l:"Cáp ngầm",t:"s",o:["2x6mm²","4x10mm²","4x11mm²","4x25mm²"]},{k:"klCap",l:"K.lượng cáp (m)",t:"m"},
+  {k:"muong",l:"Loại mương cáp",t:"s",o:["Đường nhựa","Đường bê tông","Đường vỉa hè","Đường đất","Đường cỏ"]},
+  {k:"soTru",l:"Trụ",t:"n",g:"Số lượng"},{k:"soDen",l:"Đèn",t:"n",g:"Số lượng"},
+  {k:"rcboKN",l:"RCBO Kín nước",t:"n",g:"Số lượng RCBO"},{k:"rcbo2P",l:"RCBO 2P",t:"n",g:"Số lượng RCBO"},{k:"ghiChu",l:"Ghi chú"}]},
+ {id:7, short:"RCBO", title:'Kế hoạch thay thế "RCBO Thường + Kín nước" bị hư hỏng tại trụ STK, T.Trí, Đèn Pha….', fields:[
+  {k:"duong",l:"Tuyến đường",cab:"duong",main:1},{k:"soNha",l:"Số nhà"},{k:"phuong",l:"Phường",cab:"phuong"},{k:"tu",l:"Tủ điều khiển",cab:"tu"},{k:"quan",l:"Q",cab:"quan"},{k:"viTri",l:"Vị trí trụ"},
+  {k:"kn6",l:"6A",t:"n",g:"RCBO Kín nước"},{k:"kn10",l:"10A",t:"n",g:"RCBO Kín nước"},
+  {k:"p3",l:"3A",t:"n",g:"RCBO 2P"},{k:"p6",l:"6A",t:"n",g:"RCBO 2P"},{k:"p10",l:"10A",t:"n",g:"RCBO 2P"},{k:"ghiChu",l:"Ghi chú"}]},
+ {id:8, short:"Thay STK", title:"Kế hoạch thay thế trụ sắt STK cổ cò (cần đèn chữ S), Trang trí, bị mục, rỉ sét", fields:[
+  {k:"duong",l:"Tuyến đường",cab:"duong",main:1},{k:"tu",l:"Tủ điều khiển",cab:"tu"},{k:"quan",l:"Q",cab:"quan"},{k:"viTri",l:"Vị trí trụ"},
+  {k:"cao",l:"Chiều cao STK hiện hữu"},{k:"canS",l:"Số lượng cần đèn (chữ S)",t:"n"},{k:"chuanTru",l:"Chuẩn loại trụ"},
+  {k:"kn6",l:"Kín nước 6A",t:"n",g:"Số lượng RCBO"},{k:"kn10",l:"Kín nước 10A",t:"n",g:"Số lượng RCBO"},
+  {k:"p3",l:"RCBO 2P 3A",t:"n",g:"Số lượng RCBO"},{k:"p6",l:"RCBO 2P 6A",t:"n",g:"Số lượng RCBO"},{k:"p10",l:"RCBO 2P 10A",t:"n",g:"Số lượng RCBO"},
+  {k:"deXuat",l:"Đề xuất thay mới",t:"a"},{k:"ghiChu",l:"Ghi chú"}]},
+ {id:9, short:"Nâng móng", title:"Kế hoạch nâng móng trụ STK, trang trí hoặc bị mục, rỉ sét", fields:[
+  {k:"duong",l:"Tuyến đường",cab:"duong",main:1},{k:"tu",l:"Tủ điều khiển",cab:"tu"},{k:"quan",l:"Q",cab:"quan"},{k:"viTri",l:"Vị trí trụ"},
+  {k:"cao",l:"Chiều cao STK (m)"},{k:"loaiTru",l:"Loại trụ"},{k:"bulong",l:"Bu lông móng trụ"},{k:"kinNuoc",l:"Kín nước",t:"c"},{k:"rcbo",l:"RCBO",t:"c"},{k:"ghiChu",l:"Ghi chú (nếu có)",t:"a"}]},
+ {id:10, short:"Lá ốp thân trụ", title:"Kế hoạch thay thế tấm ốp thân trụ bị mục, rỉ sét, hư hỏng….", fields:[
+  {k:"duong",l:"Tuyến đường",cab:"duong",main:1},{k:"tu",l:"Tủ điều khiển",cab:"tu"},{k:"quan",l:"Quận",cab:"quan"},{k:"viTri",l:"Vị trí trụ"},{k:"mau",l:"Màu tấm ốp"},{k:"ghiChu",l:"Ghi chú"}]},
+ {id:11, short:"Kiềng TĐK", title:'Kế hoạch thay thế "KIỀNG TỦ" chiếu sáng bị mục, rỉ sét, không đúng quy cách….', fields:[
+  {k:"duong",l:"Tuyến đường",cab:"duong",main:1},{k:"tu",l:"Tủ điều khiển",cab:"tu"},{k:"quan",l:"Quận",cab:"quan"},
+  {k:"kiengHH",l:"Kiềng TĐK hiện hữu"},{k:"kiengMoi",l:"Kiềng TĐK thay mới"},{k:"nguyenNhan",l:"Nguyên nhân"},{k:"ghiChu",l:"Ghi chú"}]},
+ {id:12, short:"Tủ KNTT tắt", title:"Báo tủ KNTT tắt trong tuần", sub:"(Sáng thứ hai đầu tuần báo cho VP)", fields:[
+  {k:"ngayTat",l:"Ngày tủ tắt",t:"d"},{k:"duong",l:"Tuyến đường",cab:"duong",main:1},{k:"tu",l:"Tủ điều khiển",cab:"tu"},{k:"quan",l:"Quận",cab:"quan"},
+  {k:"nguyenNhan",l:"Nguyên nhân sự cố"},{k:"bienPhap",l:"Biện pháp khắc phục"},{k:"chuaXL",l:"Chưa xử lý",t:"c"},{k:"ngayXL",l:"Ngày xử lý",t:"d"},{k:"ghiChu",l:"Ghi chú"}]},
+ {id:13, short:"Khảo sát HPS-LED", title:"KHẢO SÁT HPS-LED", fields:[
+  {k:"duong",l:"Tuyến Đường",cab:"duong",main:1},{k:"phuong",l:"Phường/Xã",cab:"phuong"},{k:"quan",l:"Quận/Huyện",cab:"quan"},{k:"tu",l:"Tủ điều khiển",cab:"tu"},
+  {k:"soDen",l:"Số lượng đèn dự kiến lắp đặt (bộ)",t:"n"},
+  {k:"dai",l:"Chiều dài tuyến (m)",t:"m",g:"Hiện trạng"},{k:"rong",l:"Độ rộng lòng đường (m)",t:"m",g:"Hiện trạng"},{k:"kcTB",l:"Khoảng cách trung bình giữa 2 trụ (m)",t:"m",g:"Hiện trạng"},
+  {k:"dau",l:"Đầu tuyến",g:"Hiện trạng"},{k:"cuoi",l:"Cuối tuyến",g:"Hiện trạng"},
+  {k:"loaiDen",l:"Loại đèn CS hiện hữu",g:"Đặc điểm tuyến đường"},{k:"doCao",l:"Độ cao bộ đèn (m)",t:"n",g:"Đặc điểm tuyến đường"},{k:"doVuon",l:"Độ vươn cần đèn (m)",t:"n",g:"Đặc điểm tuyến đường"},
+  {k:"goc",l:"Góc nghiêng cần đèn (độ)",t:"n",g:"Đặc điểm tuyến đường"},{k:"rongLong",l:"Độ rộng lòng đường (m)",t:"m",g:"Đặc điểm tuyến đường"},
+  {k:"kcTron",l:"Khoảng cách trụ trung bình (làm tròn) (m)",t:"m",g:"Đặc điểm tuyến đường"},{k:"kcMep",l:"Khoảng cách từ trụ đến mép đường (m)",t:"m",g:"Đặc điểm tuyến đường"},
+  {k:"boTri",l:"Cách bố trí trụ",t:"s",o:["Một bên","Hai bên đối xứng","Hai bên so le","Giữa dải phân cách"],g:"Đặc điểm tuyến đường"},
+  {k:"daiPC",l:"Dải phân cách giữa",t:"s",o:["Có","Không"],g:"Đặc điểm tuyến đường"},{k:"soLan",l:"Số làn xe",t:"n",g:"Đặc điểm tuyến đường"},
+  {k:"luuLuong",l:"Lưu lượng xe",t:"s",o:["Nhiều","Trung bình","Ít"],g:"Đặc điểm tuyến đường"},{k:"ghiChu",l:"Ghi chú",g:"Đặc điểm tuyến đường"}]},
+ {id:14, short:"LED tắt trong tuần", title:"Báo đèn LED Chiếu sáng tắt trong tuần", fields:[
+  {k:"ngayTat",l:"Ngày đèn tắt",t:"d"},{k:"duong",l:"Tuyến đường",cab:"duong",main:1},{k:"tu",l:"Tủ điều khiển",cab:"tu"},{k:"quan",l:"Quận",cab:"quan"},
+  {k:"viTri",l:"Vị trí số trụ"},{k:"soNha",l:"Số nhà"},{k:"congSuat",l:"Công suất (W)",t:"n"},{k:"bhCty",l:"Bảo hành công ty",t:"c"},{k:"bhNgoai",l:"Bảo hành thầu ngoài (tên đơn vị)"},{k:"ghiChu",l:"Ghi chú"}]},
+ {id:15, short:"Bảng tên tủ", title:"Lắp Bảng Tên Tủ", fields:[
+  {k:"quan",l:"Quận",cab:"quan"},{k:"duong",l:"Tuyến đường",cab:"duong",main:1},{k:"tu",l:"Tên tủ điều khiển",cab:"tu"},{k:"ghiChu",l:"Ghi chú"}]},
+ {id:16, short:"Decal số trụ", title:"BẢNG TỔNG HỢP KHỐI LƯỢNG LẮP ĐẶT DECAL TRỤ ĐÈN CHIẾU SÁNG", fields:[
+  {k:"duong",l:"Tuyến Đường",cab:"duong",main:1},{k:"tu",l:"Tên Tủ Điều Khiển",cab:"tu"},{k:"phuong",l:"Phường/xã",cab:"phuong"},{k:"viTri",l:"Vị trí số trụ"},
+  {k:"decal",l:"Khối lượng Decal",t:"n"},{k:"ghiChu",l:"Ghi chú (số đèn)"}]}
+];
+
+let ksRecs=[], ksMau=null, ksEdit=null, ksNewPhotos=[], ksKeepPhotos=[], ksGPS=null, ksCab=null, ksTerm="", ksLoaded=false;
+const ksForm = id => KS_FORMS.find(f=>f.id===Number(id));
+const ksNum = v => { const n=parseFloat(String(v==null?"":v).replace(",", ".")); return isNaN(n)?0:n; };
+function ksVisible(){ return ksRecs.filter(r=> activeQuan==="Tất cả" || !r.quan || r.quan===activeQuan); }
+function ksMainText(f, r){ const d=r.data||{}; return d.duong || d.tu || "(chưa có tuyến đường)"; }
+function ksSubText(f, r){
+  const d=r.data||{}, bits=[];
+  f.fields.forEach(x=>{ if(x.main||x.k==="duong") return; const v=d[x.k]; if(v===""||v==null||v===false) return;
+    if(bits.length<5) bits.push((x.g&&x.t==="n"?x.g.replace(/\s*\(.*\)/,"")+" "+x.l:x.l.replace(/\s*\(.*\)/,""))+": "+(v===true?"✔":v)+(x.t==="m"?" m":"")); });
+  return bits.join(" · ");
+}
+async function ksLoad(force){
+  if(ksLoaded && !force) return;
+  const r=await api("listSurveys");
+  if(r.ok){ ksRecs=r.surveys||[]; ksLoaded=true; }
+  else $("#ksBody").innerHTML='<div class="empty">'+escHtml(r.error||"Lỗi")+'</div>';
+}
+function ksRender(){ ksMau ? ksRenderList() : ksRenderHome(); }
+function ksRenderHome(){
+  const vis=ksVisible(), el=$("#ksBody");
+  $("#ksTitle").textContent="📋 Khảo sát duy tu"; $("#ksBack").style.display="none";
+  el.innerHTML="";
+  const tools=document.createElement("div"); tools.className="ks-tools";
+  tools.innerHTML=`<span class="who">${vis.length} phiếu${activeQuan!=="Tất cả"?" · "+activeQuan:""}</span>`;
+  const sumBtn=document.createElement("button"); sumBtn.className="gps-btn"; sumBtn.textContent="📊 Tổng hợp & xuất Excel tất cả"; sumBtn.onclick=ksRenderSummary;
+  tools.appendChild(sumBtn); el.appendChild(tools);
+  const grid=document.createElement("div"); grid.className="ks-grid";
+  KS_FORMS.forEach(f=>{
+    const n=vis.filter(r=>Number(r.mau)===f.id).length;
+    const c=document.createElement("button"); c.className="ks-card";
+    c.innerHTML=`<div class="ks-no">Mẫu ${f.id}</div><div class="ks-name"></div><div class="ks-cnt">${n} phiếu</div>`;
+    c.querySelector(".ks-name").textContent=f.short;
+    c.onclick=()=>{ ksMau=f.id; ksTerm=""; ksRenderList(); window.scrollTo(0,0); };
+    grid.appendChild(c);
+  });
+  el.appendChild(grid);
+}
+function ksRenderList(){
+  const f=ksForm(ksMau), el=$("#ksBody");
+  $("#ksTitle").textContent=`Mẫu ${f.id} – ${f.short}`; $("#ksBack").style.display="";
+  el.innerHTML="";
+  const head=document.createElement("div"); head.className="ks-desc"; head.textContent=f.title+(f.sub?" "+f.sub:""); el.appendChild(head);
+  const tools=document.createElement("div"); tools.className="ks-tools";
+  if(can("nhapKhaoSat")){ const add=document.createElement("button"); add.className="submit-btn"; add.style.width="auto"; add.style.padding="11px 16px"; add.textContent="＋ Thêm phiếu"; add.onclick=()=>ksOpenForm(null); tools.appendChild(add); }
+  if(can("xuatExcel")){ const ex=document.createElement("button"); ex.className="gps-btn"; ex.textContent="⬇ Xuất Excel mẫu này"; ex.onclick=()=>ksExport([f.id]); tools.appendChild(ex); }
+  el.appendChild(tools);
+  const sw=document.createElement("div"); sw.className="search-wrap"; sw.innerHTML='<input type="text" placeholder="Tìm tuyến đường, tủ, vị trí trụ, ghi chú… (có dấu hoặc không dấu)">';
+  const inp=sw.querySelector("input"); inp.value=ksTerm; inp.oninput=()=>{ ksTerm=inp.value; draw(); };
+  el.appendChild(sw);
+  const sum=document.createElement("div"); sum.className="ks-sum"; el.appendChild(sum);
+  const list=document.createElement("div"); list.className="ks-list"; el.appendChild(list);
+  function draw(){
+    const tokens=vnNorm(ksTerm).trim().split(/\s+/).filter(Boolean);
+    const recs=ksVisible().filter(r=>Number(r.mau)===f.id).filter(r=>!tokens.length || tokens.every(t=>vnNorm(Object.values(r.data||{}).join(" ")+" "+r.nguoiTaoTen).includes(t)));
+    const sums=f.fields.filter(x=>x.t==="n"||x.t==="m").map(x=>[x,recs.reduce((s,r)=>s+ksNum((r.data||{})[x.k]),0)]).filter(z=>z[1]);
+    sum.innerHTML = `<span>${recs.length} phiếu</span>` + sums.slice(0,6).map(([x,v])=>`<span>${escHtml((x.g?x.g.replace(/\s*\(.*\)/,"")+" ":"")+x.l.replace(/\s*\(.*\)/,""))}: <b>${v.toLocaleString("vi-VN",{maximumFractionDigits:1})}${x.t==="m"?" m":""}</b></span>`).join("");
+    list.innerHTML="";
+    if(!recs.length){ list.innerHTML='<div class="empty">Chưa có phiếu khảo sát.'+(can("nhapKhaoSat")?' Bấm "＋ Thêm phiếu".':'')+'</div>'; return; }
+    recs.forEach((r,i)=>{
+      const c=document.createElement("div"); c.className="ks-rec";
+      const top=document.createElement("div"); top.className="ks-rec-top";
+      const t=document.createElement("div"); t.innerHTML=`<div class="name">${highlight(ksMainText(f,r),tokens)}</div><div class="who">${escHtml((r.data||{}).tu||"")}${r.quan?" · "+escHtml(r.quan):""}</div>`;
+      const n=document.createElement("span"); n.className="badge st-0 status-btn"; n.textContent="#"+(recs.length-i);
+      top.appendChild(t); top.appendChild(n); c.appendChild(top);
+      const s=document.createElement("div"); s.className="desc"; s.textContent=ksSubText(f,r); c.appendChild(s);
+      if(r.anh && r.anh.length){ const ph=document.createElement("div"); ph.className="ks-ph"; r.anh.slice(0,4).forEach(u=>{ const im=document.createElement("img"); im.loading="lazy"; im.src=u; ph.appendChild(im); }); if(r.anh.length>4){ const m=document.createElement("span"); m.textContent="+"+(r.anh.length-4); ph.appendChild(m);} c.appendChild(ph); }
+      const w=document.createElement("div"); w.className="who"; w.style.marginTop="6px";
+      w.textContent=`👤 ${r.nguoiTaoTen||r.nguoiTao} · ${new Date(r.createdAt).toLocaleString("vi-VN",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"})}`+(r.gpsLat!=null?" · 📍":"");
+      c.appendChild(w);
+      c.onclick=()=>ksOpenForm(r);
+      list.appendChild(c);
+    });
+  }
+  draw();
+}
+function ksRenderSummary(){
+  const vis=ksVisible(), el=$("#ksBody");
+  $("#ksTitle").textContent="📊 Tổng hợp khảo sát duy tu"; $("#ksBack").style.display="";
+  const quans=[...new Set(vis.map(r=>r.quan).filter(Boolean))].sort();
+  let html=`<div class="ks-tools"><span class="who">${vis.length} phiếu${activeQuan!=="Tất cả"?" · "+activeQuan:""}</span>`;
+  el.innerHTML=html+"</div>";
+  if(can("xuatExcel")){ const b=document.createElement("button"); b.className="submit-btn"; b.style.width="auto"; b.style.padding="11px 16px"; b.textContent="⬇ Xuất Excel tổng hợp (tất cả mẫu)"; b.onclick=()=>ksExport(KS_FORMS.map(f=>f.id)); el.querySelector(".ks-tools").appendChild(b); }
+  const wrap=document.createElement("div"); wrap.className="ks-table-wrap";
+  let t=`<table class="ks-table"><thead><tr><th>Mẫu</th><th>Nội dung</th><th>Số phiếu</th>${quans.map(q=>`<th>${escHtml(q.replace("Quận ","Q."))}</th>`).join("")}<th>Khối lượng chính</th></tr></thead><tbody>`;
+  KS_FORMS.forEach(f=>{
+    const rs=vis.filter(r=>Number(r.mau)===f.id);
+    const sums=f.fields.filter(x=>x.t==="n"||x.t==="m").map(x=>[x,rs.reduce((s,r)=>s+ksNum((r.data||{})[x.k]),0)]).filter(z=>z[1]).slice(0,4)
+      .map(([x,v])=>`${escHtml((x.g?x.g.replace(/\s*\(.*\)/,"")+" ":"")+x.l.replace(/\s*\(.*\)/,""))}: ${v.toLocaleString("vi-VN",{maximumFractionDigits:1})}${x.t==="m"?" m":""}`).join("<br>");
+    t+=`<tr data-m="${f.id}"><td>${f.id}</td><td>${escHtml(f.short)}</td><td><b>${rs.length}</b></td>${quans.map(q=>`<td>${rs.filter(r=>r.quan===q).length||""}</td>`).join("")}<td class="kl">${sums||""}</td></tr>`;
+  });
+  t+=`</tbody><tfoot><tr><td colspan="2">Tổng cộng</td><td><b>${vis.length}</b></td>${quans.map(q=>`<td><b>${vis.filter(r=>r.quan===q).length}</b></td>`).join("")}<td></td></tr></tfoot></table>`;
+  wrap.innerHTML=t; el.appendChild(wrap);
+  wrap.querySelectorAll("tbody tr").forEach(tr=>tr.onclick=()=>{ ksMau=Number(tr.dataset.m); ksRenderList(); });
+  ksMau=null;
+}
+$("#ksBack").onclick=()=>{ ksMau=null; ksRenderHome(); };
+
+/* ----- form nhập/sửa phiếu ----- */
+function ksOpenForm(rec){
+  const f=ksForm(ksMau); ksEdit=rec; ksNewPhotos=[]; ksKeepPhotos=rec?(rec.anh||[]).slice():[]; ksGPS=rec&&rec.gpsLat!=null?{lat:rec.gpsLat,lng:rec.gpsLng}:null;
+  ksCab = rec && rec.cabinetPE ? CABINETS.find(c=>c.pe===rec.cabinetPE)||null : null;
+  const canEdit = can("nhapKhaoSat") && (!rec || isAdmin() || rec.nguoiTao===SESSION.user.username);
+  $("#ksFTitle").textContent=`Mẫu ${f.id} – ${f.short}`+(rec?" (xem/sửa)":" (phiếu mới)");
+  $("#ksFDesc").textContent=f.title+(f.sub?" "+f.sub:"");
+  $("#ksFHint").textContent=f.hint||""; $("#ksFHint").style.display=f.hint?"":"none";
+  $("#ksCabIn").value = ksCab ? ksCab.n+" | "+ksCab.pe : "";
+  const box=$("#ksFields"); box.innerHTML=""; let lastG=null;
+  const d=rec?rec.data||{}:{};
+  f.fields.forEach(x=>{
+    if(x.g!==lastG){ if(x.g){ const h=document.createElement("div"); h.className="ks-g"; h.textContent=x.g; box.appendChild(h);} lastG=x.g; }
+    const w=document.createElement("div"); w.className="ks-f"+(x.t==="a"?" wide":"");
+    const lb=document.createElement("label"); lb.textContent=x.l+(x.cab?" ⟵ tủ":""); lb.htmlFor="ksf_"+x.k; w.appendChild(lb);
+    let inp;
+    if(x.t==="s"){ inp=document.createElement("input"); inp.setAttribute("list","ksl_"+x.k); const dl=document.createElement("datalist"); dl.id="ksl_"+x.k; x.o.forEach(o=>{const op=document.createElement("option"); op.value=o; dl.appendChild(op);}); w.appendChild(dl); }
+    else if(x.t==="a"){ inp=document.createElement("textarea"); inp.rows=3; }
+    else if(x.t==="c"){ inp=document.createElement("input"); inp.type="checkbox"; }
+    else { inp=document.createElement("input"); inp.type = x.t==="d"?"date":"text"; if(x.t==="n"||x.t==="m") inp.inputMode="decimal"; }
+    inp.id="ksf_"+x.k;
+    if(x.t==="c") inp.checked=!!d[x.k]; else inp.value = d[x.k]==null?"":d[x.k];
+    inp.disabled=!canEdit;
+    if(x.t==="m"){ const row=document.createElement("div"); row.className="ks-mrow"; row.appendChild(inp);
+      const b=document.createElement("button"); b.type="button"; b.className="gps-btn"; b.textContent="📏 Đo"; b.disabled=!canEdit || !can("doKhoangCach");
+      b.onclick=()=>{ msTarget={id:"ksf_"+x.k, label:x.l}; $("#measureScrim").classList.add("show"); msRender(); };
+      row.appendChild(b); w.appendChild(row); }
+    else if(x.t==="c"){ const row=document.createElement("label"); row.className="ks-chk"; row.appendChild(inp); row.appendChild(document.createTextNode(" Có")); w.appendChild(row); }
+    else w.appendChild(inp);
+    box.appendChild(w);
+  });
+  ksRenderPhotos(canEdit);
+  $("#ksGpsInfo").innerHTML = ksGPS ? `📍 <a target="_blank" rel="noopener" href="${mapsLink(ksGPS.lat,ksGPS.lng)}">${(+ksGPS.lat).toFixed(6)}, ${(+ksGPS.lng).toFixed(6)}</a>` : "Chưa có vị trí";
+  $("#ksMeta").textContent = rec ? `Lập bởi ${rec.nguoiTaoTen||rec.nguoiTao} lúc ${new Date(rec.createdAt).toLocaleString("vi-VN")}`+(rec.updatedAt>rec.createdAt?` · sửa ${new Date(rec.updatedAt).toLocaleString("vi-VN")}`:"") : "";
+  ["ksCabIn","ksGpsBtn","ksPhBtn","ksCamBtn","ksSave"].forEach(id=>{ const e=$("#"+id); if(e) e.disabled=!canEdit; });
+  $("#ksSave").style.display = canEdit ? "" : "none";
+  $("#ksDel").style.display = (rec && canEdit) ? "" : "none";
+  $("#ksMsg").textContent = canEdit ? "" : "Bạn chỉ được xem phiếu này.";
+  $("#ksScrim").classList.add("show");
+}
+function ksRenderPhotos(canEdit){
+  const box=$("#ksPhotos"); box.innerHTML="";
+  const add=(src,onDel)=>{ const w=document.createElement("div"); w.className="ks-pv"; const im=document.createElement("img"); im.src=src; im.onclick=()=>window.open(src,"_blank"); w.appendChild(im);
+    if(canEdit){ const x=document.createElement("button"); x.textContent="✕"; x.onclick=e=>{ e.stopPropagation(); onDel(); ksRenderPhotos(canEdit); }; w.appendChild(x); } box.appendChild(w); };
+  ksKeepPhotos.forEach((u,i)=>add(u,()=>ksKeepPhotos.splice(i,1)));
+  ksNewPhotos.forEach((u,i)=>add(u,()=>ksNewPhotos.splice(i,1)));
+  if(!box.children.length){ box.innerHTML='<span class="who">Chưa có ảnh</span>'; }
+}
+function ksFillFromCab(c){
+  ksCab=c; if(!c) return;
+  const f=ksForm(ksMau), map={duong:c.duong||c.diaChi||"", tu:c.n, quan:c.q, phuong:c.phuong||""};
+  f.fields.forEach(x=>{ if(x.cab){ const e=$("#ksf_"+x.k); if(e && !e.value) e.value=map[x.cab]||""; } });
+}
+$("#ksCabIn").addEventListener("input",e=>{
+  const v=e.target.value, dl=$("#ksCabList"); dl.innerHTML="";
+  const pe=(v.split("|")[1]||"").trim(); const exact=pe && CABINETS.find(c=>c.pe===pe);
+  if(exact){ ksFillFromCab(exact); return; }
+  if(v.trim().length<2) return;
+  searchCabinets(v,false).list.slice(0,15).forEach(c=>{ const o=document.createElement("option"); o.value=c.n+" | "+c.pe; o.label=c.q; dl.appendChild(o); });
+});
+$("#ksGpsBtn").onclick=()=>{ $("#ksGpsInfo").textContent="Đang lấy vị trí…"; captureGPS((g,err)=>{ if(err){ $("#ksGpsInfo").textContent=err; return; } ksGPS=g; $("#ksGpsInfo").innerHTML=`📍 <a target="_blank" rel="noopener" href="${mapsLink(g.lat,g.lng)}">${g.lat}, ${g.lng}</a> (±${g.acc}m)`; }); };
+function ksCompress(file){
+  return new Promise(res=>{
+    const img=new Image(); img.onload=()=>{
+      const s=Math.min(1,1280/img.width), w=Math.round(img.width*s), h=Math.round(img.height*s);
+      const cv=document.createElement("canvas"); cv.width=w; cv.height=h; const ctx=cv.getContext("2d"); ctx.drawImage(img,0,0,w,h);
+      const lines=[fmtTimestamp(new Date())];
+      const tuyen=($("#ksf_duong")||{}).value; if(tuyen) lines.push(tuyen+(ksCab?" · "+ksCab.n:""));
+      if(ksGPS) lines.push("GPS: "+(+ksGPS.lat).toFixed(6)+", "+(+ksGPS.lng).toFixed(6));
+      lines.push("Mẫu "+ksMau+" – "+ksForm(ksMau).short);
+      drawWatermark(ctx,w,h,lines); res(compressCanvasToLimit(cv,160000));
+    }; img.onerror=()=>res(null); img.src=URL.createObjectURL(file);
+  });
+}
+async function ksAddPhotos(files){
+  if(!ksGPS){ await new Promise(r=>captureGPS((g)=>{ if(g){ ksGPS=g; $("#ksGpsInfo").innerHTML=`📍 ${g.lat}, ${g.lng} (±${g.acc}m)`; } r(); })); }
+  for(const f of [...files]){ if(ksKeepPhotos.length+ksNewPhotos.length>=12){ $("#ksMsg").textContent="Tối đa 12 ảnh/phiếu."; break; } const d=await ksCompress(f); if(d) ksNewPhotos.push(d); }
+  ksRenderPhotos(true);
+}
+$("#ksPhIn").addEventListener("change",e=>{ const fs=[...e.target.files]; e.target.value=""; ksAddPhotos(fs); });
+$("#ksCamIn").addEventListener("change",e=>{ const fs=[...e.target.files]; e.target.value=""; ksAddPhotos(fs); });
+$("#ksPhBtn").onclick=()=>$("#ksPhIn").click();
+$("#ksCamBtn").onclick=()=>$("#ksCamIn").click();
+$("#ksClose").onclick=()=>$("#ksScrim").classList.remove("show");
+$("#ksSave").onclick=async ()=>{
+  const f=ksForm(ksMau), data={};
+  f.fields.forEach(x=>{ const e=$("#ksf_"+x.k); if(!e) return; data[x.k] = x.t==="c" ? e.checked : e.value.trim(); });
+  if(!Object.values(data).some(v=>v!=="" && v!==false)){ $("#ksMsg").textContent="Phiếu đang trống."; return; }
+  const btn=$("#ksSave"); btn.disabled=true; btn.textContent="Đang lưu…";
+  const quan = ksCab ? ksCab.q : (QUANS.find(q=>q!=="Tất cả" && vnNorm(q).includes(vnNorm(String(data.quan||"")).replace(/^q\.?\s*/,"")) && String(data.quan||"").trim()) || "");
+  const r=await api("saveSurvey",{rec:{id:ksEdit?ksEdit.id:null, mau:ksMau, quan, cabinetPE:ksCab?ksCab.pe:"", data, anh:ksKeepPhotos, newPhotos:ksNewPhotos, gpsLat:ksGPS?ksGPS.lat:null, gpsLng:ksGPS?ksGPS.lng:null}});
+  btn.disabled=false; btn.textContent="💾 Lưu phiếu";
+  if(!r.ok){ $("#ksMsg").textContent=r.error||"Lỗi"; return; }
+  if(ksEdit){ const i=ksRecs.findIndex(x=>x.id===ksEdit.id); if(i>-1) ksRecs[i]=r.rec; } else ksRecs.unshift(r.rec);
+  $("#ksScrim").classList.remove("show"); ksRenderList();
+};
+$("#ksDel").onclick=async ()=>{
+  if(!ksEdit || !confirm("Xóa phiếu khảo sát này?")) return;
+  const r=await api("deleteSurvey",{id:ksEdit.id});
+  if(!r.ok){ $("#ksMsg").textContent=r.error||"Lỗi"; return; }
+  ksRecs=ksRecs.filter(x=>x.id!==ksEdit.id); $("#ksScrim").classList.remove("show"); ksRenderList();
+};
+
+/* ----- xuất Excel theo đúng biểu mẫu ----- */
+function ksSheetFor(f, recs){
+  const hasG=f.fields.some(x=>x.g);
+  const extra=["Người khảo sát","Ngày khảo sát","Tọa độ GPS","Ảnh hiện trường"];
+  const ncol=1+f.fields.length+extra.length;
+  const aoa=[], merges=[];
+  aoa.push(["Mẫu "+f.id, f.title+(f.sub?" "+f.sub:"")]); merges.push({s:{r:0,c:1},e:{r:0,c:ncol-1}});
+  aoa.push([activeQuan!=="Tất cả"?"Khu vực: "+activeQuan:"Khu vực: Tất cả", "", "Xuất ngày "+new Date().toLocaleString("vi-VN")]);
+  const h1=["Stt"], h2=[""];
+  let c=1;
+  f.fields.forEach((x,i)=>{
+    if(x.g){ h1.push(x.g); h2.push(x.l); const prev=f.fields[i-1]; if(!prev||prev.g!==x.g){ let n=1; while(f.fields[i+n] && f.fields[i+n].g===x.g) n++; if(n>1) merges.push({s:{r:2,c},e:{r:2,c:c+n-1}}); } }
+    else { h1.push(x.l); h2.push(""); if(hasG) merges.push({s:{r:2,c},e:{r:3,c}}); }
+    c++;
+  });
+  extra.forEach(e=>{ h1.push(e); h2.push(""); if(hasG) merges.push({s:{r:2,c},e:{r:3,c}}); c++; });
+  if(hasG) merges.push({s:{r:2,c:0},e:{r:3,c:0}});
+  aoa.push(h1); if(hasG) aoa.push(h2);
+  const start=aoa.length;
+  recs.slice().sort((a,b)=>a.createdAt-b.createdAt).forEach((r,i)=>{
+    const d=r.data||{};
+    const row=[i+1];
+    f.fields.forEach(x=>{ let v=d[x.k]; if(x.t==="c") v=v?"X":""; else if((x.t==="n"||x.t==="m") && v!=="" && v!=null && !isNaN(ksNum(v))) v=ksNum(v); row.push(v==null?"":v); });
+    row.push(r.nguoiTaoTen||r.nguoiTao||"", new Date(r.createdAt).toLocaleDateString("vi-VN"), r.gpsLat!=null?r.gpsLat+", "+r.gpsLng:"", (r.anh||[]).join("\n"));
+    aoa.push(row);
+  });
+  if(recs.length){
+    const tot=["Tổng cộng"]; f.fields.forEach(x=>tot.push((x.t==="n"||x.t==="m")?recs.reduce((s,r)=>s+ksNum((r.data||{})[x.k]),0)||"":"")); aoa.push(tot);
+  }
+  const ws=XLSX.utils.aoa_to_sheet(aoa);
+  ws["!merges"]=merges;
+  ws["!cols"]=[{wch:5}].concat(f.fields.map(x=>({wch: x.t==="a"||x.k==="ghiChu"?28 : x.k==="duong"?24 : x.g?9 : 14})), [{wch:18},{wch:12},{wch:22},{wch:40}]);
+  ws["!freeze"]={xSplit:0,ySplit:start};
+  return ws;
+}
+function ksExport(ids){
+  if(typeof XLSX==="undefined"){ alert("Không tải được thư viện Excel, thử lại."); return; }
+  const vis=ksVisible(), wb=XLSX.utils.book_new();
+  if(ids.length>1){
+    const quans=[...new Set(vis.map(r=>r.quan).filter(Boolean))].sort();
+    const aoa=[["TỔNG HỢP KHẢO SÁT DUY TU"+(activeQuan!=="Tất cả"?" – "+activeQuan:"")],["Xuất ngày "+new Date().toLocaleString("vi-VN")],["Mẫu","Nội dung","Số phiếu",...quans,"Khối lượng chính"]];
+    KS_FORMS.forEach(f=>{ const rs=vis.filter(r=>Number(r.mau)===f.id);
+      const kl=f.fields.filter(x=>x.t==="n"||x.t==="m").map(x=>[x,rs.reduce((s,r)=>s+ksNum((r.data||{})[x.k]),0)]).filter(z=>z[1]).map(([x,v])=>((x.g?x.g+" ":"")+x.l)+": "+v+(x.t==="m"?" m":"")).join("; ");
+      aoa.push([f.id,f.title,rs.length,...quans.map(q=>rs.filter(r=>r.quan===q).length),kl]); });
+    aoa.push(["","Tổng cộng",vis.length,...quans.map(q=>vis.filter(r=>r.quan===q).length),""]);
+    const ws=XLSX.utils.aoa_to_sheet(aoa); ws["!cols"]=[{wch:6},{wch:60},{wch:9},...quans.map(()=>({wch:12})),{wch:60}];
+    XLSX.utils.book_append_sheet(wb, ws, "Tong hop");
+  }
+  let any=false;
+  ids.forEach(id=>{ const f=ksForm(id), rs=vis.filter(r=>Number(r.mau)===id); if(ids.length>1 && !rs.length) return; any=true;
+    XLSX.utils.book_append_sheet(wb, ksSheetFor(f, rs), (id+"."+f.short).replace(/[\\\/\?\*\[\]:]/g,"").slice(0,31)); });
+  if(!any && ids.length>1 && !vis.length){ alert("Chưa có phiếu khảo sát nào để xuất."); return; }
+  const name = ids.length>1 ? "Tong_hop_khao_sat_duy_tu_"+todayISO()+".xlsx" : "Khao_sat_Mau_"+ids[0]+"_"+todayISO()+".xlsx";
+  const buf=XLSX.write(wb,{bookType:"xlsx",type:"array"});
+  const url=URL.createObjectURL(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
+  const a=document.createElement("a"); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),4000);
+}
+$("#tabKs").onclick=async ()=>{ showView("ks"); $("#ksBody").innerHTML='<div class="empty">Đang tải…</div>'; await ksLoad(true); ksRender(); };
+
 /* ---------- tabs ---------- */
 function showView(name){
   $("#view-new").classList.toggle("active", name==="new");
   $("#view-list").classList.toggle("active", name==="list");
   $("#view-map").classList.toggle("active", name==="map");
   $("#view-files").classList.toggle("active", name==="files");
+  $("#view-ks").classList.toggle("active", name==="ks");
+  $("#tabKs").classList.toggle("active", name==="ks");
   $("#tabFiles").classList.toggle("active", name==="files");
   $("#tabNew").classList.toggle("active", name==="new");
   $("#tabList").classList.toggle("active", name==="list");
@@ -1760,11 +2187,13 @@ const PERMS = [
   ["xemBanDo","Xem bản đồ","Tab Bản đồ, tủ gần nhất"],
   ["doKhoangCach","Đo khoảng cách GPS","Thước đo mét trong tab Bản đồ"],
   ["xemFile","Xem & tải File Lưu","Xem, tải về file/ảnh đã lưu"],
-  ["taiLenFile","Tải file lên File Lưu","Upload file/ảnh từ điện thoại, máy tính"]
+  ["taiLenFile","Tải file lên File Lưu","Upload file/ảnh từ điện thoại, máy tính"],
+  ["khaoSat","Xem Khảo sát duy tu","Xem phiếu khảo sát 16 mẫu, tổng hợp"],
+  ["nhapKhaoSat","Nhập phiếu Khảo sát duy tu","Lập, sửa phiếu của mình, chụp ảnh, đo khoảng cách"]
 ];
 const PERM_DEFAULT = {
-  user:   {ghiNhan:true, capNhatGPS:true, doiTrangThai:false, xemTatCa:true, xemSCP:true, dongBoSCP:false, xuatExcel:true, xemBanDo:true, doKhoangCach:true, xemFile:true, taiLenFile:true},
-  viewer: {ghiNhan:false,capNhatGPS:false,doiTrangThai:false, xemTatCa:true, xemSCP:true, dongBoSCP:false, xuatExcel:true, xemBanDo:true, doKhoangCach:true, xemFile:true, taiLenFile:false}
+  user:   {ghiNhan:true, capNhatGPS:true, doiTrangThai:false, xemTatCa:true, xemSCP:true, dongBoSCP:false, xuatExcel:true, xemBanDo:true, doKhoangCach:true, xemFile:true, taiLenFile:true, khaoSat:true, nhapKhaoSat:true},
+  viewer: {ghiNhan:false,capNhatGPS:false,doiTrangThai:false, xemTatCa:true, xemSCP:true, dongBoSCP:false, xuatExcel:true, xemBanDo:true, doKhoangCach:true, xemFile:true, taiLenFile:false, khaoSat:true, nhapKhaoSat:false}
 };
 function can(k){
   const u = SESSION && SESSION.user; if(!u) return false;
@@ -1785,6 +2214,7 @@ function applyUser(u){
   $("#exportBtn").style.display = can("xuatExcel") ? "" : "none";
   $("#tabMap").style.display = can("xemBanDo") ? "" : "none";
   $("#tabFiles").style.display = can("xemFile") ? "" : "none";
+  $("#tabKs").style.display = can("khaoSat") ? "" : "none";
   $("#flUpload").style.display = can("taiLenFile") ? "" : "none";
   $("#measureOpen").style.display = can("doKhoangCach") ? "" : "none";
   const scpTab = $('#srcTabs button[data-v="scp"]'); if(scpTab) scpTab.style.display = can("xemSCP") ? "" : "none";
