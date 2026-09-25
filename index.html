@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>CSKVTT</title>
-<meta name="app-version" content="2026-09-26-thong-ke-2">
+<meta name="app-version" content="2026-09-27-banve-led">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="CSKVTT">
@@ -381,6 +381,35 @@ nav button.nav-sub{display:none !important;}
 .bk-t tr.bk-err{background:color-mix(in srgb,var(--high) 8%,transparent);}
 .user-row>div{flex:1;min-width:0;}
 .user-row .bk-u{width:18px;height:18px;flex:0 0 auto;accent-color:var(--accent);margin-right:6px;}
+.inc-photos{display:flex;gap:6px;overflow-x:auto;margin-top:6px;} .inc-photos .inc-photo{flex:0 0 auto;width:86px;height:86px;object-fit:cover;margin:0;}
+nav button{padding-left:2px;padding-right:2px;}
+@media (max-width:520px){ nav button{font-size:10.5px;} nav button svg{width:20px;height:20px;} }
+.bv-tree{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;}
+.bv-q{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px;box-shadow:var(--shadow);}
+.bv-qh{display:flex;justify-content:space-between;margin-bottom:6px;font-size:13.5px;} .bv-qh span{color:var(--text-2);font-size:12px;}
+.bv-w{display:flex;justify-content:space-between;width:100%;padding:7px 9px;margin-top:4px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font-family:inherit;font-size:13px;cursor:pointer;}
+.bv-w:hover{border-color:var(--accent);}
+.bv-card{display:flex;gap:10px;} .bv-th{flex:0 0 76px;height:76px;border-radius:10px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:30px;overflow:hidden;} .bv-th img{width:100%;height:100%;object-fit:cover;} .bv-in{flex:1;min-width:0;}
+.bv-cabs{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.bv-cab{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:100px;background:var(--surface-2);border:1px solid var(--border);font-size:12px;color:var(--text);font-family:inherit;cursor:default;}
+button.bv-cab{cursor:pointer;} .bv-cab button{border:none;background:none;color:var(--high);cursor:pointer;font-size:12px;}
+.ks-f select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:14.5px;font-family:inherit;}
+.hs-files{display:flex;flex-direction:column;gap:6px;}
+.hs-file{display:flex;align-items:center;gap:10px;padding:6px;border:1px solid var(--border);border-radius:10px;background:var(--surface);}
+.hs-file img{width:46px;height:46px;object-fit:cover;border-radius:8px;} .hs-ic{width:46px;text-align:center;font-size:26px;}
+.hs-fn{flex:1;min-width:0;font-size:13px;word-break:break-word;} .hs-fa{display:flex;gap:4px;} .hs-fa .gps-btn{padding:6px 9px;text-decoration:none;}
+.fl-bulk{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+.fl-thumb{position:relative;} .fl-sel{position:absolute;top:6px;left:6px;background:var(--surface);border-radius:6px;padding:2px 4px;} .fl-sel input{width:18px;height:18px;accent-color:var(--accent);}
+button.dl{border:none;}
+.led-bars{display:flex;flex-direction:column;gap:6px;}
+.led-bar{display:grid;grid-template-columns:minmax(150px,230px) 1fr auto;gap:10px;align-items:center;padding:8px 10px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:inherit;font-size:12.5px;cursor:pointer;text-align:left;}
+.led-bt{height:10px;border-radius:10px;background:var(--surface-2);overflow:hidden;} .led-bt i{display:block;height:100%;}
+@media (max-width:600px){ .led-bar{grid-template-columns:1fr;} }
+.st-led-ok{background:#1A73E8 !important;color:#fff !important;} .st-led-soon{background:#E8A20A !important;color:#1b1b1b !important;} .st-led-exp{background:#C5221F !important;color:#fff !important;}
+.st-led-proc{background:#E8710A !important;color:#fff !important;} .st-led-done{background:#2E7D4F !important;color:#fff !important;} .st-led-unk{background:#80868B !important;color:#fff !important;}
+.led-alert{padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--high) 10%,var(--surface));border-left:4px solid var(--high);font-size:13px;line-height:1.55;margin-bottom:10px;}
+.led-t tbody tr{cursor:pointer;} .led-done{opacity:.6;}
+.bk-inp{flex:1;min-width:200px;padding:9px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:inherit;font-size:14px;}
 .src-tabs{display:flex;gap:8px;margin-bottom:12px;}
 .src-tabs button{flex:1;padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 .src-tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
@@ -609,16 +638,15 @@ nav svg{width:21px;height:21px;}
           <div class="gps-result" id="gpsResult"></div>
         </div>
         <div class="field">
-          <label>Ảnh hiện trường (gắn định vị GPS)</label>
+          <label>Ảnh hiện trường (gắn định vị GPS) – tối đa 10 ảnh <span id="photoCount" class="who"></span></label>
           <input type="file" accept="image/*" capture="environment" id="photoInput" style="display:none">
+          <input type="file" accept="image/*" multiple id="photoPick" style="display:none">
           <button type="button" class="gps-btn" id="photoBtn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h2l1.5-2h5L16 4h2a2 2 0 0 1 2 2v2"/><rect x="2" y="8" width="20" height="13" rx="2"/><circle cx="12" cy="14.5" r="3.5"/></svg>
             Chụp ảnh hiện trường
           </button>
-          <div id="photoPreviewWrap" style="display:none">
-            <img id="photoPreview" class="photo-preview">
-            <button type="button" class="pin-btn" id="photoRemove">Xóa ảnh</button>
-          </div>
+          <button type="button" class="gps-btn" id="photoPickBtn" style="margin-top:6px">🖼️ Chọn ảnh có sẵn</button>
+          <div id="photoPreviewWrap" class="ks-photos"></div>
           <canvas id="photoCanvas" style="display:none"></canvas>
         </div>
 
@@ -681,6 +709,23 @@ nav svg{width:21px;height:21px;}
       <div id="tkBody"></div>
     </section>
 
+    <!-- KHO BẢN VẼ VIEW -->
+    <section class="view" id="view-bv">
+      <div class="fl-head"><h2>📐 Kho bản vẽ</h2><div class="fl-btns"><button class="gps-btn" id="bvXls">⬇ Excel</button><button class="submit-btn" id="bvAdd" style="width:auto;padding:9px 14px">＋ Thêm bản vẽ</button></div></div>
+      <div class="who" style="margin:-4px 0 10px">Phân tách theo <b>phường mới sau sáp nhập (NQ 1685/NQ-UBTVQH15, hiệu lực 01/7/2025)</b>. Chọn quận ở hàng chip phía trên để xem theo phường.</div>
+      <div class="chips" id="bvWards" style="flex-wrap:wrap"></div>
+      <div class="inc-search"><div class="search-wrap"><input type="text" id="bvSearch" placeholder="Tìm tên bản vẽ, tủ, tuyến, số hiệu, tên file… (có dấu hoặc không dấu)" autocomplete="off"></div><select id="bvTypeSel" class="ql-select"></select></div>
+      <div id="bvBody"></div>
+    </section>
+    <!-- THEO DÕI LED VIEW -->
+    <section class="view" id="view-led">
+      <div class="fl-head"><h2>💡 Theo dõi LED & bảo hành</h2></div>
+      <div class="sc-tabs" id="ledTabs" style="display:flex;flex-wrap:wrap">
+        <button data-v="tong" class="on">📊 Tổng quan</button><button data-v="tuyen">💡 Tuyến LED</button><button data-v="vb">📄 Văn bản</button><button data-v="viec">⚠️ Cần xử lý</button><button data-v="luat">⚖️ Căn cứ pháp lý</button>
+      </div>
+      <div id="ledBody"></div>
+    </section>
+
     <!-- FILE LƯU VIEW -->
     <section class="view" id="view-files">
       <div class="fl-head"><h2>📁 File Lưu</h2><span class="who" id="flCount"></span></div>
@@ -699,6 +744,7 @@ nav svg{width:21px;height:21px;}
         </div>
         <div class="gps-result" id="flMsg"></div>
       </div>
+      <div class="fl-bulk"><label class="au-active" style="margin:0"><input type="checkbox" id="flAll"> Chọn tất cả</label><button type="button" class="gps-btn" id="flZip" disabled>⬇ Tải file đã chọn (ZIP)</button><span class="who" id="flZipMsg"></span></div>
       <div class="fl-tools">
         <div class="search-wrap"><input type="text" id="flSearch" placeholder="Tìm tên file, tủ, ghi chú, người tải… (có dấu hoặc không dấu)" autocomplete="off"></div>
         <div class="chips" id="flType"></div>
@@ -765,6 +811,14 @@ nav svg{width:21px;height:21px;}
     <button id="tabTk">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
       Thống kê
+    </button>
+    <button id="tabBv">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l3-9 9-9 6 6-9 9z"/><path d="M14 4l6 6M3 21l6-3"/></svg>
+      Bản vẽ
+    </button>
+    <button id="tabLed">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/></svg>
+      LED
     </button>
     <button id="tabFiles">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
@@ -876,6 +930,28 @@ nav svg{width:21px;height:21px;}
       <div class="mtop"><h2 id="tkTitle">Tủ điều khiển</h2>
         <button class="mclose" id="tkClose" aria-label="Đóng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
       <div id="tkDetail"></div>
+    </div>
+  </div>
+  <div class="modal-scrim" id="bvScrim">
+    <div class="modal-sheet ks-sheet">
+      <div class="mtop"><h2 id="bvTitle">Bản vẽ</h2><button class="mclose" id="bvClose" aria-label="Đóng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <div id="bvDetail"></div>
+    </div>
+  </div>
+  <div class="modal-scrim" id="ledScrim">
+    <div class="modal-sheet ks-sheet">
+      <div class="mtop"><h2 id="ledTitle">LED</h2><button class="mclose" id="ledClose" aria-label="Đóng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <div id="ledDetail"></div>
+    </div>
+  </div>
+  <div class="modal-scrim" id="lockScrim" style="z-index:9999">
+    <div class="modal-sheet" style="text-align:center">
+      <div style="font-size:52px">🔒</div>
+      <h2 style="margin:6px 0">App đã khóa</h2>
+      <div class="who">Tài khoản Quản trị – xác thực Face ID / vân tay để tiếp tục.</div>
+      <button class="submit-btn" id="lockBtn" style="margin-top:14px">👆 Mở khóa bằng Face ID / vân tay</button>
+      <div class="gps-result" id="lockMsg"></div>
+      <button class="pin-btn" id="lockOut" style="margin-top:10px">Đăng xuất</button>
     </div>
   </div>
   <div class="modal-scrim" id="measureScrim">
@@ -1046,6 +1122,22 @@ nav svg{width:21px;height:21px;}
           </div>
           <div id="bkRes"></div>
         </div>
+        <div class="bk-box">
+          <div class="guide-h">🔐 Bảo vệ tài khoản Quản trị (Face ID / vân tay)</div>
+          <div class="who">Khi bật: đăng nhập Quản trị trên thiết bị đã đăng ký phải qua <b>Face ID / vân tay</b>; thiết bị lạ phải nhập <b>mã 6 số gửi về Gmail</b> chủ app. App cũng tự khóa sau 5 phút không dùng.</div>
+          <div class="bk-row"><b id="gdState">…</b><button type="button" class="gps-btn" id="gdToggle">Bật bảo vệ</button><button type="button" class="submit-btn" id="gdReg" style="width:auto;padding:9px 14px">👆 Đăng ký Face ID / vân tay trên thiết bị này</button></div>
+          <div id="gdDevs" class="gps-result"></div>
+        </div>
+        <div class="bk-box">
+          <div class="guide-h">🛟 Sao lưu tự động & tài khoản phụ (Gmail giám sát)</div>
+          <div class="who">Tài khoản phụ được cấp quyền chỉnh sửa bảng dữ liệu (kèm Apps Script) và các thư mục ảnh/file; nhận email mỗi lần sao lưu. Khi thiết bị hoặc tài khoản chính gặp sự cố, dùng tài khoản phụ để khôi phục.</div>
+          <div class="bk-row"><input type="email" id="buEmail" class="bk-inp" placeholder="Gmail tài khoản phụ (vd: saoluu.cskvtt@gmail.com)"><select id="buKeep" class="ql-select"><option value="7">Giữ 7 bản</option><option value="14" selected>Giữ 14 bản</option><option value="30">Giữ 30 bản</option></select></div>
+          <label class="au-active" style="margin-top:8px"><input type="checkbox" id="buGrant" checked> Cấp quyền chỉnh sửa cho tài khoản phụ (Sheet + Apps Script + thư mục ảnh/file)</label>
+          <div class="bk-row"><button type="button" class="submit-btn" id="buSave" style="width:auto;padding:9px 14px">💾 Lưu tài khoản phụ</button><button type="button" class="gps-btn" id="buNow">🗂️ Sao lưu ngay</button></div>
+          <div class="bk-row"><span>Tự động:</span><select id="buHour" class="ql-select"></select><button type="button" class="gps-btn" id="buTrig">⏰ Bật sao lưu 6 giờ/lần + báo cáo SCP hằng ngày</button><button type="button" class="gps-btn" id="buRemind">📋 Gửi báo cáo SCP ngay</button></div>
+          <div class="gps-result" id="buMsg"></div>
+          <div id="buList"></div>
+        </div>
         <div class="guide-h">Danh sách tài khoản</div>
         <div id="userList" style="margin-top:6px"></div>
       </div>
@@ -1076,7 +1168,7 @@ const STATUS = ["Mới ghi nhận","Đang xử lý","Đã xử lý"];
 let SESSION=null;
 let selectedCabinet=null, activeQuan="Tất cả", activeStatus="Tất cả", mucDo="Trung bình", activeQL="";
 let capturedGPS=null; // {lat,lng,acc}
-let capturedPhoto=null; // dataURL string
+let capturedPhotos=[]; // dataURL (tối đa 10)
 let incidents=[]; // {id, cabinetCode, cabinetName, pe, quan, moTa, mucDo, nguoiGhiNhan, ngay, trangThai, createdAt}
 let localMode=false;
 
@@ -1090,7 +1182,7 @@ function renderQuanChips(){
     const b=document.createElement("button");
     b.className="chip"+(q===activeQuan?" active":"");
     b.textContent = q==="Tất cả" ? q : q.replace("Quận ","");
-    b.onclick=()=>{activeQuan=q; renderQuanChips(); renderCabList(); renderIncList(); if(typeof renderFiles==='function') renderFiles(); if($("#view-ks").classList.contains("active")) ksRender(); if($("#view-tk").classList.contains("active")){ tkProvSel="Tất cả"; tkRender(); tkRenderProv(); }};
+    b.onclick=()=>{activeQuan=q; renderQuanChips(); renderCabList(); renderIncList(); if(typeof renderFiles==='function') renderFiles(); if($("#view-ks").classList.contains("active")) ksRender(); if($("#view-tk").classList.contains("active")){ tkProvSel="Tất cả"; tkRender(); tkRenderProv(); } if($("#view-bv").classList.contains("active")){ bvPhuong="Tất cả"; bvRender(); } if($("#view-led").classList.contains("active")) ledRender();};
     wrap.appendChild(b);
   });
 }
@@ -1276,27 +1368,34 @@ function compressCanvasToLimit(canvas, maxBytes){
   return url;
 }
 
-function setPhoto(dataUrl){
-  capturedPhoto = dataUrl;
-  $("#photoPreview").src = dataUrl;
-  $("#photoPreviewWrap").style.display="flex";
-  $("#photoBtn").style.display="none";
+const MAX_PHOTOS=10;
+function renderPhotos(){
+  const w=$("#photoPreviewWrap"); w.innerHTML="";
+  capturedPhotos.forEach((u,i)=>{ const d=document.createElement("div"); d.className="ks-pv"; const im=document.createElement("img"); im.src=u; d.appendChild(im);
+    const x=document.createElement("button"); x.type="button"; x.textContent="✕"; x.onclick=()=>{ capturedPhotos.splice(i,1); renderPhotos(); }; d.appendChild(x); w.appendChild(d); });
+  const full=capturedPhotos.length>=MAX_PHOTOS;
+  $("#photoBtn").style.display=full?"none":""; $("#photoPickBtn").style.display=full?"none":"";
+  $("#photoCount").textContent = capturedPhotos.length ? `(${capturedPhotos.length}/${MAX_PHOTOS})` : "";
 }
-function clearPhoto(){
-  capturedPhoto=null;
-  $("#photoPreviewWrap").style.display="none";
-  $("#photoBtn").style.display="";
-  $("#photoInput").value="";
-}
-$("#photoRemove").onclick=clearPhoto;
+function setPhoto(dataUrl){ if(capturedPhotos.length<MAX_PHOTOS) capturedPhotos.push(dataUrl); renderPhotos(); }
+function clearPhoto(){ capturedPhotos=[]; $("#photoInput").value=""; renderPhotos(); }
 $("#photoBtn").onclick=()=> $("#photoInput").click();
-
+$("#photoPickBtn").onclick=()=> $("#photoPick").click();
+$("#photoPick").addEventListener("change", async e=>{
+  const fs=[...e.target.files].slice(0, MAX_PHOTOS-capturedPhotos.length); e.target.value="";
+  for(const f of fs){ await new Promise(res=>processIncidentPhoto(f,res)); }
+  if(e.target.files && e.target.files.length > fs.length) alert("Chỉ nhận tối đa "+MAX_PHOTOS+" ảnh cho mỗi sự cố.");
+});
 $("#photoInput").addEventListener("change", (e)=>{
-  const file = e.target.files && e.target.files[0];
-  if(!file) return;
+  const file = e.target.files && e.target.files[0]; e.target.value="";
+  if(file) processIncidentPhoto(file, ()=>{});
+});
+function processIncidentPhoto(file, done){
+  if(!file){ done(); return; }
+  if(capturedPhotos.length>=MAX_PHOTOS){ alert("Tối đa "+MAX_PHOTOS+" ảnh."); done(); return; }
   $("#photoBtn").disabled=true; $("#photoBtn").textContent="Đang xử lý ảnh…";
 
-  const finish=()=>{ $("#photoBtn").disabled=false; $("#photoBtn").textContent="Chụp ảnh hiện trường"; };
+  const finish=()=>{ $("#photoBtn").disabled=false; $("#photoBtn").textContent="Chụp ảnh hiện trường"; done(); };
 
   const useGps = (g)=>{
     const img = new Image();
@@ -1326,7 +1425,7 @@ $("#photoInput").addEventListener("change", (e)=>{
       useGps(g);
     });
   }
-});
+}
 
 $("#changeCab").onclick=()=>{ $("#formStep").style.display="none"; $("#pickStep").style.display="block"; };
 $("#searchInput").addEventListener("input", renderCabList);
@@ -1355,7 +1454,7 @@ $("#submitBtn").onclick=async ()=>{
     moTa: $("#moTa").value.trim(), mucDo, nguoiGhiNhan: nguoi, ngay: $("#ngay").value || todayISO(),
     trangThai: STATUS[0], createdAt: Date.now(),
     gpsLat: capturedGPS ? capturedGPS.lat : null, gpsLng: capturedGPS ? capturedGPS.lng : null, gpsAcc: capturedGPS ? capturedGPS.acc : null,
-    anhHienTruong: capturedPhoto || null,
+    photos: capturedPhotos.slice(0,MAX_PHOTOS),
     lyTrinh: lyTrinhValue(),
     tuLat: selectedCabinet.lat!=null ? selectedCabinet.lat : null, tuLng: selectedCabinet.lng!=null ? selectedCabinet.lng : null
   };
@@ -1480,7 +1579,7 @@ function renderIncList(){
       ${i.nguon==="SCP" ? `<div class="scp-tag">${["Nguồn SCP", i.trangThai!=="Đã xử lý" ? "tồn "+tonDong(i) : ""].filter(Boolean).join(" · ")}</div>` : ""}
       ${i.ghiChuXuLy ? `<div class="who" style="margin-top:4px">📝 ${escapeHtml(i.ghiChuXuLy)}</div>` : ""}
       <div class="who" style="margin-top:6px">👤 Quản lý tuyến: ${escapeHtml(i.nguoiQuanLy||"—")}</div>
-      ${i.anhHienTruong ? `<img class="inc-photo" src="${i.anhHienTruong}" data-full="${i.anhHienTruong}">` : ""}
+      ${i.anhHienTruong ? `<div class="inc-photos">${String(i.anhHienTruong).split(/\n+/).filter(Boolean).map(u=>`<img class="inc-photo" src="${u}" data-full="${u}" loading="lazy">`).join("")}</div>` : ""}
       <div class="row2">
         <span class="who">${escapeHtml(i.nguoiGhiNhan)} · ${i.ngay}</span>
         <button class="badge status-btn ${statusClass(i.trangThai)}" data-id="${i.id}" ${can("doiTrangThai")?'':'disabled style="cursor:default"'}>${i.trangThai}</button>
@@ -1506,10 +1605,19 @@ async function cycleStatus(i, btn){
   if(!can("doiTrangThai")){ return; }
   const next = STATUS[(STATUS.indexOf(i.trangThai)+1) % STATUS.length];
   const prev = i.trangThai;
+  let note;
+  if(next==="Đã xử lý"){
+    note = prompt("Nội dung đã xử lý (sẽ được ghi vào sheet \"DaXuLy\"):", i.ghiChuXuLy||"");
+    if(note===null) return;
+    if(!note.trim()){ alert("Vui lòng nhập nội dung đã xử lý."); return; }
+    i.ghiChuXuLy=note.trim();
+  }
   i.trangThai = next;
   btn.textContent = next;
   btn.className = "badge status-btn "+statusClass(next);
-  const r = await api("updateIncident",{id:i.id, patch:{trangThai:next}});
+  const patch={trangThai:next}; if(note!==undefined) patch.ghiChuXuLy=note.trim();
+  const r = await api("updateIncident",{id:i.id, patch});
+  if(r.ok && note!==undefined) renderIncList();
   if(!r.ok){ i.trangThai=prev; btn.textContent=prev; btn.className="badge status-btn "+statusClass(prev); alert(r.error||"Không cập nhật được"); }
 }
 
@@ -1740,7 +1848,8 @@ function renderFiles(){
     if(f.cabinetName){ const s3=document.createElement("div"); s3.className="fl-sub"; s3.textContent="🗄️ "+f.cabinetName+(f.quan?" · "+f.quan:""); bd.appendChild(s3); }
     if(f.ghiChu){ const s4=document.createElement("div"); s4.className="fl-sub"; s4.textContent="📝 "+f.ghiChu; bd.appendChild(s4); }
     const ac=document.createElement("div"); ac.className="fl-act";
-    const dl=document.createElement("a"); dl.className="dl"; dl.textContent="⬇ Tải về"; dl.href="https://drive.google.com/uc?export=download&id="+encodeURIComponent(f.driveId); dl.target="_blank"; dl.rel="noopener";
+    const dl=document.createElement("button"); dl.type="button"; dl.className="dl"; dl.textContent="⬇ Tải về"; dl.title="Tải về đúng tên & định dạng gốc"; dl.onclick=()=>dlFile(f.driveId,f.tenGoc,dl);
+    const sel=document.createElement("label"); sel.className="fl-sel"; sel.innerHTML=`<input type="checkbox" ${flSel.has(f.id)?"checked":""}>`; sel.querySelector("input").onchange=e=>{ e.target.checked?flSel.add(f.id):flSel.delete(f.id); flSelUpd(); }; th.appendChild(sel);
     const vw=document.createElement("a"); vw.textContent="👁 Xem"; vw.href="https://drive.google.com/file/d/"+encodeURIComponent(f.driveId)+"/view"; vw.target="_blank"; vw.rel="noopener";
     ac.appendChild(dl); ac.appendChild(vw);
     if(isAdmin() || (SESSION && f.nguoiTai===SESSION.user.username)){
@@ -1751,6 +1860,10 @@ function renderFiles(){
     c.appendChild(th); c.appendChild(bd); c.appendChild(ac); el.appendChild(c);
   });
 }
+let flSel=new Set();
+function flSelUpd(){ $("#flZip").disabled=!flSel.size; $("#flZip").textContent = flSel.size ? `⬇ Tải ${flSel.size} file đã chọn (ZIP)` : "⬇ Tải file đã chọn (ZIP)"; }
+$("#flAll").addEventListener("change",e=>{ flSel = new Set(e.target.checked ? flFiles.map(f=>f.id) : []); renderFiles(); flSelUpd(); });
+$("#flZip").onclick=()=>dlZip(flFiles.filter(f=>flSel.has(f.id)).map(f=>({id:f.driveId,name:f.tenGoc,folder:f.cabinetName||""})),"File_Luu",$("#flZipMsg"));
 async function loadFiles(){
   if(!can("xemFile")) return;
   $("#flList").innerHTML='<div class="empty" style="grid-column:1/-1">Đang tải danh sách…</div>';
@@ -2164,7 +2277,7 @@ function ksCompress(file){
 }
 async function ksAddPhotos(files){
   if(!ksGPS){ await new Promise(r=>captureGPS((g)=>{ if(g){ ksGPS=g; $("#ksGpsInfo").innerHTML=`📍 ${g.lat}, ${g.lng} (±${g.acc}m)`; } r(); })); }
-  for(const f of [...files]){ if(ksKeepPhotos.length+ksNewPhotos.length>=12){ $("#ksMsg").textContent="Tối đa 12 ảnh/phiếu."; break; } const d=await ksCompress(f); if(d) ksNewPhotos.push(d); }
+  for(const f of [...files]){ if(ksKeepPhotos.length+ksNewPhotos.length>=10){ $("#ksMsg").textContent="Tối đa 10 ảnh cho mỗi phiếu."; break; } const d=await ksCompress(f); if(d) ksNewPhotos.push(d); }
   ksRenderPhotos(true);
 }
 $("#ksPhIn").addEventListener("change",e=>{ const fs=[...e.target.files]; e.target.value=""; ksAddPhotos(fs); });
@@ -2514,8 +2627,13 @@ async function tkOpen(r){
   ["Đèn (bộ)","Trụ","Cần","Cáp (m)"].forEach(g=>{ const items=TK_NUM.filter(x=>x[2]===g && (tkNum(r[x[1]])||x[0].startsWith("Tổng"))); h+=grp(g, items.map(([l,i,,u])=>[l,tkFmt(r[i],u)])); });
   if(cab && cab.lt && cab.lt.length) h+=`<div class="tk-g">Lý trình (${cab.lt.length} tuyến)</div><div class="tk-lt">${cab.lt.map(l=>`<div><b>${escHtml(l[0])}</b>${l[1]?" · trụ "+escHtml(l[1]):""}<span class="who"> · ${[l[2]!=null&&l[2]!==""?Math.round(l[2])+" m":"",l[3]?l[3]+" đèn":"",l[4]?l[4]+" trụ":""].filter(Boolean).join(" · ")}</span></div>`).join("")}</div>`;
   if(incs.length) h+=`<div class="tk-g">Sự cố đã ghi nhận (${incs.length})</div><div class="tk-lt">${incs.slice(0,15).map(i=>`<div>${escHtml(i.ngay||"")} · <b>${escHtml(i.trangThai||"")}</b> · ${escHtml((i.moTa||"").slice(0,90))}</div>`).join("")}</div>`;
-  h+=`<div id="tkPoles"></div>`;
+  h+=`<div id="tkBv"></div><div id="tkPoles"></div>`;
   el.innerHTML=h; $("#tkScrim").classList.add("show");
+  if(can("banVe") && r[0]){ (async()=>{ if(!bvRecs) bvRecs=await hsLoad("BANVE"); const rel=(bvRecs||[]).filter(b=>(b.cabinets||[]).includes(r[0])); const box=$("#tkBv"); if(!box) return;
+    box.innerHTML=`<div class="tk-g">📐 Bản vẽ liên quan (${rel.length})${can("nhapBanVe")?' <button type="button" class="gps-btn" id="tkBvAdd" style="padding:4px 10px;margin-left:6px">＋ Thêm</button>':""}</div>`+(rel.length?rel.map(b=>`<div class="ks-rec tk-bvr" data-id="${b.id}" style="margin-top:6px"><b>${escHtml(b.data.ten||"")}</b><div class="who">${escHtml(b.data.loai||"")} · ${(b.files||[]).length} file</div></div>`).join(""):'<div class="who">Chưa có bản vẽ gắn với tủ này.</div>');
+    box.querySelectorAll(".tk-bvr").forEach(x=>x.onclick=()=>{ $("#tkScrim").classList.remove("show"); showView("bv"); bvRender().then(()=>bvOpen(bvRecs.find(z=>z.id===x.dataset.id))); });
+    const a=$("#tkBvAdd"); if(a) a.onclick=()=>{ const c=CABINETS.find(z=>z.pe===r[0]); $("#tkScrim").classList.remove("show"); showView("bv"); bvRender().then(()=>bvOpen(null,{cabinets:[r[0]],quan:c?c.q:r[6],phuong:c?c.pm:""})); };
+  })(); }
   const ti=$("#tkToInc"); if(ti) ti.onclick=()=>{ $("#tkScrim").classList.remove("show"); showView("new"); selectCabinet(cab); window.scrollTo(0,0); };
   const x1=$("#tkXls1"); if(x1) x1.onclick=()=>tkExport([r], "Tu_"+(r[0]||r[16]));
   // chi tiết trụ – cần – đèn
@@ -2722,6 +2840,453 @@ $("#bkApply").onclick=async ()=>{
   bkSel.clear(); $("#bkAll").checked=false; bkUpdSel(); loadUsers();
 };
 
+/* ---------- DÙNG CHUNG: tải file đúng tên gốc, nén ZIP, đính kèm file/ảnh ---------- */
+function b64ToBlob(b64, mime){ const bin=atob(b64), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); return new Blob([u],{type:mime||"application/octet-stream"}); }
+function saveBlob(blob, name){ const url=URL.createObjectURL(blob), a=document.createElement("a"); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),5000); }
+async function dlFile(driveId, name, btn){
+  const o=btn?btn.textContent:""; if(btn){ btn.disabled=true; btn.textContent="Đang tải…"; }
+  try{
+    const r=await api("getFileData",{driveId});
+    if(r.ok) saveBlob(b64ToBlob(r.data,r.mime), r.name||name);
+    else if(r.tooBig) window.open("https://drive.google.com/uc?export=download&id="+encodeURIComponent(driveId),"_blank");
+    else alert(r.error||"Không tải được file");
+  }finally{ if(btn){ btn.disabled=false; btn.textContent=o; } }
+}
+async function dlZip(items, zipName, statusEl){
+  if(!items.length) return;
+  if(typeof JSZip==="undefined"){ try{ await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"); }catch(e){ alert("Không tải được bộ nén ZIP"); return; } }
+  const zip=new JSZip(), used={}; let n=0, fail=[];
+  for(const it of items){
+    if(statusEl) statusEl.textContent=`Đang tải ${++n}/${items.length}: ${it.name}`;
+    const r=await api("getFileData",{driveId:it.id});
+    if(!r.ok){ fail.push(it.name); continue; }
+    let nm=(it.folder?it.folder+"/":"")+(r.name||it.name); if(used[nm]){ nm=nm.replace(/(\.[^.]+)?$/,"_"+(used[nm]++)+"$1"); } else used[nm]=1;
+    zip.file(nm, r.data, {base64:true});
+  }
+  if(statusEl) statusEl.textContent="Đang nén…";
+  saveBlob(await zip.generateAsync({type:"blob"}), zipName+"_"+todayISO()+".zip");
+  if(statusEl) statusEl.textContent = fail.length ? `Đã tải. Lỗi ${fail.length} file: ${fail.join(", ")}` : `Đã tải ${items.length} file (ZIP).`;
+}
+const fileIcon=(m,n)=>/^image\//.test(m||"")?"🖼️":/pdf/i.test(m||"")||/\.pdf$/i.test(n)?"📕":/dwg|dxf|cad/i.test(n)?"📐":/sheet|excel|\.xlsx?$|\.csv$/i.test((m||"")+n)?"📊":/word|\.docx?$/i.test((m||"")+n)?"📝":/zip|rar|7z/i.test((m||"")+n)?"🗜️":"📄";
+/* nén ảnh bản vẽ giữ nét (tối đa 2400px) */
+function imgForUpload(file, maxW, q){
+  return new Promise(res=>{ const img=new Image(); img.onload=()=>{ const s=Math.min(1,(maxW||2400)/Math.max(img.width,img.height)), w=Math.round(img.width*s), h=Math.round(img.height*s);
+    const cv=document.createElement("canvas"); cv.width=w; cv.height=h; cv.getContext("2d").drawImage(img,0,0,w,h);
+    res({name:file.name.replace(/\.[^.]+$/,"")+".jpg", mime:"image/jpeg", data:cv.toDataURL("image/jpeg",q||0.85).split(",")[1]}); };
+    img.onerror=()=>res(null); img.src=URL.createObjectURL(file); });
+}
+function fileToB64(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(String(r.result).split(",")[1]||""); r.onerror=rej; r.readAsDataURL(file); }); }
+/* Khung đính kèm dùng chung cho Kho bản vẽ & Theo dõi LED.
+   ctx = {rec, kind, canEdit, ensureSaved: async()=>rec, onChange: rec=>{}} */
+function hsAttach(el, ctx){
+  let queue=[];
+  const draw=()=>{
+    const files=(ctx.rec&&ctx.rec.files)||[], imgCount=files.filter(f=>/^image\//.test(f.mime)).length+queue.filter(q=>q.isImg).length;
+    el.innerHTML=`<div class="ks-g">Tài liệu đính kèm (${files.length})${files.length>1?` <button type="button" class="gps-btn hs-zip" style="padding:5px 10px;margin-left:8px">⬇ Tải tất cả (ZIP)</button>`:""}</div><div class="hs-files"></div>`+
+      (ctx.canEdit?`<div class="fl-btns" style="margin-top:8px"><button type="button" class="gps-btn hs-f">📎 Thêm file</button><button type="button" class="gps-btn hs-c" ${imgCount>=10?"disabled":""}>📷 Chụp ảnh</button><button type="button" class="gps-btn hs-i" ${imgCount>=10?"disabled":""}>🖼️ Chọn ảnh</button>
+      <input type="file" class="hs-fi" multiple hidden><input type="file" class="hs-ci" accept="image/*" capture="environment" hidden><input type="file" class="hs-ii" accept="image/*" multiple hidden></div>
+      <div class="who">Ảnh: ${imgCount}/10 · File bất kỳ (PDF, DWG, Excel, Word…) tối đa 25 MB/file</div><div class="hs-q"></div><div class="gps-result hs-msg"></div>`:"");
+    const box=el.querySelector(".hs-files");
+    if(!files.length) box.innerHTML='<div class="who">Chưa có tài liệu.</div>';
+    files.forEach(f=>{ const r=document.createElement("div"); r.className="hs-file";
+      const th=/^image\//.test(f.mime)?`<img src="https://drive.google.com/thumbnail?id=${encodeURIComponent(f.id)}&sz=w200" loading="lazy">`:`<span class="hs-ic">${fileIcon(f.mime,f.name)}</span>`;
+      r.innerHTML=`${th}<div class="hs-fn"><b></b><div class="who">${fmtSize(f.size||0)}${f.by?" · "+escHtml(f.by):""}${f.at?" · "+new Date(f.at).toLocaleDateString("vi-VN"):""}</div></div>`;
+      r.querySelector("b").textContent=f.name;
+      const a=document.createElement("div"); a.className="hs-fa";
+      const d=document.createElement("button"); d.type="button"; d.className="gps-btn"; d.textContent="⬇"; d.title="Tải về đúng tên gốc"; d.onclick=()=>dlFile(f.id,f.name,d);
+      const v=document.createElement("a"); v.className="gps-btn"; v.textContent="👁"; v.title="Xem"; v.target="_blank"; v.rel="noopener"; v.href="https://drive.google.com/file/d/"+encodeURIComponent(f.id)+"/view";
+      a.appendChild(d); a.appendChild(v);
+      if(ctx.canEdit){ const x=document.createElement("button"); x.type="button"; x.className="gps-btn"; x.textContent="🗑"; x.onclick=async()=>{ if(!confirm("Xóa file "+f.name+"?")) return; const res=await api("removeHoSoFile",{id:ctx.rec.id,fileId:f.id}); if(res.ok){ ctx.rec=res.rec; ctx.onChange&&ctx.onChange(res.rec); draw(); } else alert(res.error||"Lỗi"); }; a.appendChild(x); }
+      r.appendChild(a); box.appendChild(r); });
+    const z=el.querySelector(".hs-zip"); if(z) z.onclick=()=>dlZip(files.map(f=>({id:f.id,name:f.name})), (ctx.zipName||"Tai_lieu").replace(/[\\/:*?"<>|\s]+/g,"_"), el.querySelector(".hs-msg")||z);
+    if(!ctx.canEdit) return;
+    const q=el.querySelector(".hs-q");
+    queue.forEach((it,i)=>{ const r=document.createElement("div"); r.className="fl-q"; r.innerHTML=`<div>${it.isImg?"🖼️":fileIcon(it.file.type,it.file.name)} ${escHtml(it.file.name)} · ${fmtSize(it.file.size)}</div><span class="st">${escHtml(it.st)}</span>`; q.appendChild(r); });
+    el.querySelector(".hs-f").onclick=()=>el.querySelector(".hs-fi").click();
+    el.querySelector(".hs-c").onclick=()=>el.querySelector(".hs-ci").click();
+    el.querySelector(".hs-i").onclick=()=>el.querySelector(".hs-ii").click();
+    const add=async(list)=>{ list=[...list];
+      for(const f of list){
+        const isImg=/^image\//.test(f.type);
+        const cnt=((ctx.rec&&ctx.rec.files)||[]).filter(x=>/^image\//.test(x.mime)).length+queue.filter(x=>x.isImg).length;
+        if(isImg && cnt>=10){ el.querySelector(".hs-msg").textContent="Tối đa 10 ảnh cho mỗi nội dung – bỏ qua "+f.name; continue; }
+        if(f.size>25*1024*1024){ el.querySelector(".hs-msg").textContent="⛔ "+f.name+" vượt quá 25 MB"; continue; }
+        queue.push({file:f,isImg,st:"Chờ tải lên"});
+      }
+      draw(); upload(); };
+    ["hs-fi","hs-ci","hs-ii"].forEach(c=>{ const inp=el.querySelector("."+c); inp.onchange=()=>{ const fs=[...inp.files]; inp.value=""; add(fs); }; });
+  };
+  let busy=false;
+  const upload=async()=>{
+    if(busy) return; busy=true;
+    try{
+      if(!ctx.rec || !ctx.rec.id){ const r=await ctx.ensureSaved(); if(!r){ queue.forEach(x=>x.st="⛔ Cần nhập thông tin và lưu trước"); draw(); return; } ctx.rec=r; }
+      for(const it of queue){
+        if(it.st.startsWith("✅")) continue;
+        it.st="Đang tải lên…"; draw();
+        const payload = it.isImg ? await imgForUpload(it.file) : {name:it.file.name, mime:it.file.type||"application/octet-stream", data:await fileToB64(it.file)};
+        if(!payload){ it.st="⛔ Không đọc được"; continue; }
+        const r=await api("addHoSoFile",{id:ctx.rec.id, file:payload});
+        if(r.ok){ it.st="✅ Đã lưu"; ctx.rec=r.rec; ctx.onChange&&ctx.onChange(r.rec); } else it.st="⛔ "+(r.error||"Lỗi");
+      }
+      queue=queue.filter(x=>!x.st.startsWith("✅"));
+    } finally { busy=false; draw(); }
+  };
+  draw();
+  return { get rec(){ return ctx.rec; } };
+}
+async function hsLoad(kind){ const r=await api("listHoSo",{kind}); return r.ok ? (r.recs||[]) : null; }
+
+/* ---------- KHO BẢN VẼ (theo phường mới sau sáp nhập) ---------- */
+const BV_TYPES=["Bản vẽ hoàn công","Bản vẽ thiết kế thi công","Sơ đồ nguyên lý tủ điều khiển","Mặt bằng tuyến chiếu sáng","Sơ đồ đấu nối / lý trình","Bản vẽ chi tiết trụ – móng","Khác"];
+let bvRecs=null, bvPhuong="Tất cả", bvTerm="", bvType="";
+const cabByPe = pe => CABINETS.find(c=>c.pe===pe);
+async function bvRender(force){
+  const el=$("#bvBody");
+  if(!bvRecs || force){ el.innerHTML='<div class="empty">Đang tải kho bản vẽ…</div>'; bvRecs=await hsLoad("BANVE"); if(!bvRecs){ el.innerHTML='<div class="empty">Không tải được (kiểm tra quyền "Xem Kho bản vẽ").</div>'; return; } }
+  $("#bvAdd").style.display = can("nhapBanVe") ? "" : "none";
+  const inQ=bvRecs.filter(r=>activeQuan==="Tất cả"||r.quan===activeQuan);
+  // chips phường mới
+  const pc=$("#bvWards"); pc.innerHTML="";
+  if(activeQuan!=="Tất cả"){
+    ["Tất cả",...(NEW_WARDS[activeQuan]||[])].forEach(w=>{ const n=w==="Tất cả"?inQ.length:inQ.filter(r=>r.phuong===w).length; const b=document.createElement("button"); b.className="chip"+(w===bvPhuong?" active":""); b.textContent=(w==="Tất cả"?"Tất cả phường":"P. "+w)+" ("+n+")"; b.onclick=()=>{ bvPhuong=w; bvRender(); }; pc.appendChild(b); });
+  } else bvPhuong="Tất cả";
+  const tokens=vnNorm(bvTerm).trim().split(/\s+/).filter(Boolean);
+  const list=inQ.filter(r=>(bvPhuong==="Tất cả"||r.phuong===bvPhuong) && (!bvType||r.data.loai===bvType) &&
+    (!tokens.length || tokens.every(t=>vnNorm([r.data.ten,r.data.soHieu,r.data.loai,r.data.tuyen,r.data.ghiChu,r.quan,r.phuong,(r.cabinets||[]).map(pe=>{const c=cabByPe(pe);return c?c.n:pe;}).join(" "),(r.files||[]).map(f=>f.name).join(" ")].join(" ")).includes(t))));
+  el.innerHTML="";
+  if(activeQuan==="Tất cả" && !tokens.length && !bvType){
+    const g=document.createElement("div"); g.className="bv-tree";
+    QUANS.filter(q=>q!=="Tất cả").forEach(q=>{ const rs=bvRecs.filter(r=>r.quan===q); const c=document.createElement("div"); c.className="bv-q";
+      c.innerHTML=`<div class="bv-qh"><b>${escHtml(q)}</b><span>${rs.length} bản vẽ</span></div>`+(NEW_WARDS[q]||[]).map(w=>{ const n=rs.filter(r=>r.phuong===w).length; return `<button class="bv-w" data-q="${escHtml(q)}" data-w="${escHtml(w)}"><span>P. ${escHtml(w)}</span><b>${n}</b></button>`; }).join("");
+      g.appendChild(c); });
+    el.appendChild(g);
+    g.querySelectorAll(".bv-w").forEach(b=>b.onclick=()=>{ activeQuan=b.dataset.q; bvPhuong=b.dataset.w; renderQuanChips(); bvRender(); });
+    el.insertAdjacentHTML("beforeend",`<div class="tk-h" style="margin-top:14px">Mới cập nhật</div>`);
+  }
+  const box=document.createElement("div"); box.className="tk-list"; el.appendChild(box);
+  const show = (activeQuan==="Tất cả" && !tokens.length && !bvType) ? list.slice(0,12) : list;
+  if(!show.length){ box.innerHTML='<div class="empty">Chưa có bản vẽ.'+(can("nhapBanVe")?' Bấm "＋ Thêm bản vẽ".':'')+'</div>'; return; }
+  show.forEach(r=>{
+    const img=(r.files||[]).find(f=>/^image\//.test(f.mime)), c=document.createElement("div"); c.className="tk-card bv-card";
+    c.innerHTML=`<div class="bv-th">${img?`<img src="https://drive.google.com/thumbnail?id=${encodeURIComponent(img.id)}&sz=w300" loading="lazy">`:`<span>${r.files&&r.files[0]?fileIcon(r.files[0].mime,r.files[0].name):"📐"}</span>`}</div>
+      <div class="bv-in"><div class="name">${highlight(r.data.ten||"(chưa đặt tên)",tokens)}</div><div class="who">${escHtml(r.data.loai||"")}${r.data.soHieu?" · "+escHtml(r.data.soHieu):""}</div>
+      <div class="who">📍 ${escHtml(r.quan||"")}${r.phuong?" · P. "+escHtml(r.phuong):""}</div>
+      <div class="tk-mini"><span>🗄️ ${(r.cabinets||[]).length} tủ</span><span>📎 ${(r.files||[]).length} file</span><span>${new Date(r.updatedAt).toLocaleDateString("vi-VN")}</span></div></div>`;
+    c.onclick=()=>bvOpen(r); box.appendChild(c);
+  });
+}
+function bvOpen(rec, preset){
+  const isNew=!rec, canEdit=can("nhapBanVe") && (isNew || isAdmin() || rec.nguoiTao===SESSION.user.username);
+  rec = rec || {kind:"BANVE", quan:(preset&&preset.quan)||(activeQuan!=="Tất cả"?activeQuan:""), phuong:(preset&&preset.phuong)||(bvPhuong!=="Tất cả"?bvPhuong:""), cabinets:(preset&&preset.cabinets)||[], data:{loai:BV_TYPES[0]}, files:[]};
+  let cabs=(rec.cabinets||[]).slice();
+  const d=rec.data||{}, el=$("#bvDetail");
+  $("#bvTitle").textContent = isNew ? "📐 Thêm bản vẽ" : "📐 "+(d.ten||"Bản vẽ");
+  const dis=canEdit?"":"disabled";
+  el.innerHTML=`<div class="ks-fields">
+    <div class="ks-f wide"><label>Tên bản vẽ *</label><input id="bvTen" ${dis} value="${escHtml(d.ten||"")}" placeholder="VD: Hoàn công tuyến Nguyễn Trãi – tủ Nguyễn Trãi 5"></div>
+    <div class="ks-f"><label>Loại bản vẽ</label><select id="bvLoai" ${dis}>${BV_TYPES.map(t=>`<option ${t===d.loai?"selected":""}>${t}</option>`).join("")}</select></div>
+    <div class="ks-f"><label>Số hiệu / ký hiệu</label><input id="bvSo" ${dis} value="${escHtml(d.soHieu||"")}"></div>
+    <div class="ks-f"><label>Năm / ngày lập</label><input id="bvNgay" ${dis} value="${escHtml(d.ngay||"")}" placeholder="VD: 2024 hoặc 15/03/2024"></div>
+    <div class="ks-f"><label>Tuyến đường</label><input id="bvTuyen" ${dis} value="${escHtml(d.tuyen||"")}"></div>
+    <div class="ks-f wide"><label>Tủ điều khiển liên quan (đồng bộ quận, phường mới)</label>
+      ${canEdit?`<input id="bvCabIn" list="bvCabList" placeholder="Gõ tên tủ hoặc mã PE rồi chọn" autocomplete="off"><datalist id="bvCabList"></datalist>`:""}<div class="bv-cabs" id="bvCabs"></div></div>
+    <div class="ks-f"><label>Quận</label><select id="bvQuan" ${dis}><option value="">– chọn –</option>${QUANS.filter(q=>q!=="Tất cả").map(q=>`<option ${q===rec.quan?"selected":""}>${q}</option>`).join("")}</select></div>
+    <div class="ks-f"><label>Phường (sau sáp nhập 01/7/2025)</label><select id="bvPhuong" ${dis}></select><div class="who" id="bvPNote"></div></div>
+    <div class="ks-f wide"><label>Ghi chú</label><textarea id="bvGhi" rows="2" ${dis}>${escHtml(d.ghiChu||"")}</textarea></div></div>
+    <div id="bvFiles"></div>
+    ${!isNew?`<div class="who" style="margin-top:8px">Lập bởi ${escHtml(rec.nguoiTaoTen||rec.nguoiTao||"")} · cập nhật ${new Date(rec.updatedAt).toLocaleString("vi-VN")}</div>`:""}
+    ${canEdit?`<button class="submit-btn" id="bvSave" style="margin-top:12px">💾 Lưu bản vẽ</button>`:""}<div class="gps-result" id="bvMsg"></div>
+    ${canEdit&&!isNew?`<button class="pin-btn" id="bvDel" style="margin-top:8px;color:var(--high)">🗑 Xóa bản vẽ và toàn bộ file</button>`:""}`;
+  const fillWards=()=>{ const q=$("#bvQuan").value, s=$("#bvPhuong"); s.innerHTML=`<option value="">– chọn –</option>`+(NEW_WARDS[q]||[]).map(w=>`<option ${w===rec.phuong?"selected":""}>${w}</option>`).join(""); };
+  const drawCabs=()=>{ const b=$("#bvCabs"); b.innerHTML=cabs.length?"":'<span class="who">Chưa gắn tủ</span>';
+    cabs.forEach((pe,i)=>{ const c=cabByPe(pe), s=document.createElement("span"); s.className="bv-cab"; s.textContent=(c?c.n:pe)+(c&&c.pm?" · P. "+c.pm:"");
+      if(canEdit){ const x=document.createElement("button"); x.type="button"; x.textContent="✕"; x.onclick=()=>{ cabs.splice(i,1); drawCabs(); }; s.appendChild(x); }
+      b.appendChild(s); });
+    const first=cabByPe(cabs[0]); $("#bvPNote").textContent = first && first.pmNote ? "ℹ️ "+first.pmNote : ""; };
+  fillWards(); drawCabs();
+  $("#bvQuan").onchange=()=>{ rec.phuong=""; fillWards(); };
+  if(canEdit){
+    $("#bvCabIn").addEventListener("input",e=>{ const v=e.target.value, dl=$("#bvCabList"); const pe=(v.split("|")[1]||"").trim(); const c=pe&&CABINETS.find(x=>x.pe===pe);
+      if(c){ if(!cabs.includes(c.pe)) cabs.push(c.pe); e.target.value=""; dl.innerHTML="";
+        if(!$("#bvQuan").value || cabs.length===1){ $("#bvQuan").value=c.q; rec.phuong=c.pm||""; fillWards(); if(c.pm) $("#bvPhuong").value=c.pm; }
+        if(!$("#bvTuyen").value) $("#bvTuyen").value=c.duong||""; drawCabs(); return; }
+      dl.innerHTML=""; if(v.trim().length<2) return; searchCabinets(v,false).list.slice(0,15).forEach(c=>{ const o=document.createElement("option"); o.value=c.n+" | "+c.pe; o.label=c.q+(c.pm?" · P. "+c.pm:""); dl.appendChild(o); }); });
+  }
+  const collect=()=>({id:rec.id, kind:"BANVE", quan:$("#bvQuan").value, phuong:$("#bvPhuong").value, cabinets:cabs,
+    data:{ten:$("#bvTen").value.trim(), loai:$("#bvLoai").value, soHieu:$("#bvSo").value.trim(), ngay:$("#bvNgay").value.trim(), tuyen:$("#bvTuyen").value.trim(), ghiChu:$("#bvGhi").value.trim()}});
+  const save=async()=>{ const x=collect(); if(!x.data.ten){ $("#bvMsg").textContent="Nhập tên bản vẽ."; return null; } if(!x.quan){ $("#bvMsg").textContent="Chọn quận (hoặc gắn tủ để tự điền)."; return null; }
+    $("#bvMsg").textContent="Đang lưu…"; const r=await api("saveHoSo",{rec:x}); if(!r.ok){ $("#bvMsg").textContent=r.error||"Lỗi"; return null; }
+    r.rec.files = r.rec.files || rec.files || []; rec=r.rec; const i=bvRecs.findIndex(z=>z.id===rec.id); if(i>=0) bvRecs[i]=rec; else bvRecs.unshift(rec);
+    $("#bvMsg").textContent="✅ Đã lưu."; return rec; };
+  hsAttach($("#bvFiles"), {rec: rec.id?rec:null, kind:"BANVE", canEdit, zipName:"Ban_ve_"+(d.ten||""), ensureSaved:save, onChange:r=>{ rec=r; const i=bvRecs.findIndex(z=>z.id===r.id); if(i>=0) bvRecs[i]=r; }});
+  if(canEdit){ $("#bvSave").onclick=async()=>{ if(await save()){ $("#bvScrim").classList.remove("show"); bvRender(); } }; }
+  const del=$("#bvDel"); if(del) del.onclick=async()=>{ if(!confirm("Xóa bản vẽ này và toàn bộ file đính kèm?")) return; const r=await api("deleteHoSo",{id:rec.id}); if(r.ok){ bvRecs=bvRecs.filter(z=>z.id!==rec.id); $("#bvScrim").classList.remove("show"); bvRender(); } else alert(r.error||"Lỗi"); };
+  $("#bvScrim").classList.add("show");
+}
+$("#bvAdd").onclick=()=>bvOpen(null);
+$("#bvClose").onclick=()=>{ $("#bvScrim").classList.remove("show"); bvRender(); };
+$("#bvSearch").addEventListener("input",e=>{ bvTerm=e.target.value; bvRender(); });
+(function(){ const s=$("#bvTypeSel"); s.innerHTML='<option value="">Tất cả loại bản vẽ</option>'+BV_TYPES.map(t=>`<option>${t}</option>`).join(""); s.onchange=()=>{ bvType=s.value; bvRender(); }; })();
+$("#bvXls").onclick=()=>{ if(!bvRecs||typeof XLSX==="undefined") return;
+  const rows=bvRecs.filter(r=>activeQuan==="Tất cả"||r.quan===activeQuan);
+  const aoa=[["STT","Tên bản vẽ","Loại","Số hiệu","Năm/ngày","Quận","Phường (sau sáp nhập)","Tuyến đường","Tủ điều khiển liên quan","Số file","Danh sách file","Người lập","Cập nhật","Ghi chú"],
+    ...rows.map((r,i)=>[i+1,r.data.ten,r.data.loai,r.data.soHieu,r.data.ngay,r.quan,r.phuong,r.data.tuyen,(r.cabinets||[]).map(pe=>{const c=cabByPe(pe);return c?c.n+" ("+pe+")":pe;}).join("; "),(r.files||[]).length,(r.files||[]).map(f=>f.name).join("; "),r.nguoiTaoTen,new Date(r.updatedAt).toLocaleString("vi-VN"),r.data.ghiChu])];
+  const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(aoa); ws["!cols"]=[{wch:5},{wch:36},{wch:24},{wch:12},{wch:12},{wch:14},{wch:16},{wch:22},{wch:40},{wch:7},{wch:40},{wch:18},{wch:18},{wch:30}];
+  XLSX.utils.book_append_sheet(wb,ws,"Kho ban ve"); saveBlob(new Blob([XLSX.write(wb,{bookType:"xlsx",type:"array"})]),"Kho_ban_ve_"+todayISO()+".xlsx"); };
+$("#tabBv").onclick=()=>{ showView("bv"); bvRender(); };
+
+/* ---------- THEO DÕI LED & BẢO HÀNH ---------- */
+let ledLoaded=false, ledOv=[], ledTab="tong", ledTerm="", ledStt="Tất cả", ledHang="";
+const LED_ST={ok:["Còn bảo hành","st-led-ok"], soon:["Sắp hết bảo hành (≤ 6 tháng)","st-led-soon"], exp:["HẾT BH – chưa có biên bản","st-led-exp"], proc:["Đang làm thủ tục xác nhận","st-led-proc"], done:["Đã xác nhận hết BH / bàn giao","st-led-done"], unk:["Chưa rõ ngày lắp đặt","st-led-unk"]};
+const LED_LAWS=[
+ {t:"Nghị định 06/2021/NĐ-CP – Điều 28, khoản 1–2", s:"Nhà thầu thi công, nhà thầu cung ứng thiết bị chịu trách nhiệm bảo hành phần việc mình thực hiện. Chủ đầu tư phải thỏa thuận trong hợp đồng về quyền, trách nhiệm, thời hạn, biện pháp, giá trị bảo hành và việc hoàn trả tiền/bảo lãnh bảo hành."},
+ {t:"Nghị định 06/2021/NĐ-CP – Điều 28, khoản 5", s:"Thời hạn bảo hành công trình xây mới / cải tạo tính từ khi chủ đầu tư nghiệm thu: không ít hơn 24 tháng (công trình cấp đặc biệt, cấp I) và không ít hơn 12 tháng (cấp còn lại) đối với vốn đầu tư công / vốn nhà nước ngoài đầu tư công."},
+ {t:"Nghị định 06/2021/NĐ-CP – Điều 28, khoản 6", s:"Thiết bị công trình, thiết bị công nghệ (bộ đèn LED, driver…): thời hạn bảo hành theo hợp đồng nhưng KHÔNG ngắn hơn thời hạn bảo hành của nhà sản xuất, tính từ khi nghiệm thu hoàn thành lắp đặt."},
+ {t:"Nghị định 06/2021/NĐ-CP – Điều 29", s:"Trong thời hạn bảo hành, khi phát hiện hư hỏng, khiếm khuyết, chủ đầu tư / chủ sở hữu / người quản lý sử dụng thông báo để yêu cầu nhà thầu thực hiện bảo hành. Nhà thầu vẫn chịu trách nhiệm về chất lượng phần việc của mình kể cả sau thời hạn bảo hành."},
+ {t:"Hợp đồng & phụ lục hợp đồng của từng công trình", s:"Căn cứ trực tiếp để xác định thời hạn bảo hành cụ thể (VD: 157/HĐ-KQL1-KHĐT; 224/HĐ-TTHT & PLHĐ 421/PLHĐ-TTHT; 89/HĐ-KQL2-HTGT…). Đính kèm bản scan hợp đồng vào mục Văn bản để đối chiếu."}
+];
+function ledYears(){ return Number(localStorage.getItem("led_bh")||5); }
+function ledInstall(r){ const s=String(r.ngayNT||r.nam||""); let m;
+  if((m=s.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/))) return new Date(+m[3],+m[2]-1,+m[1]);
+  if((m=s.match(/quý\s*(\d)\s*\/\s*(\d{4})/i))) return new Date(+m[2], (+m[1])*3, 0);
+  const ys=s.match(/\d{4}/g); if(ys) return new Date(Math.max(...ys.map(Number)),11,31); return null; }
+function ledKey(s){ return vnNorm(String(s||"").replace(/\(.*?\)/g," ").replace(/^(đường|duong)\s+/i,"")).replace(/\s+/g," ").trim(); }
+function ledMatchVB(r, vbs){
+  if(r.vb && r.vb.length) return vbs.filter(v=>r.vb.includes(v.id));
+  const k=ledKey(r.tuyen); if(k.length<4) return [];
+  return vbs.filter(v=>{ const t=vnNorm(v.tuyen+" "+v.congTrinh); if(!t.includes(k)) return false;
+    const qd=(r.quan||"").replace("Quận ",""); return !qd || vnNorm(v.quan).includes(vnNorm(qd)) || /bình thạnh|binh thanh/.test(vnNorm(v.quan))===/bình thạnh/i.test(r.quan); }); }
+function ledData(){
+  const ov=id=>ledOv.find(o=>o.data.refId===id);
+  const vbs=LED_VB.map(v=>{ const o=ov(v.id); return Object.assign({},v,o?o.data.fields||{}:{},{_ov:o,_seed:true}); })
+    .concat(ledOv.filter(o=>o.data.type==="vb"&&!o.data.refId).map(o=>Object.assign({id:o.id,_ov:o},o.data.fields)));
+  const today=new Date(), yrs=ledYears();
+  const routes=LED_ROUTES.map(r=>{ const o=ov(r.id); return Object.assign({},r,o?o.data.fields||{}:{},{_ov:o,_seed:true}); })
+    .concat(ledOv.filter(o=>o.data.type==="route"&&!o.data.refId).map(o=>Object.assign({id:o.id,_ov:o},o.data.fields)));
+  routes.forEach(r=>{
+    r._inst=ledInstall(r); const y=Number(r.bhNam)||yrs; r._y=y;
+    r._exp=r._inst?new Date(r._inst.getFullYear()+y, r._inst.getMonth(), r._inst.getDate()):null;
+    r._vbs=ledMatchVB(r,vbs);
+    const isInvite=v=>/thư mời|mời kiểm tra/i.test((v.loai||"")+" "+(v.tinhTrang||""));
+    const vbDone=r._vbs.find(v=>!isInvite(v) && !/chưa|trùng lặp/i.test(v.tinhTrang||"") && /^(bb|biên bản|vb giao)/i.test(v.loai||"") && /hết bảo hành|kết thúc bảo hành|duy tu|bàn giao|tiếp nhận|giao thực hiện/i.test((v.loai||"")+" "+(v.tinhTrang||"")));
+    const vbProc=r._vbs.find(v=>isInvite(v) || /chưa/i.test(v.tinhTrang||""));
+    if(r.trangThaiTay) r._st=r.trangThaiTay;
+    else if(vbDone) r._st="done"; else if(vbProc) r._st="proc";
+    else if(!r._exp) r._st="unk";
+    else if(r._exp<today) r._st="exp";
+    else if((r._exp-today)/86400000<=183) r._st="soon"; else r._st="ok";
+    r._days = r._exp ? Math.round((r._exp-today)/86400000) : null;
+  });
+  const tasks=LED_TASKS.map(t=>{ const o=ov(t.id); return Object.assign({},t,o?o.data.fields||{}:{},{_ov:o,_seed:true}); })
+    .concat(ledOv.filter(o=>o.data.type==="task"&&!o.data.refId).map(o=>Object.assign({id:o.id,_ov:o},o.data.fields)));
+  return {vbs, routes, tasks};
+}
+async function ledRender(force){
+  const el=$("#ledBody");
+  if(!ledLoaded || force){
+    el.innerHTML='<div class="empty">Đang tải dữ liệu LED…</div>';
+    if(typeof LED_ROUTES==="undefined"){ try{ await loadScript("led.js"); }catch(e){ el.innerHTML='<div class="empty">Không tải được led.js</div>'; return; } }
+    const ov=await hsLoad("LED"); ledOv=ov||[]; ledLoaded=true;
+  }
+  $("#ledTabs").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.v===ledTab));
+  const D=ledData(); ({tong:ledTong, tuyen:ledTuyen, vb:ledVB, viec:ledViec, luat:ledLuat})[ledTab](el,D);
+}
+function ledFiltRoutes(D){ const tokens=vnNorm(ledTerm).trim().split(/\s+/).filter(Boolean);
+  return D.routes.filter(r=>(activeQuan==="Tất cả"||r.quan===activeQuan) && (ledStt==="Tất cả"||r._st===ledStt) && (!ledHang||r.hang===ledHang) &&
+    (!tokens.length||tokens.every(t=>vnNorm([r.tuyen,r.quan,r.tu,r.hang,r.loai,r.donVi,r.nguonVon,r.nam,r.ghiChu,r.huHong].join(" ")).includes(t)))); }
+function ledTong(el,D){
+  const rs=D.routes.filter(r=>activeQuan==="Tất cả"||r.quan===activeQuan);
+  const sum=(a,f)=>a.reduce((s,r)=>s+(Number(f(r))||0),0);
+  const byS=k=>rs.filter(r=>r._st===k);
+  const kw=sum(rs,r=>r.wHps&&r.wLed&&r.soDen?(r.wHps-r.wLed)*r.soDen:0)/1000;
+  let h=`<div class="who" style="margin-bottom:8px">Thời hạn bảo hành mặc định: <select id="ledYrs" class="ql-select" style="width:auto;display:inline-block;margin:0 4px;padding:4px 8px">${[1,2,3,4,5,6,7,8,10].map(y=>`<option ${y===ledYears()?"selected":""}>${y}</option>`).join("")}</select> năm kể từ ngày lắp đặt/nghiệm thu (có thể chỉnh riêng từng tuyến theo hợp đồng).</div>
+  <div class="tk-kpis">
+   <div class="tk-k"><b>${rs.length}</b><span>Tuyến LED theo dõi</span></div>
+   <div class="tk-k"><b>${sum(rs,r=>r.soDen).toLocaleString("vi-VN")}</b><span>Bộ đèn LED</span></div>
+   <div class="tk-k"><b>${D.vbs.length}</b><span>Văn bản / biên bản</span></div>
+   <div class="tk-k"><b>${kw.toLocaleString("vi-VN",{maximumFractionDigits:1})} kW</b><span>Công suất tiết kiệm so với HPS</span></div></div>
+  <div class="tk-h">Tình trạng bảo hành</div><div class="led-bars">`;
+  Object.entries(LED_ST).forEach(([k,[l,c]])=>{ const a=byS(k), n=sum(a,r=>r.soDen); h+=`<button class="led-bar" data-s="${k}"><span class="badge ${c}">${l}</span><div class="led-bt"><i style="width:${rs.length?Math.round(a.length*100/rs.length):0}%" class="${c}"></i></div><b>${a.length} tuyến · ${n.toLocaleString("vi-VN")} đèn</b></button>`; });
+  h+=`</div>`;
+  const exp=byS("exp").sort((a,b)=>a._days-b._days), soon=byS("soon").sort((a,b)=>a._days-b._days);
+  h+=`<div class="tk-h" style="margin-top:14px">⚠️ Phân tích: tuyến ĐÃ HẾT bảo hành nhưng CHƯA có biên bản xác nhận (${exp.length})</div>`;
+  h+= exp.length ? `<div class="led-alert">Đề xuất: lập <b>thư mời + biên bản kiểm tra hiện trường hết hạn bảo hành</b> với đơn vị thi công/nhà cung cấp; nếu nhà thầu không phối hợp, rà soát trách nhiệm theo hợp đồng và <b>Điều 28, 29 Nghị định 06/2021/NĐ-CP</b> (xem tab Căn cứ pháp lý).</div>`+ledTable(exp.slice(0,30)) : '<div class="who">Không có.</div>';
+  h+=`<div class="tk-h" style="margin-top:14px">⏳ Sắp hết bảo hành trong 6 tháng (${soon.length})</div>`+(soon.length?ledTable(soon):'<div class="who">Không có.</div>');
+  // theo nhà cung cấp
+  const hs={}; rs.forEach(r=>{ const k=r.hang||"(chưa ghi)"; (hs[k]=hs[k]||[]).push(r); });
+  h+=`<div class="tk-h" style="margin-top:14px">Theo hãng / nhà cung cấp</div><div class="ks-table-wrap"><table class="ks-table"><thead><tr><th>Hãng</th><th>Tuyến</th><th>Bộ đèn</th><th>Hết BH chưa BB</th><th>Đã xác nhận</th><th>Tỷ lệ hư hỏng TB</th><th>BH nhà thầu Đạt/Không</th></tr></thead><tbody>`+
+    Object.entries(hs).sort((a,b)=>b[1].length-a[1].length).map(([k,a])=>{ const hh=a.filter(r=>r.tyLeHH!=null&&r.tyLeHH!==""); return `<tr><td style="text-align:left"><b>${escHtml(k)}</b></td><td>${a.length}</td><td>${sum(a,r=>r.soDen)}</td><td>${a.filter(r=>r._st==="exp").length||""}</td><td>${a.filter(r=>r._st==="done").length||""}</td><td>${hh.length?(sum(hh,r=>r.tyLeHH)/hh.length).toFixed(1)+"%":""}</td><td>${a.filter(r=>r.bhDat==="Đạt").length||""}/${a.filter(r=>r.bhDat==="Không đạt").length||""}</td></tr>`; }).join("")+`</tbody></table></div>`;
+  const qs={}; rs.forEach(r=>{ const k=r.quan||"(chưa ghi)"; (qs[k]=qs[k]||[]).push(r); });
+  h+=`<div class="tk-h" style="margin-top:14px">Theo quận</div><div class="ks-table-wrap"><table class="ks-table"><thead><tr><th>Quận</th><th>Tuyến</th><th>Bộ đèn</th>${Object.values(LED_ST).map(s=>`<th>${escHtml(s[0].replace(/\(.*\)/,""))}</th>`).join("")}</tr></thead><tbody>`+
+    Object.entries(qs).map(([k,a])=>`<tr><td style="text-align:left">${escHtml(k)}</td><td>${a.length}</td><td>${sum(a,r=>r.soDen)}</td>${Object.keys(LED_ST).map(s=>`<td>${a.filter(r=>r._st===s).length||""}</td>`).join("")}</tr>`).join("")+`</tbody></table></div>`;
+  el.innerHTML=h;
+  $("#ledYrs").onchange=e=>{ localStorage.setItem("led_bh",e.target.value); ledRender(); };
+  el.querySelectorAll(".led-bar").forEach(b=>b.onclick=()=>{ ledStt=b.dataset.s; ledTab="tuyen"; ledRender(); });
+  el.querySelectorAll("tr[data-r]").forEach(tr=>tr.onclick=()=>ledOpenRoute(D.routes.find(r=>r.id===tr.dataset.r)));
+}
+function ledTable(a){ return `<div class="ks-table-wrap"><table class="ks-table led-t"><thead><tr><th>Tuyến</th><th>Quận</th><th>Đèn</th><th>Hãng</th><th>Lắp đặt</th><th>Hết BH</th><th>Còn/quá</th></tr></thead><tbody>`+
+  a.map(r=>`<tr data-r="${escHtml(r.id)}"><td style="text-align:left"><b>${escHtml(r.tuyen)}</b></td><td>${escHtml((r.quan||"").replace("Quận ","Q."))}</td><td>${r.soDen||""}</td><td>${escHtml(r.hang||"")}</td><td>${escHtml(r.ngayNT||r.nam||"")}</td><td>${r._exp?r._exp.toLocaleDateString("vi-VN"):""}</td><td>${r._days==null?"":(r._days<0?`<span style="color:var(--high)">quá ${-r._days} ngày</span>`:`còn ${r._days} ngày`)}</td></tr>`).join("")+`</tbody></table></div>`; }
+function ledTuyen(el,D){
+  const list=ledFiltRoutes(D), hangs=[...new Set(D.routes.map(r=>r.hang).filter(Boolean))].sort();
+  el.innerHTML=`<div class="inc-search"><div class="search-wrap"><input id="ledQ" placeholder="Tìm tuyến, tủ, hãng, đơn vị thi công, nguồn vốn…" value="${escHtml(ledTerm)}"></div>
+    <select id="ledHangSel" class="ql-select"><option value="">Tất cả hãng</option>${hangs.map(x=>`<option ${x===ledHang?"selected":""}>${escHtml(x)}</option>`).join("")}</select></div>
+    <div class="chips" style="flex-wrap:wrap;margin-bottom:10px">${["Tất cả",...Object.keys(LED_ST)].map(k=>`<button class="chip ${k===ledStt?"active":""}" data-s="${k}">${k==="Tất cả"?"Tất cả":escHtml(LED_ST[k][0])} (${k==="Tất cả"?D.routes.filter(r=>activeQuan==="Tất cả"||r.quan===activeQuan).length:D.routes.filter(r=>r._st===k&&(activeQuan==="Tất cả"||r.quan===activeQuan)).length})</button>`).join("")}</div>
+    <div class="fl-head"><span class="who">${list.length} tuyến · ${list.reduce((s,r)=>s+(r.soDen||0),0).toLocaleString("vi-VN")} bộ đèn</span><div class="fl-btns">${can("nhapLed")?`<button class="gps-btn" id="ledAddR">＋ Thêm tuyến</button>`:""}<button class="gps-btn" id="ledXls">⬇ Excel</button></div></div><div class="tk-list" id="ledList"></div>`;
+  const q=$("#ledQ"); q.oninput=()=>{ ledTerm=q.value; const pos=q.selectionStart; ledRender(); const n=$("#ledQ"); n.focus(); n.setSelectionRange(pos,pos); };
+  $("#ledHangSel").onchange=e=>{ ledHang=e.target.value; ledRender(); };
+  el.querySelectorAll(".chip[data-s]").forEach(b=>b.onclick=()=>{ ledStt=b.dataset.s; ledRender(); });
+  const box=$("#ledList");
+  list.sort((a,b)=>(a._days??99999)-(b._days??99999)).forEach(r=>{ const c=document.createElement("div"); c.className="tk-card"; const s=LED_ST[r._st];
+    c.innerHTML=`<div class="tk-top"><div><div class="name">${escHtml(r.tuyen)}</div><div class="who">${escHtml(r.quan||"")}${r.tu?" · Tủ: "+escHtml(r.tu):""}</div></div><span class="badge ${s[1]}">${escHtml(s[0])}</span></div>
+      <div class="tk-mini"><span>💡 ${r.soDen||"?"} đèn${r.wLed?" · "+r.wLed+"W":""}</span><span>🏭 ${escHtml(r.hang||"–")}</span><span>📅 ${escHtml(r.ngayNT||r.nam||"–")}</span>${r._exp?`<span>⏰ hết BH ${r._exp.toLocaleDateString("vi-VN")}</span>`:""}${r._vbs.length?`<span>📄 ${r._vbs.length} văn bản</span>`:""}${r._ov&&r._ov.files&&r._ov.files.length?`<span>📎 ${r._ov.files.length}</span>`:""}</div>`;
+    c.onclick=()=>ledOpenRoute(r); box.appendChild(c); });
+  const ar=$("#ledAddR"); if(ar) ar.onclick=()=>ledOpenRoute(null);
+  $("#ledXls").onclick=()=>{ if(typeof XLSX==="undefined") return;
+    const aoa=[["STT","Tuyến","Quận","Tủ điều khiển","Số đèn","Công suất LED (W)","Công suất HPS cũ (W)","Hãng","Loại đèn","Năm lắp đặt / nghiệm thu","Thời hạn BH (năm)","Ngày hết BH","Còn/quá (ngày)","Tình trạng bảo hành","Văn bản liên quan","Đơn vị thi công","Nguồn vốn","Chủ đầu tư","Tỷ lệ hư hỏng (%)","BH nhà thầu","Tình trạng hư hỏng","Nguồn dữ liệu","Ghi chú"],
+      ...list.map((r,i)=>[i+1,r.tuyen,r.quan,r.tu,r.soDen,r.wLed,r.wHps||r.hpsTxt,r.hang,r.loai,r.ngayNT||r.nam,r._y,r._exp?r._exp.toLocaleDateString("vi-VN"):"",r._days,LED_ST[r._st][0],r._vbs.map(v=>(v.loai||"")+" "+(v.ngay||"")).join("; "),r.donVi,r.nguonVon,r.chuDauTu,r.tyLeHH,r.bhDat,r.huHong,r.nguon,r.ghiChu])];
+    const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(aoa); ws["!cols"]=aoa[0].map((h,i)=>({wch:i===1?30:i===8?40:14})); XLSX.utils.book_append_sheet(wb,ws,"Theo doi LED");
+    const v2=XLSX.utils.aoa_to_sheet([["STT","Loại văn bản","Ngày","Quận","Công trình","Tuyến / địa điểm","Bên A","Bên B","Số hợp đồng","Tình trạng","Ghi chú","Số file đính kèm"],...D.vbs.map((v,i)=>[i+1,v.loai,v.ngay,v.quan,v.congTrinh,v.tuyen,v.benA,v.benB,v.soHD,v.tinhTrang,v.ghiChu,v._ov?(v._ov.files||[]).length:0])]); XLSX.utils.book_append_sheet(wb,v2,"Van ban");
+    saveBlob(new Blob([XLSX.write(wb,{bookType:"xlsx",type:"array"})]),"Theo_doi_LED_bao_hanh_"+todayISO()+".xlsx"); };
+}
+function ledVB(el,D){
+  const tokens=vnNorm(ledTerm).trim().split(/\s+/).filter(Boolean);
+  const list=D.vbs.filter(v=>!tokens.length||tokens.every(t=>vnNorm(Object.values(v).filter(x=>typeof x==="string").join(" ")).includes(t))).sort((a,b)=>String(b.ngay).localeCompare(String(a.ngay)));
+  el.innerHTML=`<div class="inc-search"><div class="search-wrap"><input id="ledQ" placeholder="Tìm văn bản: số hợp đồng, tuyến, nhà thầu, loại biên bản…" value="${escHtml(ledTerm)}"></div></div>
+   <div class="fl-head"><span class="who">${list.length} văn bản / biên bản</span>${can("nhapLed")?`<button class="gps-btn" id="ledAddV">＋ Thêm văn bản</button>`:""}</div><div class="tk-list" id="ledList"></div>`;
+  const q=$("#ledQ"); q.oninput=()=>{ ledTerm=q.value; const pos=q.selectionStart; ledRender(); const n=$("#ledQ"); n.focus(); n.setSelectionRange(pos,pos); };
+  list.forEach(v=>{ const n=D.routes.filter(r=>r._vbs.includes(v)).length, f=v._ov?(v._ov.files||[]).length:0, c=document.createElement("div"); c.className="tk-card";
+    const warn=/chưa|trùng|quá hạn|không lập/i.test((v.tinhTrang||"")+" "+(v.ghiChu||""));
+    c.innerHTML=`<div class="tk-top"><div><div class="name">${escHtml(v.loai||"Văn bản")}</div><div class="who">${v.ngay?new Date(v.ngay).toLocaleDateString("vi-VN"):"(chưa ghi ngày)"} · ${escHtml(v.quan||"")}</div></div>${warn?'<span class="badge st-led-exp">Cần lưu ý</span>':""}</div>
+      <div class="desc">${escHtml(v.tuyen||v.congTrinh||"")}</div><div class="tk-mini"><span>🏗️ ${escHtml(v.benB||"")}</span>${v.soHD?`<span>📑 HĐ ${escHtml(v.soHD)}</span>`:""}<span>🛣️ ${n} tuyến liên quan</span><span>📎 ${f} file</span></div>
+      <div class="who" style="margin-top:4px">${escHtml(v.tinhTrang||"")}</div>`;
+    c.onclick=()=>ledOpenVB(v,D); $("#ledList").appendChild(c); });
+  const a=$("#ledAddV"); if(a) a.onclick=()=>ledOpenVB(null,D);
+}
+function ledViec(el,D){
+  el.innerHTML=`<div class="fl-head"><span class="who">${D.tasks.filter(t=>!t.xong).length} việc chưa xong / ${D.tasks.length}</span>${can("nhapLed")?`<button class="gps-btn" id="ledAddT">＋ Thêm việc</button>`:""}</div><div id="ledList" class="ks-list"></div>`;
+  D.tasks.sort((a,b)=>(a.xong?1:0)-(b.xong?1:0) || (a.uuTien==="Cao"?0:1)-(b.uuTien==="Cao"?0:1)).forEach(t=>{ const c=document.createElement("div"); c.className="ks-rec"+(t.xong?" led-done":"");
+    c.innerHTML=`<div class="tk-top"><b>${t.xong?"✅ ":""}${escHtml(t.noiDung)}</b><span class="badge ${t.uuTien==="Cao"?"st-led-exp":"st-led-soon"}">${escHtml(t.uuTien||"")}</span></div><div class="who">${t.lienQuan?"Liên quan: "+escHtml(t.lienQuan):""}${t.ghiChu?" · "+escHtml(t.ghiChu):""}${t.ketQua?"<br>Kết quả: "+escHtml(t.ketQua):""}</div>`;
+    if(can("nhapLed")) c.onclick=async()=>{ const kq=prompt(t.xong?"Bỏ đánh dấu hoàn thành? Ghi kết quả (để trống = mở lại):":"Đánh dấu HOÀN THÀNH – ghi kết quả xử lý:", t.ketQua||""); if(kq===null) return;
+      await ledSaveOv(t, {xong: !!kq.trim(), ketQua: kq.trim()}, "task"); ledRender(); };
+    $("#ledList").appendChild(c); });
+  const a=$("#ledAddT"); if(a) a.onclick=async()=>{ const nd=prompt("Nội dung cần xử lý:"); if(!nd) return; const ut=confirm("Mức ưu tiên CAO? (OK = Cao, Hủy = Trung bình)")?"Cao":"Trung bình"; await ledSaveOv(null,{noiDung:nd,uuTien:ut},"task"); ledRender(); };
+}
+function ledLuat(el){
+  el.innerHTML=`<div class="led-alert">Tóm tắt các căn cứ thường dùng khi xác định và xử lý hết hạn bảo hành đèn LED. Luôn đối chiếu văn bản gốc và điều khoản bảo hành trong hợp đồng cụ thể trước khi sử dụng chính thức.</div>`+
+    LED_LAWS.map(l=>`<div class="ks-rec" style="cursor:default"><b>⚖️ ${escHtml(l.t)}</b><div class="desc">${escHtml(l.s)}</div></div>`).join("")+`<div id="ledLawFiles"></div>`;
+  let lawRec=ledOv.find(o=>o.data.type==="law");
+  hsAttach($("#ledLawFiles"),{rec:lawRec||null, kind:"LED", canEdit:can("nhapLed"), zipName:"Van_ban_phap_ly",
+    ensureSaved:async()=>{ const r=await api("saveHoSo",{rec:{kind:"LED",data:{type:"law",fields:{}}}}); if(!r.ok) return null; r.rec.files=[]; ledOv.push(r.rec); lawRec=r.rec; return r.rec; },
+    onChange:r=>{ const i=ledOv.findIndex(o=>o.id===r.id); if(i>=0) ledOv[i]=r; }});
+}
+async function ledSaveOv(item, fields, type){
+  const ex=item&&item._ov; const base=ex?ex.data.fields||{}:{};
+  const rec={id:ex?ex.id:undefined, kind:"LED", quan:(item&&item.quan)||fields.quan||"", data:{type, refId:item&&item._seed?item.id:(ex?ex.data.refId:undefined), fields:Object.assign({},base,fields)}};
+  if(item && !item._seed && item._ov) rec.id=item._ov.id;
+  const r=await api("saveHoSo",{rec}); if(!r.ok){ alert(r.error||"Lỗi"); return null; }
+  r.rec.files=r.rec.files||(ex?ex.files:[])||[]; const i=ledOv.findIndex(o=>o.id===r.rec.id); if(i>=0) ledOv[i]=r.rec; else ledOv.push(r.rec); return r.rec;
+}
+function ledOpenRoute(r){
+  const isNew=!r, canEdit=can("nhapLed"); r=r||{tuyen:"",quan:activeQuan!=="Tất cả"?activeQuan:"",_vbs:[],_st:"unk"};
+  const s=LED_ST[r._st]||LED_ST.unk, el=$("#ledDetail");
+  $("#ledTitle").textContent = isNew ? "💡 Thêm tuyến LED" : "💡 "+r.tuyen;
+  const cabs=String(r.tu||"").split(/[,;]+/).map(x=>x.trim()).filter(Boolean).map(n=>CABINETS.find(c=>vnNorm(c.n)===vnNorm(n))||null).filter(Boolean);
+  const F=(k,l,v,ph)=>`<div class="ks-f"><label>${l}</label><input data-k="${k}" ${canEdit?"":"disabled"} value="${escHtml(v==null?"":v)}" placeholder="${ph||""}"></div>`;
+  el.innerHTML=(isNew?"":`<div class="fl-btns" style="margin-bottom:8px"><span class="badge ${s[1]}">${escHtml(s[0])}</span>${r._exp?`<span class="who">Hết BH: <b>${r._exp.toLocaleDateString("vi-VN")}</b> (${r._days<0?"quá "+(-r._days)+" ngày":"còn "+r._days+" ngày"}) · tính ${r._y} năm từ ${r._inst.toLocaleDateString("vi-VN")}</span>`:""}</div>`)+
+   `<div class="ks-fields">${F("tuyen","Tuyến đường *",r.tuyen)}${F("quan","Quận",r.quan)}${F("tu","Tủ điều khiển (cách nhau dấu phẩy)",r.tu)}${F("soDen","Số bộ đèn",r.soDen)}
+    ${F("wLed","Công suất LED (W)",r.wLed)}${F("wHps","Công suất HPS cũ (W)",r.wHps||r.hpsTxt)}${F("hang","Hãng / nhà cung cấp",r.hang)}${F("loai","Loại đèn",r.loai)}
+    ${F("nam","Năm lắp đặt",r.nam,"VD: Quý 4/2019")}${F("ngayNT","Ngày nghiệm thu / bàn giao (nếu có)",r.ngayNT,"dd/mm/yyyy – ưu tiên hơn năm lắp đặt")}${F("bhNam","Thời hạn BH theo hợp đồng (năm)",r.bhNam,"để trống = mặc định "+ledYears()+" năm")}
+    ${F("donVi","Đơn vị thi công / lắp đặt",r.donVi)}${F("nguonVon","Nguồn vốn / hợp đồng",r.nguonVon)}${F("huHong","Tình trạng hư hỏng, sửa chữa",r.huHong)}${F("ghiChu","Ghi chú",r.ghiChu)}
+    <div class="ks-f"><label>Tình trạng BH (chỉnh tay – để trống = tự tính)</label><select data-k="trangThaiTay" ${canEdit?"":"disabled"}><option value="">Tự động theo ngày & văn bản</option>${Object.entries(LED_ST).map(([k,v])=>`<option value="${k}" ${k===r.trangThaiTay?"selected":""}>${v[0]}</option>`).join("")}</select></div></div>`+
+   (cabs.length?`<div class="ks-g">Tủ điều khiển (đồng bộ dữ liệu tủ)</div><div class="bv-cabs">${cabs.map(c=>`<button class="bv-cab" data-pe="${escHtml(c.pe)}">🗄️ ${escHtml(c.n)} · ${escHtml(c.q)}${c.pm?" · P. "+escHtml(c.pm):""}</button>`).join("")}</div>`:"")+
+   `<div class="ks-g">Văn bản liên quan (${r._vbs.length})</div>`+(r._vbs.length?r._vbs.map(v=>`<div class="ks-rec" style="cursor:default;margin-top:6px"><b>${escHtml(v.loai||"")}</b> – ${v.ngay?new Date(v.ngay).toLocaleDateString("vi-VN"):"chưa ghi ngày"}<div class="who">${escHtml(v.benB||"")} · HĐ ${escHtml(v.soHD||"–")} · ${escHtml(v.tinhTrang||"")}</div></div>`).join(""):'<div class="who">Chưa tìm thấy biên bản xác nhận cho tuyến này.</div>')+
+   (r._st==="exp"?`<div class="led-alert" style="margin-top:10px">⚠️ Đã hết bảo hành nhưng chưa có biên bản. Căn cứ Điều 28 khoản 6 và Điều 29 Nghị định 06/2021/NĐ-CP, đề nghị lập thư mời kiểm tra hiện trường hết hạn bảo hành với <b>${escHtml(r.donVi||r.hang||"nhà thầu")}</b> để xác nhận và đưa vào duy tu.</div>`:"")+
+   `<div id="ledFiles"></div>${canEdit?`<button class="submit-btn" id="ledSaveR" style="margin-top:12px">💾 Lưu</button>`:""}<div class="gps-result" id="ledMsg"></div>`;
+  el.querySelectorAll(".bv-cab[data-pe]").forEach(b=>b.onclick=async()=>{ $("#ledScrim").classList.remove("show"); showView("tk"); await tkRender(); const row=TK_BY_PE[b.dataset.pe]; if(row) tkOpen(row); });
+  const collect=()=>{ const o={}; el.querySelectorAll("[data-k]").forEach(i=>{ let v=i.value.trim(); if(["soDen","wLed","wHps","bhNam"].includes(i.dataset.k)) v=v===""?"":(Number(v.replace(",","."))||v); o[i.dataset.k]=v; }); return o; };
+  const save=async()=>{ const f=collect(); if(!f.tuyen){ $("#ledMsg").textContent="Nhập tên tuyến."; return null; } const rec=await ledSaveOv(isNew?null:r, f, "route"); if(rec){ r._ov=rec; $("#ledMsg").textContent="✅ Đã lưu."; } return rec; };
+  hsAttach($("#ledFiles"),{rec:r._ov||null, kind:"LED", canEdit, zipName:"LED_"+(r.tuyen||""), ensureSaved:save, onChange:x=>{ r._ov=x; const i=ledOv.findIndex(o=>o.id===x.id); if(i>=0) ledOv[i]=x; }});
+  const sb=$("#ledSaveR"); if(sb) sb.onclick=async()=>{ if(await save()){ $("#ledScrim").classList.remove("show"); ledRender(); } };
+  $("#ledScrim").classList.add("show");
+}
+function ledOpenVB(v,D){
+  const isNew=!v, canEdit=can("nhapLed"); v=v||{};
+  const el=$("#ledDetail"); $("#ledTitle").textContent = isNew?"📄 Thêm văn bản / biên bản":"📄 "+(v.loai||"Văn bản");
+  const rel=D.routes.filter(r=>r._vbs.includes(v));
+  const F=(k,l,t)=>`<div class="ks-f ${t==="a"?"wide":""}"><label>${l}</label>${t==="a"?`<textarea data-k="${k}" rows="2" ${canEdit?"":"disabled"}>${escHtml(v[k]||"")}</textarea>`:`<input data-k="${k}" ${t==="d"?'type="date"':""} ${canEdit?"":"disabled"} value="${escHtml(v[k]||"")}">`}</div>`;
+  el.innerHTML=`<div class="ks-fields">${F("loai","Loại văn bản")}${F("ngay","Ngày lập","d")}${F("quan","Quận / địa bàn")}${F("soHD","Số hợp đồng")}${F("congTrinh","Công trình","a")}${F("hangMuc","Hạng mục","a")}${F("tuyen","Tuyến đường / địa điểm","a")}${F("benA","Đơn vị quản lý (Bên A)")}${F("benB","Đơn vị thi công / nhận thầu (Bên B)")}${F("tinhTrang","Tình trạng","a")}${F("ghiChu","Ghi chú","a")}</div>`+
+    (v.file?`<div class="who" style="margin-top:6px">📁 Tên file gốc: ${escHtml(v.file)}</div>`:"")+
+    `<div class="ks-g">Tuyến LED liên quan (${rel.length})</div>`+(rel.length?`<div class="bv-cabs">${rel.map(r=>`<span class="bv-cab">${escHtml(r.tuyen)} · ${r.soDen||"?"} đèn</span>`).join("")}</div>`:'<div class="who">Chưa khớp tuyến nào (khớp tự động theo tên đường trong mục Tuyến / Công trình).</div>')+
+    `<div id="ledFiles"></div>${canEdit?`<button class="submit-btn" id="ledSaveV" style="margin-top:12px">💾 Lưu văn bản</button>`:""}<div class="gps-result" id="ledMsg"></div>`;
+  const save=async()=>{ const f={}; el.querySelectorAll("[data-k]").forEach(i=>f[i.dataset.k]=i.value.trim()); if(!f.loai&&!f.tuyen){ $("#ledMsg").textContent="Nhập loại văn bản hoặc tuyến."; return null; }
+    const rec=await ledSaveOv(isNew?null:v, f, "vb"); if(rec){ v._ov=rec; $("#ledMsg").textContent="✅ Đã lưu."; } return rec; };
+  hsAttach($("#ledFiles"),{rec:v._ov||null, kind:"LED", canEdit, zipName:"Van_ban_"+(v.loai||""), ensureSaved:save, onChange:x=>{ v._ov=x; const i=ledOv.findIndex(o=>o.id===x.id); if(i>=0) ledOv[i]=x; }});
+  const sb=$("#ledSaveV"); if(sb) sb.onclick=async()=>{ if(await save()){ $("#ledScrim").classList.remove("show"); ledRender(); } };
+  $("#ledScrim").classList.add("show");
+}
+$("#ledTabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{ ledTab=b.dataset.v; ledTerm=""; ledRender(); });
+$("#ledClose").onclick=()=>{ $("#ledScrim").classList.remove("show"); ledRender(); };
+$("#tabLed").onclick=()=>{ showView("led"); ledRender(); };
+
+/* ---------- BẢO VỆ QUẢN TRỊ (WebAuthn) + KHÓA APP + SAO LƯU ---------- */
+const b64u = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+const b64uBytes = s => Uint8Array.from(atob(s.replace(/-/g,"+").replace(/_/g,"/")), c=>c.charCodeAt(0));
+function bioInfo(){ try{ const b=JSON.parse(localStorage.getItem("gnsc_bio")||"null"); return b && SESSION && b.u===SESSION.user.username ? b : null; }catch(e){ return null; } }
+async function bioVerify(){ const b=bioInfo(); if(!b||!window.PublicKeyCredential) return false;
+  try{ await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)), allowCredentials:[{type:"public-key", id:b64uBytes(b.credId)}], userVerification:"required", timeout:60000}}); return true; }catch(e){ return false; } }
+function deviceLabel(){ const u=navigator.userAgent; return (/iPhone|iPad/.test(u)?"iPhone/iPad":/Android/.test(u)?"Android":/Mac/.test(u)?"Mac":/Windows/.test(u)?"Windows":"Thiết bị")+" · "+new Date().toLocaleDateString("vi-VN"); }
+async function gdLoad(){
+  const r=await api("guardStatus"); if(!r.ok){ $("#gdState").textContent=r.error||"Lỗi"; return; }
+  $("#gdState").textContent = r.on ? "🟢 Đang BẬT" : "⚪ Đang tắt"; $("#gdToggle").textContent = r.on ? "Tắt bảo vệ" : "Bật bảo vệ"; $("#gdToggle").dataset.on = r.on?"1":"";
+  const mine=bioInfo();
+  $("#gdDevs").innerHTML = (r.devices.length?"Thiết bị đã đăng ký: "+r.devices.map(d=>`<span class="bv-cab">${escHtml(d.label)}${mine&&mine.devId===d.id?" (máy này)":""} <button type="button" data-d="${d.id}">✕</button></span>`).join(" "):"Chưa có thiết bị nào đăng ký.")+`<div class="who">Mã OTP gửi về: ${escHtml(r.email||"")}</div>`;
+  $("#gdDevs").querySelectorAll("button[data-d]").forEach(b=>b.onclick=async()=>{ if(!confirm("Gỡ thiết bị này?")) return; await api("removeDevice",{devId:b.dataset.d}); if(mine&&mine.devId===b.dataset.d) localStorage.removeItem("gnsc_bio"); gdLoad(); });
+}
+$("#gdToggle").onclick=async()=>{ const on=!$("#gdToggle").dataset.on;
+  if(on && !bioInfo() && !confirm("Chưa đăng ký Face ID/vân tay trên máy này. Bật bảo vệ thì lần đăng nhập sau trên máy này sẽ cần mã OTP gửi về Gmail. Tiếp tục?")) return;
+  await api("setGuard",{on}); gdLoad(); };
+$("#gdReg").onclick=async()=>{
+  if(!window.PublicKeyCredential || !navigator.credentials){ alert("Trình duyệt/thiết bị này không hỗ trợ Face ID / vân tay cho web."); return; }
+  try{
+    if(PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable && !(await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable())){ alert("Thiết bị chưa bật Face ID / vân tay (hoặc khóa màn hình)."); return; }
+    const u=SESSION.user, cred=await navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)), rp:{name:"CSKVTT"},
+      user:{id:new TextEncoder().encode(u.username), name:u.username, displayName:u.fullName||u.username},
+      pubKeyCredParams:[{type:"public-key",alg:-7},{type:"public-key",alg:-257}], authenticatorSelection:{authenticatorAttachment:"platform", userVerification:"required", residentKey:"preferred"}, timeout:60000, attestation:"none"}});
+    const credId=b64u(cred.rawId), r=await api("registerDevice",{label:deviceLabel(), credId});
+    if(!r.ok){ alert(r.error||"Lỗi"); return; }
+    localStorage.setItem("gnsc_bio", JSON.stringify({u:u.username, credId, key:r.deviceKey, devId:r.devId}));
+    sessionStorage.setItem("gnsc_unlock", String(Date.now()));
+    alert("✅ Đã đăng ký Face ID / vân tay cho thiết bị này."); gdLoad();
+  }catch(e){ alert("Không đăng ký được: "+(e.message||e)); }
+};
+/* khóa app bằng sinh trắc học khi Quản trị mở lại app sau 5 phút */
+const LOCK_MS=5*60*1000;
+async function appLockCheck(){
+  if(!SESSION || SESSION.user.role!=="admin" || !bioInfo()) return;
+  const last=Number(sessionStorage.getItem("gnsc_unlock")||0);
+  if(Date.now()-last < LOCK_MS) return;
+  $("#lockScrim").classList.add("show");
+}
+$("#lockBtn").onclick=async()=>{ if(await bioVerify()){ sessionStorage.setItem("gnsc_unlock",String(Date.now())); $("#lockScrim").classList.remove("show"); } else $("#lockMsg").textContent="Chưa xác thực được – thử lại."; };
+$("#lockOut").onclick=async()=>{ await api("logout"); goLogin(); };
+let hiddenAt=0;
+document.addEventListener("visibilitychange",()=>{ if(document.hidden){ hiddenAt=Date.now(); sessionStorage.setItem("gnsc_unlock",String(Date.now())); } else appLockCheck(); });
+["click","keydown","touchstart"].forEach(ev=>document.addEventListener(ev,()=>{ if(!$("#lockScrim").classList.contains("show")) sessionStorage.setItem("gnsc_unlock",String(Date.now())); },{passive:true}));
+/* sao lưu & tài khoản phụ */
+(function(){ const s=$("#buHour"); s.innerHTML=[6,7,8,9,17].map(h=>`<option value="${h}">Báo cáo SCP lúc ${h}h</option>`).join(""); })();
+async function buLoad(){
+  const r=await api("getBackup"); if(!r.ok){ $("#buMsg").textContent=r.error||"Lỗi"; return; }
+  $("#buEmail").value=r.cfg.email||""; $("#buKeep").value=String(r.cfg.keep||14); $("#buHour").value=String(r.cfg.hour||7);
+  const on=r.triggers.includes("saoLuuTuDong"), on2=r.triggers.includes("nhacSCPHangNgay");
+  $("#buMsg").innerHTML=`Tự động sao lưu: <b>${on?"🟢 đang bật (6 giờ/lần khi có thay đổi)":"⚪ chưa bật"}</b> · Báo cáo SCP hằng ngày: <b>${on2?"🟢 lúc "+r.cfg.hour+"h":"⚪ chưa bật"}</b>${r.cfg.last?` · Lần sao lưu gần nhất: ${new Date(r.cfg.last).toLocaleString("vi-VN")}`:""}<div class="who">Chủ app: ${escHtml(r.owner||"")}</div>`;
+  $("#buList").innerHTML = r.backups.length ? `<div class="who" style="margin-top:6px">Các bản sao lưu:</div>`+r.backups.slice(0,8).map(b=>`<div class="who">🗂️ <a href="${b.url}" target="_blank" rel="noopener">${escHtml(b.name)}</a></div>`).join("") : "";
+}
+$("#buSave").onclick=async()=>{ const r=await api("setBackup",{cfg:{email:$("#buEmail").value.trim(), keep:$("#buKeep").value, grant:$("#buGrant").checked}}); $("#buMsg").textContent = r.ok ? "✅ Đã lưu."+(r.shared&&r.shared.length?" Đã cấp quyền: "+r.shared.join(", "):"") : (r.error||"Lỗi"); if(r.ok) setTimeout(buLoad,1500); };
+$("#buNow").onclick=async()=>{ $("#buMsg").textContent="Đang sao lưu…"; const r=await api("backupNow"); $("#buMsg").textContent = r.ok ? "✅ Đã sao lưu: "+r.name : (r.error||"Lỗi – hãy chạy hàm capQuyen trong Apps Script 1 lần"); setTimeout(buLoad,1200); };
+$("#buTrig").onclick=async()=>{ const r=await api("setupTriggers",{hour:$("#buHour").value}); $("#buMsg").textContent = r.ok ? "✅ "+r.message : (r.error||"Lỗi – hãy chạy hàm capQuyen trong Apps Script 1 lần rồi thử lại"); setTimeout(buLoad,1200); };
+$("#buRemind").onclick=async()=>{ const r=await api("remindNow"); $("#buMsg").textContent = r.ok ? `✅ Đã gửi báo cáo: mới 24h ${r.moi}, còn tồn ${r.ton}` : (r.error||"Lỗi"); };
+
 /* ---------- tabs ---------- */
 function showView(name){
   $("#view-new").classList.toggle("active", name==="new");
@@ -2730,6 +3295,8 @@ function showView(name){
   $("#view-files").classList.toggle("active", name==="files");
   $("#view-ks").classList.toggle("active", name==="ks");
   $("#view-tk").classList.toggle("active", name==="tk");
+  $("#view-bv").classList.toggle("active", name==="bv"); $("#tabBv").classList.toggle("active", name==="bv");
+  $("#view-led").classList.toggle("active", name==="led"); $("#tabLed").classList.toggle("active", name==="led");
   $("#tabTk").classList.toggle("active", name==="tk");
   const inSc = ["new","list","map"].includes(name);
   $("#scTabs").style.display = inSc ? "" : "none";
@@ -2945,11 +3512,15 @@ const PERMS = [
   ["taiLenFile","Tải file lên File Lưu","Upload file/ảnh từ điện thoại, máy tính"],
   ["khaoSat","Xem Khảo sát duy tu","Xem phiếu khảo sát 16 mẫu, tổng hợp"],
   ["nhapKhaoSat","Nhập phiếu Khảo sát duy tu","Lập, sửa phiếu của mình, chụp ảnh, đo khoảng cách"],
-  ["thongKe","Xem Thống kê tủ","Tra cứu số liệu đèn, trụ, cần, cáp, lý trình từng tủ"]
+  ["thongKe","Xem Thống kê tủ","Tra cứu số liệu đèn, trụ, cần, cáp, lý trình từng tủ"],
+  ["banVe","Xem Kho bản vẽ","Xem, tải bản vẽ theo phường"],
+  ["nhapBanVe","Thêm / sửa bản vẽ","Upload bản vẽ, chụp ảnh, gắn tủ"],
+  ["theoDoiLed","Xem Theo dõi LED","Xem tình trạng bảo hành, văn bản"],
+  ["nhapLed","Cập nhật Theo dõi LED","Sửa tuyến, thêm văn bản, đính kèm hồ sơ"]
 ];
 const PERM_DEFAULT = {
-  user:   {ghiNhan:true, capNhatGPS:true, doiTrangThai:false, xemTatCa:true, xemSCP:true, dongBoSCP:false, xuatExcel:true, xemBanDo:true, doKhoangCach:true, xemFile:true, taiLenFile:true, khaoSat:true, nhapKhaoSat:true, thongKe:true},
-  viewer: {ghiNhan:false,capNhatGPS:false,doiTrangThai:false, xemTatCa:true, xemSCP:true, dongBoSCP:false, xuatExcel:true, xemBanDo:true, doKhoangCach:true, xemFile:true, taiLenFile:false, khaoSat:true, nhapKhaoSat:false, thongKe:true}
+  user:   {ghiNhan:true, capNhatGPS:true, doiTrangThai:false, xemTatCa:true, xemSCP:true, dongBoSCP:false, xuatExcel:true, xemBanDo:true, doKhoangCach:true, xemFile:true, taiLenFile:true, khaoSat:true, nhapKhaoSat:true, thongKe:true, banVe:true, nhapBanVe:true, theoDoiLed:true, nhapLed:false},
+  viewer: {ghiNhan:false,capNhatGPS:false,doiTrangThai:false, xemTatCa:true, xemSCP:true, dongBoSCP:false, xuatExcel:true, xemBanDo:true, doKhoangCach:true, xemFile:true, taiLenFile:false, khaoSat:true, nhapKhaoSat:false, thongKe:true, banVe:true, nhapBanVe:false, theoDoiLed:true, nhapLed:false}
 };
 function can(k){
   const u = SESSION && SESSION.user; if(!u) return false;
@@ -2972,6 +3543,8 @@ function applyUser(u){
   $("#tabFiles").style.display = can("xemFile") ? "" : "none";
   $("#tabKs").style.display = can("khaoSat") ? "" : "none";
   $("#tabTk").style.display = can("thongKe") ? "" : "none";
+  $("#tabBv").style.display = can("banVe") ? "" : "none";
+  $("#tabLed").style.display = can("theoDoiLed") ? "" : "none";
   $("#flUpload").style.display = can("taiLenFile") ? "" : "none";
   $("#measureOpen").style.display = can("doKhoangCach") ? "" : "none";
   const scpTab = $('#srcTabs button[data-v="scp"]'); if(scpTab) scpTab.style.display = can("xemSCP") ? "" : "none";
@@ -2987,7 +3560,7 @@ function applyUser(u){
 
 /* ---------- tài khoản / quản trị ---------- */
 let auRole="user";
-$("#accountBtn").onclick=()=>{ $("#accountScrim").classList.add("show"); if(SESSION.user.role==="admin"){ renderAuPerms(); bkInitPerm(); loadUsers(); } };
+$("#accountBtn").onclick=()=>{ $("#accountScrim").classList.add("show"); if(SESSION.user.role==="admin"){ renderAuPerms(); bkInitPerm(); loadUsers(); gdLoad(); buLoad(); } };
 $("#accountClose").onclick=()=>$("#accountScrim").classList.remove("show");
 $("#accountScrim").addEventListener("click", e=>{ if(e.target.id==="accountScrim") $("#accountScrim").classList.remove("show"); });
 $("#logoutBtn").onclick=async ()=>{ await api("logout"); goLogin(); };
@@ -3282,6 +3855,7 @@ async function init(){
   const me = await api("me");
   if(me.ok){ SESSION.user = me.user; applyUser(me.user); saveSessionUser(); }
   if(SESSION.user && SESSION.user.mustChange) $("#mustScrim").classList.add("show");
+  appLockCheck();
   await loadIncidents();
   setInterval(()=>{ if(document.visibilityState==="visible") loadIncidents(); }, 60000);
   document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible") loadIncidents(); });

@@ -58,6 +58,10 @@ button.primary:disabled{opacity:.5}
     <label class="remember"><input type="checkbox" id="r" checked> Ghi nhớ đăng nhập trên máy này</label>
     <div class="hint">Bỏ chọn nếu đang dùng máy chung — phiên sẽ mất khi đóng trình duyệt.</div>
     <button class="primary" id="btn" type="submit">Đăng nhập</button>
+    <div id="otpBox" style="display:none">
+      <label for="otp">Mã xác thực 6 số (gửi về Gmail quản trị)</label>
+      <input type="text" id="otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code">
+    </div>
     <div class="err" id="err"></div>
   </form>
   <div class="links">
@@ -117,10 +121,21 @@ $("f").addEventListener("submit", async e=>{
   if(typeof API_URL==="undefined" || API_URL.indexOf("http")!==0){ $("err").textContent="Chưa cấu hình API_URL trong config.js"; return; }
   $("btn").disabled=true; $("btn").textContent="Đang đăng nhập…";
   try{
-    const res = await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
-      body:JSON.stringify({action:"login",username:$("u").value.trim(),password:$("p").value,remember:$("r").checked})});
+    const uname=$("u").value.trim(), body={action:"login",username:uname,password:$("p").value,remember:$("r").checked};
+    // Quản trị có đăng ký Face ID / vân tay trên máy này → xác thực sinh trắc học trước
+    let bio=null; try{ bio=JSON.parse(localStorage.getItem("gnsc_bio")||"null"); }catch(e){}
+    if(bio && bio.u===uname && bio.key && window.PublicKeyCredential){
+      $("btn").textContent="Xác thực Face ID / vân tay…";
+      try{ await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)), allowCredentials:[{type:"public-key", id:Uint8Array.from(atob(bio.credId.replace(/-/g,"+").replace(/_/g,"/")),c=>c.charCodeAt(0))}], userVerification:"required", timeout:60000}}); body.deviceKey=bio.key; }
+      catch(e){ $("err").textContent="Không xác thực được sinh trắc học – sẽ dùng mã gửi qua Gmail."; }
+    }
+    if($("otpBox").style.display!=="none" && $("otp").value.trim()) body.otp=$("otp").value.trim();
+    $("btn").textContent="Đang đăng nhập…";
+    const res = await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(body)});
     const d = await res.json();
+    if(!d.ok && d.needOtp){ $("otpBox").style.display=""; $("otp").focus(); $("err").textContent=d.message||d.error||"Nhập mã xác thực gửi về Gmail"; $("btn").disabled=false; $("btn").textContent="Xác nhận mã & đăng nhập"; return; }
     if(!d.ok) throw new Error(d.error||"Đăng nhập thất bại");
+    try{ sessionStorage.setItem("gnsc_unlock", String(Date.now())); }catch(e){}
     const store = $("r").checked ? localStorage : sessionStorage;
     store.setItem("gnsc_session", JSON.stringify({token:d.token,user:d.user}));
     location.replace("index.html");
