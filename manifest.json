@@ -1,6 +1,6 @@
 {
-  "name": "Ghi nhận sự cố",
-  "short_name": "Sự cố TĐK",
+  "name": "CSKVTT",
+  "short_name": "CSKVTT",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

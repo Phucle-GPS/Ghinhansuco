@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Ghi nhận sự cố</title>
+<title>CSKVTT</title>
 <meta name="app-version" content="2026-09-26-thong-ke-2">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Sự cố TĐK">
+<meta name="apple-mobile-web-app-title" content="CSKVTT">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0B1420">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -520,7 +520,7 @@ nav svg{width:21px;height:21px;}
     <div class="head-row">
       <div>
         <div class="eyebrow">Hệ thống chiếu sáng đô thị</div>
-        <h1><span>Ghi nhận</span> sự cố</h1>
+        <h1><span>CSKVTT</span></h1>
       </div>
       <div style="display:flex;align-items:center">
       <button class="fs-btn" id="fsBtn" title="Toàn màn hình" aria-label="Toàn màn hình">
@@ -923,7 +923,7 @@ nav svg{width:21px;height:21px;}
       <ol class="guide-list">
         <li>Mở link app bằng Safari.</li>
         <li>Bấm nút Chia sẻ (ô vuông có mũi tên lên).</li>
-        <li>Chọn "Thêm vào MH chính" → đặt tên "Sự cố TĐK" → Thêm.</li>
+        <li>Chọn "Thêm vào MH chính" → đặt tên "CSKVTT" → Thêm.</li>
       </ol>
       <div class="guide-h">Android (Chrome)</div>
       <ol class="guide-list">
@@ -3051,7 +3051,7 @@ function setAuEdit(u){
 $("#auNew").onclick=()=>{ $("#auUser").value=""; $("#auName").value=""; $("#auPass").value=""; $("#auActive").checked=true; setAuRole("user"); setAuEdit(null); $("#auMsg").textContent=""; $("#auUser").focus(); };
 function showCred(r, title){
   const link="https://phucle-gps.github.io/Ghinhansuco/login.html";
-  const msg=`Tài khoản app Ghi nhận sự cố\nLink: ${link}\nTên đăng nhập: ${r.username}\nMật khẩu tạm: ${r.tempPassword}\n(Đăng nhập xong app sẽ yêu cầu đổi mật khẩu mới)`;
+  const msg=`Tài khoản app CSKVTT\nLink: ${link}\nTên đăng nhập: ${r.username}\nMật khẩu tạm: ${r.tempPassword}\n(Đăng nhập xong app sẽ yêu cầu đổi mật khẩu mới)`;
   const c=$("#auCred"); c.innerHTML="";
   const t=document.createElement("div"); t.innerHTML=`<b>${title}</b>`; c.appendChild(t);
   const a=document.createElement("div"); a.textContent="Tên đăng nhập: "+r.username+(r.fullName?" ("+r.fullName+")":""); c.appendChild(a);
