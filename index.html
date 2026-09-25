@@ -250,6 +250,33 @@ main{flex:1;overflow-y:auto;padding:16px 18px 100px;}
 .u-flag{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:6px;font-size:10.5px;font-weight:700;}
 .u-flag.req{background:color-mix(in srgb,var(--high) 18%,transparent);color:var(--high);}
 .u-flag.mc{background:color-mix(in srgb,var(--mid) 22%,transparent);color:var(--mid);}
+.fl-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.fl-head h2{margin:0;font-size:18px;}
+.fl-upload{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:14px;box-shadow:var(--shadow);}
+.fl-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.fl-pick{cursor:pointer;}
+.fl-drop{margin-top:10px;padding:14px;border:2px dashed var(--border);border-radius:12px;text-align:center;font-size:12.5px;color:var(--text-2);}
+.fl-drop.over{border-color:var(--accent);color:var(--accent);}
+.fl-q{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:7px 2px;border-bottom:1px solid var(--border);font-size:13px;}
+.fl-q .st{font-size:12px;color:var(--text-2);white-space:nowrap;}
+.fl-q .st.ok{color:var(--done);} .fl-q .st.err{color:var(--high);}
+.fl-q button{border:none;background:none;color:var(--text-2);cursor:pointer;font-size:15px;}
+.fl-meta{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+.fl-meta input{width:100%;padding:11px 13px;border-radius:11px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:14.5px;font-family:inherit;}
+.fl-tools{margin-bottom:12px;}
+.fl-tools .chips{margin-top:8px;}
+.fl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}
+@media (min-width:1000px){ .fl-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));} #view-files.active{display:block;} }
+.fl-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow);}
+.fl-thumb{aspect-ratio:4/3;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:40px;overflow:hidden;}
+.fl-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.fl-body{padding:9px 10px;flex:1;display:flex;flex-direction:column;gap:3px;}
+.fl-name{font-weight:700;font-size:13px;word-break:break-word;line-height:1.35;}
+.fl-sub{font-size:11.5px;color:var(--text-2);line-height:1.4;}
+.fl-act{display:flex;gap:6px;padding:0 10px 10px;flex-wrap:wrap;}
+.fl-act a,.fl-act button{flex:1;text-align:center;font-size:12px;padding:7px 6px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font-family:inherit;font-weight:600;text-decoration:none;cursor:pointer;white-space:nowrap;}
+.fl-act a.dl{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+.fl-act button.del{flex:0 0 auto;color:var(--high);}
 .src-tabs{display:flex;gap:8px;margin-bottom:12px;}
 .src-tabs button{flex:1;padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 .src-tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
@@ -516,6 +543,31 @@ nav svg{width:21px;height:21px;}
       <div id="incList"></div>
     </section>
 
+    <!-- FILE LƯU VIEW -->
+    <section class="view" id="view-files">
+      <div class="fl-head"><h2>📁 File Lưu</h2><span class="who" id="flCount"></span></div>
+      <div class="fl-upload" id="flUpload">
+        <div class="fl-btns">
+          <label class="gps-btn fl-pick">📎 Chọn file / ảnh<input type="file" id="flInput" multiple hidden></label>
+          <label class="gps-btn fl-pick">📷 Chụp ảnh<input type="file" id="flCam" accept="image/*" capture="environment" hidden></label>
+        </div>
+        <div class="fl-drop" id="flDrop">hoặc kéo thả file vào đây (tối đa 20 MB/file)</div>
+        <div id="flQueue"></div>
+        <div class="fl-meta" id="flMeta" style="display:none">
+          <input type="text" id="flCab" list="flCabList" placeholder="Gắn với tủ (tùy chọn) – gõ tên tủ hoặc mã PE" autocomplete="off">
+          <datalist id="flCabList"></datalist>
+          <input type="text" id="flNote" placeholder="Ghi chú (tùy chọn)">
+          <button class="submit-btn" id="flSend">⬆ Tải lên</button>
+        </div>
+        <div class="gps-result" id="flMsg"></div>
+      </div>
+      <div class="fl-tools">
+        <div class="search-wrap"><input type="text" id="flSearch" placeholder="Tìm tên file, tủ, ghi chú, người tải… (có dấu hoặc không dấu)" autocomplete="off"></div>
+        <div class="chips" id="flType"></div>
+      </div>
+      <div id="flList" class="fl-grid"></div>
+    </section>
+
     <!-- BAN DO VIEW -->
     <section class="view" id="view-map">
       <div class="seg map-mode" id="mapModeSeg">
@@ -567,6 +619,10 @@ nav svg{width:21px;height:21px;}
     <button id="tabMap">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20l-6-2.5V5l6 2.5M9 20l6-2.5M9 20V4.5M15 17.5l6 2.5V5l-6-2.5M15 17.5V2.5M9 4.5L15 2.5"/></svg>
       Bản đồ
+    </button>
+    <button id="tabFiles">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      File Lưu
     </button>
   </nav>
 
@@ -778,7 +834,7 @@ function renderQuanChips(){
     const b=document.createElement("button");
     b.className="chip"+(q===activeQuan?" active":"");
     b.textContent = q==="Tất cả" ? q : q.replace("Quận ","");
-    b.onclick=()=>{activeQuan=q; renderQuanChips(); renderCabList(); renderIncList();};
+    b.onclick=()=>{activeQuan=q; renderQuanChips(); renderCabList(); renderIncList(); if(typeof renderFiles==='function') renderFiles();};
     wrap.appendChild(b);
   });
 }
@@ -1386,11 +1442,120 @@ $("#msToIncident").onclick=()=>{
 $("#measureOpen").onclick=()=>{ $("#measureScrim").classList.add("show"); msRender(); };
 $("#measureClose").onclick=()=>{ $("#measureScrim").classList.remove("show"); };
 
+
+/* ---------- File Lưu ---------- */
+let flFiles=[], flQueue=[], flType="Tất cả", flTerm="";
+const FL_TYPES=["Tất cả","Ảnh","PDF","Word/Excel","Khác"];
+function flKind(m,n){ m=String(m||""); n=String(n||"").toLowerCase();
+  if(m.startsWith("image/")) return "Ảnh";
+  if(m.includes("pdf")||n.endsWith(".pdf")) return "PDF";
+  if(/word|excel|spreadsheet|officedocument|msword/.test(m)||/\.(docx?|xlsx?|csv)$/.test(n)) return "Word/Excel";
+  return "Khác"; }
+function flIcon(k,n){ return k==="PDF"?"📕":k==="Word/Excel"?(/\.xls|\.csv/i.test(n)?"📊":"📝"):/\.(zip|rar|7z)$/i.test(n)?"🗜️":/\.(mp4|mov|avi)$/i.test(n)?"🎞️":"📄"; }
+function fmtSize(b){ return b<1024?b+" B":b<1048576?(b/1024).toFixed(0)+" KB":(b/1048576).toFixed(1)+" MB"; }
+function renderFlType(){ const w=$("#flType"); w.innerHTML=""; FL_TYPES.forEach(t=>{ const b=document.createElement("button"); b.className="chip"+(t===flType?" active":""); b.textContent=t; b.onclick=()=>{flType=t; renderFlType(); renderFiles();}; w.appendChild(b); }); }
+function renderFiles(){
+  const tokens=vnNorm(flTerm).trim().split(/\s+/).filter(Boolean);
+  const list=flFiles.filter(f=>{
+    if(flType!=="Tất cả" && flKind(f.mime,f.tenGoc)!==flType) return false;
+    if(activeQuan!=="Tất cả" && f.quan && f.quan!==activeQuan) return false;
+    if(tokens.length){ const s=vnNorm([f.tenGoc,f.cabinetName,f.cabinetPE,f.quan,f.ghiChu,f.nguoiTaiTen].join(" | ")); if(!tokens.every(t=>s.includes(t))) return false; }
+    return true; });
+  $("#flCount").textContent = `${list.length}/${flFiles.length} file`;
+  const el=$("#flList"); el.innerHTML="";
+  if(!list.length){ el.innerHTML='<div class="empty" style="grid-column:1/-1">Chưa có file nào.</div>'; return; }
+  list.forEach(f=>{
+    const k=flKind(f.mime,f.tenGoc), c=document.createElement("div"); c.className="fl-card";
+    const th=document.createElement("div"); th.className="fl-thumb";
+    if(k==="Ảnh"){ const im=document.createElement("img"); im.loading="lazy"; im.src="https://drive.google.com/thumbnail?id="+encodeURIComponent(f.driveId)+"&sz=w480"; im.alt=f.tenGoc; th.appendChild(im); } else th.textContent=flIcon(k,f.tenGoc);
+    const bd=document.createElement("div"); bd.className="fl-body";
+    const nm=document.createElement("div"); nm.className="fl-name"; nm.innerHTML=highlight(f.tenGoc,tokens);
+    const s1=document.createElement("div"); s1.className="fl-sub"; s1.textContent=fmtSize(f.size)+" · "+new Date(f.createdAt).toLocaleString("vi-VN",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
+    const s2=document.createElement("div"); s2.className="fl-sub"; s2.textContent="👤 "+(f.nguoiTaiTen||f.nguoiTai||"");
+    bd.appendChild(nm); bd.appendChild(s1); bd.appendChild(s2);
+    if(f.cabinetName){ const s3=document.createElement("div"); s3.className="fl-sub"; s3.textContent="🗄️ "+f.cabinetName+(f.quan?" · "+f.quan:""); bd.appendChild(s3); }
+    if(f.ghiChu){ const s4=document.createElement("div"); s4.className="fl-sub"; s4.textContent="📝 "+f.ghiChu; bd.appendChild(s4); }
+    const ac=document.createElement("div"); ac.className="fl-act";
+    const dl=document.createElement("a"); dl.className="dl"; dl.textContent="⬇ Tải về"; dl.href="https://drive.google.com/uc?export=download&id="+encodeURIComponent(f.driveId); dl.target="_blank"; dl.rel="noopener";
+    const vw=document.createElement("a"); vw.textContent="👁 Xem"; vw.href="https://drive.google.com/file/d/"+encodeURIComponent(f.driveId)+"/view"; vw.target="_blank"; vw.rel="noopener";
+    ac.appendChild(dl); ac.appendChild(vw);
+    if(isAdmin() || (SESSION && f.nguoiTai===SESSION.user.username)){
+      const dx=document.createElement("button"); dx.className="del"; dx.textContent="🗑"; dx.title="Xóa file";
+      dx.onclick=async()=>{ if(!confirm("Xóa file "+f.tenGoc+"?")) return; const r=await api("deleteFile",{id:f.id}); if(r.ok){ flFiles=flFiles.filter(x=>x.id!==f.id); renderFiles(); } else alert(r.error||"Lỗi"); };
+      ac.appendChild(dx);
+    }
+    c.appendChild(th); c.appendChild(bd); c.appendChild(ac); el.appendChild(c);
+  });
+}
+async function loadFiles(){
+  if(!can("xemFile")) return;
+  $("#flList").innerHTML='<div class="empty" style="grid-column:1/-1">Đang tải danh sách…</div>';
+  const r=await api("listFiles");
+  if(r.ok){ flFiles=r.files||[]; renderFiles(); } else $("#flList").innerHTML='<div class="empty" style="grid-column:1/-1">'+escHtml(r.error||"Lỗi")+'</div>';
+}
+function flAdd(files){
+  [...files].forEach(f=>{
+    if(f.size>20*1024*1024){ $("#flMsg").textContent="⛔ "+f.name+" vượt quá 20 MB, bỏ qua."; return; }
+    flQueue.push({file:f, st:"Chờ tải lên"}); });
+  renderQueue();
+}
+function renderQueue(){
+  const q=$("#flQueue"); q.innerHTML="";
+  flQueue.forEach((it,i)=>{
+    const r=document.createElement("div"); r.className="fl-q";
+    const n=document.createElement("div"); n.textContent=(it.file.type.startsWith("image/")?"🖼️ ":"📄 ")+it.file.name+" · "+fmtSize(it.file.size);
+    const s=document.createElement("span"); s.className="st"+(it.st.startsWith("✅")?" ok":it.st.startsWith("⛔")?" err":""); s.textContent=it.st;
+    const x=document.createElement("button"); x.textContent="✕"; x.title="Bỏ file này"; x.onclick=()=>{ flQueue.splice(i,1); renderQueue(); };
+    r.appendChild(n); r.appendChild(s); if(!it.busy && !it.st.startsWith("✅")) r.appendChild(x); q.appendChild(r);
+  });
+  $("#flMeta").style.display = flQueue.some(it=>!it.st.startsWith("✅")) ? "flex" : "none";
+}
+$("#flInput").addEventListener("change",e=>{ flAdd(e.target.files); e.target.value=""; });
+$("#flCam").addEventListener("change",e=>{ flAdd(e.target.files); e.target.value=""; });
+const flDrop=$("#flDrop");
+["dragenter","dragover"].forEach(ev=>flDrop.addEventListener(ev,e=>{e.preventDefault(); flDrop.classList.add("over");}));
+["dragleave","drop"].forEach(ev=>flDrop.addEventListener(ev,e=>{e.preventDefault(); flDrop.classList.remove("over");}));
+flDrop.addEventListener("drop",e=>flAdd(e.dataTransfer.files));
+$("#flCab").addEventListener("input",e=>{
+  const t=e.target.value; const dl=$("#flCabList"); dl.innerHTML="";
+  if(t.trim().length<2) return;
+  searchCabinets(t,false).list.slice(0,15).forEach(c=>{ const o=document.createElement("option"); o.value=c.n+" | "+c.pe; o.label=c.q; dl.appendChild(o); });
+});
+function flCabinetFromInput(){
+  const v=$("#flCab").value.trim(); if(!v) return null;
+  const pe=(v.split("|")[1]||"").trim();
+  return CABINETS.find(c=>c.pe===pe) || searchCabinets(v,false).list[0] || null;
+}
+function readB64(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(String(r.result).split(",")[1]||""); r.onerror=rej; r.readAsDataURL(file); }); }
+$("#flSend").onclick=async ()=>{
+  const cab=flCabinetFromInput(), note=$("#flNote").value.trim();
+  if($("#flCab").value.trim() && !cab){ $("#flMsg").textContent="Không tìm thấy tủ đã nhập – để trống hoặc chọn từ gợi ý."; return; }
+  const btn=$("#flSend"); btn.disabled=true; let ok=0, fail=0;
+  for(const it of flQueue){
+    if(it.st.startsWith("✅")) continue;
+    it.busy=true; it.st="Đang tải lên…"; renderQueue();
+    try{
+      const data=await readB64(it.file);
+      const r=await api("uploadFile",{file:{name:it.file.name, mime:it.file.type||"application/octet-stream", data, ghiChu:note,
+        cabinetPE:cab?cab.pe:"", cabinetName:cab?cab.n:"", quan:cab?cab.q:""}});
+      if(r.ok){ it.st="✅ Đã lưu"; flFiles.unshift(r.file); ok++; } else { it.st="⛔ "+(r.error||"Lỗi"); fail++; }
+    }catch(e){ it.st="⛔ Không đọc được file"; fail++; }
+    it.busy=false; renderQueue();
+  }
+  btn.disabled=false; renderFiles();
+  $("#flMsg").textContent = `Đã lưu ${ok} file`+(fail?`, lỗi ${fail} file`:"")+".";
+  flQueue=flQueue.filter(it=>!it.st.startsWith("✅")); $("#flNote").value=""; renderQueue();
+};
+$("#flSearch").addEventListener("input",e=>{ flTerm=e.target.value; renderFiles(); });
+$("#tabFiles").onclick=()=>{ showView("files"); renderFlType(); loadFiles(); };
+
 /* ---------- tabs ---------- */
 function showView(name){
   $("#view-new").classList.toggle("active", name==="new");
   $("#view-list").classList.toggle("active", name==="list");
   $("#view-map").classList.toggle("active", name==="map");
+  $("#view-files").classList.toggle("active", name==="files");
+  $("#tabFiles").classList.toggle("active", name==="files");
   $("#tabNew").classList.toggle("active", name==="new");
   $("#tabList").classList.toggle("active", name==="list");
   $("#tabMap").classList.toggle("active", name==="map");
@@ -1593,11 +1758,13 @@ const PERMS = [
   ["dongBoSCP","Đồng bộ lỗi SCP","Dán/chọn file SCP và bấm Đồng bộ"],
   ["xuatExcel","Tải file Excel","Xuất danh sách sự cố"],
   ["xemBanDo","Xem bản đồ","Tab Bản đồ, tủ gần nhất"],
-  ["doKhoangCach","Đo khoảng cách GPS","Thước đo mét trong tab Bản đồ"]
+  ["doKhoangCach","Đo khoảng cách GPS","Thước đo mét trong tab Bản đồ"],
+  ["xemFile","Xem & tải File Lưu","Xem, tải về file/ảnh đã lưu"],
+  ["taiLenFile","Tải file lên File Lưu","Upload file/ảnh từ điện thoại, máy tính"]
 ];
 const PERM_DEFAULT = {
-  user:   {ghiNhan:true, capNhatGPS:true, doiTrangThai:false, xemTatCa:true, xemSCP:true, dongBoSCP:false, xuatExcel:true, xemBanDo:true, doKhoangCach:true},
-  viewer: {ghiNhan:false,capNhatGPS:false,doiTrangThai:false, xemTatCa:true, xemSCP:true, dongBoSCP:false, xuatExcel:true, xemBanDo:true, doKhoangCach:true}
+  user:   {ghiNhan:true, capNhatGPS:true, doiTrangThai:false, xemTatCa:true, xemSCP:true, dongBoSCP:false, xuatExcel:true, xemBanDo:true, doKhoangCach:true, xemFile:true, taiLenFile:true},
+  viewer: {ghiNhan:false,capNhatGPS:false,doiTrangThai:false, xemTatCa:true, xemSCP:true, dongBoSCP:false, xuatExcel:true, xemBanDo:true, doKhoangCach:true, xemFile:true, taiLenFile:false}
 };
 function can(k){
   const u = SESSION && SESSION.user; if(!u) return false;
@@ -1617,6 +1784,8 @@ function applyUser(u){
   $("#scpAdminOnly").style.display = u.role==="admin" ? "" : "none";
   $("#exportBtn").style.display = can("xuatExcel") ? "" : "none";
   $("#tabMap").style.display = can("xemBanDo") ? "" : "none";
+  $("#tabFiles").style.display = can("xemFile") ? "" : "none";
+  $("#flUpload").style.display = can("taiLenFile") ? "" : "none";
   $("#measureOpen").style.display = can("doKhoangCach") ? "" : "none";
   const scpTab = $('#srcTabs button[data-v="scp"]'); if(scpTab) scpTab.style.display = can("xemSCP") ? "" : "none";
   if(!can("xemSCP") && activeSource==="scp") activeSource="manual";
