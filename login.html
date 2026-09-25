@@ -79,8 +79,16 @@ button.primary:disabled{opacity:.5}
 
 <div class="scrim" id="forgotScrim"><div class="sheet">
   <h3>Quên mật khẩu</h3>
-  <div class="note">Vì lý do bảo mật, mật khẩu chỉ được đặt lại bởi quản trị viên. Hãy liên hệ quản trị viên để được cấp mật khẩu mới, sau đó đăng nhập và đổi lại trong mục ⚙️ Tài khoản.</div>
-  <button class="primary" onclick="document.getElementById('forgotScrim').classList.remove('show')">Đã hiểu</button>
+  <div class="note">Nhập đúng <b>tên đăng nhập</b> và <b>họ tên đầy đủ</b> như đã đăng ký. Yêu cầu sẽ được gửi ngay tới quản trị viên; quản trị viên cấp <b>mật khẩu tạm</b> cho bạn, đăng nhập xong bạn tự đặt mật khẩu mới.</div>
+  <label for="fpU" style="margin-top:14px">Tên đăng nhập</label>
+  <input type="text" id="fpU" autocapitalize="off">
+  <label for="fpN">Họ tên đầy đủ</label>
+  <input type="text" id="fpN">
+  <label for="fpC">Số điện thoại / Zalo để nhận mật khẩu (tùy chọn)</label>
+  <input type="text" id="fpC" inputmode="tel">
+  <button class="primary" id="fpSend">Gửi yêu cầu cấp lại mật khẩu</button>
+  <div class="err" id="fpMsg" style="color:var(--text-2)"></div>
+  <button class="primary" style="background:transparent;color:var(--text-2);border:1px solid var(--border);margin-top:8px" onclick="document.getElementById('forgotScrim').classList.remove('show')">Đóng</button>
 </div></div>
 
 <script src="config.js"></script>
@@ -91,7 +99,18 @@ try{
   if(s && s.token) location.replace("index.html");
 }catch(e){}
 $("install").onclick=()=>$("installScrim").classList.add("show");
-$("forgot").onclick=()=>$("forgotScrim").classList.add("show");
+$("forgot").onclick=()=>{ $("fpU").value=$("u").value.trim(); $("fpMsg").textContent=""; $("forgotScrim").classList.add("show"); };
+$("fpSend").onclick=async ()=>{
+  const u=$("fpU").value.trim(), n=$("fpN").value.trim();
+  if(!u||!n){ $("fpMsg").textContent="Vui lòng nhập tên đăng nhập và họ tên."; return; }
+  if(typeof API_URL==="undefined" || API_URL.indexOf("http")!==0){ $("fpMsg").textContent="Chưa cấu hình API_URL"; return; }
+  $("fpSend").disabled=true; $("fpMsg").textContent="Đang gửi…";
+  try{
+    const res=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"forgotPassword",username:u,fullName:n,contact:$("fpC").value.trim()})});
+    const d=await res.json(); $("fpMsg").textContent = d.ok ? "✅ "+d.message : (d.error||"Lỗi");
+  }catch(e){ $("fpMsg").textContent="Không kết nối được máy chủ"; }
+  $("fpSend").disabled=false;
+};
 $("f").addEventListener("submit", async e=>{
   e.preventDefault();
   $("err").textContent="";

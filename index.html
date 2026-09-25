@@ -234,6 +234,22 @@ main{flex:1;overflow-y:auto;padding:16px 18px 100px;}
 .inc-search{margin-bottom:12px;}
 .inc-search .ql-select{margin-top:8px;}
 @media (min-width:1000px){ .inc-search{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:0 12px;align-items:start;} .inc-search .ql-select{margin-top:0;} .inc-search .search-info{grid-column:1 / -1;} .inc-search .search-wrap{margin-bottom:0;} }
+.perm-h{font-size:13px;font-weight:700;margin:14px 0 6px;}
+.perm-h span{font-weight:400;color:var(--text-2);font-size:12px;}
+.perm-grid{display:grid;grid-template-columns:1fr;gap:6px;}
+@media (min-width:600px){ .perm-grid{grid-template-columns:1fr 1fr;} }
+.perm-item{display:flex;align-items:flex-start;gap:9px;padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--surface);cursor:pointer;font-size:13px;line-height:1.35;}
+.perm-item input{width:17px;height:17px;margin-top:1px;flex:0 0 auto;accent-color:var(--accent);}
+.perm-item.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--surface));}
+.perm-item small{display:block;color:var(--text-2);font-size:11.5px;}
+.u-perm{font-size:11px;color:var(--text-2);margin-top:2px;}
+.au-mode{font-size:12.5px;font-weight:700;color:var(--accent);margin:4px 0 10px;}
+.cred-card{margin-top:12px;border:2px dashed var(--accent);border-radius:12px;padding:12px 14px;background:color-mix(in srgb,var(--accent) 8%,var(--surface));font-size:13.5px;line-height:1.6;}
+.cred-card .pw{font-family:"IBM Plex Mono",monospace;font-size:18px;font-weight:800;letter-spacing:.04em;}
+.cred-card .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.u-flag{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:6px;font-size:10.5px;font-weight:700;}
+.u-flag.req{background:color-mix(in srgb,var(--high) 18%,transparent);color:var(--high);}
+.u-flag.mc{background:color-mix(in srgb,var(--mid) 22%,transparent);color:var(--mid);}
 .src-tabs{display:flex;gap:8px;margin-bottom:12px;}
 .src-tabs button{flex:1;padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 .src-tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
@@ -668,6 +684,7 @@ nav svg{width:21px;height:21px;}
       <label class="au-active"><input type="checkbox" id="scpBaseline"> Lần đầu – chỉ ghi nhận làm mốc, <b>không gửi thông báo</b> (các lỗi tồn đọng hiện có)</label>
       <button class="submit-btn" id="scpSync" disabled>Đồng bộ</button>
       <div id="scpResult" class="scp-result"></div>
+      <div id="scpAdminOnly">
       <button class="pin-btn" id="scpClear" style="margin-top:12px;color:var(--high)">🗑 Xóa toàn bộ sự cố SCP đã đồng bộ (để làm lại mốc)</button>
 
       <div class="guide-h">Nơi nhận thông báo</div>
@@ -679,6 +696,19 @@ nav svg{width:21px;height:21px;}
         <button class="gps-btn" id="ntTest">Gửi thử</button>
       </div>
       <div class="gps-result" id="ntMsg"></div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-scrim" id="mustScrim">
+    <div class="modal-sheet">
+      <div class="mtop"><h2>🔐 Đổi mật khẩu bắt buộc</h2></div>
+      <div class="guide-note">Bạn đang dùng <b>mật khẩu tạm</b> do quản trị viên cấp. Vui lòng đặt mật khẩu mới của riêng bạn để tiếp tục sử dụng app.</div>
+      <div class="field" style="margin-top:12px"><input type="password" id="mcOld" placeholder="Mật khẩu tạm (vừa đăng nhập)" autocomplete="current-password"></div>
+      <div class="field"><input type="password" id="mcNew" placeholder="Mật khẩu mới (tối thiểu 6 ký tự)" autocomplete="new-password"></div>
+      <div class="field"><input type="password" id="mcNew2" placeholder="Nhập lại mật khẩu mới" autocomplete="new-password"></div>
+      <button class="submit-btn" id="mcSave">Lưu mật khẩu mới</button>
+      <div class="gps-result" id="mcMsg"></div>
+      <button class="pin-btn" id="mcLogout" style="margin-top:12px">Đăng xuất</button>
     </div>
   </div>
   <div class="modal-scrim" id="accountScrim">
@@ -696,18 +726,28 @@ nav svg{width:21px;height:21px;}
       <button class="gps-btn" id="pwSave">Lưu mật khẩu mới</button>
       <div class="gps-result" id="pwMsg"></div>
       <div id="adminPanel" style="display:none">
-        <div class="guide-h">Quản lý tài khoản &amp; phân quyền</div>
+        <div class="guide-h" style="display:flex;justify-content:space-between;align-items:center">Quản lý tài khoản &amp; phân quyền <button class="gps-btn" id="auNew" style="padding:6px 10px">＋ Cấp tài khoản mới</button></div>
+        <div class="au-mode" id="auMode">➕ Đang tạo tài khoản mới</div>
         <div class="field"><input type="text" id="auUser" placeholder="Tên đăng nhập (vd: cuong.px)" autocapitalize="off"></div>
         <div class="field"><input type="text" id="auName" placeholder="Họ tên đầy đủ"></div>
-        <div class="field"><input type="password" id="auPass" placeholder="Mật khẩu (bắt buộc khi tạo mới)" autocomplete="new-password"></div>
+        <div class="field"><input type="password" id="auPass" placeholder="Mật khẩu (để trống = app tự tạo mật khẩu tạm)" autocomplete="new-password"></div>
         <div class="seg" id="auRoleSeg">
           <button data-v="user" class="mid on">Ghi nhận</button>
           <button data-v="viewer" class="low">Chỉ xem</button>
           <button data-v="admin" class="high">Quản trị</button>
         </div>
+        <div id="auPermBox">
+          <div class="perm-h">Chức năng được phép <span>(bật/tắt từng mục)</span></div>
+          <div class="perm-grid" id="auPerms"></div>
+        </div>
         <label class="au-active"><input type="checkbox" id="auActive" checked> Đang hoạt động (bỏ chọn để khóa)</label>
-        <button class="gps-btn" id="auSave">Lưu tài khoản</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="gps-btn" id="auSave">Lưu tài khoản</button>
+          <button class="gps-btn" id="auResetPw" style="display:none">🔑 Cấp lại mật khẩu</button>
+          <button class="gps-btn" id="auResetAcc" style="display:none;color:var(--high)">♻️ Reset tài khoản</button>
+        </div>
         <div class="gps-result" id="auMsg"></div>
+        <div class="cred-card" id="auCred" style="display:none"></div>
         <div id="userList" style="margin-top:14px"></div>
       </div>
       <button class="submit-btn" id="logoutBtn" style="margin-top:20px;background:var(--high);color:#fff">Đăng xuất</button>
@@ -1131,7 +1171,7 @@ function renderIncList(){
       ${i.anhHienTruong ? `<img class="inc-photo" src="${i.anhHienTruong}" data-full="${i.anhHienTruong}">` : ""}
       <div class="row2">
         <span class="who">${escapeHtml(i.nguoiGhiNhan)} · ${i.ngay}</span>
-        <button class="badge status-btn ${statusClass(i.trangThai)}" data-id="${i.id}" ${isAdmin()?'':'disabled style="cursor:default"'}>${i.trangThai}</button>
+        <button class="badge status-btn ${statusClass(i.trangThai)}" data-id="${i.id}" ${can("doiTrangThai")?'':'disabled style="cursor:default"'}>${i.trangThai}</button>
       </div>
       <div class="row2" style="margin-top:7px">
         ${isScp(i) ? ((i.tuLat!=null && i.tuLat!=="") ? `<a class="pin-link" href="${mapsLink(i.tuLat,i.tuLng)}" target="_blank" rel="noopener">📍 Vị trí tủ</a><span></span>` : `<span></span>`) : i.gpsLat!=null
@@ -1149,9 +1189,9 @@ function renderIncList(){
 function escapeHtml(s){ const d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
 
 function isAdmin(){ return !!(SESSION && SESSION.user && SESSION.user.role==="admin"); }
-function canEditInc(i){ return isAdmin() || (canWrite && SESSION && i.nguoiTao===SESSION.user.username); }
+function canEditInc(i){ return isAdmin() || (can("capNhatGPS") && SESSION && i.nguoiTao===SESSION.user.username); }
 async function cycleStatus(i, btn){
-  if(!isAdmin()){ return; }
+  if(!can("doiTrangThai")){ return; }
   const next = STATUS[(STATUS.indexOf(i.trangThai)+1) % STATUS.length];
   const prev = i.trangThai;
   i.trangThai = next;
@@ -1544,25 +1584,54 @@ async function loadIncidents(){
 
 let viewerName="", canWrite=true;
 const ROLE_LABEL = {admin:"Quản trị", user:"Được ghi nhận", viewer:"Chỉ xem"};
+const PERMS = [
+  ["ghiNhan","Ghi nhận sự cố mới","Nhập sự cố, chụp ảnh hiện trường"],
+  ["capNhatGPS","Cập nhật tọa độ GPS","Bổ sung GPS cho sự cố do mình ghi nhận"],
+  ["doiTrangThai","Đổi trạng thái xử lý","Mới ghi nhận → Đang xử lý → Đã xử lý"],
+  ["xemTatCa","Xem sự cố của tất cả","Tắt: chỉ thấy sự cố mình ghi nhận hoặc tủ mình quản lý"],
+  ["xemSCP","Xem mục Sự cố tủ SCP","Danh sách lỗi đồng bộ từ SCP"],
+  ["dongBoSCP","Đồng bộ lỗi SCP","Dán/chọn file SCP và bấm Đồng bộ"],
+  ["xuatExcel","Tải file Excel","Xuất danh sách sự cố"],
+  ["xemBanDo","Xem bản đồ","Tab Bản đồ, tủ gần nhất"],
+  ["doKhoangCach","Đo khoảng cách GPS","Thước đo mét trong tab Bản đồ"]
+];
+const PERM_DEFAULT = {
+  user:   {ghiNhan:true, capNhatGPS:true, doiTrangThai:false, xemTatCa:true, xemSCP:true, dongBoSCP:false, xuatExcel:true, xemBanDo:true, doKhoangCach:true},
+  viewer: {ghiNhan:false,capNhatGPS:false,doiTrangThai:false, xemTatCa:true, xemSCP:true, dongBoSCP:false, xuatExcel:true, xemBanDo:true, doKhoangCach:true}
+};
+function can(k){
+  const u = SESSION && SESSION.user; if(!u) return false;
+  if(u.role==="admin") return true;
+  const p = u.perms || PERM_DEFAULT[u.role] || PERM_DEFAULT.viewer;
+  return !!p[k];
+}
 function applyUser(u){
   viewerName = u.fullName || u.username;
-  canWrite = u.role !== "viewer";
+  canWrite = can("ghiNhan");
   $("#userName").textContent = "👤 " + viewerName;
   const role=$("#userRole"); role.style.display=""; role.textContent = ROLE_LABEL[u.role]||u.role;
   role.classList.toggle("ro", u.role==="viewer");
   const inp=$("#nguoiGhiNhan"); if(!inp.value) inp.value=viewerName;
   $("#adminPanel").style.display = u.role==="admin" ? "block" : "none";
-  $("#scpBtn").style.display = u.role==="admin" ? "" : "none";
+  $("#scpBtn").style.display = can("dongBoSCP") ? "" : "none";
+  $("#scpAdminOnly").style.display = u.role==="admin" ? "" : "none";
+  $("#exportBtn").style.display = can("xuatExcel") ? "" : "none";
+  $("#tabMap").style.display = can("xemBanDo") ? "" : "none";
+  $("#measureOpen").style.display = can("doKhoangCach") ? "" : "none";
+  const scpTab = $('#srcTabs button[data-v="scp"]'); if(scpTab) scpTab.style.display = can("xemSCP") ? "" : "none";
+  if(!can("xemSCP") && activeSource==="scp") activeSource="manual";
   $("#acctInfo").textContent = "Đăng nhập: " + u.username + " · " + (u.fullName||"") + " · Quyền: " + (ROLE_LABEL[u.role]||u.role);
   if(!canWrite){
-    $("#submitBtn").disabled=true; $("#submitBtn").textContent="Bạn chỉ có quyền xem";
+    $("#submitBtn").disabled=true; $("#submitBtn").textContent="Bạn chưa được cấp quyền ghi nhận";
     $("#photoBtn").disabled=true; $("#gpsBtn").disabled=true;
   }
+  const permNames = PERMS.filter(p=>can(p[0])).map(p=>p[1]);
+  $("#acctInfo").textContent += u.role==="admin" ? " · Toàn quyền" : " · Được phép: " + (permNames.join(", ")||"không có");
 }
 
 /* ---------- tài khoản / quản trị ---------- */
 let auRole="user";
-$("#accountBtn").onclick=()=>{ $("#accountScrim").classList.add("show"); if(SESSION.user.role==="admin") loadUsers(); };
+$("#accountBtn").onclick=()=>{ $("#accountScrim").classList.add("show"); if(SESSION.user.role==="admin"){ renderAuPerms(); loadUsers(); } };
 $("#accountClose").onclick=()=>$("#accountScrim").classList.remove("show");
 $("#accountScrim").addEventListener("click", e=>{ if(e.target.id==="accountScrim") $("#accountScrim").classList.remove("show"); });
 $("#logoutBtn").onclick=async ()=>{ await api("logout"); goLogin(); };
@@ -1570,10 +1639,26 @@ $("#pwSave").onclick=async ()=>{
   $("#pwMsg").textContent="Đang lưu…";
   const r = await api("changePassword",{oldPassword:$("#pwOld").value, newPassword:$("#pwNew").value});
   $("#pwMsg").textContent = r.ok ? "Đã đổi mật khẩu." : (r.error||"Lỗi");
-  if(r.ok){ $("#pwOld").value=""; $("#pwNew").value=""; }
+  if(r.ok){ $("#pwOld").value=""; $("#pwNew").value=""; if(SESSION.user){ SESSION.user.mustChange=false; saveSessionUser(); } }
 };
 $("#auRoleSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>setAuRole(b.dataset.v));
-function setAuRole(v){ auRole=v; $("#auRoleSeg").querySelectorAll("button").forEach(x=>x.classList.toggle("on", x.dataset.v===v)); }
+let auPerms = Object.assign({}, PERM_DEFAULT.user);
+function renderAuPerms(){
+  const box=$("#auPerms"); box.innerHTML="";
+  $("#auPermBox").style.display = auRole==="admin" ? "none" : "";
+  PERMS.forEach(([k,name,desc])=>{
+    const l=document.createElement("label"); l.className="perm-item"+(auPerms[k]?" on":"");
+    const cb=document.createElement("input"); cb.type="checkbox"; cb.checked=!!auPerms[k];
+    const t=document.createElement("div"); t.textContent=name; const s=document.createElement("small"); s.textContent=desc; t.appendChild(s);
+    cb.onchange=()=>{ auPerms[k]=cb.checked; l.classList.toggle("on",cb.checked); };
+    l.appendChild(cb); l.appendChild(t); box.appendChild(l);
+  });
+}
+function setAuRole(v, keepPerms){
+  auRole=v; $("#auRoleSeg").querySelectorAll("button").forEach(x=>x.classList.toggle("on", x.dataset.v===v));
+  if(!keepPerms && PERM_DEFAULT[v]) auPerms = Object.assign({}, PERM_DEFAULT[v]);
+  renderAuPerms();
+}
 async function loadUsers(){
   const el=$("#userList"); el.textContent="Đang tải danh sách…";
   const r = await api("listUsers");
@@ -1585,17 +1670,62 @@ async function loadUsers(){
     const n=document.createElement("div"); n.textContent=u.fullName||u.username;
     const sub=document.createElement("div"); sub.className="u-sub"; sub.textContent=u.username+" · "+(ROLE_LABEL[u.role]||u.role);
     left.appendChild(n); left.appendChild(sub);
+    if(u.yeuCauReset){ const f=document.createElement("span"); f.className="u-flag req"; f.textContent="🔑 Yêu cầu cấp lại MK"; f.title=u.yeuCauReset; n.appendChild(f); }
+    else if(u.mustChange){ const f=document.createElement("span"); f.className="u-flag mc"; f.textContent="Chờ đổi MK"; n.appendChild(f); }
     const st=document.createElement("span"); st.className="badge status-btn "+(u.active?"st-2":"st-0"); st.textContent=u.active?"Hoạt động":"Đã khóa";
+    if(u.role!=="admin" && u.perms){ const pp=document.createElement("div"); pp.className="u-perm"; pp.textContent = PERMS.filter(p=>u.perms[p[0]]).length + "/" + PERMS.length + " chức năng"; left.appendChild(pp); }
     row.appendChild(left); row.appendChild(st);
-    row.onclick=()=>{ $("#auUser").value=u.username; $("#auName").value=u.fullName||""; $("#auPass").value=""; $("#auActive").checked=!!u.active; setAuRole(u.role); $("#auMsg").textContent="Đang sửa: "+u.username; };
+    row.onclick=()=>{ $("#auUser").value=u.username; $("#auName").value=u.fullName||""; $("#auPass").value=""; $("#auActive").checked=!!u.active; auPerms=Object.assign({}, PERM_DEFAULT[u.role]||{}, u.perms||{}); setAuRole(u.role, true); $("#auMsg").textContent = u.yeuCauReset ? ("Người này yêu cầu cấp lại mật khẩu lúc "+u.yeuCauReset+" → bấm 🔑 Cấp lại mật khẩu") : ""; setAuEdit(u); $("#auUser").scrollIntoView({behavior:"smooth",block:"center"}); };
     el.appendChild(row);
   });
 }
+let auEditing=null;
+function setAuEdit(u){
+  auEditing = u ? u.username : null;
+  $("#auUser").readOnly = !!u;
+  $("#auMode").textContent = u ? ("✏️ Đang sửa tài khoản: "+u.username) : "➕ Đang tạo tài khoản mới";
+  $("#auResetPw").style.display = u ? "" : "none";
+  $("#auResetAcc").style.display = (u && u.role!=="admin") ? "" : "none";
+  $("#auCred").style.display="none";
+}
+$("#auNew").onclick=()=>{ $("#auUser").value=""; $("#auName").value=""; $("#auPass").value=""; $("#auActive").checked=true; setAuRole("user"); setAuEdit(null); $("#auMsg").textContent=""; $("#auUser").focus(); };
+function showCred(r, title){
+  const link="https://phucle-gps.github.io/Ghinhansuco/login.html";
+  const msg=`Tài khoản app Ghi nhận sự cố\nLink: ${link}\nTên đăng nhập: ${r.username}\nMật khẩu tạm: ${r.tempPassword}\n(Đăng nhập xong app sẽ yêu cầu đổi mật khẩu mới)`;
+  const c=$("#auCred"); c.innerHTML="";
+  const t=document.createElement("div"); t.innerHTML=`<b>${title}</b>`; c.appendChild(t);
+  const a=document.createElement("div"); a.textContent="Tên đăng nhập: "+r.username+(r.fullName?" ("+r.fullName+")":""); c.appendChild(a);
+  const b=document.createElement("div"); b.innerHTML='Mật khẩu tạm: <span class="pw"></span>'; b.querySelector(".pw").textContent=r.tempPassword; c.appendChild(b);
+  const note=document.createElement("div"); note.className="who"; note.textContent="Chỉ hiện 1 lần – hãy gửi ngay cho người dùng. Họ sẽ phải đổi mật khẩu ở lần đăng nhập đầu."+(r.loggedOut?` Đã đăng xuất ${r.loggedOut} thiết bị đang dùng tài khoản này.`:""); c.appendChild(note);
+  const acts=document.createElement("div"); acts.className="acts";
+  const cp=document.createElement("button"); cp.className="gps-btn"; cp.textContent="📋 Sao chép tin nhắn";
+  cp.onclick=async()=>{ try{ await navigator.clipboard.writeText(msg); cp.textContent="✓ Đã sao chép"; }catch(e){ prompt("Sao chép nội dung:", msg); } };
+  const sms=document.createElement("a"); sms.className="gps-btn"; sms.style.textDecoration="none"; sms.textContent="💬 Gửi SMS"; sms.href="sms:?&body="+encodeURIComponent(msg);
+  acts.appendChild(cp); acts.appendChild(sms);
+  if(navigator.share){ const sh=document.createElement("button"); sh.className="gps-btn"; sh.textContent="📤 Chia sẻ (Zalo…)"; sh.onclick=()=>navigator.share({text:msg}).catch(()=>{}); acts.appendChild(sh); }
+  c.appendChild(acts); c.style.display="block";
+}
 $("#auSave").onclick=async ()=>{
   $("#auMsg").textContent="Đang lưu…";
-  const r = await api("saveUser",{user:{username:$("#auUser").value.trim(), fullName:$("#auName").value.trim(), password:$("#auPass").value, role:auRole, active:$("#auActive").checked}});
-  $("#auMsg").textContent = r.ok ? (r.created?"Đã tạo tài khoản.":"Đã cập nhật tài khoản.") : (r.error||"Lỗi");
-  if(r.ok){ $("#auPass").value=""; loadUsers(); }
+  const r = await api("saveUser",{user:{username:$("#auUser").value.trim(), fullName:$("#auName").value.trim(), password:$("#auPass").value, role:auRole, active:$("#auActive").checked, perms: auRole==="admin" ? null : auPerms}});
+  $("#auMsg").textContent = r.ok ? (r.created?"Đã cấp tài khoản mới.":"Đã cập nhật tài khoản.") : (r.error||"Lỗi");
+  if(r.ok){ $("#auPass").value=""; loadUsers(); if(r.created){ showCred(r, "✅ Đã cấp tài khoản mới"); setAuEdit({username:r.username, role:auRole}); $("#auCred").style.display="block"; } }
+};
+$("#auResetPw").onclick=async ()=>{
+  if(!auEditing) return;
+  if(!confirm("Cấp mật khẩu tạm mới cho tài khoản "+auEditing+"?\nMật khẩu cũ sẽ hết hiệu lực và người dùng bị đăng xuất khỏi mọi thiết bị.")) return;
+  $("#auMsg").textContent="Đang cấp lại…";
+  const r=await api("resetPassword",{username:auEditing});
+  if(!r.ok){ $("#auMsg").textContent=r.error||"Lỗi"; return; }
+  $("#auMsg").textContent=""; showCred(r,"🔑 Đã cấp lại mật khẩu"); loadUsers();
+};
+$("#auResetAcc").onclick=async ()=>{
+  if(!auEditing) return;
+  if(!confirm("RESET tài khoản "+auEditing+"?\n• Cấp mật khẩu tạm mới\n• Mở khóa tài khoản\n• Đưa phân quyền về mặc định\n• Đăng xuất khỏi mọi thiết bị\nDữ liệu sự cố đã ghi nhận KHÔNG bị ảnh hưởng.")) return;
+  $("#auMsg").textContent="Đang reset…";
+  const r=await api("resetAccount",{username:auEditing});
+  if(!r.ok){ $("#auMsg").textContent=r.error||"Lỗi"; return; }
+  $("#auMsg").textContent=""; showCred(r,"♻️ Đã reset tài khoản"); loadUsers();
 };
 
 
@@ -1718,8 +1848,9 @@ $("#scpFile").addEventListener("change", async e=>{
 });
 $("#scpBtn").onclick=async ()=>{
   $("#scpScrim").classList.add("show"); $("#scpResult").innerHTML="";
+  if(!isAdmin()) return;
   const r = await api("getNotify");
-  if(r.ok){ $("#ntEmails").value=r.notify.emails; $("#ntTgToken").value=r.notify.tgToken; $("#ntTgChat").value=r.notify.tgChat; }
+  if(r.ok && r.notify){ $("#ntEmails").value=r.notify.emails; $("#ntTgToken").value=r.notify.tgToken; $("#ntTgChat").value=r.notify.tgChat; }
 };
 $("#scpClose").onclick=()=>$("#scpScrim").classList.remove("show");
 $("#scpSync").onclick=async ()=>{
@@ -1761,6 +1892,23 @@ $("#ntTest").onclick=async ()=>{
   $("#ntMsg").textContent = r.ok ? "Đã gửi thử – kiểm tra email/Telegram." : (r.error||"Lỗi");
 };
 
+/* ---------- đổi mật khẩu bắt buộc (mật khẩu tạm) ---------- */
+function saveSessionUser(){
+  try{ const st = localStorage.getItem("gnsc_session") ? localStorage : sessionStorage; st.setItem("gnsc_session", JSON.stringify(SESSION)); }catch(e){}
+}
+$("#mcSave").onclick=async ()=>{
+  const o=$("#mcOld").value, n=$("#mcNew").value, n2=$("#mcNew2").value;
+  if(n.length<6){ $("#mcMsg").textContent="Mật khẩu mới tối thiểu 6 ký tự."; return; }
+  if(n!==n2){ $("#mcMsg").textContent="Hai lần nhập mật khẩu mới không khớp."; return; }
+  if(n===o){ $("#mcMsg").textContent="Mật khẩu mới phải khác mật khẩu tạm."; return; }
+  $("#mcMsg").textContent="Đang lưu…";
+  const r=await api("changePassword",{oldPassword:o,newPassword:n});
+  if(!r.ok){ $("#mcMsg").textContent=r.error||"Lỗi"; return; }
+  SESSION.user.mustChange=false; saveSessionUser();
+  $("#mustScrim").classList.remove("show"); alert("Đã đổi mật khẩu thành công.");
+};
+$("#mcLogout").onclick=async ()=>{ await api("logout"); goLogin(); };
+
 /* ---------- khởi động ---------- */
 async function init(){
   SESSION = getSession();
@@ -1770,7 +1918,8 @@ async function init(){
   applyUser(SESSION.user);
   if(!localStorage.getItem("gnsc_seen_help")){ openHelp(); localStorage.setItem("gnsc_seen_help","1"); }
   const me = await api("me");
-  if(me.ok){ SESSION.user = me.user; applyUser(me.user); }
+  if(me.ok){ SESSION.user = me.user; applyUser(me.user); saveSessionUser(); }
+  if(SESSION.user && SESSION.user.mustChange) $("#mustScrim").classList.add("show");
   await loadIncidents();
   setInterval(()=>{ if(document.visibilityState==="visible") loadIncidents(); }, 60000);
   document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible") loadIncidents(); });
