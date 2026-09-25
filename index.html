@@ -321,6 +321,13 @@ main{flex:1;overflow-y:auto;padding:16px 18px 100px;}
 .ks-pv button{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:100px;border:none;background:var(--high);color:#fff;font-size:12px;cursor:pointer;}
 nav button{min-width:0;}
 @media (max-width:520px){ .nl-x{display:none;} nav button{font-size:11px;} }
+.v-btn{flex:0 0 auto;padding:8px 10px !important;}
+.v-btn.rec,.v-all.rec{background:var(--high) !important;border-color:var(--high) !important;color:#fff !important;animation:vpulse 1.2s ease-in-out infinite;}
+@keyframes vpulse{0%,100%{box-shadow:0 0 0 0 rgba(193,68,14,.5)}50%{box-shadow:0 0 0 8px rgba(193,68,14,0)}}
+.ks-mrow.ta{align-items:flex-start;}
+.v-panel{margin-top:12px;padding:12px;border-radius:12px;background:var(--surface-2);}
+.v-tip{font-size:12px;color:var(--text-2);margin-top:8px;line-height:1.5;}
+.v-live{margin-top:8px;font-size:13px;line-height:1.5;padding:9px 11px;border-radius:9px;background:var(--surface);border:1px solid var(--border);}
 .src-tabs{display:flex;gap:8px;margin-bottom:12px;}
 .src-tabs button{flex:1;padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 .src-tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
@@ -736,6 +743,11 @@ nav svg{width:21px;height:21px;}
         <label for="ksCabIn">Chọn tủ điều khiển để tự điền (các ô có dấu ⟵ tủ)</label>
         <input type="text" id="ksCabIn" list="ksCabList" placeholder="Gõ tên tủ hoặc mã PE (có dấu hoặc không dấu)" autocomplete="off">
         <datalist id="ksCabList"></datalist>
+      </div>
+      <div class="v-panel" id="vPanel">
+        <button type="button" class="submit-btn v-all" id="vAllBtn">🎙️ Đọc cả phiếu bằng giọng nói</button>
+        <div class="v-tip">Nói liền mạch theo tên ô, ví dụ: <i>"tuyến đường hẻm 41 Sư Vạn Hạnh, vị trí trụ CS1 đến 5, chiều dài hai trăm mười lăm mét, chiều rộng bốn phẩy năm, số trụ năm, ghi chú trồng thêm trụ"</i>. Hoặc bấm 🎤 cạnh từng ô.</div>
+        <div class="v-live" id="vLive" style="display:none"></div>
       </div>
       <div class="ks-fields" id="ksFields"></div>
       <div class="ks-g">Ảnh hiện trường & vị trí</div>
@@ -1642,6 +1654,105 @@ $("#flSend").onclick=async ()=>{
 $("#flSearch").addEventListener("input",e=>{ flTerm=e.target.value; renderFiles(); });
 $("#tabFiles").onclick=()=>{ showView("files"); renderFlType(); loadFiles(); };
 
+/* ---------- NHẬP LIỆU BẰNG GIỌNG NÓI (Web Speech API, tiếng Việt) ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const VOICE_OK = !!SR;
+let vRec=null, vBtn=null;
+function vStop(){ try{ vRec && vRec.stop(); }catch(e){} }
+function vReset(){ if(vBtn){ vBtn.classList.remove("rec"); vBtn.textContent = vBtn.dataset.idle; } vBtn=null; vRec=null; }
+/* Đổi số đọc bằng chữ tiếng Việt → chữ số. "hai trăm mười lăm" → 215, "bốn phẩy năm" → 4,5 */
+const VI_D={"không":0,"một":1,"mốt":1,"hai":2,"ba":3,"bốn":4,"tư":4,"năm":5,"lăm":5,"nhăm":5,"sáu":6,"bảy":7,"bẩy":7,"tám":8,"chín":9};
+function viWordsToInt(words){
+  let total=0, cur=0, any=false, lastUnit=null;
+  for(const w of words){
+    if(w in VI_D){ cur += VI_D[w]; any=true; lastUnit="d"; }
+    else if(w==="mười"){ cur += 10; any=true; lastUnit="d"; }
+    else if(w==="mươi"){ cur = (cur%10 ? cur - cur%10 + (cur%10)*10 : cur*10); any=true; }
+    else if(w==="linh"||w==="lẻ"){ }
+    else if(w==="trăm"){ cur = (cur===0 && lastUnit==="d") ? 0 : (cur||1)*100; any=true; }
+    else if(w==="nghìn"||w==="ngàn"){ total += (cur||1)*1000; cur=0; any=true; }
+    else if(w==="triệu"){ total += (cur||1)*1e6; cur=0; any=true; }
+    else return null;
+  }
+  return any ? total+cur : null;
+}
+function viToNumber(text){
+  const UNIT=new Set(["mét","met","m","m²","vuông","bộ","cái","trụ","đèn","oát","w","khoảng","chừng","là","bằng"]);
+  let t=String(text||"").toLowerCase().replace(/[,;.]+$/,"").split(/\s+/).filter(w=>w && !UNIT.has(w)).join(" ").trim();
+  // đã là chữ số (Chrome thường tự đổi): 215 / 4,5 / 4.5
+  const dm=t.replace(/(\d)\s*(phẩy|chấm)\s*(\d)/g,"$1,$3").match(/\d+(?:[.,]\d+)?/);
+  if(dm) return dm[0].replace(".",",");
+  const parts=t.split(/\s*(?:phẩy|chấm)\s*/);
+  const a=viWordsToInt(parts[0].split(/\s+/).filter(Boolean));
+  if(a==null) return null;
+  if(parts[1]){ const dec=parts[1].split(/\s+/).filter(Boolean).map(w=>w in VI_D?VI_D[w]:"").join(""); if(dec) return a+","+dec; }
+  return String(a);
+}
+function vListen(btn, onText, opts){
+  if(!VOICE_OK){ alert("Trình duyệt này chưa hỗ trợ nhập giọng nói. Hãy dùng Chrome (Android/máy tính) hoặc Safari iOS mới."); return; }
+  if(vRec){ const same = vBtn===btn; vStop(); if(same) return; }
+  opts=opts||{};
+  const r=new SR(); r.lang="vi-VN"; r.interimResults=true; r.continuous=!!opts.continuous; r.maxAlternatives=1;
+  vRec=r; vBtn=btn; btn.dataset.idle = btn.dataset.idle || btn.textContent; btn.classList.add("rec"); btn.textContent = opts.stopLabel || "⏺ Đang nghe…";
+  let finalText="";
+  r.onresult=e=>{
+    let interim="";
+    for(let i=e.resultIndex;i<e.results.length;i++){ const s=e.results[i][0].transcript; if(e.results[i].isFinal) finalText+=s+" "; else interim+=s; }
+    opts.onInterim && opts.onInterim((finalText+interim).trim());
+  };
+  r.onerror=e=>{ const m={"not-allowed":"Chưa cho phép dùng micro – bấm biểu tượng 🔒 trên thanh địa chỉ để cho phép.","no-speech":"Không nghe thấy giọng nói, thử lại.","network":"Cần kết nối mạng để nhận dạng giọng nói."}[e.error]; if(m) (opts.onError||alert)(m); };
+  r.onend=()=>{ vReset(); const t=finalText.trim(); if(t) onText(t); };
+  try{ r.start(); }catch(e){ vReset(); }
+}
+/* nút micro cho từng ô */
+function vFieldBtn(inp, x){
+  const b=document.createElement("button"); b.type="button"; b.className="gps-btn v-btn"; b.textContent="🎤"; b.title="Nói để nhập";
+  b.onclick=()=>vListen(b, text=>{
+    if(x.t==="n"||x.t==="m"){ const n=viToNumber(text); if(n==null){ $("#ksMsg").textContent=`Không hiểu số "${text}" – nói lại, ví dụ "hai trăm mười lăm" hoặc "bốn phẩy năm".`; return; } inp.value=n; }
+    else if(x.t==="a"){ inp.value = (inp.value? inp.value.trim()+" " : "") + vCap(text); }
+    else inp.value = vCap(text);
+    inp.dispatchEvent(new Event("input")); $("#ksMsg").textContent="";
+  }, {onInterim:t=>{ $("#ksMsg").textContent="🎤 "+t; }, onError:m=>{ $("#ksMsg").textContent=m; }});
+  return b;
+}
+function vCap(s){ s=String(s).trim(); return s.charAt(0).toUpperCase()+s.slice(1); }
+/* đọc cả phiếu: "tuyến đường Bàn Cờ, vị trí trụ CS1 đến 7, chiều dài 215 mét, ghi chú ..." */
+function vFieldAliases(x){
+  const base=x.l.replace(/\(.*?\)/g,"").replace(/[⟵]/g,"").trim();
+  const al=new Set([base]);
+  if(x.g && x.l.length<=10) al.add(x.g.replace(/\(.*?\)/g,"").trim()+" "+x.l);
+  const extra={duong:["tuyến đường","đường","tuyến"],tu:["tủ điều khiển","tủ","tên tủ"],tuHH:["tủ hiện hữu","cấp nguồn từ tủ","tủ"],quan:["quận"],phuong:["phường"],
+    viTri:["vị trí trụ","vị trí","trụ số"],ghiChu:["ghi chú"],soNha:["số nhà"],dai:["chiều dài"],rong:["chiều rộng","độ rộng"],soTru:["số trụ","tổng số trụ"],
+    klCap:["khối lượng cáp","chiều dài cáp"],kcTru:["khoảng cách trụ","khoảng cách"],congSuat:["công suất"],cap:["loại cáp","cáp"],nguyenNhan:["nguyên nhân"],bienPhap:["biện pháp"]};
+  (extra[x.k]||[]).forEach(a=>al.add(a));
+  return [...al].map(a=>vnNorm(a)).filter(a=>a.length>=2);
+}
+function vFillForm(text){
+  const f=ksForm(ksMau); const T=vnNorm(text);
+  // tìm vị trí các nhãn trong câu nói
+  const hits=[];
+  f.fields.forEach(x=>{ vFieldAliases(x).forEach(a=>{ let i=T.indexOf(a); while(i>=0){ const before=i===0||/[\s,.;]/.test(T[i-1]); if(before) hits.push({x,i,len:a.length}); i=T.indexOf(a,i+a.length);} }); });
+  hits.sort((a,b)=>a.i-b.i || b.len-a.len);
+  const clean=[]; hits.forEach(h=>{ const last=clean[clean.length-1]; if(!last || h.i>=last.i+last.len) clean.push(h); });
+  let filled=[];
+  clean.forEach((h,idx)=>{
+    const end = idx+1<clean.length ? clean[idx+1].i : T.length;
+    // lấy đoạn gốc (có dấu) theo cùng vị trí – vnNorm giữ nguyên độ dài ký tự đối với tiếng Việt dựng sẵn
+    let val = text.slice(h.i+h.len, end).replace(/^[\s:,.-]*(là|bằng)?\s*/i,"").replace(/[\s,.;]+$/,"").trim();
+    if(!val) return;
+    const e=$("#ksf_"+h.x.k); if(!e || e.disabled) return;
+    if(h.x.t==="c"){ e.checked = !/không|chưa/i.test(val); }
+    else if(h.x.t==="n"||h.x.t==="m"){ const n=viToNumber(val); if(n==null) return; e.value=n; }
+    else if(h.x.t==="d"){ return; }
+    else e.value=vCap(val);
+    filled.push(h.x.l.replace(/\(.*?\)/g,"").trim());
+  });
+  // nói "tủ ..." mà mẫu có ô chọn tủ → thử tìm tủ để tự điền
+  const tuVal=($("#ksf_tu")||$("#ksf_tuHH")||{}).value;
+  if(tuVal && !ksCab){ const c=searchCabinets(tuVal,false).list[0]; if(c){ $("#ksCabIn").value=c.n+" | "+c.pe; ksFillFromCab(c); } }
+  return filled;
+}
+
 /* ---------- KHẢO SÁT DUY TU: 16 mẫu theo Biểu Mẫu.xlsx ---------- */
 // type: t=text, n=number, m=mét (có nút đo GPS), d=ngày, s=chọn (opts), c=có/không, a=đoạn văn
 // cab: tự điền từ tủ đã chọn (duong|tu|quan|phuong)
@@ -1835,15 +1946,18 @@ function ksOpenForm(rec){
     inp.id="ksf_"+x.k;
     if(x.t==="c") inp.checked=!!d[x.k]; else inp.value = d[x.k]==null?"":d[x.k];
     inp.disabled=!canEdit;
-    if(x.t==="m"){ const row=document.createElement("div"); row.className="ks-mrow"; row.appendChild(inp);
+    const vb = (VOICE_OK && canEdit && x.t!=="c" && x.t!=="d") ? vFieldBtn(inp,x) : null;
+    if(x.t==="m"){ const row=document.createElement("div"); row.className="ks-mrow"; row.appendChild(inp); if(vb) row.appendChild(vb);
       const b=document.createElement("button"); b.type="button"; b.className="gps-btn"; b.textContent="📏 Đo"; b.disabled=!canEdit || !can("doKhoangCach");
       b.onclick=()=>{ msTarget={id:"ksf_"+x.k, label:x.l}; $("#measureScrim").classList.add("show"); msRender(); };
       row.appendChild(b); w.appendChild(row); }
     else if(x.t==="c"){ const row=document.createElement("label"); row.className="ks-chk"; row.appendChild(inp); row.appendChild(document.createTextNode(" Có")); w.appendChild(row); }
+    else if(vb){ const row=document.createElement("div"); row.className="ks-mrow"+(x.t==="a"?" ta":""); row.appendChild(inp); row.appendChild(vb); w.appendChild(row); }
     else w.appendChild(inp);
     box.appendChild(w);
   });
   ksRenderPhotos(canEdit);
+  $("#vPanel").style.display = (VOICE_OK && canEdit) ? "" : "none"; $("#vLive").style.display="none";
   $("#ksGpsInfo").innerHTML = ksGPS ? `📍 <a target="_blank" rel="noopener" href="${mapsLink(ksGPS.lat,ksGPS.lng)}">${(+ksGPS.lat).toFixed(6)}, ${(+ksGPS.lng).toFixed(6)}</a>` : "Chưa có vị trí";
   $("#ksMeta").textContent = rec ? `Lập bởi ${rec.nguoiTaoTen||rec.nguoiTao} lúc ${new Date(rec.createdAt).toLocaleString("vi-VN")}`+(rec.updatedAt>rec.createdAt?` · sửa ${new Date(rec.updatedAt).toLocaleString("vi-VN")}`:"") : "";
   ["ksCabIn","ksGpsBtn","ksPhBtn","ksCamBtn","ksSave"].forEach(id=>{ const e=$("#"+id); if(e) e.disabled=!canEdit; });
@@ -1895,7 +2009,14 @@ $("#ksPhIn").addEventListener("change",e=>{ const fs=[...e.target.files]; e.targ
 $("#ksCamIn").addEventListener("change",e=>{ const fs=[...e.target.files]; e.target.value=""; ksAddPhotos(fs); });
 $("#ksPhBtn").onclick=()=>$("#ksPhIn").click();
 $("#ksCamBtn").onclick=()=>$("#ksCamIn").click();
-$("#ksClose").onclick=()=>$("#ksScrim").classList.remove("show");
+$("#ksClose").onclick=()=>{ vStop(); $("#ksScrim").classList.remove("show"); };
+$("#vAllBtn").onclick=()=>{
+  const live=$("#vLive"); live.style.display="block"; live.textContent="🎙️ Đang nghe… nói xong bấm lại nút để dừng.";
+  vListen($("#vAllBtn"), text=>{
+    const got=vFillForm(text);
+    live.innerHTML = got.length ? `✅ Đã điền ${got.length} ô: <b>${escHtml(got.join(", "))}</b><br><span class="who">Câu đã nghe: "${escHtml(text)}"</span>` : `⚠️ Chưa nhận ra tên ô nào trong câu: "${escHtml(text)}". Hãy nói kèm tên ô, ví dụ "tuyến đường …, vị trí trụ …".`;
+  }, {continuous:true, stopLabel:"⏹ Dừng & điền vào phiếu", onInterim:t=>{ live.textContent="🎙️ "+t; }, onError:m=>{ live.textContent=m; }});
+};
 $("#ksSave").onclick=async ()=>{
   const f=ksForm(ksMau), data={};
   f.fields.forEach(x=>{ const e=$("#ksf_"+x.k); if(!e) return; data[x.k] = x.t==="c" ? e.checked : e.value.trim(); });
