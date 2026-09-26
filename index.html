@@ -1064,15 +1064,29 @@ nav svg{width:21px;height:21px;}
       <div class="guide-h">Đổi mật khẩu</div>
       <div class="field"><input type="password" id="pwOld" placeholder="Mật khẩu hiện tại" autocomplete="current-password"></div>
       <div class="field"><input type="password" id="pwNew" placeholder="Mật khẩu mới (tối thiểu 6 ký tự)" autocomplete="new-password"></div>
-      <button class="gps-btn" id="pwSave">Lưu mật khẩu mới</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="gps-btn" id="pwSave">Lưu mật khẩu mới</button><button class="gps-btn" id="pwForgot">🔑 Quên mật khẩu hiện tại?</button></div>
       <div class="gps-result" id="pwMsg"></div>
+      <div class="bk-box" id="pfBox" style="display:none">
+        <div class="who" id="pfNote"></div>
+        <div id="pfAdmin" style="display:none">
+          <div class="bk-row"><button type="button" class="gps-btn" id="pfSend">📧 Gửi mã OTP về Gmail</button></div>
+          <div class="field" style="margin-top:8px"><input type="text" id="pfOtp" inputmode="numeric" maxlength="6" placeholder="Mã OTP 6 số" autocomplete="one-time-code"></div>
+          <div class="field"><input type="password" id="pfP1" placeholder="Mật khẩu mới (≥ 8 ký tự, có chữ và số)" autocomplete="new-password"></div>
+          <div class="field"><input type="password" id="pfP2" placeholder="Nhập lại mật khẩu mới" autocomplete="new-password"></div>
+          <button type="button" class="submit-btn" id="pfDo">✔ Tạo mật khẩu mới</button>
+        </div>
+        <button type="button" class="submit-btn" id="pfReq" style="display:none">📨 Gửi yêu cầu cấp mật khẩu mới cho Quản trị</button>
+        <div class="gps-result" id="pfMsg"></div>
+      </div>
       <div id="adminPanel" style="display:none">
         <div class="guide-h" style="display:flex;justify-content:space-between;align-items:center">Quản lý tài khoản &amp; phân quyền <button class="gps-btn" id="auNew" style="padding:6px 10px">＋ Cấp tài khoản mới</button></div>
         <div class="au-mode" id="auMode">➕ Đang tạo tài khoản mới</div>
         <div class="field"><input type="text" id="auUser" placeholder="Tên đăng nhập (vd: cuong.px)" autocapitalize="off"></div>
         <div class="field"><input type="text" id="auName" placeholder="Họ tên đầy đủ"></div>
         <div class="field"><input type="password" id="auPass" placeholder="Mật khẩu (để trống = app tự tạo mật khẩu tạm)" autocomplete="new-password"></div>
-        <div class="seg" id="auRoleSeg">
+        <div class="who" style="margin:2px 0 6px">Mẫu quyền: <b>Xem &amp; Ghi nhận</b> = xem tất cả + ghi nhận, khảo sát, bản vẽ, LED, đổi trạng thái · <b>Ghi nhận</b> = ghi sự cố, khảo sát · <b>Chỉ xem</b> = không nhập liệu. Bấm mẫu rồi tinh chỉnh từng ô bên dưới.</div>
+        <div class="seg" id="auRoleSeg" style="flex-wrap:wrap">
+          <button data-v="editor" class="mid">Xem &amp; Ghi nhận</button>
           <button data-v="user" class="mid on">Ghi nhận</button>
           <button data-v="viewer" class="low">Chỉ xem</button>
           <button data-v="admin" class="high">Quản trị</button>
@@ -1084,8 +1098,14 @@ nav svg{width:21px;height:21px;}
         <label class="au-active"><input type="checkbox" id="auActive" checked> Đang hoạt động (bỏ chọn để khóa)</label>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="gps-btn" id="auSave">Lưu tài khoản</button>
-          <button class="gps-btn" id="auResetPw" style="display:none">🔑 Cấp lại mật khẩu</button>
+          <button class="gps-btn" id="auResetPw" style="display:none">🔑 Quên mật khẩu → tạo mật khẩu mới</button>
           <button class="gps-btn" id="auResetAcc" style="display:none;color:var(--high)">♻️ Reset tài khoản</button>
+        </div>
+        <div class="bk-box" id="auPwBox" style="display:none">
+          <div class="who"><b id="auPwFor"></b> – chọn cách tạo mật khẩu mới:</div>
+          <div class="bk-row"><input type="text" id="auPwNew" class="bk-inp" placeholder="Nhập mật khẩu mới (để trống = app tự tạo)" autocomplete="off"></div>
+          <label class="au-active" style="margin-top:8px"><input type="checkbox" id="auPwMust" checked> Bắt buộc người dùng đổi mật khẩu khi đăng nhập lần tới (khuyên dùng)</label>
+          <div class="bk-row"><button type="button" class="submit-btn" id="auPwOk" style="width:auto;padding:9px 14px">✔ Tạo mật khẩu mới</button><button type="button" class="gps-btn" id="auPwCancel">Hủy</button></div>
         </div>
         <div class="gps-result" id="auMsg"></div>
         <div class="cred-card" id="auCred" style="display:none"></div>
@@ -1102,7 +1122,7 @@ nav svg{width:21px;height:21px;}
           </div>
           <textarea id="bkText" class="bk-text" placeholder="Hoặc dán / sửa danh sách tại đây, mỗi dòng 1 người:&#10;Nguyễn Văn A; nv.a; Ghi nhận&#10;Trần Thị B; Chỉ xem&#10;(tên đăng nhập, quyền không bắt buộc – app tự tạo)"></textarea>
           <div class="bk-row"><span>Quyền mặc định:</span>
-            <select id="bkRole" class="ql-select"><option value="user">Ghi nhận</option><option value="viewer">Chỉ xem</option></select>
+            <select id="bkRole" class="ql-select"><option value="editor">Xem & Ghi nhận</option><option value="user" selected>Ghi nhận</option><option value="viewer">Chỉ xem</option></select>
             <button type="button" class="submit-btn" id="bkParse" style="width:auto;padding:9px 14px">🔍 Đọc danh sách</button></div>
           <div class="gps-result" id="bkMsg"></div>
           <div id="bkPreview"></div>
@@ -1113,7 +1133,7 @@ nav svg{width:21px;height:21px;}
           <div class="bk-row"><label class="au-active" style="margin:0"><input type="checkbox" id="bkAll"> Chọn tất cả</label><b id="bkSelCnt">0 đã chọn</b></div>
           <div class="bk-row">
             <select id="bkAct" class="ql-select">
-              <option value="tpl_user">Áp mẫu quyền "Ghi nhận"</option><option value="tpl_viewer">Áp mẫu quyền "Chỉ xem"</option>
+              <option value="tpl_editor">Áp mẫu quyền "Xem & Ghi nhận"</option><option value="tpl_user">Áp mẫu quyền "Ghi nhận"</option><option value="tpl_viewer">Áp mẫu quyền "Chỉ xem"</option>
               <option value="on">Bật 1 chức năng…</option><option value="off">Tắt 1 chức năng…</option>
               <option value="lock">Khóa tài khoản</option><option value="unlock">Mở khóa tài khoản</option><option value="resetpw">Cấp lại mật khẩu</option>
             </select>
@@ -2703,7 +2723,7 @@ function bkGenUser(full, taken){
   let base = w.length===1 ? w[0] : w.slice(0,-1).map(x=>x[0]).join("")+"."+w[w.length-1];
   base=base.slice(0,26); let u=base, i=2; while(taken.has(u)) u=base+(i++); taken.add(u); return u;
 }
-function bkRoleOf(s){ const t=vnNorm(s); if(!t) return ""; if(/quan tri|admin/.test(t)) return "admin"; if(/chi xem|xem|viewer/.test(t)) return "viewer"; if(/ghi nhan|nhap|user|nhan vien|to truong|ky thuat/.test(t)) return "user"; return ""; }
+function bkRoleOf(s){ const t=vnNorm(s); if(!t) return ""; if(/quan tri|admin/.test(t)) return "admin"; if(/xem (&|va|và) ghi nhan|xem\s*\+\s*ghi nhan|day du|editor/.test(t)) return "editor"; if(/chi xem|xem|viewer/.test(t)) return "viewer"; if(/ghi nhan|nhap|user|nhan vien|to truong|ky thuat/.test(t)) return "user"; return ""; }
 const bkYes = v => /^(x|✓|✔|1|co|có|yes|true|bat|bật|on)$/i.test(String(v).trim());
 const bkNo  = v => /^(0|khong|không|no|false|tat|tắt|off|-)$/i.test(String(v).trim());
 /* đọc bảng (Excel/CSV): tự nhận dòng tiêu đề và cột */
@@ -2734,7 +2754,7 @@ function bkFromText(text){
     const it={fullName:"",username:"",role:""};
     parts.forEach(p=>{
       const pn=vnNorm(p).trim();
-      const isRole=/^(quan tri( vien)?|admin|chi xem|xem|viewer|ghi nhan|nhap lieu|user|nhan vien)$/.test(pn);
+      const isRole=/^(quan tri( vien)?|admin|chi xem|xem|viewer|ghi nhan|nhap lieu|user|nhan vien|xem (& |va )?ghi nhan|day du|editor)$/.test(pn);
       const isUser=bkUsers.some(u=>u.username.toLowerCase()===p.toLowerCase());
       if(!it.username && isUser) it.username=p;
       else if(!it.role && isRole) it.role=bkRoleOf(p);
@@ -2766,7 +2786,7 @@ function bkRenderPreview(){
   if(!bkItems.length){ el.innerHTML=""; return; }
   const nNew=bkItems.filter(x=>x.on&&x.status==="Tạo mới").length, nUp=bkItems.filter(x=>x.on&&x.status==="Cập nhật").length;
   let t=`<div class="who" style="margin:8px 0">${bkItems.length} dòng · <b>${nNew}</b> tạo mới · <b>${nUp}</b> cập nhật. Kiểm tra, sửa trực tiếp rồi bấm nút bên dưới.</div><div class="ks-table-wrap"><table class="ks-table bk-t"><thead><tr><th></th><th>Họ tên</th><th>Tên đăng nhập</th><th>Quyền</th><th>Trạng thái</th></tr></thead><tbody>`;
-  bkItems.forEach((x,i)=>{ t+=`<tr class="${x.err?"bk-err":""}"><td><input type="checkbox" data-i="${i}" class="bk-on" ${x.on?"checked":""} ${x.err?"disabled":""}></td><td><input data-i="${i}" data-f="fullName" value="${escHtml(x.fullName)}"></td><td><input data-i="${i}" data-f="username" value="${escHtml(x.username)}"></td><td><select data-i="${i}" data-f="role"><option value="user" ${x.role==="user"?"selected":""}>Ghi nhận</option><option value="viewer" ${x.role==="viewer"?"selected":""}>Chỉ xem</option>${x.role==="admin"?'<option value="admin" selected>Quản trị</option>':""}</select></td><td>${x.err?`<span style="color:var(--high)">⚠ ${escHtml(x.err)}</span>`:escHtml(x.status)+(x.auto?" · tên tự tạo":"")+(x.perms?" · có phân quyền riêng":"")}</td></tr>`; });
+  bkItems.forEach((x,i)=>{ t+=`<tr class="${x.err?"bk-err":""}"><td><input type="checkbox" data-i="${i}" class="bk-on" ${x.on?"checked":""} ${x.err?"disabled":""}></td><td><input data-i="${i}" data-f="fullName" value="${escHtml(x.fullName)}"></td><td><input data-i="${i}" data-f="username" value="${escHtml(x.username)}"></td><td><select data-i="${i}" data-f="role"><option value="editor" ${x.role==="editor"?"selected":""}>Xem & Ghi nhận</option><option value="user" ${x.role==="user"?"selected":""}>Ghi nhận</option><option value="viewer" ${x.role==="viewer"?"selected":""}>Chỉ xem</option>${x.role==="admin"?'<option value="admin" selected>Quản trị</option>':""}</select></td><td>${x.err?`<span style="color:var(--high)">⚠ ${escHtml(x.err)}</span>`:escHtml(x.status)+(x.auto?" · tên tự tạo":"")+(x.perms?" · có phân quyền riêng":"")}</td></tr>`; });
   t+=`</tbody></table></div><button type="button" class="submit-btn" id="bkGo" style="margin-top:10px">✔ Tạo / cập nhật ${nNew+nUp} tài khoản</button>`;
   el.innerHTML=t;
   el.querySelectorAll(".bk-on").forEach(c=>c.onchange=()=>{ bkItems[c.dataset.i].on=c.checked; });
@@ -2793,7 +2813,7 @@ function bkShowResults(res, sel, fname){
   t+=`</tbody></table></div>${withPw.length?`<div class="who">Mật khẩu tạm chỉ hiện 1 lần – hãy tải file hoặc sao chép ngay. Người dùng sẽ phải đổi mật khẩu khi đăng nhập lần đầu.</div><div class="acts" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button type="button" class="gps-btn" id="bkXls">⬇ Tải Excel tài khoản + mật khẩu</button><button type="button" class="gps-btn" id="bkCopy">📋 Sao chép tin nhắn cho từng người</button></div>`:""}</div>`;
   const el=$(sel); el.innerHTML=t;
   const x=$("#bkXls"); if(x) x.onclick=()=>{ if(typeof XLSX==="undefined") return alert("Không tải được thư viện Excel");
-    const aoa=[["DANH SÁCH TÀI KHOẢN – "+new Date().toLocaleString("vi-VN")],["Link đăng nhập: "+link],["STT","Họ tên","Tên đăng nhập","Mật khẩu tạm","Quyền","Kết quả"],...withPw.map((r,i)=>[i+1,r.fullName,r.username,r.tempPassword,({user:"Ghi nhận",viewer:"Chỉ xem",admin:"Quản trị"})[r.role]||"",r.created?"Tạo mới":"Cấp lại"])];
+    const aoa=[["DANH SÁCH TÀI KHOẢN – "+new Date().toLocaleString("vi-VN")],["Link đăng nhập: "+link],["STT","Họ tên","Tên đăng nhập","Mật khẩu tạm","Quyền","Kết quả"],...withPw.map((r,i)=>[i+1,r.fullName,r.username,r.tempPassword,({editor:"Xem & Ghi nhận",user:"Ghi nhận",viewer:"Chỉ xem",admin:"Quản trị"})[r.role]||"",r.created?"Tạo mới":"Cấp lại"])];
     const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(aoa); ws["!cols"]=[{wch:5},{wch:24},{wch:16},{wch:14},{wch:10},{wch:10}]; XLSX.utils.book_append_sheet(wb,ws,"Tai khoan");
     const buf=XLSX.write(wb,{bookType:"xlsx",type:"array"}), url=URL.createObjectURL(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})); const a=document.createElement("a"); a.href=url; a.download=fname+"_"+todayISO()+".xlsx"; document.body.appendChild(a); a.click(); a.remove(); };
   const c=$("#bkCopy"); if(c) c.onclick=async()=>{ const msg=withPw.map(r=>`${r.fullName||r.username}\nLink: ${link}\nTên đăng nhập: ${r.username}\nMật khẩu tạm: ${r.tempPassword}`).join("\n\n----------\n\n"); try{ await navigator.clipboard.writeText(msg); c.textContent="✓ Đã sao chép"; }catch(e){ prompt("Sao chép:",msg); } };
@@ -2835,7 +2855,7 @@ $("#bkTpl").onclick=()=>{
   aoa[1].splice(1,0); const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet([head,[1,"Nguyễn Văn An","nv.an","","Ghi nhận","Hoạt động",...PERMS.map(p=>PERM_DEFAULT.user[p[0]]?"x":"")],[2,"Trần Thị Bình","","","Chỉ xem","Hoạt động",...PERMS.map(p=>PERM_DEFAULT.viewer[p[0]]?"x":"")]]);
   ws["!cols"]=head.map((h,i)=>({wch:i===0?5:i<6?18:14}));
   XLSX.utils.book_append_sheet(wb,ws,"Tai khoan");
-  const g=XLSX.utils.aoa_to_sheet([["HƯỚNG DẪN"],["- Bắt buộc: Họ tên. Tên đăng nhập để trống = app tự tạo (vd Nguyễn Văn An → nv.an)."],["- Mật khẩu để trống = app tự tạo mật khẩu tạm; người dùng phải đổi khi đăng nhập lần đầu."],["- Quyền: Ghi nhận / Chỉ xem. Trạng thái: Hoạt động / Khóa."],["- Các cột chức năng: đánh x = bật, để trống = theo mẫu quyền, ghi 'không' = tắt."],["- Tài khoản đã có (trùng tên đăng nhập) sẽ được CẬP NHẬT quyền, không đổi mật khẩu nếu để trống."]]); g["!cols"]=[{wch:100}];
+  const g=XLSX.utils.aoa_to_sheet([["HƯỚNG DẪN"],["- Bắt buộc: Họ tên. Tên đăng nhập để trống = app tự tạo (vd Nguyễn Văn An → nv.an)."],["- Mật khẩu để trống = app tự tạo mật khẩu tạm; người dùng phải đổi khi đăng nhập lần đầu."],["- Quyền: Xem & Ghi nhận / Ghi nhận / Chỉ xem. Trạng thái: Hoạt động / Khóa."],["- Các cột chức năng: đánh x = bật, để trống = theo mẫu quyền, ghi 'không' = tắt."],["- Tài khoản đã có (trùng tên đăng nhập) sẽ được CẬP NHẬT quyền, không đổi mật khẩu nếu để trống."]]); g["!cols"]=[{wch:100}];
   XLSX.utils.book_append_sheet(wb,g,"Huong dan");
   const buf=XLSX.write(wb,{bookType:"xlsx",type:"array"}), url=URL.createObjectURL(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})); const a=document.createElement("a"); a.href=url; a.download="Mau_tao_tai_khoan.xlsx"; document.body.appendChild(a); a.click(); a.remove();
 };
@@ -2852,6 +2872,7 @@ $("#bkApply").onclick=async ()=>{
   $("#bkRes").textContent="Đang áp dụng…";
   if(act==="resetpw"){ const r=await api("resetPasswordsBulk",{usernames:names}); if(!r.ok){ $("#bkRes").textContent=r.error||"Lỗi"; return; } bkShowResults(r.results,"#bkRes","Cap_lai_mat_khau"); loadUsers(); return; }
   const users=names.map(n=>{ const u=bkUsers.find(x=>x.username===n)||{}; const o={username:n, fullName:u.fullName, role:u.role};
+    if(act==="tpl_editor"){ o.role="editor"; o.perms=Object.assign({},PERM_DEFAULT.editor); }
     if(act==="tpl_user"){ o.role="user"; o.perms=Object.assign({},PERM_DEFAULT.user); }
     if(act==="tpl_viewer"){ o.role="viewer"; o.perms=Object.assign({},PERM_DEFAULT.viewer); }
     if(act==="on"||act==="off"){ o.perms=Object.assign({}, u.perms||{}, {[$("#bkPerm").value]: act==="on"}); }
@@ -3265,6 +3286,23 @@ function bioInfo(){ try{ const b=JSON.parse(localStorage.getItem("gnsc_bio")||"n
 async function bioVerify(){ const b=bioInfo(); if(!b||!window.PublicKeyCredential) return false;
   try{ await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)), allowCredentials:[{type:"public-key", id:b64uBytes(b.credId)}], userVerification:"required", timeout:60000}}); return true; }catch(e){ return false; } }
 function deviceLabel(){ const u=navigator.userAgent; return (/iPhone|iPad/.test(u)?"iPhone/iPad":/Android/.test(u)?"Android":/Mac/.test(u)?"Mac":/Windows/.test(u)?"Windows":"Thiết bị")+" · "+new Date().toLocaleDateString("vi-VN"); }
+/* quên mật khẩu hiện tại (trong mục Tài khoản) */
+$("#pwForgot").onclick=()=>{
+  const u=SESSION.user, box=$("#pfBox"); box.style.display = box.style.display==="none" ? "" : "none"; $("#pfMsg").textContent="";
+  if(u.role==="admin"){ $("#pfNote").innerHTML="Tài khoản <b>Quản trị</b>: nhận <b>mã OTP</b> qua Gmail khôi phục rồi tạo mật khẩu mới, không cần mật khẩu cũ."; $("#pfAdmin").style.display=""; $("#pfReq").style.display="none"; }
+  else { $("#pfNote").innerHTML="Gửi yêu cầu tới <b>Quản trị viên</b>. Quản trị viên sẽ tạo mật khẩu mới và gửi cho bạn qua Zalo/SMS; đăng nhập xong bạn tự đặt lại mật khẩu riêng."; $("#pfAdmin").style.display="none"; $("#pfReq").style.display=""; }
+};
+$("#pfSend").onclick=async()=>{ $("#pfSend").disabled=true; const r=await api("adminRecoverStart",{username:SESSION.user.username});
+  $("#pfMsg").textContent = r.ok ? "✅ Đã gửi mã OTP về "+(r.to||[]).join(", ")+" (hiệu lực 10 phút)." : (r.error||"Lỗi");
+  setTimeout(()=>{ $("#pfSend").disabled=false; },60000); };
+$("#pfDo").onclick=async()=>{ const otp=$("#pfOtp").value.trim(), p1=$("#pfP1").value, p2=$("#pfP2").value;
+  if(!/^\d{6}$/.test(otp)) return $("#pfMsg").textContent="Mã OTP gồm 6 chữ số.";
+  if(p1.length<8||!/[A-Za-z]/.test(p1)||!/\d/.test(p1)) return $("#pfMsg").textContent="Mật khẩu mới tối thiểu 8 ký tự, có cả chữ và số.";
+  if(p1!==p2) return $("#pfMsg").textContent="Hai lần nhập không khớp.";
+  const r=await api("adminRecoverFinish",{username:SESSION.user.username, otp, newPassword:p1});
+  if(r.ok){ alert("✅ Đã tạo mật khẩu mới. Vui lòng đăng nhập lại."); goLogin(); } else $("#pfMsg").textContent=r.error||"Lỗi"; };
+$("#pfReq").onclick=async()=>{ const u=SESSION.user; const r=await api("forgotPassword",{username:u.username, fullName:u.fullName||u.username, contact:""});
+  $("#pfMsg").textContent = r.ok ? "✅ "+(r.message||"Đã gửi yêu cầu tới Quản trị viên.") : (r.error||"Lỗi"); };
 async function rcLoad(){ const r=await api("getRecovery"); if(r.ok){ $("#rcOwner").textContent="("+r.owner+")"; $("#rcEmail").value=r.email||""; } }
 $("#rcSave").onclick=async()=>{ const r=await api("setRecovery",{email:$("#rcEmail").value.trim()}); $("#rcMsg").textContent = r.ok ? "✅ Mã OTP khôi phục sẽ gửi về: "+r.emails.join(", ") : (r.error||"Lỗi"); };
 async function gdLoad(){ rcLoad();
@@ -3528,7 +3566,7 @@ async function loadIncidents(){
 }
 
 let viewerName="", canWrite=true;
-const ROLE_LABEL = {admin:"Quản trị", user:"Được ghi nhận", viewer:"Chỉ xem"};
+const ROLE_LABEL = {admin:"Quản trị", editor:"Xem & Ghi nhận", user:"Được ghi nhận", viewer:"Chỉ xem"};
 const PERMS = [
   ["ghiNhan","Ghi nhận sự cố mới","Nhập sự cố, chụp ảnh hiện trường"],
   ["capNhatGPS","Cập nhật tọa độ GPS","Bổ sung GPS cho sự cố do mình ghi nhận"],
@@ -3552,6 +3590,8 @@ const PERMS = [
 const PERM_DEFAULT = {
   user:   {ghiNhan:true, capNhatGPS:true, doiTrangThai:false, xemTatCa:true, xemSCP:true, dongBoSCP:false, xuatExcel:true, xemBanDo:true, doKhoangCach:true, xemFile:true, taiLenFile:true, khaoSat:true, nhapKhaoSat:true, thongKe:true, banVe:true, nhapBanVe:true, theoDoiLed:true, nhapLed:false},
   viewer: {ghiNhan:false,capNhatGPS:false,doiTrangThai:false, xemTatCa:true, xemSCP:true, dongBoSCP:false, xuatExcel:true, xemBanDo:true, doKhoangCach:true, xemFile:true, taiLenFile:false, khaoSat:true, nhapKhaoSat:false, thongKe:true, banVe:true, nhapBanVe:false, theoDoiLed:true, nhapLed:false}
+,
+  editor: {ghiNhan:true, capNhatGPS:true, doiTrangThai:true, xemTatCa:true, xemSCP:true, dongBoSCP:false, xuatExcel:true, xemBanDo:true, doKhoangCach:true, xemFile:true, taiLenFile:true, khaoSat:true, nhapKhaoSat:true, thongKe:true, banVe:true, nhapBanVe:true, theoDoiLed:true, nhapLed:true}
 };
 function can(k){
   const u = SESSION && SESSION.user; if(!u) return false;
@@ -3649,18 +3689,19 @@ function setAuEdit(u){
   $("#auUser").readOnly = !!u;
   $("#auMode").textContent = u ? ("✏️ Đang sửa tài khoản: "+u.username) : "➕ Đang tạo tài khoản mới";
   $("#auResetPw").style.display = u ? "" : "none";
+  $("#auPwBox").style.display="none";
   $("#auResetAcc").style.display = (u && u.role!=="admin") ? "" : "none";
   $("#auCred").style.display="none";
 }
 $("#auNew").onclick=()=>{ $("#auUser").value=""; $("#auName").value=""; $("#auPass").value=""; $("#auActive").checked=true; setAuRole("user"); setAuEdit(null); $("#auMsg").textContent=""; $("#auUser").focus(); };
-function showCred(r, title){
+function showCred(r, title, must){ if(must===undefined) must=true;
   const link="https://phucle-gps.github.io/Ghinhansuco/login.html";
-  const msg=`Tài khoản app CSKVTT\nLink: ${link}\nTên đăng nhập: ${r.username}\nMật khẩu tạm: ${r.tempPassword}\n(Đăng nhập xong app sẽ yêu cầu đổi mật khẩu mới)`;
+  const msg=`Tài khoản app CSKVTT\nLink: ${link}\nTên đăng nhập: ${r.username}\n${must?"Mật khẩu tạm":"Mật khẩu"}: ${r.tempPassword}${must?"\n(Đăng nhập xong app sẽ yêu cầu đổi mật khẩu mới)":""}`;
   const c=$("#auCred"); c.innerHTML="";
   const t=document.createElement("div"); t.innerHTML=`<b>${title}</b>`; c.appendChild(t);
   const a=document.createElement("div"); a.textContent="Tên đăng nhập: "+r.username+(r.fullName?" ("+r.fullName+")":""); c.appendChild(a);
-  const b=document.createElement("div"); b.innerHTML='Mật khẩu tạm: <span class="pw"></span>'; b.querySelector(".pw").textContent=r.tempPassword; c.appendChild(b);
-  const note=document.createElement("div"); note.className="who"; note.textContent="Chỉ hiện 1 lần – hãy gửi ngay cho người dùng. Họ sẽ phải đổi mật khẩu ở lần đăng nhập đầu."+(r.loggedOut?` Đã đăng xuất ${r.loggedOut} thiết bị đang dùng tài khoản này.`:""); c.appendChild(note);
+  const b=document.createElement("div"); b.innerHTML=(must?'Mật khẩu tạm':'Mật khẩu')+': <span class="pw"></span>'; b.querySelector(".pw").textContent=r.tempPassword; c.appendChild(b);
+  const note=document.createElement("div"); note.className="who"; note.textContent="Chỉ hiện 1 lần – hãy gửi ngay cho người dùng."+(must?" Họ sẽ phải đổi mật khẩu ở lần đăng nhập đầu.":"")+(r.loggedOut?` Đã đăng xuất ${r.loggedOut} thiết bị đang dùng tài khoản này.`:""); c.appendChild(note);
   const acts=document.createElement("div"); acts.className="acts";
   const cp=document.createElement("button"); cp.className="gps-btn"; cp.textContent="📋 Sao chép tin nhắn";
   cp.onclick=async()=>{ try{ await navigator.clipboard.writeText(msg); cp.textContent="✓ Đã sao chép"; }catch(e){ prompt("Sao chép nội dung:", msg); } };
@@ -3675,13 +3716,17 @@ $("#auSave").onclick=async ()=>{
   $("#auMsg").textContent = r.ok ? (r.created?"Đã cấp tài khoản mới.":"Đã cập nhật tài khoản.") : (r.error||"Lỗi");
   if(r.ok){ $("#auPass").value=""; loadUsers(); if(r.created){ showCred(r, "✅ Đã cấp tài khoản mới"); setAuEdit({username:r.username, role:auRole}); $("#auCred").style.display="block"; } }
 };
-$("#auResetPw").onclick=async ()=>{
+$("#auResetPw").onclick=()=>{ if(!auEditing) return; $("#auPwFor").textContent="Tài khoản "+auEditing; $("#auPwNew").value=""; $("#auPwMust").checked=true; $("#auPwBox").style.display=""; $("#auCred").style.display="none"; $("#auPwNew").focus(); };
+$("#auPwCancel").onclick=()=>{ $("#auPwBox").style.display="none"; };
+$("#auPwOk").onclick=async ()=>{
   if(!auEditing) return;
-  if(!confirm("Cấp mật khẩu tạm mới cho tài khoản "+auEditing+"?\nMật khẩu cũ sẽ hết hiệu lực và người dùng bị đăng xuất khỏi mọi thiết bị.")) return;
-  $("#auMsg").textContent="Đang cấp lại…";
-  const r=await api("resetPassword",{username:auEditing});
+  const pw=$("#auPwNew").value.trim(), must=$("#auPwMust").checked;
+  if(pw && pw.length<6){ $("#auMsg").textContent="Mật khẩu mới tối thiểu 6 ký tự."; return; }
+  if(!confirm("Tạo mật khẩu mới cho "+auEditing+"?\nMật khẩu cũ hết hiệu lực, người dùng bị đăng xuất khỏi mọi thiết bị.")) return;
+  $("#auMsg").textContent="Đang tạo mật khẩu mới…"; $("#auPwBox").style.display="none";
+  const r=await api("resetPassword",{username:auEditing, password:pw||undefined, mustChange:must});
   if(!r.ok){ $("#auMsg").textContent=r.error||"Lỗi"; return; }
-  $("#auMsg").textContent=""; showCred(r,"🔑 Đã cấp lại mật khẩu"); loadUsers();
+  $("#auMsg").textContent=""; showCred(r, must?"🔑 Đã tạo mật khẩu mới (người dùng sẽ phải đổi khi đăng nhập)":"🔑 Đã tạo mật khẩu mới", must); loadUsers();
 };
 $("#auResetAcc").onclick=async ()=>{
   if(!auEditing) return;
