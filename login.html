@@ -43,6 +43,9 @@ button.primary:disabled{opacity:.5}
 .sheet .h{font-weight:700;margin:14px 0 6px;font-size:14px}
 .sheet .note{background:var(--surface-2);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--text-2)}
 .sheet button{margin-top:16px}
+.fp-tabs{display:flex;gap:6px;margin:4px 0 10px;}
+.fp-tabs button{flex:1;padding:9px 6px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text-2);font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;}
+.fp-tabs button.on{background:var(--accent);border-color:var(--accent);color:#1b1b1b;}
 </style>
 </head>
 <body>
@@ -83,6 +86,8 @@ button.primary:disabled{opacity:.5}
 
 <div class="scrim" id="forgotScrim"><div class="sheet">
   <h3>Quên mật khẩu</h3>
+  <div class="fp-tabs"><button type="button" id="fpTabU" class="on">👤 Nhân viên</button><button type="button" id="fpTabA">🛡️ Quản trị (OTP qua Gmail)</button></div>
+  <div id="fpUser">
   <div class="note">Nhập đúng <b>tên đăng nhập</b> và <b>họ tên đầy đủ</b> như đã đăng ký. Yêu cầu sẽ được gửi ngay tới quản trị viên; quản trị viên cấp <b>mật khẩu tạm</b> cho bạn, đăng nhập xong bạn tự đặt mật khẩu mới.</div>
   <label for="fpU" style="margin-top:14px">Tên đăng nhập</label>
   <input type="text" id="fpU" autocapitalize="off">
@@ -92,6 +97,23 @@ button.primary:disabled{opacity:.5}
   <input type="text" id="fpC" inputmode="tel">
   <button class="primary" id="fpSend">Gửi yêu cầu cấp lại mật khẩu</button>
   <div class="err" id="fpMsg" style="color:var(--text-2)"></div>
+  </div>
+  <div id="fpAdmin" style="display:none">
+    <div class="note">Mã OTP 6 số sẽ được gửi về <b>Gmail khôi phục của Quản trị</b> (Gmail chủ app và Gmail dự phòng nếu có). Mã có hiệu lực 10 phút, nhập sai quá 5 lần sẽ bị hủy.</div>
+    <label for="raU" style="margin-top:14px">Tên đăng nhập Quản trị</label>
+    <input type="text" id="raU" autocapitalize="off" autocomplete="username">
+    <button class="primary" id="raSend">📧 Gửi mã OTP về Gmail</button>
+    <div id="raStep2" style="display:none">
+      <label for="raOtp">Mã OTP 6 số</label>
+      <input type="text" id="raOtp" inputmode="numeric" maxlength="6" autocomplete="one-time-code">
+      <label for="raP1">Mật khẩu mới (≥ 8 ký tự, có chữ và số)</label>
+      <input type="password" id="raP1" autocomplete="new-password">
+      <label for="raP2">Nhập lại mật khẩu mới</label>
+      <input type="password" id="raP2" autocomplete="new-password">
+      <button class="primary" id="raDo">✔ Đặt lại mật khẩu</button>
+    </div>
+    <div class="err" id="raMsg" style="color:var(--text-2)"></div>
+  </div>
   <button class="primary" style="background:transparent;color:var(--text-2);border:1px solid var(--border);margin-top:8px" onclick="document.getElementById('forgotScrim').classList.remove('show')">Đóng</button>
 </div></div>
 
@@ -107,6 +129,32 @@ try{
 }catch(e){}
 $("install").onclick=()=>$("installScrim").classList.add("show");
 $("forgot").onclick=()=>{ $("fpU").value=$("u").value.trim(); $("fpMsg").textContent=""; $("forgotScrim").classList.add("show"); };
+$("fpTabU").onclick=()=>{ $("fpTabU").classList.add("on"); $("fpTabA").classList.remove("on"); $("fpUser").style.display=""; $("fpAdmin").style.display="none"; };
+$("fpTabA").onclick=()=>{ $("fpTabA").classList.add("on"); $("fpTabU").classList.remove("on"); $("fpUser").style.display="none"; $("fpAdmin").style.display=""; if(!$("raU").value) $("raU").value=$("u").value.trim(); };
+async function raPost(body){ const res=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body)}); return res.json(); }
+let raTimer=null;
+$("raSend").onclick=async ()=>{
+  const u=$("raU").value.trim(); if(!u){ $("raMsg").textContent="Nhập tên đăng nhập Quản trị."; return; }
+  $("raSend").disabled=true; $("raMsg").textContent="Đang gửi mã…";
+  try{ const d=await raPost({action:"adminRecoverStart",username:u});
+    if(!d.ok){ $("raMsg").textContent=d.error||"Lỗi"; $("raSend").disabled=false; return; }
+    $("raMsg").textContent="✅ "+d.message+(d.to&&d.to.length?" ("+d.to.join(", ")+")":"");
+    $("raStep2").style.display=""; $("raOtp").focus();
+    let s=60; clearInterval(raTimer); raTimer=setInterval(()=>{ s--; $("raSend").textContent= s>0 ? "Gửi lại mã sau "+s+" giây" : "📧 Gửi lại mã OTP"; if(s<=0){ clearInterval(raTimer); $("raSend").disabled=false; } },1000);
+  }catch(e){ $("raMsg").textContent="Không kết nối được máy chủ"; $("raSend").disabled=false; }
+};
+$("raDo").onclick=async ()=>{
+  const u=$("raU").value.trim(), otp=$("raOtp").value.trim(), p1=$("raP1").value, p2=$("raP2").value;
+  if(!/^\d{6}$/.test(otp)){ $("raMsg").textContent="Mã OTP gồm 6 chữ số."; return; }
+  if(p1.length<8 || !/[A-Za-z]/.test(p1) || !/\d/.test(p1)){ $("raMsg").textContent="Mật khẩu mới tối thiểu 8 ký tự, có cả chữ và số."; return; }
+  if(p1!==p2){ $("raMsg").textContent="Hai lần nhập mật khẩu không khớp."; return; }
+  $("raDo").disabled=true; $("raMsg").textContent="Đang đặt lại…";
+  try{ const d=await raPost({action:"adminRecoverFinish",username:u,otp,newPassword:p1});
+    if(d.ok){ $("raMsg").textContent="✅ "+d.message; $("u").value=u; $("p").value=""; setTimeout(()=>{ $("forgotScrim").classList.remove("show"); $("p").focus(); },1500); }
+    else $("raMsg").textContent=d.error||"Lỗi";
+  }catch(e){ $("raMsg").textContent="Không kết nối được máy chủ"; }
+  $("raDo").disabled=false;
+};
 $("fpSend").onclick=async ()=>{
   const u=$("fpU").value.trim(), n=$("fpN").value.trim();
   if(!u||!n){ $("fpMsg").textContent="Vui lòng nhập tên đăng nhập và họ tên."; return; }

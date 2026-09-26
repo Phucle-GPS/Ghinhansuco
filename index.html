@@ -1127,6 +1127,10 @@ nav svg{width:21px;height:21px;}
           <div class="who">Khi bật: đăng nhập Quản trị trên thiết bị đã đăng ký phải qua <b>Face ID / vân tay</b>; thiết bị lạ phải nhập <b>mã 6 số gửi về Gmail</b> chủ app. App cũng tự khóa sau 5 phút không dùng.</div>
           <div class="bk-row"><b id="gdState">…</b><button type="button" class="gps-btn" id="gdToggle">Bật bảo vệ</button><button type="button" class="submit-btn" id="gdReg" style="width:auto;padding:9px 14px">👆 Đăng ký Face ID / vân tay trên thiết bị này</button></div>
           <div id="gdDevs" class="gps-result"></div>
+          <div class="ks-g" style="margin-top:12px">📧 Khôi phục mật khẩu Quản trị bằng OTP</div>
+          <div class="who">Khi quên mật khẩu: trang đăng nhập → <b>Quên mật khẩu?</b> → <b>Quản trị</b> → mã OTP gửi về Gmail chủ app <span id="rcOwner"></span> và Gmail dự phòng bên dưới (nếu có).</div>
+          <div class="bk-row"><input type="email" id="rcEmail" class="bk-inp" placeholder="Gmail dự phòng nhận OTP (không bắt buộc)"><button type="button" class="gps-btn" id="rcSave">💾 Lưu Gmail dự phòng</button></div>
+          <div class="gps-result" id="rcMsg"></div>
         </div>
         <div class="bk-box">
           <div class="guide-h">🛟 Sao lưu tự động & tài khoản phụ (Gmail giám sát)</div>
@@ -3261,7 +3265,9 @@ function bioInfo(){ try{ const b=JSON.parse(localStorage.getItem("gnsc_bio")||"n
 async function bioVerify(){ const b=bioInfo(); if(!b||!window.PublicKeyCredential) return false;
   try{ await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)), allowCredentials:[{type:"public-key", id:b64uBytes(b.credId)}], userVerification:"required", timeout:60000}}); return true; }catch(e){ return false; } }
 function deviceLabel(){ const u=navigator.userAgent; return (/iPhone|iPad/.test(u)?"iPhone/iPad":/Android/.test(u)?"Android":/Mac/.test(u)?"Mac":/Windows/.test(u)?"Windows":"Thiết bị")+" · "+new Date().toLocaleDateString("vi-VN"); }
-async function gdLoad(){
+async function rcLoad(){ const r=await api("getRecovery"); if(r.ok){ $("#rcOwner").textContent="("+r.owner+")"; $("#rcEmail").value=r.email||""; } }
+$("#rcSave").onclick=async()=>{ const r=await api("setRecovery",{email:$("#rcEmail").value.trim()}); $("#rcMsg").textContent = r.ok ? "✅ Mã OTP khôi phục sẽ gửi về: "+r.emails.join(", ") : (r.error||"Lỗi"); };
+async function gdLoad(){ rcLoad();
   const r=await api("guardStatus"); if(!r.ok){ $("#gdState").textContent=r.error||"Lỗi"; return; }
   $("#gdState").textContent = r.on ? "🟢 Đang BẬT" : "⚪ Đang tắt"; $("#gdToggle").textContent = r.on ? "Tắt bảo vệ" : "Bật bảo vệ"; $("#gdToggle").dataset.on = r.on?"1":"";
   const mine=bioInfo();
