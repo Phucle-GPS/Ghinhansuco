@@ -97,6 +97,9 @@ button.primary:disabled{opacity:.5}
 
 <script src="config.js"></script>
 <script>
+if(typeof API_URL==="undefined"){ document.write('<script src="https://phucle-gps.github.io/Ghinhansuco/config.js?v='+Date.now()+'"><\/script>'); }
+</script>
+<script>
 const $=id=>document.getElementById(id);
 try{
   const s=JSON.parse(localStorage.getItem("gnsc_session")||sessionStorage.getItem("gnsc_session")||"null");

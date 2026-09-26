@@ -1147,22 +1147,42 @@ nav svg{width:21px;height:21px;}
 
 </div>
 
-<script src="config.js"></script>
-<script src="cabinets.js"></script>
+<!-- Nạp dữ liệu an toàn: thử file cùng thư mục, nếu lỗi thì tự lấy bản gốc trên GitHub Pages; chỉ chạy app khi đủ dữ liệu -->
 <script>
-if(typeof CABINETS==="undefined" || typeof QUANS==="undefined"){
-  document.addEventListener("DOMContentLoaded",function(){
-    var local = location.protocol==="file:";
-    document.body.innerHTML='<div style="max-width:560px;margin:40px auto;padding:22px;font-family:Arial,sans-serif;line-height:1.6;background:#fff3e0;border:2px solid #e8710a;border-radius:14px;color:#222">'+
-      '<h2 style="margin-top:0">⚠️ Không tải được dữ liệu tủ (cabinets.js)</h2>'+
-      (local ? '<p>Bạn đang mở file <b>trên máy tính</b> ('+location.href.slice(0,60)+'…). App phải mở bằng link:</p><p><a href="https://phucle-gps.github.io/Ghinhansuco/login.html">https://phucle-gps.github.io/Ghinhansuco/login.html</a></p>'
-             : '<p>Kiểm tra trên GitHub repo <b>Ghinhansuco</b> có đúng file tên <b>cabinets.js</b> (không phải "cabinets (1).js"), rồi bấm <b>Ctrl+Shift+R</b>.</p><p><a href="cabinets.js" target="_blank">Mở thử cabinets.js</a> – phải thấy dòng bắt đầu bằng <code>const CABINETS = [</code></p>')+
-      '</div>';
-  });
-  throw new Error("cabinets.js chưa tải được");
-}
+(function(){
+  var BASE="https://phucle-gps.github.io/Ghinhansuco/";
+  var APP_URL=BASE+"login.html";
+  function load(src){ return new Promise(function(res,rej){ var s=document.createElement("script"); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
+  function has(n){ try{ return eval("typeof "+n)!=="undefined"; }catch(e){ return false; } }
+  async function need(file, names){
+    var ok=function(){ return names.every(has); };
+    if(ok()) return true;
+    try{ await load(file); }catch(e){}
+    if(ok()) return true;
+    try{ await load(BASE+file+"?v="+Date.now()); }catch(e){}
+    return ok();
+  }
+  function notice(){
+    var preview = location.protocol==="file:" || !/github\.io$/.test(location.hostname);
+    document.body.innerHTML='<div style="max-width:560px;margin:40px auto;padding:24px;font-family:Arial,sans-serif;line-height:1.6;background:#fff;border-radius:16px;box-shadow:0 6px 24px rgba(0,0,0,.15);color:#1f2d3a">'+
+      '<div style="font-size:40px">💡</div><h2 style="margin:6px 0 10px">'+(preview?"Đây là bản xem trước, không phải app":"Chưa tải được dữ liệu app")+'</h2>'+
+      (preview
+        ? '<p>File <b>index.html</b> đang được mở riêng lẻ (trong khung xem trước hoặc trên máy tính), nên không có dữ liệu tủ và máy chủ đi kèm.</p><p>App chỉ chạy đầy đủ khi mở bằng đường link chính thức:</p>'
+        : '<p>Không tải được <b>cabinets.js</b> / <b>config.js</b>. Kiểm tra mạng, hoặc kiểm tra trên GitHub repo <b>Ghinhansuco</b> có đúng tên 2 file này, rồi tải lại trang.</p>')+
+      '<p><a href="'+APP_URL+'" style="display:inline-block;padding:12px 18px;background:#E8A20A;color:#1b1b1b;border-radius:10px;font-weight:700;text-decoration:none">Mở app CSKVTT</a></p>'+
+      '<p style="font-size:12px;color:#666">'+APP_URL+'</p></div>';
+    document.body.style.background="#0b1220";
+  }
+  (async function(){
+    var okCfg=await need("config.js",["API_URL"]);
+    var okCab=await need("cabinets.js",["CABINETS","QUANS","MANAGERS"]);
+    if(!(okCfg&&okCab)){ notice(); return; }
+    var m=document.getElementById("appMain"), s=document.createElement("script");
+    s.textContent=m.textContent; document.body.appendChild(s);
+  })();
+})();
 </script>
-<script>
+<script type="text/plain" id="appMain">
 const STATUS = ["Mới ghi nhận","Đang xử lý","Đã xử lý"];
 
 let SESSION=null;
@@ -3481,7 +3501,7 @@ function getSession(){
   try{ return JSON.parse(localStorage.getItem("gnsc_session")||sessionStorage.getItem("gnsc_session")||"null"); }catch(e){ return null; }
 }
 function clearSession(){ localStorage.removeItem("gnsc_session"); sessionStorage.removeItem("gnsc_session"); }
-function goLogin(){ clearSession(); location.replace("login.html"); }
+function goLogin(){ clearSession(); location.replace(/github\.io$/.test(location.hostname)||location.hostname==="localhost" ? "login.html" : "https://phucle-gps.github.io/Ghinhansuco/login.html"); }
 
 async function api(action, payload){
   try{
