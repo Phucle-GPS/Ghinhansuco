@@ -1,0 +1,40 @@
+{
+  "id": "quytrinh.html",
+  "name": "CSKVTT – Quy trình sửa chữa chiếu sáng",
+  "short_name": "CSKVTT QT",
+  "description": "Ghi nhận sự cố, 1022, kho vật tư, kế hoạch duy tu – dùng trên điện thoại và máy tính",
+  "lang": "vi",
+  "start_url": "quytrinh.html?nguon=app",
+  "scope": "quytrinh",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "orientation": "any",
+  "background_color": "#14222E",
+  "theme_color": "#14222E",
+  "icons": [
+    { "src": "qt-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "qt-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "qt-icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Ghi sự cố mới", "url": "quytrinh.html?lam=suco", "icons": [{ "src": "qt-icon-192.png", "sizes": "192x192" }] },
+    { "name": "Chụp phiếu xuất, phiếu lãnh", "url": "quytrinh.html?lam=px", "icons": [{ "src": "qt-icon-192.png", "sizes": "192x192" }] },
+    { "name": "Ghi khối lượng ngày", "url": "quytrinh.html?lam=kln", "icons": [{ "src": "qt-icon-192.png", "sizes": "192x192" }] },
+    { "name": "Sự cố 1022", "url": "quytrinh.html?v=s1022", "icons": [{ "src": "qt-icon-192.png", "sizes": "192x192" }] }
+  ],
+  "share_target": {
+    "action": "quytrinh.html?share=1",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "files": [{
+        "name": "files",
+        "accept": ["image/*", "application/pdf", ".pdf", ".xlsx", ".xls", ".csv", ".docx",
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel", "text/csv",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]
+      }]
+    }
+  }
+}
