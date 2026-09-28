@@ -410,6 +410,11 @@ button.dl{border:none;}
 .led-alert{padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--high) 10%,var(--surface));border-left:4px solid var(--high);font-size:13px;line-height:1.55;margin-bottom:10px;}
 .led-t tbody tr{cursor:pointer;} .led-done{opacity:.6;}
 .bk-inp{flex:1;min-width:200px;padding:9px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:inherit;font-size:14px;}
+.drv-card{border:1px solid var(--border);border-radius:12px;padding:12px;margin-top:10px;background:var(--surface);}
+.drv-checks{margin-top:8px;display:flex;flex-direction:column;gap:4px;font-size:13px;} .drv-warn{color:var(--high);font-weight:600;} .drv-ok{color:var(--done);}
+.drv-links{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0;} .drv-links .gps-btn{text-decoration:none;padding:6px 10px;font-size:12.5px;}
+.drv-how{margin:10px 0;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface);font-size:13px;line-height:1.55;} .drv-how summary{cursor:pointer;font-weight:700;}
+.drv-t td{font-size:12px;}
 .src-tabs{display:flex;gap:8px;margin-bottom:12px;}
 .src-tabs button{flex:1;padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 .src-tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
@@ -721,7 +726,7 @@ nav svg{width:21px;height:21px;}
     <section class="view" id="view-led">
       <div class="fl-head"><h2>💡 Theo dõi LED & bảo hành</h2></div>
       <div class="sc-tabs" id="ledTabs" style="display:flex;flex-wrap:wrap">
-        <button data-v="tong" class="on">📊 Tổng quan</button><button data-v="tuyen">💡 Tuyến LED</button><button data-v="vb">📄 Văn bản</button><button data-v="viec">⚠️ Cần xử lý</button><button data-v="luat">⚖️ Căn cứ pháp lý</button>
+        <button data-v="tong" class="on">📊 Tổng quan</button><button data-v="tuyen">💡 Tuyến LED</button><button data-v="vb">📄 Văn bản</button><button data-v="viec">⚠️ Cần xử lý</button><button data-v="driver">🔧 Driver</button><button data-v="luat">⚖️ Căn cứ pháp lý</button>
       </div>
       <div id="ledBody"></div>
     </section>
@@ -3081,6 +3086,155 @@ $("#bvXls").onclick=()=>{ if(!bvRecs||typeof XLSX==="undefined") return;
   XLSX.utils.book_append_sheet(wb,ws,"Kho ban ve"); saveBlob(new Blob([XLSX.write(wb,{bookType:"xlsx",type:"array"})]),"Kho_ban_ve_"+todayISO()+".xlsx"); };
 $("#tabBv").onclick=()=>{ showView("bv"); bvRender(); };
 
+/* ---------- ĐỀ XUẤT LED (công văn) → gộp vào dữ liệu tuyến ---------- */
+function ledDxRoutes(existing){
+  if(typeof LED_DEXUAT==="undefined") return [];
+  const kyToNam=k=>{ const m=String(k).match(/Quý\s*(I{1,3}V?|IV)\/(\d{4})/); const R={I:1,II:2,III:3,IV:4}; return m?"Quý "+R[m[1]]+"/"+m[2]:""; };
+  const grp={}; LED_DEXUAT.forEach(x=>{ const k=ledKey(x.tuyen)+"|"+x.quan+"|"+x.doc; (grp[k]=grp[k]||[]).push(x); });
+  const out=[];
+  Object.values(grp).forEach(a=>{ const x=a[0], so=a.reduce((s,y)=>s+(y.so||0),0);
+    const ex=existing.find(r=>ledKey(r.tuyen)===ledKey(x.tuyen) && r.quan===x.quan);
+    const dx=a.map(y=>({doc:y.doc,ky:y.ky,so:y.so,w:y.w,loai:y.loaiDX,tdk:y.tdk,ghiChu:y.ghiChu}));
+    if(ex){ ex._dx=(ex._dx||[]).concat(dx); return; }
+    out.push({id:"DX-"+x.doc+"-"+ledKey(x.tuyen).replace(/\s+/g,"").slice(0,24)+"-"+x.quan.replace(/\D/g,"").slice(0,2),nguon:"Đề xuất LED "+x.ky+" ("+x.doc.replace("CV","CV ")+")",tuyen:x.tuyen,quan:x.quan,tu:x.tdk,soTu:null,soDen:so,wLed:x.w,wHps:null,
+      nam:kyToNam(x.ky),nguonVon:"Bảo dưỡng thường xuyên HTCSĐT – HĐ 124–127/HĐ-TTHT (31/3/2020)",chuDauTu:"TT Quản lý Hạ tầng kỹ thuật TP.HCM",hang:x.ncc,loai:(x.model?x.model+" ":"")+x.w+"W",ketNoi:"",bhNcc:"",danhGia:"",huHong:"",donVi:"Công ty CP Chiếu sáng công cộng TP.HCM",
+      ghiChu:[x.phuong?"Phường: "+x.phuong:"", x.dai?"Dài "+x.dai+" m":"", x.rong?"rộng "+x.rong+" m":"", x.kc?"khoảng cách trụ "+x.kc+" m":"", x.dau?"từ "+x.dau+" đến "+x.cuoi:"", x.ghiChu].filter(Boolean).join(" · "),
+      tyLeHH:null,bhDat:"",vb:[x.doc],_dx:dx,_planned:true});
+  });
+  return out;
+}
+/* ---------- DRIVER: Hướng dẫn 680/HD-CTCSCC ---------- */
+const DRV_METHODS=["Đo thực tế bằng đồng hồ Fluke 17B (dòng Iout)","Thiết bị đọc Philips LCN9620 + phần mềm MultiOne (driver Philips, Nikkon có NFC)","Bộ PRG-MUL2 + phần mềm Inventronics Multi Programmer","Khác"];
+const rng=s=>{ const m=String(s||"").replace(/,/g,".").match(/([\d.]+)\s*[-–~]\s*([\d.]+)/); if(m) return [parseFloat(m[1]),parseFloat(m[2])]; const v=parseFloat(String(s||"").replace(",",".")); return isNaN(v)?null:[v,v]; };
+function drvPick(wDen, dauNoi){
+  if(typeof DRIVER_TABLE==="undefined" || !wDen) return null;
+  const row=DRIVER_TABLE.find(r=>r.den>=wDen) || null; if(!row) return null;
+  const opts=[]; if(dauNoi!=="Song song") opts.push(Object.assign({kieu:"Nối tiếp"},row.noiTiep)); if(dauNoi!=="Nối tiếp") opts.push(Object.assign({kieu:"Song song"},row.songSong));
+  return {row, opts};
+}
+function drvCheck(d, rec){
+  const out=[]; const ir=rng(d.iout), set=parseFloat(String(rec.dongCaiDat||"").replace(",","."));
+  if(!isNaN(set)){ const a=set/1000; out.push(ir && a>=ir[0] && a<=ir[1] ? ["ok",`Dòng cài đặt ${set} mA nằm trong dải Iout ${d.iout} A`] : ["warn",`Dòng cài đặt ${set} mA NGOÀI dải Iout ${d.iout} A – không dùng được mã này`]); }
+  else out.push(["info","Chưa nhập dòng cài đặt thực tế (mục 9) – cần đo/đọc để cài cho driver mới"]);
+  const pw=parseFloat(rec.congSuatDen); if(pw) out.push(d.p>=pw ? ["ok",`Công suất driver ${d.p}W ≥ công suất bộ đèn ${pw}W`] : ["warn",`Công suất driver ${d.p}W < bộ đèn ${pw}W`]);
+  const uo=rng(rec.uout), ur=rng(d.uout); if(uo&&ur) out.push(uo[0]>=ur[0]&&uo[1]<=ur[1] ? ["ok",`Điện áp ra hiện hữu ${rec.uout} V nằm trong dải ${d.uout} Vdc`] : ["warn",`Điện áp ra hiện hữu ${rec.uout} V không nằm trọn trong dải ${d.uout} Vdc – kiểm tra số module/cách đấu`]);
+  if(rec.dauNoi && rec.dauNoi!==d.kieu) out.push(["warn",`Bộ đèn đấu ${rec.dauNoi} nhưng mã này dành cho đấu ${d.kieu}`]);
+  return out;
+}
+/* tìm nguồn driver trên các nền tảng mạng */
+function drvLinks(d){
+  const ma=encodeURIComponent(d.ma), spec=encodeURIComponent(`LED driver ${d.p}W ${d.iout}A ${d.uout}Vdc 1-10V dimming`);
+  const brand = /philips/i.test(d.nsx)?"signify.com":/osram/i.test(d.nsx)?"osram.com":/inventronics/i.test(d.nsx)?"inventronics-co.com":"";
+  return [
+    ["🔎 Google",`https://www.google.com/search?q=${ma}`],
+    ["📄 Datasheet",`https://www.google.com/search?q=${ma}+datasheet+pdf`],
+    brand?["🏭 Trang hãng "+d.nsx,`https://www.google.com/search?q=site%3A${brand}+${ma}`]:null,
+    ["🛒 Google Shopping",`https://www.google.com/search?tbm=shop&q=${ma}`],
+    ["🟠 Shopee",`https://shopee.vn/search?keyword=${ma}`],
+    ["🔵 Lazada",`https://www.lazada.vn/catalog/?q=${ma}`],
+    ["🟦 Tiki",`https://tiki.vn/search?q=${ma}`],
+    ["🌏 Alibaba",`https://www.alibaba.com/trade/search?SearchText=${ma}`],
+    ["⚙️ Mouser",`https://www.mouser.vn/c/?q=${ma}`],
+    ["⚙️ DigiKey",`https://www.digikey.com/en/products/result?keywords=${ma}`],
+    ["🔧 Octopart",`https://octopart.com/search?q=${ma}`],
+    ["♻️ Tìm loại tương đương (theo thông số)",`https://www.google.com/search?q=${spec}`]
+  ].filter(Boolean);
+}
+function drvLinksHtml(d){ return `<div class="drv-links">${drvLinks(d).map(([l,u])=>`<a class="gps-btn" target="_blank" rel="noopener" href="${u}">${l}</a>`).join("")}</div><div class="who">Tìm theo mã hàng <b>${escHtml(d.ma)}</b>. Luôn đối chiếu datasheet (Iout, Uout, chuẩn dimming 1-10V/Dynadimmer, kích thước) trước khi đặt mua.</div>`; }
+function drvCard(d, rec){
+  const checks=rec?drvCheck(d,rec):[];
+  return `<div class="drv-card"><div class="tk-top"><div><b>${escHtml(d.ten)}</b><div class="mono tk-sub">${escHtml(d.ma)}</div></div><span class="badge ${d.kieu==="Nối tiếp"?"st-led-ok":"st-led-proc"}">Đấu ${escHtml(d.kieu)}</span></div>
+   <div class="tk-grid" style="margin-top:6px"><div><span>Công suất</span><b>${d.p}W</b></div><div><span>Vin (Vac)</span><b>${escHtml(d.vin)}</b></div><div><span>Iout (A)</span><b>${escHtml(d.iout)}</b></div><div><span>Uout (Vdc)</span><b>${escHtml(d.uout)}</b></div><div><span>Chuẩn kết nối</span><b>1-10V, Dynadimmer, 5 cấp</b></div><div><span>Nhà sản xuất</span><b>${escHtml(d.nsx)}</b></div><div><span>Kích thước (mm)</span><b>${escHtml(d.kt)}</b></div><div><span>Nhà cung cấp & lắp đặt</span><b>${escHtml(d.ncc)}</b></div></div>
+   ${checks.length?`<div class="drv-checks">${checks.map(([t,m])=>`<div class="drv-${t}">${t==="ok"?"✅":t==="warn"?"⚠️":"ℹ️"} ${escHtml(m)}</div>`).join("")}</div>`:""}
+   <div class="ks-g" style="margin-top:8px">🌐 Tìm nguồn Driver trên mạng</div>${drvLinksHtml(d)}</div>`;
+}
+function ledDriver(el){
+  const recs=ledOv.filter(o=>o.data.type==="driver").sort((a,b)=>b.updatedAt-a.updatedAt);
+  const canAdd = can("nhapLed")||can("ghiNhan");
+  el.innerHTML=`<div class="led-alert" style="border-left-color:#1A73E8;background:color-mix(in srgb,#1A73E8 8%,var(--surface))"><b>Hướng dẫn 680/HD-CTCSCC (20/7/2023)</b> – xác định thông số Driver để đề xuất thay thế sửa chữa:<br>
+    <b>Bước 1:</b> xác định, cập nhật thông số driver hiện hữu (Phụ lục 1) · <b>Bước 2:</b> tra Phụ lục 2 để chọn driver thay thế phù hợp · <b>Bước 3:</b> đơn vị chiếu sáng tổng hợp thông số cần cài đặt, <b>đính kèm phiếu lãnh vật tư</b>.<br>
+    Đèn nhập khẩu / linh kiện đặc biệt, không xác định được thông số: gửi mẫu kèm hình ảnh về Phòng Kỹ thuật.</div>
+   <details class="drv-how"><summary>📘 Cách xác định dòng điện cài đặt của Driver</summary>
+    <p><b>Cách 1 – Đo thực tế bằng đồng hồ Fluke 17B:</b> chọn 1 bộ đèn cùng chủng loại còn hoạt động trên tuyến; mắc đồng hồ nối tiếp trên dây LED+ đầu ra driver để đo dòng Iout (Adc). Dòng cài đặt thường &gt; 400 mA – chỉnh thang đo phù hợp để tránh hỏng đồng hồ.</p>
+    <p><b>Cách 2a – Driver Philips, Nikkon (có NFC):</b> thiết bị đọc Philips LCN9620 (FEIG) + phần mềm <a href="https://www.philips.com/MultiOne" target="_blank" rel="noopener">MultiOne Engineering</a>: đặt đầu đọc vào vị trí SimpleSet → Scan for device → mục AOC xem dòng cài đặt (mA) → File › Save as lưu cấu hình → nạp (Write) vào driver mới.</p>
+    <p><b>Cách 2b – Driver Inventronics:</b> bộ PRG-MUL2 nối dây Dim (Vaux, Dim+, Return) + phần mềm <a href="https://www.inventronics-co.com/resources/software/" target="_blank" rel="noopener">Inventronics Multi Programmer</a>: chọn 0-10V dimming driver → Com Port → Read → Set Output xem dòng → lưu file → mở file và Write vào driver mới.</p></details>
+   <div class="ks-g">🧮 Chọn nhanh Driver thay thế (Phụ lục 2)</div>
+   <div class="bk-row"><input id="dqW" class="bk-inp" style="max-width:150px" inputmode="numeric" placeholder="Công suất đèn (W)"><select id="dqN" class="ql-select"><option value="">Đấu nối: chưa rõ</option><option>Nối tiếp</option><option>Song song</option></select><input id="dqI" class="bk-inp" style="max-width:170px" inputmode="numeric" placeholder="Dòng cài đặt (mA)"><button class="gps-btn" id="dqGo">Tra cứu</button></div>
+   <div id="dqOut"></div>
+   <div class="fl-head" style="margin-top:14px"><div class="tk-h" style="margin:0">📋 Hồ sơ kỹ thuật sửa chữa (Phụ lục 1) – ${recs.length} hồ sơ</div><div class="fl-btns">${canAdd?`<button class="submit-btn" id="drvAdd" style="width:auto;padding:9px 14px">＋ Lập hồ sơ</button>`:""}<button class="gps-btn" id="drvXls">⬇ Excel Phụ lục 1</button></div></div>
+   <div class="ks-list" id="drvList"></div>
+   <div class="tk-h" style="margin-top:16px">📑 Phụ lục 2 – Driver thay thế theo bộ đèn LED hiện hữu</div>
+   <div class="ks-table-wrap"><table class="ks-table drv-t"><thead><tr><th>Bộ đèn</th><th>Đấu nối</th><th>Driver thay thế (mã hàng)</th><th>P</th><th>Iout (A)</th><th>Uout (Vdc)</th><th>NSX</th><th>NCC</th><th>Tìm nguồn</th></tr></thead><tbody>
+   ${(typeof DRIVER_TABLE!=="undefined"?DRIVER_TABLE:[]).map(r=>["noiTiep","songSong"].map((k,j)=>{ const d=r[k]; return `<tr>${j===0?`<td rowspan="2"><b>LED ${r.den}W</b>${r.ghiChu?`<div class="who">${escHtml(r.ghiChu)}</div>`:""}</td>`:""}<td>${j===0?"Nối tiếp":"Song song"}</td><td style="text-align:left">${escHtml(d.ma)}</td><td>${d.p}W</td><td>${escHtml(d.iout)}</td><td>${escHtml(d.uout)}</td><td>${escHtml(d.nsx)}</td><td>${escHtml(d.ncc)}</td><td><button class="gps-btn drv-src" data-w="${r.den}" data-k="${k}" style="padding:4px 8px">🌐</button></td></tr>`; }).join("")).join("")}
+   </tbody></table></div>`;
+  $("#dqGo").onclick=()=>{ const w=parseFloat($("#dqW").value), n=$("#dqN").value; const p=drvPick(w,n);
+    $("#dqOut").innerHTML = !w ? '<div class="who">Nhập công suất bộ đèn.</div>' : !p ? '<div class="led-alert">Không có trong Phụ lục 2 (chỉ từ 30W đến 200W) – gửi mẫu đèn + hình ảnh về Phòng Kỹ thuật.</div>'
+      : `<div class="who" style="margin:6px 0">Bộ đèn ${w}W → dùng dòng <b>LED ${p.row.den}W</b> của Phụ lục 2${p.row.den!==w?" (công suất gần nhất ≥ "+w+"W)":""}:</div>`+p.opts.map(d=>drvCard(d,{dongCaiDat:$("#dqI").value,congSuatDen:w,dauNoi:n})).join(""); };
+  el.querySelectorAll(".drv-src").forEach(b=>b.onclick=()=>{ const r=DRIVER_TABLE.find(x=>x.den==b.dataset.w), d=Object.assign({kieu:b.dataset.k==="noiTiep"?"Nối tiếp":"Song song"},r[b.dataset.k]);
+    $("#ledTitle").textContent="🌐 Nguồn Driver – "+d.ma; $("#ledDetail").innerHTML=drvCard(d,null); $("#ledScrim").classList.add("show"); });
+  const box=$("#drvList");
+  if(!recs.length) box.innerHTML='<div class="empty">Chưa có hồ sơ. Bấm "＋ Lập hồ sơ" để ghi thông số driver hiện hữu (Phụ lục 1).</div>';
+  recs.forEach(o=>{ const f=o.data.fields||{}, p=drvPick(parseFloat(f.congSuatDen),f.dauNoi), c=document.createElement("div"); c.className="ks-rec";
+    c.innerHTML=`<div class="tk-top"><div><div class="name">${escHtml(f.tenBoDen||"Bộ đèn")} ${f.congSuatDen?"– "+escHtml(f.congSuatDen)+"W":""}</div><div class="who">${escHtml(f.tuyen||"")}${f.cskv?" · "+escHtml(f.cskv):""}</div></div><span class="badge ${f.trangThai==="Đã thay"?"st-led-done":"st-led-soon"}">${escHtml(f.trangThai||"Đề xuất")}</span></div>
+      <div class="tk-mini"><span>🔌 ${escHtml(f.maHang||"chưa rõ mã")}</span><span>⚡ cài ${escHtml(f.dongCaiDat||"?")} mA</span><span>🔗 ${escHtml(f.dauNoi||"?")}</span>${p?`<span>➡️ ${escHtml(p.opts.map(x=>x.ma).join(" / "))}</span>`:""}<span>📎 ${(o.files||[]).length}</span></div>
+      <div class="who">${escHtml(o.nguoiTaoTen||"")} · ${new Date(o.updatedAt).toLocaleDateString("vi-VN")}</div>`;
+    c.onclick=()=>drvOpen(o); box.appendChild(c); });
+  const a=$("#drvAdd"); if(a) a.onclick=()=>drvOpen(null);
+  $("#drvXls").onclick=()=>{ if(typeof XLSX==="undefined") return;
+    const head=["STT","(1) Tên bộ đèn","(2) Tuyến đường lắp đặt","Tủ điều khiển","(3) Công suất bộ đèn (W)","(4) Module đấu nối","(5) Mã hàng hóa driver","(6) Công suất driver","(7) Iout (Adc)","(8) Uout (Vdc)","(9) Dòng điện cài đặt (mA)","(10) Kích thước DxRxC","(11) Hình ảnh (số ảnh)","Cách xác định","Chế độ dimming","Driver thay thế đề xuất (Phụ lục 2)","Mã hàng thay thế","Iout thay thế","Uout thay thế","NSX","Nhà cung cấp","Kiểm tra","Đơn vị","Người lập","Ngày","Trạng thái","Ghi chú"];
+    const rows=recs.map((o,i)=>{ const f=o.data.fields||{}, p=drvPick(parseFloat(f.congSuatDen),f.dauNoi), d=p?p.opts[0]:null;
+      return [i+1,f.tenBoDen,f.tuyen,f.tu,f.congSuatDen,f.dauNoi,f.maHang,f.congSuatDrv,f.iout,f.uout,f.dongCaiDat,f.kichThuoc,(o.files||[]).filter(x=>/^image/.test(x.mime)).length,f.cachDo,f.dim,d?d.ten:"Không có trong PL2",d?d.ma:"",d?d.iout:"",d?d.uout:"",d?d.nsx:"",d?d.ncc:"",d?drvCheck(d,f).map(x=>x[1]).join("; "):"",f.cskv,o.nguoiTaoTen,new Date(o.createdAt).toLocaleDateString("vi-VN"),f.trangThai||"Đề xuất",f.ghiChu]; });
+    const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet([["PHỤ LỤC 1 – XÁC ĐỊNH THÔNG SỐ DRIVER (BỘ NGUỒN) BỘ ĐÈN LED HIỆN HỮU ĐỂ LỰA CHỌN THAY THẾ"],["(Theo Hướng dẫn 680/HD-CTCSCC ngày 20/7/2023 – đính kèm phiếu lãnh vật tư)"],head,...rows]);
+    ws["!cols"]=head.map((h,i)=>({wch:i===0?5:[1,2,15].includes(i)?30:14})); XLSX.utils.book_append_sheet(wb,ws,"Phu luc 1");
+    const pl2=[["Bộ đèn","Đấu nối","Tên vật tư","Mã hàng hóa","Công suất","Vin (Vac)","Iout (Adc)","Uout (Vdc)","Chuẩn kết nối","NSX","Kích thước","Nhà cung cấp"]]; DRIVER_TABLE.forEach(r=>["noiTiep","songSong"].forEach(k=>{ const d=r[k]; pl2.push(["LED "+r.den+"W",k==="noiTiep"?"Nối tiếp":"Song song",d.ten,d.ma,d.p+"W",d.vin,d.iout,d.uout,"1-10V, Dynadimmer, 5 cấp",d.nsx,d.kt,d.ncc]); }));
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(pl2),"Phu luc 2");
+    saveBlob(new Blob([XLSX.write(wb,{bookType:"xlsx",type:"array"})]),"Phu_luc_1_thong_so_Driver_"+todayISO()+".xlsx"); };
+}
+function drvOpen(o){
+  const isNew=!o, f=(o&&o.data.fields)||{cskv:"CSKV Trung Tâm", trangThai:"Đề xuất"};
+  const canEdit=(can("nhapLed")||can("ghiNhan")) && (isNew || isAdmin() || o.nguoiTao===SESSION.user.username);
+  const dis=canEdit?"":"disabled";
+  const F=(k,l,ph,t)=>`<div class="ks-f"><label>${l}</label><input data-k="${k}" ${dis} ${t==="n"?'inputmode="decimal"':""} value="${escHtml(f[k]||"")}" placeholder="${ph||""}"></div>`;
+  const S=(k,l,opts)=>`<div class="ks-f"><label>${l}</label><select data-k="${k}" ${dis}>${opts.map(v=>`<option ${v===f[k]?"selected":""}>${v}</option>`).join("")}</select></div>`;
+  $("#ledTitle").textContent = isNew ? "🔧 Lập hồ sơ kỹ thuật sửa chữa Driver" : "🔧 "+(f.tenBoDen||"Hồ sơ Driver");
+  $("#ledDetail").innerHTML=`<div class="who">Theo <b>Phụ lục 1 – Hướng dẫn 680/HD-CTCSCC</b>. Nhập đủ thông số, app tự đề xuất driver thay thế theo Phụ lục 2 và kiểm tra tương thích.</div>
+   <div class="ks-g">Thông tin bộ đèn</div><div class="ks-fields">
+    ${F("tenBoDen","(1) Tên bộ đèn","VD: Carina, Tembin T2, Mura…")}
+    <div class="ks-f"><label>(2) Tuyến đường lắp đặt</label><input data-k="tuyen" list="drvTuyenList" ${dis} value="${escHtml(f.tuyen||"")}" placeholder="Gõ tên tuyến / tủ" autocomplete="off"><datalist id="drvTuyenList"></datalist></div>
+    ${F("tu","Tủ điều khiển","")}${F("congSuatDen","(3) Công suất bộ đèn (W)","VD: 120","n")}
+    ${S("dauNoi","(4) Module đấu nối",["","Nối tiếp","Song song"])}${S("cskv","Đơn vị",["CSKV Trung Tâm","CSKV Bắc","CSKV Nam","CSKV Tây"])}</div>
+   <div class="ks-g">Thông số Driver hiện hữu – ghi nhãn</div><div class="ks-fields">
+    ${F("maHang","(5) Mã hàng hóa","VD: Xi LP 150W 0.3-1.0A S1 230V S240 sXt")}${F("congSuatDrv","(6) Công suất driver (W)","","n")}${F("iout","(7) Iout (Adc)","VD: 0.3-1.0")}${F("uout","(8) Uout (Vdc)","VD: 70-214")}</div>
+   <div class="ks-g">Thông số kiểm tra thực tế</div><div class="ks-fields">
+    ${F("dongCaiDat","(9) Dòng điện cài đặt của Driver (mA)","VD: 480","n")}${F("kichThuoc","(10) Kích thước D×R×C (mm)","VD: 240x59,7x42,9")}
+    ${S("cachDo","Cách xác định dòng cài đặt",["",...DRV_METHODS])}${F("dim","Chế độ dimming đang cài","VD: Dynadimmer 5 cấp, 1-10V")}
+    ${S("trangThai","Trạng thái",["Đề xuất","Đã lãnh vật tư","Đã thay","Gửi Phòng Kỹ thuật (đèn đặc biệt)"])}${F("ghiChu","Ghi chú","")}</div>
+   <div id="drvRec"></div>
+   <div id="ledFiles"></div><div class="who">(11) Hình ảnh: chụp bộ đèn, nhãn driver, linh kiện (tối đa 10 ảnh) · đính kèm file cấu hình driver đã lưu (MultiOne / Multi Programmer).</div>
+   ${canEdit?`<button class="submit-btn" id="drvSave" style="margin-top:12px">💾 Lưu hồ sơ</button>`:""}<div class="gps-result" id="ledMsg"></div>
+   ${canEdit&&!isNew?`<button class="pin-btn" id="drvDel" style="margin-top:8px;color:var(--high)">🗑 Xóa hồ sơ</button>`:""}`;
+  const el=$("#ledDetail");
+  const collect=()=>{ const x={}; el.querySelectorAll("[data-k]").forEach(i=>x[i.dataset.k]=i.value.trim()); return x; };
+  const upd=()=>{ const x=collect(), p=drvPick(parseFloat(x.congSuatDen),x.dauNoi);
+    $("#drvRec").innerHTML = !x.congSuatDen ? "" : !p ? '<div class="led-alert" style="margin-top:10px">Công suất ngoài Phụ lục 2 (30–200W) – gửi mẫu đèn kèm hình ảnh về Phòng Kỹ thuật.</div>'
+      : `<div class="ks-g">➡️ Driver thay thế đề xuất (Phụ lục 2 – dòng LED ${p.row.den}W)</div>`+p.opts.map(d=>drvCard(d,x)).join(""); };
+  el.querySelectorAll("[data-k]").forEach(i=>i.addEventListener("input",upd)); el.querySelectorAll("select[data-k]").forEach(i=>i.addEventListener("change",upd)); upd();
+  const ti=el.querySelector('[data-k="tuyen"]');
+  if(ti && canEdit) ti.addEventListener("input",()=>{ const v=ti.value, dl=$("#drvTuyenList"); dl.innerHTML=""; if(v.trim().length<2) return;
+    const rs=ledData().routes.filter(r=>vnNorm(r.tuyen+" "+(r.tu||"")).includes(vnNorm(v))).slice(0,12);
+    rs.forEach(r=>{ const op=document.createElement("option"); op.value=r.tuyen; op.label=(r.quan||"")+" · "+(r.hang||"")+" "+(r.wLed?r.wLed+"W":""); dl.appendChild(op); });
+    const hit=rs.find(r=>r.tuyen===v); if(hit){ const t=el.querySelector('[data-k="tu"]'), w=el.querySelector('[data-k="congSuatDen"]'), n=el.querySelector('[data-k="tenBoDen"]'); if(t&&!t.value) t.value=hit.tu||""; if(w&&!w.value&&hit.wLed) w.value=hit.wLed; if(n&&!n.value) n.value=((hit.loai||"").replace(/\d+\s*W.*/,"").trim()||hit.hang||""); upd(); } });
+  let rec=o;
+  const save=async()=>{ const x=collect(); if(!x.tenBoDen && !x.tuyen){ $("#ledMsg").textContent="Nhập tên bộ đèn hoặc tuyến."; return null; }
+    const r=await api("saveHoSo",{rec:{id:rec?rec.id:undefined, kind:"LED", data:{type:"driver", fields:x}}});
+    if(!r.ok){ $("#ledMsg").textContent=r.error||"Lỗi"; return null; } r.rec.files=r.rec.files||(rec?rec.files:[])||[]; rec=r.rec;
+    const i=ledOv.findIndex(z=>z.id===rec.id); if(i>=0) ledOv[i]=rec; else ledOv.push(rec); $("#ledMsg").textContent="✅ Đã lưu."; return rec; };
+  hsAttach($("#ledFiles"),{rec:rec||null, kind:"LED", canEdit, zipName:"Ho_so_driver_"+(f.tenBoDen||""), ensureSaved:save, onChange:x=>{ rec=x; const i=ledOv.findIndex(z=>z.id===x.id); if(i>=0) ledOv[i]=x; }});
+  const sb=$("#drvSave"); if(sb) sb.onclick=async()=>{ if(await save()){ $("#ledScrim").classList.remove("show"); ledRender(); } };
+  const db=$("#drvDel"); if(db) db.onclick=async()=>{ if(!confirm("Xóa hồ sơ này?")) return; const r=await api("deleteHoSo",{id:rec.id}); if(r.ok){ ledOv=ledOv.filter(z=>z.id!==rec.id); $("#ledScrim").classList.remove("show"); ledRender(); } else alert(r.error||"Lỗi"); };
+  $("#ledScrim").classList.add("show");
+}
+
 /* ---------- THEO DÕI LED & BẢO HÀNH ---------- */
 let ledLoaded=false, ledOv=[], ledTab="tong", ledTerm="", ledStt="Tất cả", ledHang="";
 const LED_ST={ok:["Còn bảo hành","st-led-ok"], soon:["Sắp hết bảo hành (≤ 6 tháng)","st-led-soon"], exp:["HẾT BH – chưa có biên bản","st-led-exp"], proc:["Đang làm thủ tục xác nhận","st-led-proc"], done:["Đã xác nhận hết BH / bàn giao","st-led-done"], unk:["Chưa rõ ngày lắp đặt","st-led-unk"]};
@@ -3104,18 +3258,20 @@ function ledMatchVB(r, vbs){
     const qd=(r.quan||"").replace("Quận ",""); return !qd || vnNorm(v.quan).includes(vnNorm(qd)) || /bình thạnh|binh thanh/.test(vnNorm(v.quan))===/bình thạnh/i.test(r.quan); }); }
 function ledData(){
   const ov=id=>ledOv.find(o=>o.data.refId===id);
-  const vbs=LED_VB.map(v=>{ const o=ov(v.id); return Object.assign({},v,o?o.data.fields||{}:{},{_ov:o,_seed:true}); })
+  const docsVB=(typeof LED_DOCS!=="undefined"?LED_DOCS:[]).map(d=>({id:d.id,stt:0,file:d.file,loai:d.loai+" số "+d.so,ngay:d.ngay,quan:"Q1, 3, 5, 8, 10, 11, Phú Nhuận, Bình Thạnh (gói 7)",congTrinh:d.trichYeu,hangMuc:d.ky,tuyen:d.goi7,benA:"TT Quản lý Hạ tầng kỹ thuật TP.HCM",benB:"Công ty CP Chiếu sáng công cộng TP.HCM",soHD:"124–127/HĐ-TTHT",tinhTrang:"Đề xuất – căn cứ lắp đặt/ thay thế",ghiChu:d.noiDung}));
+  const vbs=LED_VB.concat(docsVB).map(v=>{ const o=ov(v.id); return Object.assign({},v,o?o.data.fields||{}:{},{_ov:o,_seed:true}); })
     .concat(ledOv.filter(o=>o.data.type==="vb"&&!o.data.refId).map(o=>Object.assign({id:o.id,_ov:o},o.data.fields)));
   const today=new Date(), yrs=ledYears();
   const routes=LED_ROUTES.map(r=>{ const o=ov(r.id); return Object.assign({},r,o?o.data.fields||{}:{},{_ov:o,_seed:true}); })
     .concat(ledOv.filter(o=>o.data.type==="route"&&!o.data.refId).map(o=>Object.assign({id:o.id,_ov:o},o.data.fields)));
+  ledDxRoutes(routes).forEach(r=>{ const o=ov(r.id); routes.push(Object.assign(r,o?o.data.fields||{}:{},{_ov:o,_seed:true})); });
   routes.forEach(r=>{
     r._inst=ledInstall(r); const y=Number(r.bhNam)||yrs; r._y=y;
     r._exp=r._inst?new Date(r._inst.getFullYear()+y, r._inst.getMonth(), r._inst.getDate()):null;
     r._vbs=ledMatchVB(r,vbs);
     const isInvite=v=>/thư mời|mời kiểm tra/i.test((v.loai||"")+" "+(v.tinhTrang||""));
-    const vbDone=r._vbs.find(v=>!isInvite(v) && !/chưa|trùng lặp/i.test(v.tinhTrang||"") && /^(bb|biên bản|vb giao)/i.test(v.loai||"") && /hết bảo hành|kết thúc bảo hành|duy tu|bàn giao|tiếp nhận|giao thực hiện/i.test((v.loai||"")+" "+(v.tinhTrang||"")));
-    const vbProc=r._vbs.find(v=>isInvite(v) || /chưa/i.test(v.tinhTrang||""));
+    const vbDone=r._vbs.find(v=>!/^CV\d|^HD\d/.test(v.id||"") && !isInvite(v) && !/chưa|trùng lặp/i.test(v.tinhTrang||"") && /^(bb|biên bản|vb giao)/i.test(v.loai||"") && /hết bảo hành|kết thúc bảo hành|duy tu|bàn giao|tiếp nhận|giao thực hiện/i.test((v.loai||"")+" "+(v.tinhTrang||"")));
+    const vbProc=r._vbs.find(v=>!/^CV\d|^HD\d/.test(v.id||"") && (isInvite(v) || /chưa/i.test(v.tinhTrang||"")));
     if(r.trangThaiTay) r._st=r.trangThaiTay;
     else if(vbDone) r._st="done"; else if(vbProc) r._st="proc";
     else if(!r._exp) r._st="unk";
@@ -3136,7 +3292,7 @@ async function ledRender(force){
     const ov=await hsLoad("LED"); ledOv=ov||[]; ledLoaded=true;
   }
   $("#ledTabs").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.v===ledTab));
-  const D=ledData(); ({tong:ledTong, tuyen:ledTuyen, vb:ledVB, viec:ledViec, luat:ledLuat})[ledTab](el,D);
+  const D=ledData(); ({tong:ledTong, tuyen:ledTuyen, vb:ledVB, viec:ledViec, luat:ledLuat, driver:ledDriver})[ledTab](el,D);
 }
 function ledFiltRoutes(D){ const tokens=vnNorm(ledTerm).trim().split(/\s+/).filter(Boolean);
   return D.routes.filter(r=>(activeQuan==="Tất cả"||r.quan===activeQuan) && (ledStt==="Tất cả"||r._st===ledStt) && (!ledHang||r.hang===ledHang) &&
@@ -3249,6 +3405,7 @@ function ledOpenRoute(r){
     <div class="ks-f"><label>Tình trạng BH (chỉnh tay – để trống = tự tính)</label><select data-k="trangThaiTay" ${canEdit?"":"disabled"}><option value="">Tự động theo ngày & văn bản</option>${Object.entries(LED_ST).map(([k,v])=>`<option value="${k}" ${k===r.trangThaiTay?"selected":""}>${v[0]}</option>`).join("")}</select></div></div>`+
    (cabs.length?`<div class="ks-g">Tủ điều khiển (đồng bộ dữ liệu tủ)</div><div class="bv-cabs">${cabs.map(c=>`<button class="bv-cab" data-pe="${escHtml(c.pe)}">🗄️ ${escHtml(c.n)} · ${escHtml(c.q)}${c.pm?" · P. "+escHtml(c.pm):""}</button>`).join("")}</div>`:"")+
    `<div class="ks-g">Văn bản liên quan (${r._vbs.length})</div>`+(r._vbs.length?r._vbs.map(v=>`<div class="ks-rec" style="cursor:default;margin-top:6px"><b>${escHtml(v.loai||"")}</b> – ${v.ngay?new Date(v.ngay).toLocaleDateString("vi-VN"):"chưa ghi ngày"}<div class="who">${escHtml(v.benB||"")} · HĐ ${escHtml(v.soHD||"–")} · ${escHtml(v.tinhTrang||"")}</div></div>`).join(""):'<div class="who">Chưa tìm thấy biên bản xác nhận cho tuyến này.</div>')+
+   (r._dx&&r._dx.length?`<div class="ks-g">📑 Theo công văn đề xuất đèn LED (${r._dx.length})</div>`+r._dx.map(x=>`<div class="ks-rec" style="cursor:default;margin-top:6px"><b>${escHtml(x.ky)}</b> · ${escHtml(((typeof LED_DOCS!=="undefined"&&LED_DOCS.find(d=>d.id===x.doc))||{}).so||x.doc)}<div class="who">${x.so||"?"} bộ · ${x.w}W · ${escHtml(x.loai)}${x.tdk?" · TĐK: "+escHtml(x.tdk):""}${x.ghiChu?" · "+escHtml(x.ghiChu):""}</div></div>`).join(""):"")+
    (r.doiChieu2020?`<div class="led-alert" style="margin-top:10px;border-left-color:#E8A20A">🔎 Đối chiếu dữ liệu cập nhật 09/04/2020: ${escHtml(r.doiChieu2020)}</div>`:"")+
    (r._hist&&r._hist.length?`<div class="ks-g">Lịch sử đèn tắt còn bảo hành 2020 (${r._hist.length} vị trí · ${r._hist.reduce((s,x)=>s+x.so,0)} đèn)</div><div class="ks-table-wrap"><table class="ks-table"><thead><tr><th>Tủ ĐK</th><th>Trụ</th><th>Đèn</th><th>Nhà cung cấp</th><th>Lần đầu</th><th>Lần cuối</th><th>Số kỳ</th><th>Tình trạng</th></tr></thead><tbody>${r._hist.map(x=>`<tr><td style="text-align:left">${escHtml(x.tu)}</td><td>${escHtml(x.tru)}</td><td>${x.so}</td><td>${escHtml(x.ncc)}</td><td>${x.first.split("-").reverse().join("/")}</td><td>${x.last.split("-").reverse().join("/")}</td><td>${x.ky}</td><td style="text-align:left">${escHtml(x.tt)}</td></tr>`).join("")}</tbody></table></div>`:"")+
    (r._st==="exp"?`<div class="led-alert" style="margin-top:10px">⚠️ Đã hết bảo hành nhưng chưa có biên bản. Căn cứ Điều 28 khoản 6 và Điều 29 Nghị định 06/2021/NĐ-CP, đề nghị lập thư mời kiểm tra hiện trường hết hạn bảo hành với <b>${escHtml(r.donVi||r.hang||"nhà thầu")}</b> để xác nhận và đưa vào duy tu.</div>`:"")+
