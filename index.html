@@ -415,6 +415,8 @@ button.dl{border:none;}
 .drv-links{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0;} .drv-links .gps-btn{text-decoration:none;padding:6px 10px;font-size:12.5px;}
 .drv-how{margin:10px 0;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface);font-size:13px;line-height:1.55;} .drv-how summary{cursor:pointer;font-weight:700;}
 .drv-t td{font-size:12px;}
+.ac-kpi{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0;} .ac-kpi span{padding:5px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--border);font-size:12px;}
+.ac-t td{font-size:12.5px;white-space:normal !important;} .ac-t .gps-btn{padding:3px 7px;font-size:12px;} .ac-pw{font-weight:700;letter-spacing:.03em;}
 .src-tabs{display:flex;gap:8px;margin-bottom:12px;}
 .src-tabs button{flex:1;padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 .src-tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
@@ -1166,6 +1168,14 @@ nav svg{width:21px;height:21px;}
           <div class="bk-row"><span>Tự động:</span><select id="buHour" class="ql-select"></select><button type="button" class="gps-btn" id="buTrig">⏰ Bật sao lưu 6 giờ/lần + báo cáo SCP hằng ngày</button><button type="button" class="gps-btn" id="buRemind">📋 Gửi báo cáo SCP ngay</button></div>
           <div class="gps-result" id="buMsg"></div>
           <div id="buList"></div>
+        </div>
+        <div class="bk-box">
+          <div class="guide-h" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">📒 Tổng hợp tài khoản <span class="fl-btns"><button type="button" class="gps-btn" id="acRefresh">⟳ Làm mới</button><button type="button" class="gps-btn" id="acXls">⬇ Excel</button></span></div>
+          <div class="who">Tự cập nhật mỗi 30 giây khi đang mở. Cột <b>Mật khẩu</b>: hiện mật khẩu do Quản trị cấp cho tới khi người dùng đổi; mật khẩu người dùng tự đặt được mã hóa một chiều nên <b>không ai xem được</b>, kể cả Quản trị. Cần thì bấm 🔑 để tạo mật khẩu mới.</div>
+          <div class="bk-row"><input type="text" id="acQ" class="bk-inp" placeholder="Tìm tên, tên đăng nhập, quyền…"><select id="acF" class="ql-select"><option value="">Tất cả</option><option value="tmp">Đang dùng mật khẩu Quản trị cấp</option><option value="self">Đã tự đặt mật khẩu</option><option value="req">Yêu cầu cấp lại</option><option value="lock">Đã khóa</option><option value="never">Chưa đăng nhập lần nào</option></select></div>
+          <div class="ac-kpi" id="acKpi"></div>
+          <div class="ks-table-wrap"><table class="ks-table ac-t"><thead><tr><th>#</th><th>Họ tên</th><th>Tên đăng nhập</th><th>Quyền</th><th>Mật khẩu</th><th>Đổi MK lần cuối</th><th>Đăng nhập gần nhất</th><th>Trạng thái</th><th></th></tr></thead><tbody id="acBody"></tbody></table></div>
+          <div class="who" id="acUpd"></div>
         </div>
         <div class="guide-h">Danh sách tài khoản</div>
         <div id="userList" style="margin-top:6px"></div>
@@ -2671,7 +2681,7 @@ async function tkOpen(r){
   let h=`<div class="tk-sub mono">${r[0]||"Chưa có mã PE"}${r[14]?" · Mã kết nối "+escHtml(r[14]):""}</div>`;
   h+=`<div class="fl-btns" style="margin:10px 0">${r[17]?`<a class="gps-btn" target="_blank" rel="noopener" href="${mapsLink(r[17],r[18])}" style="text-decoration:none">🗺️ Vị trí tủ</a>`:""}${cab&&can("ghiNhan")?`<button class="gps-btn" id="tkToInc">＋ Ghi sự cố tủ này</button>`:""}${can("xuatExcel")?`<button class="gps-btn" id="tkXls1">⬇ Excel tủ này</button>`:""}</div>`;
   const grp=(title,rows)=>`<div class="tk-g">${title}</div><div class="tk-grid">${rows.map(([l,v])=>`<div><span>${escHtml(l)}</span><b>${v}</b></div>`).join("")}</div>`;
-  h+=grp("Thông tin chung",[["Quận",escHtml(r[6])],["Phường / Xã",escHtml(r[5])],["Đường",escHtml(r[4])],["Địa chỉ",escHtml(r[7])],["Tên cũ",escHtml(r[3])],["Người quản lý",escHtml(cab&&cab.ql||"—")],["Chiều dài tuyến",tkFmt(r[19],"m")],["Đơn vị vận hành",escHtml(r[8])]]);
+  h+=grp("Thông tin chung",[["Quận",escHtml(r[6])],["Phường / Xã",escHtml(r[5])],["Đường",escHtml(r[4])],["Địa chỉ",escHtml(r[7])],["Tên cũ",escHtml(r[3])],["Người quản lý",escHtml(cab&&cab.ql||"—")],["Giám sát",escHtml((typeof GIAM_SAT!=="undefined"&&GIAM_SAT[r[6]])||"—")],["Chiều dài tuyến",tkFmt(r[19],"m")],["Đơn vị vận hành",escHtml(r[8])]]);
   h+=grp("Điều khiển & kết nối",[["Nhà cung cấp",escHtml(tkProv(r))],["Công nghệ",escHtml(tkTech(r))],["Loại tủ",escHtml(r[10]||"—")],["Kết nối trung tâm",escHtml(r[11]||"—")],["Thiết bị kết nối",escHtml(r[12]||"—")],["Bộ điều khiển",escHtml(r[9]||"—")],["Mã kết nối (SCP)",escHtml(r[14]||"—")],["Mã quản lý",escHtml(r[15]||"—")],["Công tác QLVH",escHtml(r[13]||"—")]]);
   ["Đèn (bộ)","Trụ","Cần","Cáp (m)"].forEach(g=>{ const items=TK_NUM.filter(x=>x[2]===g && (tkNum(r[x[1]])||x[0].startsWith("Tổng"))); h+=grp(g, items.map(([l,i,,u])=>[l,tkFmt(r[i],u)])); });
   if(cab && cab.lt && cab.lt.length) h+=`<div class="tk-g">Lý trình (${cab.lt.length} tuyến)</div><div class="tk-lt">${cab.lt.map(l=>`<div><b>${escHtml(l[0])}</b>${l[1]?" · trụ "+escHtml(l[1]):""}<span class="who"> · ${[l[2]!=null&&l[2]!==""?Math.round(l[2])+" m":"",l[3]?l[3]+" đèn":"",l[4]?l[4]+" trụ":""].filter(Boolean).join(" · ")}</span></div>`).join("")}</div>`;
@@ -3235,8 +3245,49 @@ function drvOpen(o){
   $("#ledScrim").classList.add("show");
 }
 
+/* ---------- KHO VĂN BẢN GỐC LED: nhập nhiều file mọi định dạng, tự nhận diện văn bản ---------- */
+const VB_PATTERNS=[[/^CV878|(^|[^\d])878[^\d]/i,"CV878-2020"],[/^CV1115|1115/i,"CV1115-2020"],[/^CV528|(^|[^\d])528[^\d]/i,"CV528-2021"],[/^CV698|(^|[^\d])698[^\d]|QUY_III-2021|quý_iii-2021/i,"CV698-2021"],[/^CV975|(^|[^\d])975[^\d]/i,"CV975-2021"],[/^HD680|(^|[^\d])680[^\d]|driver/i,"HD680-2023"],
+  [/tong_hop_theo_doi_led/i,"NG-TONGHOP-LED"],[/bc_th.*2.*led|hang_tuan|hàng_tuần/i,"NG-BCT2-2020"],[/loc_chuan_hoa/i,"NG-LOC-2026"],[/de_xuat_led_goi7/i,"NG-DEXUAT-2026"]];
+function vbDetect(name, vbs){
+  const pre=(name.split("__")[0]||"").trim(); let v=vbs.find(x=>x.id===pre); if(v) return v.id;
+  for(const [re,id] of VB_PATTERNS){ if(re.test(name) && vbs.some(x=>x.id===id)) return id; }
+  const k=vnNorm(name.replace(/\.[^.]+$/,"")).replace(/[^a-z0-9]/g,"");
+  v=vbs.find(x=>x.file && (()=>{ const f=vnNorm(String(x.file).replace(/\.[^.]+$/,"")).replace(/[^a-z0-9]/g,""); return f.length>6 && (k.includes(f)||f.includes(k)); })());
+  return v?v.id:"__new";
+}
+function vbImport(D){
+  let items=[];
+  $("#ledTitle").textContent="📥 Nhập văn bản gốc (mọi định dạng)";
+  $("#ledDetail").innerHTML=`<div class="who">Chọn nhiều file cùng lúc: <b>PDF, bản scan (ảnh), Word, Excel, RAR/ZIP, DWG…</b> (tối đa 25 MB/file). App tự nhận diện văn bản theo tên file (số công văn, mã văn bản); kiểm tra cột "Gắn vào" rồi bấm Tải lên. File được lưu trên Google Drive, <b>tải về đúng tên gốc</b> khi cần trích lục.</div>
+    <div class="fl-btns" style="margin:10px 0"><label class="gps-btn fl-pick">📎 Chọn file<input type="file" id="viIn" multiple hidden></label><label class="gps-btn fl-pick">📷 Chụp bản giấy<input type="file" id="viCam" accept="image/*" capture="environment" hidden></label></div>
+    <div id="viList"></div><div class="gps-result" id="viMsg"></div>`;
+  const opts=`<option value="__new">＋ Tạo văn bản mới</option>`+D.vbs.map(v=>`<option value="${escHtml(v.id)}">${escHtml((v.loai||"").slice(0,40)+" – "+(v.ngay||"")+" – "+(v.tuyen||v.congTrinh||"").slice(0,40))}</option>`).join("");
+  const draw=()=>{ const el=$("#viList"); if(!items.length){ el.innerHTML=""; return; }
+    el.innerHTML=`<div class="ks-table-wrap"><table class="ks-table vi-t"><thead><tr><th>File</th><th>Dung lượng</th><th>Gắn vào văn bản</th><th>Trạng thái</th></tr></thead><tbody>${items.map((it,i)=>`<tr><td style="text-align:left">${fileIcon(it.f.type,it.f.name)} ${escHtml(it.f.name)}</td><td>${fmtSize(it.f.size)}</td><td><select data-i="${i}" class="vi-sel">${opts}</select></td><td>${escHtml(it.st)}</td></tr>`).join("")}</tbody></table></div>
+      <button type="button" class="submit-btn" id="viGo" style="margin-top:10px">⬆ Tải lên ${items.filter(x=>!x.st.startsWith("✅")).length} file</button>`;
+    el.querySelectorAll(".vi-sel").forEach(s=>{ s.value=items[s.dataset.i].to; s.onchange=()=>items[s.dataset.i].to=s.value; });
+    $("#viGo").onclick=go; };
+  const add=fs=>{ [...fs].forEach(f=>{ if(f.size>25*1024*1024){ $("#viMsg").textContent="⛔ "+f.name+" > 25 MB – bỏ qua"; return; } items.push({f, to:vbDetect(f.name,D.vbs), st:"Chờ tải lên"}); }); draw(); };
+  ["viIn","viCam"].forEach(id=>{ const i=$("#"+id); i.onchange=()=>{ const fs=[...i.files]; i.value=""; add(fs); }; });
+  const go=async()=>{ $("#viGo").disabled=true; let ok=0;
+    for(const it of items){ if(it.st.startsWith("✅")) continue;
+      it.st="Đang tải…"; draw();
+      try{
+        let ov;
+        if(it.to==="__new"){ ov=await ledSaveOv(null,{loai:"Văn bản khác",tuyen:it.f.name.replace(/\.[^.]+$/,""),file:it.f.name},"vb"); }
+        else { const v=D.vbs.find(x=>x.id===it.to); ov=v._ov || await ledSaveOv(v,{},"vb"); v._ov=ov; }
+        if(!ov) throw new Error("Không tạo được hồ sơ");
+        const r=await api("addHoSoFile",{id:ov.id, file:{name:it.f.name.replace(/^[A-Z0-9-]+__/,""), mime:it.f.type||"application/octet-stream", data:await fileToB64(it.f)}});
+        if(!r.ok) throw new Error(r.error||"Lỗi"); const i=ledOv.findIndex(o=>o.id===r.rec.id); if(i>=0) ledOv[i]=r.rec; else ledOv.push(r.rec);
+        it.st="✅ Đã lưu"; ok++;
+      }catch(e){ it.st="⛔ "+e.message; }
+      draw(); }
+    $("#viMsg").textContent=`Đã lưu ${ok} file vào kho văn bản.`; };
+  $("#ledScrim").classList.add("show");
+}
+
 /* ---------- THEO DÕI LED & BẢO HÀNH ---------- */
-let ledLoaded=false, ledOv=[], ledTab="tong", ledTerm="", ledStt="Tất cả", ledHang="";
+let ledVbF="", ledLoaded=false, ledOv=[], ledTab="tong", ledTerm="", ledStt="Tất cả", ledHang="";
 const LED_ST={ok:["Còn bảo hành","st-led-ok"], soon:["Sắp hết bảo hành (≤ 6 tháng)","st-led-soon"], exp:["HẾT BH – chưa có biên bản","st-led-exp"], proc:["Đang làm thủ tục xác nhận","st-led-proc"], done:["Đã xác nhận hết BH / bàn giao","st-led-done"], unk:["Chưa rõ ngày lắp đặt","st-led-unk"]};
 const LED_LAWS=[
  {t:"Nghị định 06/2021/NĐ-CP – Điều 28, khoản 1–2", s:"Nhà thầu thi công, nhà thầu cung ứng thiết bị chịu trách nhiệm bảo hành phần việc mình thực hiện. Chủ đầu tư phải thỏa thuận trong hợp đồng về quyền, trách nhiệm, thời hạn, biện pháp, giá trị bảo hành và việc hoàn trả tiền/bảo lãnh bảo hành."},
@@ -3355,9 +3406,13 @@ function ledTuyen(el,D){
 }
 function ledVB(el,D){
   const tokens=vnNorm(ledTerm).trim().split(/\s+/).filter(Boolean);
-  const list=D.vbs.filter(v=>!tokens.length||tokens.every(t=>vnNorm(Object.values(v).filter(x=>typeof x==="string").join(" ")).includes(t))).sort((a,b)=>String(b.ngay).localeCompare(String(a.ngay)));
+  const hasF=v=>v._ov&&(v._ov.files||[]).length;
+  const list=D.vbs.filter(v=>(!ledVbF || (ledVbF==="co"?hasF(v):!hasF(v))) && (!tokens.length||tokens.every(t=>vnNorm(Object.values(v).filter(x=>typeof x==="string").join(" ")+" "+(v._ov?(v._ov.files||[]).map(f=>f.name).join(" "):"")).includes(t)))).sort((a,b)=>String(b.ngay).localeCompare(String(a.ngay)));
   el.innerHTML=`<div class="inc-search"><div class="search-wrap"><input id="ledQ" placeholder="Tìm văn bản: số hợp đồng, tuyến, nhà thầu, loại biên bản…" value="${escHtml(ledTerm)}"></div></div>
-   <div class="fl-head"><span class="who">${list.length} văn bản / biên bản</span>${can("nhapLed")?`<button class="gps-btn" id="ledAddV">＋ Thêm văn bản</button>`:""}</div><div class="tk-list" id="ledList"></div>`;
+   <div class="chips" style="flex-wrap:wrap;margin-bottom:8px">${[["","Tất cả"],["co","📎 Đã có bản gốc"],["chua","Chưa có bản gốc"]].map(([k,l])=>`<button class="chip ${k===ledVbF?"active":""}" data-vf="${k}">${l} (${k===""?D.vbs.length:D.vbs.filter(v=>k==="co"?hasF(v):!hasF(v)).length})</button>`).join("")}</div>
+   <div class="fl-head"><span class="who">${list.length} văn bản / biên bản · ${D.vbs.reduce((s,v)=>s+(v._ov?(v._ov.files||[]).length:0),0)} file gốc đã lưu</span><div class="fl-btns">${can("nhapLed")?`<button class="submit-btn" id="ledImp" style="width:auto;padding:9px 14px">📥 Nhập văn bản gốc (nhiều file)</button><button class="gps-btn" id="ledAddV">＋ Thêm văn bản</button>`:""}</div></div><div class="tk-list" id="ledList"></div>`;
+  el.querySelectorAll(".chip[data-vf]").forEach(b=>b.onclick=()=>{ ledVbF=b.dataset.vf; ledRender(); });
+  const imp=$("#ledImp"); if(imp) imp.onclick=()=>vbImport(D);
   const q=$("#ledQ"); q.oninput=()=>{ ledTerm=q.value; const pos=q.selectionStart; ledRender(); const n=$("#ledQ"); n.focus(); n.setSelectionRange(pos,pos); };
   list.forEach(v=>{ const n=D.routes.filter(r=>r._vbs.includes(v)).length, f=v._ov?(v._ov.files||[]).length:0, c=document.createElement("div"); c.className="tk-card";
     const warn=/chưa|trùng|quá hạn|không lập/i.test((v.tinhTrang||"")+" "+(v.ghiChu||""));
@@ -3512,6 +3567,42 @@ $("#buSave").onclick=async()=>{ const r=await api("setBackup",{cfg:{email:$("#bu
 $("#buNow").onclick=async()=>{ $("#buMsg").textContent="Đang sao lưu…"; const r=await api("backupNow"); $("#buMsg").textContent = r.ok ? "✅ Đã sao lưu: "+r.name : (r.error||"Lỗi – hãy chạy hàm capQuyen trong Apps Script 1 lần"); setTimeout(buLoad,1200); };
 $("#buTrig").onclick=async()=>{ const r=await api("setupTriggers",{hour:$("#buHour").value}); $("#buMsg").textContent = r.ok ? "✅ "+r.message : (r.error||"Lỗi – hãy chạy hàm capQuyen trong Apps Script 1 lần rồi thử lại"); setTimeout(buLoad,1200); };
 $("#buRemind").onclick=async()=>{ const r=await api("remindNow"); $("#buMsg").textContent = r.ok ? `✅ Đã gửi báo cáo: mới 24h ${r.moi}, còn tồn ${r.ton}` : (r.error||"Lỗi"); };
+
+/* ---------- TỔNG HỢP TÀI KHOẢN (admin) ---------- */
+let acList=[], acTimer=null, acShown=new Set();
+const acDT = t => t ? new Date(t).toLocaleString("vi-VN",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}) : "";
+function acPwState(a){ if(a.tempPassword) return "tmp"; if(/tự đặt|OTP/i.test(a.pwBy||"")) return "self"; return "unk"; }
+async function acLoad(silent){
+  if(!SESSION || SESSION.user.role!=="admin") return;
+  const r=await api("listAccounts"); if(!r.ok){ if(!silent) $("#acUpd").textContent=r.error||"Lỗi"; return; }
+  acList=r.accounts||[]; acRender(); $("#acUpd").textContent="Cập nhật lúc "+new Date().toLocaleTimeString("vi-VN");
+}
+function acRender(){
+  const q=vnNorm($("#acQ").value||""), f=$("#acF").value;
+  const L=acList.filter(a=>(!q||vnNorm([a.fullName,a.username,ROLE_LABEL[a.role]||a.role].join(" ")).includes(q)) &&
+    (!f || (f==="tmp"&&acPwState(a)==="tmp") || (f==="self"&&acPwState(a)==="self") || (f==="req"&&a.yeuCauReset) || (f==="lock"&&!a.active) || (f==="never"&&!a.lastLogin)));
+  const cnt=k=>acList.filter(k).length;
+  $("#acKpi").innerHTML=`<span>👥 ${acList.length} tài khoản</span><span>🛡️ ${cnt(a=>a.role==="admin")} Quản trị</span><span>🔑 ${cnt(a=>acPwState(a)==="tmp")} đang dùng MK do QT cấp</span><span>🔒 ${cnt(a=>acPwState(a)==="self")} đã tự đặt MK</span><span>🟢 ${cnt(a=>a.sessions>0)} đang đăng nhập</span>${cnt(a=>a.yeuCauReset)?`<span style="color:var(--high)">⚠️ ${cnt(a=>a.yeuCauReset)} yêu cầu cấp lại</span>`:""}${cnt(a=>!a.active)?`<span>🔴 ${cnt(a=>!a.active)} bị khóa</span>`:""}`;
+  const tb=$("#acBody"); tb.innerHTML="";
+  L.forEach((a,i)=>{ const st=acPwState(a), tr=document.createElement("tr");
+    const pw = st==="tmp" ? `<span class="mono ac-pw">${acShown.has(a.username)?escHtml(a.tempPassword):"••••••••"}</span> <button type="button" class="gps-btn ac-eye" title="Hiện/ẩn">👁</button> <button type="button" class="gps-btn ac-cp" title="Sao chép">📋</button><div class="who">${escHtml(a.pwBy||"Quản trị cấp")}${a.mustChange?" · buộc đổi khi đăng nhập":""}</div>`
+      : st==="self" ? `<span class="who">🔒 ${escHtml(a.pwBy)} – không xem được</span>` : `<span class="who">— Chưa theo dõi (tạo trước khi có tính năng này)</span>`;
+    tr.innerHTML=`<td>${i+1}</td><td style="text-align:left"><b>${escHtml(a.fullName||"")}</b></td><td class="mono">${escHtml(a.username)}</td><td>${escHtml(ROLE_LABEL[a.role]||a.role)}</td><td style="text-align:left">${pw}</td><td>${acDT(a.pwChangedAt)}</td><td>${a.lastLogin?acDT(a.lastLogin):'<span class="who">Chưa đăng nhập</span>'}${a.sessions?`<div class="who">🟢 ${a.sessions} phiên đang mở</div>`:""}</td><td>${a.active?"Hoạt động":'<span style="color:var(--high)">Đã khóa</span>'}${a.yeuCauReset?`<div style="color:var(--high);font-size:11px">🔑 Yêu cầu cấp lại</div>`:""}</td><td>${a.role!=="admin"||a.username!==SESSION.user.username?`<button type="button" class="gps-btn ac-reset" title="Tạo mật khẩu mới">🔑</button>`:""}</td>`;
+    const eye=tr.querySelector(".ac-eye"); if(eye) eye.onclick=()=>{ acShown.has(a.username)?acShown.delete(a.username):acShown.add(a.username); acRender(); };
+    const cp=tr.querySelector(".ac-cp"); if(cp) cp.onclick=async()=>{ const msg=`Tài khoản app CSKVTT\nLink: https://phucle-gps.github.io/Ghinhansuco/login.html\nTên đăng nhập: ${a.username}\nMật khẩu: ${a.tempPassword}`; try{ await navigator.clipboard.writeText(msg); cp.textContent="✓"; }catch(e){ prompt("Sao chép:",msg); } };
+    const rs=tr.querySelector(".ac-reset"); if(rs) rs.onclick=()=>{ const u=bkUsers.find(x=>x.username===a.username)||a; auPerms=Object.assign({},PERM_DEFAULT[u.role]||{},u.perms||{}); $("#auUser").value=u.username; $("#auName").value=u.fullName||""; $("#auActive").checked=!!u.active; setAuRole(u.role,true); setAuEdit(u); $("#auResetPw").click(); $("#auPwBox").scrollIntoView({behavior:"smooth",block:"center"}); };
+    tb.appendChild(tr); });
+  if(!L.length) tb.innerHTML='<tr><td colspan="9" class="who">Không có tài khoản phù hợp.</td></tr>';
+}
+$("#acQ").addEventListener("input",acRender); $("#acF").addEventListener("change",acRender);
+$("#acRefresh").onclick=()=>acLoad(false);
+$("#acXls").onclick=()=>{ if(typeof XLSX==="undefined") return;
+  if(!confirm("File Excel sẽ chứa các mật khẩu do Quản trị cấp (chưa được người dùng đổi). Chỉ lưu ở nơi an toàn, không gửi vào nhóm chung. Tiếp tục?")) return;
+  const aoa=[["TỔNG HỢP TÀI KHOẢN APP CSKVTT – "+new Date().toLocaleString("vi-VN")],["Link: https://phucle-gps.github.io/Ghinhansuco/login.html"],["STT","Họ tên","Tên đăng nhập","Quyền","Trạng thái","Mật khẩu (do Quản trị cấp, chưa đổi)","Nguồn mật khẩu","Buộc đổi khi đăng nhập","Đổi mật khẩu lần cuối","Đăng nhập gần nhất","Phiên đang mở","Yêu cầu cấp lại","Ngày tạo"],
+    ...acList.map((a,i)=>[i+1,a.fullName,a.username,ROLE_LABEL[a.role]||a.role,a.active?"Hoạt động":"Đã khóa",a.tempPassword||(acPwState(a)==="self"?"(người dùng tự đặt – không xem được)":"(chưa theo dõi)"),a.pwBy,a.mustChange?"Có":"",acDT(a.pwChangedAt),acDT(a.lastLogin),a.sessions||"",a.yeuCauReset||"",acDT(a.createdAt)])];
+  const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(aoa); ws["!cols"]=[{wch:5},{wch:24},{wch:16},{wch:14},{wch:11},{wch:26},{wch:26},{wch:10},{wch:17},{wch:17},{wch:8},{wch:22},{wch:17}];
+  XLSX.utils.book_append_sheet(wb,ws,"Tai khoan"); saveBlob(new Blob([XLSX.write(wb,{bookType:"xlsx",type:"array"})]),"Tong_hop_tai_khoan_"+todayISO()+".xlsx"); };
+function acStart(){ acLoad(false); clearInterval(acTimer); acTimer=setInterval(()=>{ if($("#accountScrim").classList.contains("show")) acLoad(true); else clearInterval(acTimer); },30000); }
 
 /* ---------- tabs ---------- */
 function showView(name){
@@ -3788,7 +3879,7 @@ function applyUser(u){
 
 /* ---------- tài khoản / quản trị ---------- */
 let auRole="user";
-$("#accountBtn").onclick=()=>{ $("#accountScrim").classList.add("show"); if(SESSION.user.role==="admin"){ renderAuPerms(); bkInitPerm(); loadUsers(); gdLoad(); buLoad(); } };
+$("#accountBtn").onclick=()=>{ $("#accountScrim").classList.add("show"); if(SESSION.user.role==="admin"){ renderAuPerms(); bkInitPerm(); loadUsers(); gdLoad(); buLoad(); acStart(); } };
 $("#accountClose").onclick=()=>$("#accountScrim").classList.remove("show");
 $("#accountScrim").addEventListener("click", e=>{ if(e.target.id==="accountScrim") $("#accountScrim").classList.remove("show"); });
 $("#logoutBtn").onclick=async ()=>{ await api("logout"); goLogin(); };
@@ -3816,7 +3907,7 @@ function setAuRole(v, keepPerms){
   if(!keepPerms && PERM_DEFAULT[v]) auPerms = Object.assign({}, PERM_DEFAULT[v]);
   renderAuPerms();
 }
-async function loadUsers(){
+async function loadUsers(){ if(typeof acLoad==="function" && $("#accountScrim").classList.contains("show")) setTimeout(()=>acLoad(true),800);
   const el=$("#userList"); el.textContent="Đang tải danh sách…";
   const r = await api("listUsers");
   if(!r.ok){ el.textContent=r.error||"Lỗi"; return; }
@@ -3883,7 +3974,7 @@ $("#auPwOk").onclick=async ()=>{
   $("#auMsg").textContent="Đang tạo mật khẩu mới…"; $("#auPwBox").style.display="none";
   const r=await api("resetPassword",{username:auEditing, password:pw||undefined, mustChange:must});
   if(!r.ok){ $("#auMsg").textContent=r.error||"Lỗi"; return; }
-  $("#auMsg").textContent=""; showCred(r, must?"🔑 Đã tạo mật khẩu mới (người dùng sẽ phải đổi khi đăng nhập)":"🔑 Đã tạo mật khẩu mới", must); loadUsers();
+  acLoad(true); $("#auMsg").textContent=""; showCred(r, must?"🔑 Đã tạo mật khẩu mới (người dùng sẽ phải đổi khi đăng nhập)":"🔑 Đã tạo mật khẩu mới", must); loadUsers();
 };
 $("#auResetAcc").onclick=async ()=>{
   if(!auEditing) return;
