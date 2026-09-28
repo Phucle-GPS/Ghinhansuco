@@ -1592,16 +1592,20 @@ function scpFaultHtml(i){
 }
 let incTerm="", incQL="";
 function incHay(i){
-  if(i._s===undefined) i._s = vnNorm([i.cabinetName,i.cabinetPE,i.duong,i.quan,i.moTa,i.loiSCP,i.nguoiQuanLy,i.nguoiGhiNhan,i.lyTrinh,i.ghiChuXuLy,i.ngay].join(" | "));
+  if(i._s===undefined) i._s = vnNorm([i.cabinetName,i.cabinetPE,i.duong,i.quan,i.moTa,i.loiSCP,incQLOf(i),i.nguoiGhiNhan,i.lyTrinh,i.ghiChuXuLy,i.ngay].join(" | "));
   return i._s;
 }
+/* người quản lý: ưu tiên dữ liệu tủ hiện hành (cabinets.js), dùng giá trị lưu trong sự cố nếu không tìm được tủ */
+function incQLOf(i){ if(i._ql!==undefined) return i._ql; const pe=String(i.cabinetPE||"").trim(); let c=pe?CABINETS.find(x=>x.pe===pe):null;
+  if(!c && i.cabinetName){ const k=vnNorm(i.cabinetName); c=CABINETS.find(x=>vnNorm(x.n)===k && (!i.quan||x.q===i.quan)); }
+  return (i._ql = (c&&c.ql) || i.nguoiQuanLy || ""); }
 function filteredIncidents(){
   const tokens = vnNorm(incTerm).trim().split(/\s+/).filter(Boolean);
   return incidents.filter(i=>{
     if((activeSource==="scp") !== isScp(i)) return false;
     if(activeQuan!=="Tất cả" && i.quan!==activeQuan) return false;
     if(activeStatus!=="Tất cả" && i.trangThai!==activeStatus) return false;
-    if(incQL && (i.nguoiQuanLy||"")!==incQL) return false;
+    if(incQL && incQLOf(i)!==incQL) return false;
     if(tokens.length){ const s=incHay(i); if(!tokens.every(t=>s.includes(t))) return false; }
     return true;
   });
@@ -1629,9 +1633,23 @@ function renderSourceTabs(){
   } else sum.style.display="none";
 }
 $("#srcTabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{ activeSource=b.dataset.v; try{localStorage.setItem("gnsc_src",activeSource);}catch(e){} renderIncList(); });
+async function syncIncManagers(btn){
+  const items=incidents.filter(i=>{ const q=incQLOf(i); return q && q!==(i.nguoiQuanLy||""); }).map(i=>({id:i.id, ql:incQLOf(i)}));
+  if(!items.length){ alert("Tất cả sự cố đã có đúng tên người quản lý."); return; }
+  if(!confirm(`Cập nhật tên người quản lý cho ${items.length} sự cố trong Google Sheet (theo danh sách tủ hiện hành)?`)) return;
+  if(btn){ btn.disabled=true; btn.textContent="Đang cập nhật…"; }
+  let done=0; for(let k=0;k<items.length;k+=200){ const r=await api("fillManagers",{items:items.slice(k,k+200)}); if(!r.ok){ alert(r.error||"Lỗi"); break; } done+=r.updated||0; }
+  alert(`Đã cập nhật ${done} sự cố.`); await loadIncidents();
+}
 function renderIncList(){
   renderSourceTabs();
   let list = filteredIncidents();
+  const qlMiss = isAdmin() ? incidents.filter(i=>{ const q=incQLOf(i); return q && q!==(i.nguoiQuanLy||""); }).length : 0;
+  const oldCab = isAdmin() && typeof CABINETS_VERSION==="undefined";
+  let warn=$("#qlWarn"); if(!warn){ warn=document.createElement("div"); warn.id="qlWarn"; $("#incList").parentNode.insertBefore(warn,$("#incList")); }
+  warn.innerHTML = (oldCab?`<div class="led-alert">⚠️ File <b>cabinets.js</b> trên GitHub là bản cũ (chưa có người quản lý Q5, 8, 10, 11). Tải file cabinets.js mới lên GitHub rồi bấm Ctrl+Shift+R.</div>`:"")+
+    (qlMiss?`<div class="led-alert" style="border-left-color:#E8A20A">👤 ${qlMiss} sự cố trong Google Sheet chưa có / lệch tên người quản lý so với danh sách tủ hiện hành. <button type="button" class="gps-btn" id="qlFix" style="margin-left:6px">Cập nhật vào Sheet</button></div>`:"");
+  const qf=$("#qlFix"); if(qf) qf.onclick=()=>syncIncManagers(qf);
   $("#incInfo").textContent = (incTerm.trim()||incQL) ? `Tìm thấy ${list.length} sự cố` : "";
   list = list.slice().sort((a,b)=>b.createdAt-a.createdAt);
   const el = $("#incList");
@@ -1648,7 +1666,7 @@ function renderIncList(){
       ${i.lyTrinh ? `<div class="inc-lt">🛣️ Lý trình: ${escapeHtml(i.lyTrinh)}</div>` : ""}
       ${i.nguon==="SCP" ? `<div class="scp-tag">${["Nguồn SCP", i.trangThai!=="Đã xử lý" ? "tồn "+tonDong(i) : ""].filter(Boolean).join(" · ")}</div>` : ""}
       ${i.ghiChuXuLy ? `<div class="who" style="margin-top:4px">📝 ${escapeHtml(i.ghiChuXuLy)}</div>` : ""}
-      <div class="who" style="margin-top:6px">👤 Quản lý tuyến: ${escapeHtml(i.nguoiQuanLy||"—")}</div>
+      <div class="who" style="margin-top:6px">👤 Quản lý tuyến: ${escapeHtml(incQLOf(i)||"—")}${(typeof GIAM_SAT!=="undefined"&&GIAM_SAT[i.quan])?` · Giám sát: ${escapeHtml(GIAM_SAT[i.quan])}`:""}</div>
       ${i.anhHienTruong ? `<div class="inc-photos">${String(i.anhHienTruong).split(/\n+/).filter(Boolean).map(u=>`<img class="inc-photo" src="${u}" data-full="${u}" loading="lazy">`).join("")}</div>` : ""}
       <div class="row2">
         <span class="who">${escapeHtml(i.nguoiGhiNhan)} · ${i.ngay}</span>
@@ -1716,7 +1734,7 @@ async function exportExcel(){
   btn.disabled=true;
   const header = ["STT","Mã PE","Tên tủ","Đường","Quận","Người quản lý","Ngày ghi nhận","Mô tả sự cố","Mức độ","Người ghi nhận","Trạng thái","Tọa độ GPS","Ảnh hiện trường","Nguồn","Lỗi SCP","Ghi chú xử lý","Lý trình"];
   const rows = list.map((i,idx)=>[
-    idx+1, (i.cabinetPE||i.pe||i.cabinetCode||""), i.cabinetName, i.duong||"", i.quan, i.nguoiQuanLy||"", i.ngay, i.moTa, i.mucDo, i.nguoiGhiNhan, i.trangThai,
+    idx+1, (i.cabinetPE||i.pe||i.cabinetCode||""), i.cabinetName, i.duong||"", i.quan, incQLOf(i), i.ngay, i.moTa, i.mucDo, i.nguoiGhiNhan, i.trangThai,
     i.gpsLat!=null ? (i.gpsLat+", "+i.gpsLng) : "", i.anhHienTruong || "", i.nguon||"Thủ công", i.loiSCP||"", i.ghiChuXuLy||"", i.lyTrinh||""
   ]);
   const ws = XLSX.utils.aoa_to_sheet([header, ...rows]);
