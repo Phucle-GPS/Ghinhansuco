@@ -1,6 +1,6 @@
-/* CSKVTT Quy trình – service worker: chạy offline, nhận file chia sẻ, thông báo. Chỉ phụ trách quytrinh.html */
-const VER = 'qt-v1';
-const SHELL = ['quytrinh.html', 'quytrinh-manifest.json', 'qt-icon-192.png', 'qt-icon-512.png', 'qt-icon-maskable.png', 'qt-apple-icon.png'];
+/* QT Sửa chữa (CSKVTT) – service worker: chạy offline, nhận file chia sẻ, thông báo. Chỉ phụ trách quytrinh.html */
+const VER = 'qt-v2';
+const SHELL = ['quytrinh.html', 'quytrinh-manifest.json', 'qtsc-icon-192.png', 'qtsc-icon-512.png', 'qtsc-icon-maskable.png', 'qtsc-apple-icon.png'];
 const CDN = ['cdnjs.cloudflare.com', 'cdn.jsdelivr.net', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
 self.addEventListener('install', e => {

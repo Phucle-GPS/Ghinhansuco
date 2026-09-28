@@ -3,31 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>CSKVTT – Quy trình sửa chữa chiếu sáng</title>
+<title>QT Sửa chữa – CSKVTT</title>
 <link rel="manifest" href="quytrinh-manifest.json">
-<meta name="theme-color" content="#14222E">
+<meta name="theme-color" content="#0E3B37">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="CSKVTT QT">
-<link rel="apple-touch-icon" href="qt-apple-icon.png">
-<link rel="icon" type="image/png" href="qt-icon-192.png">
-<link rel="alternate icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💡</text></svg>">
+<meta name="apple-mobile-web-app-title" content="QT Sửa chữa">
+<link rel="apple-touch-icon" href="qtsc-apple-icon.png">
+<link rel="icon" type="image/png" href="qtsc-icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{
-  --bg:#EEF2F4;--paper:#FFFFFF;--side:#14222E;--side-ink:#C9D4DC;--ink:#14222E;--muted:#5A6873;--line:#D2DAE0;
+  --bg:#EEF2F4;--paper:#FFFFFF;--side:#0E3B37;--side-ink:#C9D4DC;--ink:#14222E;--muted:#5A6873;--line:#D2DAE0;
   --amber:#B87400;--amber-soft:#FBEFD6;--red:#B42A25;--red-soft:#F8E1E0;--green:#2B7249;--green-soft:#DDEFE4;--head:#F3F6F8;
   box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0E1821;--paper:#15222D;--side:#0A121A;--side-ink:#9FB0BD;--ink:#E4EAEF;--muted:#9AA8B3;--line:#2A3A47;
+  --bg:#0E1821;--paper:#15222D;--side:#082825;--side-ink:#9FB0BD;--ink:#E4EAEF;--muted:#9AA8B3;--line:#2A3A47;
   --amber:#F0B040;--amber-soft:#35290F;--red:#F07B75;--red-soft:#3A1918;--green:#6CC895;--green-soft:#15301F;--head:#1B2B38;}}
 :root[data-theme="dark"]{
-  --bg:#0E1821;--paper:#15222D;--side:#0A121A;--side-ink:#9FB0BD;--ink:#E4EAEF;--muted:#9AA8B3;--line:#2A3A47;
+  --bg:#0E1821;--paper:#15222D;--side:#082825;--side-ink:#9FB0BD;--ink:#E4EAEF;--muted:#9AA8B3;--line:#2A3A47;
   --amber:#F0B040;--amber-soft:#35290F;--red:#F07B75;--red-soft:#3A1918;--green:#6CC895;--green-soft:#15301F;--head:#1B2B38;}
 *,*::before,*::after{box-sizing:inherit}
 html,body{height:100%}
@@ -187,6 +186,9 @@ aside .nh.co{color:#F0B040}
 @media (min-width:761px){.subtabs{display:none}}
 .kqh{display:flex;gap:8px;font-size:12px;color:var(--muted);margin:0 0 4px}.kqh span:first-child{flex:1}.kqh span:nth-child(2),.kqh span:nth-child(3){width:62px}.kqh span:last-child{width:40px}
 tr.kqtru td{background:var(--amber-soft)}
+.logo{width:34px;height:34px;flex:0 0 auto}
+.brand .bt,.lgb .bt{display:flex;flex-direction:column;line-height:1.15}.brand .bt small,.lgb .bt small{font-size:11px;font-weight:500;opacity:.7}
+#mTitle{display:flex;align-items:center;gap:8px}#mbar .logo{width:26px;height:26px}
 ol.hl{margin:6px 0;padding-left:22px}ol.hl li{margin:4px 0}
 .hgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
 details.hd summary{cursor:pointer}
@@ -203,7 +205,7 @@ td input.mini{width:80px;padding:3px 6px}
 <nav id="tabs" aria-label="Điều hướng nhanh"><button type="button" data-t="dash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Tổng quan</button><button type="button" data-t="suco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.5"/></svg>Sự cố<em id="tbd" hidden></em></button><button type="button" data-t="add" class="add qe"><span class="c">＋</span>Thêm</button><button type="button" data-t="kho"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8l9-5 9 5v11l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v10"/></svg>Kho</button><button type="button" data-t="kehoach"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Kế hoạch</button></nav>
 <div class="app">
   <aside id="nav">
-    <div class="brand"><i aria-hidden="true"></i>CSKVTT Quy trình</div>
+    <div class="brand"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect x=".5" y=".5" width="31" height="31" rx="7" fill="#0E5C54" stroke="rgba(255,255,255,.35)"/><path d="M10 26V11.5a6 5 0 0 1 11-2.8" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M18.5 8.3h8l-2.2 3h-3.8z" fill="#fff"/><circle cx="22.4" cy="11.8" r="1.3" fill="#F5B642"/><path d="M14.5 25.5l8-7" stroke="#F5B642" stroke-width="2.6" stroke-linecap="round"/><circle cx="24" cy="17.4" r="2.5" fill="none" stroke="#F5B642" stroke-width="2"/><circle cx="13.6" cy="26.3" r="2" fill="none" stroke="#F5B642" stroke-width="1.8"/></svg><span class="bt">QT Sửa chữa<small>CSKVTT – Chiếu sáng KV Trung tâm</small></span></div>
     <button data-v="dash">Tổng quan</button>
     <div class="ng" data-g="suco"><button type="button" class="nh" data-g="suco" aria-expanded="false"><span>Sự cố</span><span class="bd" data-gbd hidden></span><i class="mui" aria-hidden="true"></i></button><div class="nsub">
       <button data-v="suco">Danh sách sự cố <span class="bd" id="bdSuco" hidden></span></button>
@@ -684,7 +686,7 @@ function vatTuRows(){
 let audioCtx=null;
 function beep(){if(!S.cfg.amThanh)return;try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();[0,0.25].forEach(t=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.value=880;o.connect(g);g.connect(audioCtx.destination);g.gain.setValueAtTime(0.15,audioCtx.currentTime+t);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+t+0.2);o.start(audioCtx.currentTime+t);o.stop(audioCtx.currentTime+t+0.2)})}catch(e){}}
 function toast(title,body,kind=''){const t=document.createElement('div');t.className='toast '+kind;t.innerHTML=`<header><span>${esc(title)}</span><button aria-label="Đóng">✕</button></header><div style="white-space:pre-line">${esc(body)}</div>`;t.querySelector('button').onclick=()=>t.remove();$('#toasts').prepend(t);while($('#toasts').children.length>5)$('#toasts').lastChild.remove();if(kind==='g')setTimeout(()=>t.remove(),8000)}
-function osNotify(title,body){try{if(navigator.vibrate)navigator.vibrate([300,150,300]);if('Notification' in window&&Notification.permission==='granted'){if(swReg&&swReg.active){swReg.showNotification(title,{body,tag:'cskvtt-1022',renotify:true,requireInteraction:true,icon:'qt-icon-192.png',badge:'qt-icon-192.png',vibrate:[300,150,300],data:{v:'s1022'}});return}const n=new Notification(title,{body,tag:'cskvtt-1022',renotify:true,requireInteraction:true});n.onclick=()=>{window.focus();go('s1022');n.close()}}}catch(e){}}
+function osNotify(title,body){try{if(navigator.vibrate)navigator.vibrate([300,150,300]);if('Notification' in window&&Notification.permission==='granted'){if(swReg&&swReg.active){swReg.showNotification(title,{body,tag:'cskvtt-1022',renotify:true,requireInteraction:true,icon:'qtsc-icon-192.png',badge:'qtsc-icon-192.png',vibrate:[300,150,300],data:{v:'s1022'}});return}const n=new Notification(title,{body,tag:'cskvtt-1022',renotify:true,requireInteraction:true});n.onclick=()=>{window.focus();go('s1022');n.close()}}}catch(e){}}
 async function tick1022(){if(ROLE()!=='admin')return;
   const now=Date.now();const due=[];
   S.suco.forEach(x=>{if(x.nhom!=='1022'||isClosed(x))return;const lv=level(x);const last=x.lanNhac?Date.parse(x.lanNhac):0;if(now-last>=(S.cfg.nhip[lv]||60)*6e4){due.push({x,lv});x.lanNhac=new Date(now).toISOString();x.soLanNhac=(x.soLanNhac||0)+1}});
@@ -1679,7 +1681,7 @@ function hetPhien(){if(!SRV.on)return;SRV.on=false;SRV.token='';DB.set('srv_toke
 async function xoaCucBo(){for(const k of KEYS){S[k]=[];await DB.set(k,[]).catch(()=>{})}await DB.clearBlobs().catch(()=>{});SRV.shadow={};SRV.rev=0;await DB.set('srv_shadow',{});await DB.set('srv_rev',0)}
 function manDangNhap(msg){
   let o=$('#login');if(!o){o=document.createElement('div');o.id='login';document.body.appendChild(o)}
-  o.innerHTML=`<div class="lg"><div class="lgb"><i aria-hidden="true"></i>CSKVTT Quy trình</div><h2 style="margin:0">Đăng nhập</h2>${msg?`<div class="msg a">${esc(msg)}</div>`:''}
+  o.innerHTML=`<div class="lg"><div class="lgb"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect x=".5" y=".5" width="31" height="31" rx="7" fill="#0E5C54" stroke="rgba(255,255,255,.35)"/><path d="M10 26V11.5a6 5 0 0 1 11-2.8" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M18.5 8.3h8l-2.2 3h-3.8z" fill="#fff"/><circle cx="22.4" cy="11.8" r="1.3" fill="#F5B642"/><path d="M14.5 25.5l8-7" stroke="#F5B642" stroke-width="2.6" stroke-linecap="round"/><circle cx="24" cy="17.4" r="2.5" fill="none" stroke="#F5B642" stroke-width="2"/><circle cx="13.6" cy="26.3" r="2" fill="none" stroke="#F5B642" stroke-width="1.8"/></svg><span class="bt">QT Sửa chữa<small>CSKVTT – Chiếu sáng KV Trung tâm</small></span></div><h2 style="margin:0">Đăng nhập</h2>${msg?`<div class="msg a">${esc(msg)}</div>`:''}
   <label>Tên đăng nhập<input id="lgU" autocomplete="username" autocapitalize="none"></label>
   <label>Mật khẩu<input id="lgP" type="password" autocomplete="current-password"></label>
   <button class="b p" id="lgOK" type="button">Đăng nhập</button><div id="lgMsg"></div>
@@ -2166,8 +2168,8 @@ const laIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platfo
 const laZalo=()=>/zalo|FBAN|FBAV/i.test(navigator.userAgent);
 let hoiCai=null,anBanner=false,thamSoCho=null,swReg=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();hoiCai=e;document.querySelectorAll('.nut-cai').forEach(b=>b.classList.add('san'));if(['dash','caidat'].includes(cur)&&!$('#dlg').open)render()});
-window.addEventListener('appinstalled',()=>{hoiCai=null;capNhatNutCai();toast('Đã cài app','Mở "CSKVTT QT" từ màn hình chính (điện thoại) hoặc menu Start (máy tính).','g');render()});
-const APP_VER='2026.09.28-d';
+window.addEventListener('appinstalled',()=>{hoiCai=null;capNhatNutCai();toast('Đã cài app','Mở "QT Sửa chữa" từ màn hình chính (điện thoại) hoặc menu Start (máy tính).','g');render()});
+const APP_VER='2026.09.28-e';
 const APP_URL=()=>location.origin+location.pathname;
 function thietBi(){const u=navigator.userAgent;return{ios:laIOS(),android:/android/i.test(u),zalo:laZalo(),samsung:/SamsungBrowser/i.test(u),edge:/Edg\//i.test(u),firefox:/Firefox|FxiOS/i.test(u),chromeIOS:/CriOS/i.test(u),dt:chamTay()}}
 async function kiemTraCai(){
@@ -2177,15 +2179,15 @@ async function kiemTraCai(){
   return[
     ['Trang chạy qua https',location.protocol==='https:','Mở app qua địa chỉ https://phucle-gps.github.io/..., không mở file trên máy.'],
     ['Có file quytrinh-manifest.json',mf,'Tải quytrinh-manifest.json lên GitHub, cùng chỗ với quytrinh.html.'],
-    ['Có biểu tượng qt-icon-192.png, qt-icon-512.png',await hd('qt-icon-192.png')&&await hd('qt-icon-512.png'),'Tải các file qt-icon-*.png lên GitHub.'],
+    ['Có biểu tượng qtsc-icon-192.png, qtsc-icon-512.png',await hd('qtsc-icon-192.png')&&await hd('qt-icon-512.png'),'Tải các file qtsc-icon-*.png lên GitHub.'],
     ['Có file qt-sw.js',await hd('qt-sw.js'),'Tải qt-sw.js lên GitHub.'],
     ['Bộ chạy nền đã hoạt động',!!(reg&&reg.active),'Tải lại trang một lần sau khi đã có qt-sw.js. Nếu vẫn không được, trình duyệt đang chặn (chế độ ẩn danh hoặc trình duyệt trong Zalo).']];
 }
 function buocCai(){
   const t=thietBi();
   if(t.zalo)return`<div class="msg r">Bạn đang mở trong Zalo hoặc Facebook, nơi không cài được app. Bấm dấu ⋯ góc trên phải → <b>Mở bằng trình duyệt</b>, rồi bấm lại nút "Cài app".</div>`;
-  if(t.ios)return`<ol class="hl"><li>${t.chromeIOS?'Trên iPhone nên dùng <b>Safari</b>: sao chép link bên dưới, mở Safari, dán vào.':'Đang dùng Safari: tốt.'}</li><li>Bấm nút <b>Chia sẻ</b> (ô vuông có mũi tên lên) ở thanh dưới màn hình.</li><li>Kéo xuống, bấm <b>Thêm vào MH chính</b> → <b>Thêm</b>.</li><li>Mở app từ biểu tượng CSKVTT QT trên màn hình chính, đăng nhập lại một lần.</li></ol><p class="muted">iPhone không tự hiện hộp hỏi cài, luôn làm theo các bước trên.</p>`;
-  if(t.android)return`<ol class="hl"><li>${t.samsung?'Samsung Internet: bấm biểu tượng ☰ góc dưới → <b>Thêm trang vào</b> → <b>Màn hình chờ</b>.':t.firefox?'Firefox: bấm ⋮ → <b>Cài đặt</b>.':t.edge?'Edge: bấm ⋯ ở thanh dưới → <b>Thêm vào điện thoại</b>.':'Chrome: bấm dấu <b>⋮</b> góc trên phải → <b>Cài đặt ứng dụng</b> (hoặc <b>Thêm vào màn hình chính</b> → <b>Cài đặt</b>).'}</li><li>Xác nhận Cài đặt, đợi vài giây.</li><li>Biểu tượng CSKVTT QT xuất hiện trên màn hình chính và trong danh sách ứng dụng.</li></ol>`;
+  if(t.ios)return`<ol class="hl"><li>${t.chromeIOS?'Trên iPhone nên dùng <b>Safari</b>: sao chép link bên dưới, mở Safari, dán vào.':'Đang dùng Safari: tốt.'}</li><li>Bấm nút <b>Chia sẻ</b> (ô vuông có mũi tên lên) ở thanh dưới màn hình.</li><li>Kéo xuống, bấm <b>Thêm vào MH chính</b> → <b>Thêm</b>.</li><li>Mở app từ biểu tượng QT Sửa chữa trên màn hình chính, đăng nhập lại một lần.</li></ol><p class="muted">iPhone không tự hiện hộp hỏi cài, luôn làm theo các bước trên.</p>`;
+  if(t.android)return`<ol class="hl"><li>${t.samsung?'Samsung Internet: bấm biểu tượng ☰ góc dưới → <b>Thêm trang vào</b> → <b>Màn hình chờ</b>.':t.firefox?'Firefox: bấm ⋮ → <b>Cài đặt</b>.':t.edge?'Edge: bấm ⋯ ở thanh dưới → <b>Thêm vào điện thoại</b>.':'Chrome: bấm dấu <b>⋮</b> góc trên phải → <b>Cài đặt ứng dụng</b> (hoặc <b>Thêm vào màn hình chính</b> → <b>Cài đặt</b>).'}</li><li>Xác nhận Cài đặt, đợi vài giây.</li><li>Biểu tượng QT Sửa chữa xuất hiện trên màn hình chính và trong danh sách ứng dụng.</li></ol>`;
   return`<ol class="hl"><li><b>Máy tính:</b> bấm biểu tượng cài đặt (màn hình có mũi tên) ở cuối thanh địa chỉ, hoặc ⋯ → Ứng dụng → <b>Cài đặt trang web này dưới dạng ứng dụng</b> (Edge) / ⋮ → Truyền, lưu và chia sẻ → <b>Cài đặt trang</b> (Chrome).</li><li><b>Điện thoại:</b> quét mã QR bên dưới bằng camera điện thoại, mở link bằng Chrome (Android) hoặc Safari (iPhone), rồi bấm nút "Cài app lên điện thoại" trong app.</li></ol>`;
 }
 async function caiApp(){
@@ -2202,8 +2204,8 @@ async function caiApp(){
   moDialog();
   const cn=$('#caiNgay');if(cn)cn.onclick=async()=>{const e=hoiCai;hoiCai=null;e.prompt();try{const c=await e.userChoice;if(c.outcome==='accepted')$('#dlg').close()}catch(x){}};
   $('#caiCopy').onclick=async()=>{try{await navigator.clipboard.writeText(url);toast('Đã sao chép link app','','g')}catch(e){$('#caiUrl').select()}};
-  const sh=$('#caiShare');if(sh)sh.onclick=()=>navigator.share({title:'CSKVTT Quy trình',text:'Mở link bằng Chrome (Android) hoặc Safari (iPhone) rồi bấm "Cài app lên điện thoại":',url}).catch(()=>{});
-  loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js').then(()=>{const b=$('#qrBox');if(b&&window.QRCode){b.innerHTML='';new QRCode(b,{text:url,width:168,height:168,colorDark:'#14222E',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M})}}).catch(()=>{const b=$('#qrBox');if(b)b.textContent='Không tải được mã QR, dùng link bên cạnh.'});
+  const sh=$('#caiShare');if(sh)sh.onclick=()=>navigator.share({title:'QT Sửa chữa – CSKVTT',text:'Mở link bằng Chrome (Android) hoặc Safari (iPhone) rồi bấm "Cài app lên điện thoại":',url}).catch(()=>{});
+  loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js').then(()=>{const b=$('#qrBox');if(b&&window.QRCode){b.innerHTML='';new QRCode(b,{text:url,width:168,height:168,colorDark:'#0E3B37',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M})}}).catch(()=>{const b=$('#qrBox');if(b)b.textContent='Không tải được mã QR, dùng link bên cạnh.'});
   const kq=await kiemTraCai();const el=$('#caiKQ');if(!el)return;
   const loi=kq.filter(x=>!x[1]);
   el.innerHTML=`<ul class="kt">${kq.map(([n,ok,fix])=>`<li class="${ok?'ok':'no'}">${ok?'✓':'✗'} ${esc(n)}${ok?'':`<br><span>${esc(fix)}</span>`}</li>`).join('')}</ul>${loi.length?'<div class="msg r">Chưa đủ điều kiện cài. Sửa các mục đánh dấu ✗ rồi tải lại trang.</div>':daCai()?'':'<div class="msg g">Đã đủ điều kiện cài. Làm theo các bước ở trên.</div>'}`;
@@ -2213,7 +2215,7 @@ function moMenu(o){document.body.classList.toggle('menu-mo',!!o)}
 const TAB_NHOM={dash:'dash',suco:'suco',s1022:'suco',phieusua:'suco',import:'suco',pn:'kho',px:'kho',nh:'kho',tonkho:'kho',capphat:'kho',vattu:'kho',kehoach:'kehoach',sosanh:'kehoach'};
 function capNhatDT(v){
   const b=document.querySelector(`#nav button[data-v="${v}"]`);const t=$('#mTitle');
-  if(t)t.textContent=(b&&b.firstChild&&b.firstChild.textContent.trim())||'CSKVTT';
+  if(t)t.innerHTML=v==='dash'?`${document.querySelector('.brand .logo').outerHTML}QT Sửa chữa`:esc((b&&b.firstChild&&b.firstChild.textContent.trim())||'QT Sửa chữa');
   document.querySelectorAll('#tabs [data-t]').forEach(x=>x.classList.toggle('on',x.dataset.t===TAB_NHOM[v]));capNhatNhomBadge();
   const n=$('#bd1022');const tb=$('#tbd');if(tb&&n){tb.hidden=n.hidden;tb.textContent=n.textContent}
 }
