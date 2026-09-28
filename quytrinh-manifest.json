@@ -7,20 +7,74 @@
   "start_url": "quytrinh.html?nguon=app",
   "scope": "quytrinh",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone"],
+  "display_override": [
+    "window-controls-overlay",
+    "standalone"
+  ],
   "orientation": "any",
   "background_color": "#14222E",
   "theme_color": "#14222E",
   "icons": [
-    { "src": "qt-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "qt-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "qt-icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "qt-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "qt-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "qt-icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ],
   "shortcuts": [
-    { "name": "Ghi sự cố mới", "url": "quytrinh.html?lam=suco", "icons": [{ "src": "qt-icon-192.png", "sizes": "192x192" }] },
-    { "name": "Chụp phiếu xuất, phiếu lãnh", "url": "quytrinh.html?lam=px", "icons": [{ "src": "qt-icon-192.png", "sizes": "192x192" }] },
-    { "name": "Ghi khối lượng ngày", "url": "quytrinh.html?lam=kln", "icons": [{ "src": "qt-icon-192.png", "sizes": "192x192" }] },
-    { "name": "Sự cố 1022", "url": "quytrinh.html?v=s1022", "icons": [{ "src": "qt-icon-192.png", "sizes": "192x192" }] }
+    {
+      "name": "Nhập kết quả phiếu sửa",
+      "url": "quytrinh.html?lam=kqps",
+      "icons": [
+        {
+          "src": "qt-icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Ghi kết quả sửa chữa",
+      "url": "quytrinh.html?lam=kq",
+      "icons": [
+        {
+          "src": "qt-icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Ghi sự cố mới",
+      "url": "quytrinh.html?lam=suco",
+      "icons": [
+        {
+          "src": "qt-icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Sự cố 1022",
+      "url": "quytrinh.html?v=s1022",
+      "icons": [
+        {
+          "src": "qt-icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
   ],
   "share_target": {
     "action": "quytrinh.html?share=1",
@@ -29,12 +83,24 @@
     "params": {
       "title": "title",
       "text": "text",
-      "files": [{
-        "name": "files",
-        "accept": ["image/*", "application/pdf", ".pdf", ".xlsx", ".xls", ".csv", ".docx",
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel", "text/csv",
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]
-      }]
+      "files": [
+        {
+          "name": "files",
+          "accept": [
+            "image/*",
+            "application/pdf",
+            ".pdf",
+            ".xlsx",
+            ".xls",
+            ".csv",
+            ".docx",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/vnd.ms-excel",
+            "text/csv",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+          ]
+        }
+      ]
     }
   }
 }
