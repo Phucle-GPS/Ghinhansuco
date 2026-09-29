@@ -424,6 +424,15 @@ button.dl{border:none;}
 .lg-list{display:grid;grid-template-columns:1fr;gap:6px;} @media (min-width:1000px){ .lg-list{grid-template-columns:1fr 1fr;} }
 .lg-item{padding:9px 11px;border-radius:10px;background:var(--surface);border:1px solid var(--border);cursor:pointer;} .lg-item:hover{border-color:var(--accent);}
 .lg-t{font-weight:700;font-size:13.5px;} .lg-item .who,.lg-tips .who{font-size:12px;color:var(--text-2);line-height:1.45;} .lg-item mark{background:color-mix(in srgb,var(--accent) 38%,transparent);color:inherit;border-radius:3px;}
+.tk-sub{margin-bottom:10px;} @media (min-width:1000px){ .tk-sub{max-width:520px;} #view-bv.active{display:block;} }
+.bb-grid{display:grid;grid-template-columns:1fr;gap:8px;} @media (min-width:700px){ .bb-grid{grid-template-columns:1fr 1fr;} }
+.bb-card{display:flex;gap:10px;padding:8px;border:1px solid var(--border);border-radius:12px;background:var(--surface);} .bb-card.bb-no{border-color:var(--high);}
+.bb-th{flex:0 0 96px;height:72px;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:30px;} .bb-th img{width:100%;height:100%;object-fit:contain;}
+.bb-in{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;} .bb-fn{font-size:12.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bb-in .who,.bb-in label{font-size:11.5px !important;line-height:1.35;color:var(--text-2);} .bb-in label input{width:auto !important;}
+.bb-in input,.bb-in select{width:100%;padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font-family:inherit;font-size:12.5px;} .bb-st{font-size:12px;}
+.bv-prev{width:100%;height:420px;border:1px solid var(--border);border-radius:10px;background:#fff;margin-top:6px;} .bv-prev-img{width:100%;max-height:480px;object-fit:contain;border-radius:10px;border:1px solid var(--border);background:#fff;margin-top:6px;}
+.ts-t tbody tr{cursor:pointer;} .ts-t td{font-size:12px;}
 .src-tabs{display:flex;gap:8px;margin-bottom:12px;}
 .src-tabs button{flex:1;padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 .src-tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
@@ -702,6 +711,7 @@ nav svg{width:21px;height:21px;}
 
     <!-- THỐNG KÊ VIEW -->
     <section class="view" id="view-tk">
+      <div class="sc-tabs tk-sub"><button data-v="tk" class="on">📊 Thống kê tủ</button><button data-v="bv" class="">🏗️ HS Công trình</button></div>
       <div class="fl-head"><h2>📊 Thống kê tủ điều khiển</h2><button class="gps-btn" id="tkXls">⬇ Xuất Excel</button></div>
       <div class="inc-search">
         <div class="search-wrap"><input type="text" id="tkSearch" placeholder="Tìm tên tủ, mã PE, mã kết nối (T022.16…), mã quản lý, đường, địa chỉ… (có dấu hoặc không dấu)" autocomplete="off"></div>
@@ -725,10 +735,16 @@ nav svg{width:21px;height:21px;}
 
     <!-- KHO BẢN VẼ VIEW -->
     <section class="view" id="view-bv">
-      <div class="fl-head"><h2>📐 Kho bản vẽ</h2><div class="fl-btns"><button class="gps-btn" id="bvXls">⬇ Excel</button><button class="submit-btn" id="bvAdd" style="width:auto;padding:9px 14px">＋ Thêm bản vẽ</button></div></div>
-      <div class="who" style="margin:-4px 0 10px">Phân tách theo <b>phường mới sau sáp nhập (NQ 1685/NQ-UBTVQH15, hiệu lực 01/7/2025)</b>. Chọn quận ở hàng chip phía trên để xem theo phường.</div>
-      <div class="chips" id="bvWards" style="flex-wrap:wrap"></div>
-      <div class="inc-search"><div class="search-wrap"><input type="text" id="bvSearch" placeholder="Tìm tên bản vẽ, tủ, tuyến, số hiệu, tên file… (có dấu hoặc không dấu)" autocomplete="off"></div><select id="bvTypeSel" class="ql-select"></select></div>
+      <div class="sc-tabs tk-sub"><button data-v="tk" class="">📊 Thống kê tủ</button><button data-v="bv" class="on">🏗️ HS Công trình</button></div>
+      <div class="fl-head"><h2>🏗️ HS Công trình</h2></div>
+      <div class="sc-tabs" id="hsTabs" style="display:flex;flex-wrap:wrap"><button data-v="bv" class="on">📐 Bản vẽ &amp; hồ sơ</button><button data-v="ts">🧾 Thông số kỹ thuật</button><button data-v="sc">🔧 Hồ sơ sửa chữa</button></div>
+      <div class="lg-box"><div class="search-wrap" style="margin:0"><input type="text" id="bvSearch" placeholder="🔎 Tìm nội dung: tên tủ, mã PE, tuyến, phường, loại bản vẽ, tên file, thông số, nội dung sửa chữa… (có dấu hoặc không dấu)" autocomplete="off"></div></div>
+      <div id="bvOnly">
+        <div class="fl-head" style="margin-top:8px"><div class="who">Phân tách theo <b>phường mới sau sáp nhập (NQ 1685/NQ-UBTVQH15)</b>. Bản vẽ gán vào tủ sẽ hiện trong chi tiết tủ ở Thống kê.</div>
+          <div class="fl-btns"><button class="gps-btn" id="bvXls">⬇ Excel</button><button class="submit-btn" id="bvBulk" style="width:auto;padding:9px 14px">📥 Upload đồng loạt</button><button class="gps-btn" id="bvAdd">＋ Thêm 1 bản vẽ</button></div></div>
+        <div class="chips" id="bvWards" style="flex-wrap:wrap"></div>
+        <div class="bk-row" style="margin-top:0"><select id="bvTypeSel" class="ql-select"></select></div>
+      </div>
       <div id="bvBody"></div>
     </section>
     <!-- THEO DÕI LED VIEW -->
@@ -830,7 +846,7 @@ nav svg{width:21px;height:21px;}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
       Thống kê
     </button>
-    <button id="tabBv">
+    <button id="tabBv" class="nav-sub">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l3-9 9-9 6 6-9 9z"/><path d="M14 4l6 6M3 21l6-3"/></svg>
       Bản vẽ
     </button>
@@ -1252,7 +1268,7 @@ function renderQuanChips(){
     const b=document.createElement("button");
     b.className="chip"+(q===activeQuan?" active":"");
     b.textContent = q==="Tất cả" ? q : q.replace("Quận ","");
-    b.onclick=()=>{activeQuan=q; renderQuanChips(); renderCabList(); renderIncList(); if(typeof renderFiles==='function') renderFiles(); if($("#view-ks").classList.contains("active")) ksRender(); if($("#view-tk").classList.contains("active")){ tkProvSel="Tất cả"; tkRender(); tkRenderProv(); } if($("#view-bv").classList.contains("active")){ bvPhuong="Tất cả"; bvRender(); } if($("#view-led").classList.contains("active")) ledRender();};
+    b.onclick=()=>{activeQuan=q; renderQuanChips(); renderCabList(); renderIncList(); if(typeof renderFiles==='function') renderFiles(); if($("#view-ks").classList.contains("active")) ksRender(); if($("#view-tk").classList.contains("active")){ tkProvSel="Tất cả"; tkRender(); tkRenderProv(); } if($("#view-bv").classList.contains("active")){ bvPhuong="Tất cả"; hsRender(); } if($("#view-led").classList.contains("active")) ledRender();};
     wrap.appendChild(b);
   });
 }
@@ -2718,9 +2734,10 @@ async function tkOpen(r){
   h+=`<div id="tkBv"></div><div id="tkPoles"></div>`;
   el.innerHTML=h; $("#tkScrim").classList.add("show");
   if(can("banVe") && r[0]){ (async()=>{ if(!bvRecs) bvRecs=await hsLoad("BANVE"); const rel=(bvRecs||[]).filter(b=>(b.cabinets||[]).includes(r[0])); const box=$("#tkBv"); if(!box) return;
-    box.innerHTML=`<div class="tk-g">📐 Bản vẽ liên quan (${rel.length})${can("nhapBanVe")?' <button type="button" class="gps-btn" id="tkBvAdd" style="padding:4px 10px;margin-left:6px">＋ Thêm</button>':""}</div>`+(rel.length?rel.map(b=>`<div class="ks-rec tk-bvr" data-id="${b.id}" style="margin-top:6px"><b>${escHtml(b.data.ten||"")}</b><div class="who">${escHtml(b.data.loai||"")} · ${(b.files||[]).length} file</div></div>`).join(""):'<div class="who">Chưa có bản vẽ gắn với tủ này.</div>');
-    box.querySelectorAll(".tk-bvr").forEach(x=>x.onclick=()=>{ $("#tkScrim").classList.remove("show"); showView("bv"); bvRender().then(()=>bvOpen(bvRecs.find(z=>z.id===x.dataset.id))); });
-    const a=$("#tkBvAdd"); if(a) a.onclick=()=>{ const c=CABINETS.find(z=>z.pe===r[0]); $("#tkScrim").classList.remove("show"); showView("bv"); bvRender().then(()=>bvOpen(null,{cabinets:[r[0]],quan:c?c.q:r[6],phuong:c?c.pm:""})); };
+    box.innerHTML=`<div class="tk-g">📐 Bản vẽ của tủ (${rel.length})${can("nhapBanVe")?' <button type="button" class="gps-btn" id="tkBvAdd" style="padding:4px 10px;margin-left:6px">＋ Thêm</button>':""}</div>`+bvPreviewHtml(rel);
+    box.querySelectorAll(".bv-dl").forEach(b=>b.onclick=e=>{ e.stopPropagation(); dlFile(b.dataset.f,b.dataset.n,b); });
+    box.querySelectorAll(".tk-bvr b").forEach(x=>x.onclick=()=>{ x=x.parentNode; $("#tkScrim").classList.remove("show"); showView("bv"); hsTab="bv"; hsTabs(); bvRender().then(()=>bvOpen(bvRecs.find(z=>z.id===x.dataset.id))); });
+    const a=$("#tkBvAdd"); if(a) a.onclick=()=>{ const c=CABINETS.find(z=>z.pe===r[0]); $("#tkScrim").classList.remove("show"); showView("bv"); hsTab="bv"; bvRender().then(()=>bvOpen(null,{cabinets:[r[0]],quan:c?c.q:r[6],phuong:c?c.pm:""})); };
   })(); }
   const ti=$("#tkToInc"); if(ti) ti.onclick=()=>{ $("#tkScrim").classList.remove("show"); showView("new"); selectCabinet(cab); window.scrollTo(0,0); };
   const x1=$("#tkXls1"); if(x1) x1.onclick=()=>tkExport([r], "Tu_"+(r[0]||r[16]));
@@ -3026,14 +3043,184 @@ function hsAttach(el, ctx){
 }
 async function hsLoad(kind){ const r=await api("listHoSo",{kind}); return r.ok ? (r.recs||[]) : null; }
 
+/* ---------- UPLOAD BẢN VẼ ĐỒNG LOẠT: mọi định dạng, tự phân tách PDF theo tủ, xuất PDF hoặc ảnh ---------- */
+const PDFJS_URL="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js", PDFJS_WORKER="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js", PDFLIB_URL="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js", JSZIP_URL="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
+const waitFor=(fn,ms)=>new Promise((res,rej)=>{ const t0=Date.now(); (function tick(){ if(fn()) return res(true); if(Date.now()-t0>(ms||8000)) return rej(new Error("Không tải được thư viện")); setTimeout(tick,100); })(); });
+async function needPdfJs(){ if(!window.pdfjsLib){ await loadScript(PDFJS_URL); await waitFor(()=>window.pdfjsLib); } try{ if(!pdfjsLib.GlobalWorkerOptions.workerSrc) pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER; }catch(e){} return window.pdfjsLib; }
+async function needPdfLib(){ if(!window.PDFLib){ await loadScript(PDFLIB_URL); await waitFor(()=>window.PDFLib); } return window.PDFLib; }
+const cabKeyN = s => vnNorm(String(s||"")).replace(/[^a-z0-9]/g,"");
+let CAB_KEYS=null;
+function cabKeys(){ if(CAB_KEYS) return CAB_KEYS; CAB_KEYS=CABINETS.map(c=>({c,k:cabKeyN(c.n)})).filter(x=>x.k.length>=6).sort((a,b)=>b.k.length-a.k.length); return CAB_KEYS; }
+/* nhận diện tủ từ nội dung trang (tiêu đề "TỦ ĐIỀU KHIỂN - …"), mã PE, hoặc tên file */
+function bvDetectCab(text, fname){
+  const t=String(text||"");
+  let m=t.match(/T[ỦU]\s*[ĐD]I[ỀE]U\s*KHI[ỂE]N\s*[-–:]\s*(.+?)(?:\s+TL\s*[:.]|\n|$)/i);
+  if(m){ const k=cabKeyN(m[1]); const hit=cabKeys().find(x=>x.k===k) || cabKeys().find(x=>k.includes(x.k)); if(hit) return {c:hit.c, by:"tiêu đề bản vẽ"}; }
+  m=t.match(/PE\d{11}/i); if(m){ const c=CABINETS.find(x=>x.pe.replace(/-B$/,"")===m[0].toUpperCase()); if(c) return {c, by:"mã PE"}; }
+  const fk=cabKeyN(String(fname||"").replace(/\.[^.]+$/,"").replace(/_/g," "));
+  let hit=cabKeys().find(x=>x.k===fk); if(hit) return {c:hit.c, by:"tên file"};
+  const tk=cabKeyN(t).slice(0,20000);
+  if(tk){ hit=cabKeys().find(x=>tk.includes(x.k)); if(hit) return {c:hit.c, by:"nội dung"}; }
+  hit=cabKeys().find(x=>fk.includes(x.k)); if(hit) return {c:hit.c, by:"tên file"};
+  return null;
+}
+function bvDetectType(text){ const t=vnNorm(text||"");
+  if(/so do tuyen/.test(t)) return "Sơ đồ tuyến trạm đèn"; if(/hoan cong/.test(t)) return "Bản vẽ hoàn công"; if(/nguyen ly/.test(t)) return "Sơ đồ nguyên lý tủ điều khiển";
+  if(/mat bang/.test(t)) return "Mặt bằng tuyến chiếu sáng"; if(/thiet ke/.test(t)) return "Bản vẽ thiết kế thi công"; if(/mong tru|chi tiet tru/.test(t)) return "Bản vẽ chi tiết trụ – móng"; return ""; }
+async function pdfPageImage(page, scale, q){ const vp=page.getViewport({scale}); const cv=document.createElement("canvas"); cv.width=vp.width; cv.height=vp.height; await page.render({canvasContext:cv.getContext("2d"), viewport:vp}).promise; return cv.toDataURL("image/jpeg", q||0.85); }
+let bvParts=[], bvFmt="pdf";
+async function bvAnalyze(files, msgEl){
+  const out=[]; let zipDone=[];
+  for(const f of files){
+    if(/\.zip$/i.test(f.name)){ // giải nén ZIP rồi xử lý từng file bên trong
+      if(typeof JSZip==="undefined"){ await loadScript(JSZIP_URL); await waitFor(()=>window.JSZip); }
+      const z=await JSZip.loadAsync(f); for(const n of Object.keys(z.files)){ const e=z.files[n]; if(e.dir) continue; const b=await e.async("blob"); zipDone.push(new File([b], n.split("/").pop(), {type:/\.pdf$/i.test(n)?"application/pdf":/\.(jpe?g)$/i.test(n)?"image/jpeg":/\.png$/i.test(n)?"image/png":""})); } continue; }
+    if(f.type==="application/pdf" || /\.pdf$/i.test(f.name)){
+      msgEl.textContent="Đang đọc "+f.name+"…";
+      try{
+        const lib=await needPdfJs(); const doc=await lib.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise;
+        const pages=[];
+        for(let i=1;i<=doc.numPages;i++){ const pg=await doc.getPage(i); const tc=await pg.getTextContent(); const txt=tc.items.map(x=>x.str).join("\n");
+          const det=bvDetectCab(txt, doc.numPages===1?f.name:""); pages.push({i, txt, det, thumb: i<=60 ? await pdfPageImage(pg, 0.35, 0.7) : ""}); }
+        // gộp các trang liên tiếp cùng tủ thành 1 phần
+        let cur=null;
+        pages.forEach(p=>{ const pe=p.det?p.det.c.pe:"?"+(doc.numPages===1?"":p.i);
+          if(cur && cur.pe===pe && pe[0]!=="?") { cur.pages.push(p.i); return; }
+          cur={src:f, doc, pe, pages:[p.i], cab:p.det?p.det.c:null, by:p.det?p.det.by:"", thumb:p.thumb, loai:bvDetectType(p.txt)||BV_TYPES[0], kind:"pdf", total:doc.numPages}; out.push(cur); });
+        if(doc.numPages===1 && out[out.length-1] && !out[out.length-1].cab){ const d=bvDetectCab("",f.name); if(d){ out[out.length-1].cab=d.c; out[out.length-1].by=d.by; } }
+      }catch(e){ out.push({src:f, kind:"file", cab:(bvDetectCab("",f.name)||{}).c||null, by:"tên file", loai:"Khác", err:"Không đọc được nội dung PDF – lưu nguyên file ("+(e&&e.message||e)+")"}); }
+    } else if(/^image\//.test(f.type)){
+      const d=bvDetectCab("",f.name); out.push({src:f, kind:"image", cab:d?d.c:null, by:d?d.by:"", loai:BV_TYPES[0], thumb:URL.createObjectURL(f)});
+    } else { const d=bvDetectCab("",f.name); out.push({src:f, kind:"file", cab:d?d.c:null, by:d?d.by:"", loai:/dwg|dxf/i.test(f.name)?"Bản vẽ hoàn công":"Khác"}); }
+  }
+  if(zipDone.length) out.push(...await bvAnalyze(zipDone, msgEl));
+  return out;
+}
+function bvPartName(p){ return p.cab ? (p.loai||"Bản vẽ")+" – "+p.cab.n : p.src.name.replace(/\.[^.]+$/,"").replace(/_/g," "); }
+function bvBulkOpen(){
+  $("#bvTitle").textContent="📥 Upload bản vẽ đồng loạt";
+  $("#bvDetail").innerHTML=`<div class="who">Chọn nhiều file cùng lúc – <b>mọi định dạng</b> (PDF, ảnh scan, DWG/DXF, Word, Excel, ZIP…). App <b>tự nhận diện tủ</b> theo tiêu đề bản vẽ ("TỦ ĐIỀU KHIỂN - …"), mã PE hoặc tên file; <b>PDF nhiều trang được tự phân tách</b> theo từng tủ. Kiểm tra cột "Gán vào tủ" rồi bấm Tải lên – bản vẽ sẽ hiện trong chi tiết tủ ở mục Thống kê.</div>
+   <div class="fl-btns" style="margin:10px 0"><label class="gps-btn fl-pick">📎 Chọn file / thư mục ZIP<input type="file" id="bbIn" multiple hidden></label><label class="gps-btn fl-pick">📷 Chụp bản vẽ giấy<input type="file" id="bbCam" accept="image/*" capture="environment" hidden></label>
+     <span class="who" style="align-self:center">Lưu PDF dưới dạng:</span><select id="bbFmt" class="ql-select" style="width:auto"><option value="pdf">PDF (tách theo tủ)</option><option value="jpg">Ảnh JPG (mỗi trang 1 ảnh)</option><option value="both">Cả PDF và ảnh</option></select></div>
+   <div id="bbList"></div><div class="gps-result" id="bbMsg"></div>`;
+  bvParts=[];
+  const draw=()=>{ const el=$("#bbList"); if(!bvParts.length){ el.innerHTML=""; return; }
+    const ok=bvParts.filter(p=>p.on!==false && p.cab && !p.st), nc=bvParts.filter(p=>!p.cab).length;
+    el.innerHTML=`<div class="who" style="margin-bottom:6px">${bvParts.length} phần từ ${new Set(bvParts.map(p=>p.src.name)).size} file · <b>${bvParts.filter(p=>p.cab).length}</b> đã nhận diện tủ${nc?` · <span style="color:var(--high)">${nc} chưa rõ tủ – gõ tên tủ để gán</span>`:""}</div>
+     <div class="bb-grid">${bvParts.map((p,i)=>`<div class="bb-card ${p.cab?"":"bb-no"}">
+       <div class="bb-th">${p.thumb?`<img src="${p.thumb}">`:`<span>${fileIcon(p.src.type,p.src.name)}</span>`}</div>
+       <div class="bb-in"><div class="bb-fn" title="${escHtml(p.src.name)}">${escHtml(p.src.name)}${p.kind==="pdf"&&p.total>1?` · trang ${p.pages[0]}${p.pages.length>1?"–"+p.pages[p.pages.length-1]:""}/${p.total}`:""}</div>
+       <input class="bb-cab" data-i="${i}" list="bbCabList" value="${p.cab?escHtml(p.cab.n+" | "+p.cab.pe):""}" placeholder="Gõ tên tủ / mã PE để gán" ${p.st?"disabled":""}>
+       <div class="who">${p.cab?`✔ ${escHtml(p.cab.q)} · P. ${escHtml(p.cab.pm||"")} · nhận theo ${escHtml(p.by||"chọn tay")}`:(p.err?escHtml(p.err):"Chưa nhận diện được tủ")}</div>
+       <select class="bb-loai" data-i="${i}" ${p.st?"disabled":""}>${BV_TYPES.map(t=>`<option ${t===p.loai?"selected":""}>${t}</option>`).join("")}</select>
+       <label class="who"><input type="checkbox" class="bb-on" data-i="${i}" ${p.on===false?"":"checked"} ${p.st?"disabled":""}> Tải lên</label> <b class="bb-st">${escHtml(p.st||"")}</b></div></div>`).join("")}</div>
+     <datalist id="bbCabList"></datalist>
+     <button type="button" class="submit-btn" id="bbGo" style="margin-top:10px" ${ok.length?"":"disabled"}>⬆ Tải lên ${ok.length} bản vẽ</button>`;
+    el.querySelectorAll(".bb-cab").forEach(inp=>inp.oninput=()=>{ const v=inp.value, dl=$("#bbCabList"), pe=(v.split("|")[1]||"").trim(), c=pe&&CABINETS.find(x=>x.pe===pe);
+      if(c){ bvParts[inp.dataset.i].cab=c; bvParts[inp.dataset.i].by="chọn tay"; draw(); return; }
+      dl.innerHTML=""; if(v.trim().length<2) return; searchCabinets(v,false).list.slice(0,15).forEach(c=>{ const o=document.createElement("option"); o.value=c.n+" | "+c.pe; o.label=c.q; dl.appendChild(o); }); });
+    el.querySelectorAll(".bb-loai").forEach(s=>s.onchange=()=>bvParts[s.dataset.i].loai=s.value);
+    el.querySelectorAll(".bb-on").forEach(c=>c.onchange=()=>{ bvParts[c.dataset.i].on=c.checked; draw(); });
+    const g=$("#bbGo"); if(g) g.onclick=upload; };
+  const add=async fs=>{ $("#bbMsg").textContent="Đang phân tích…"; try{ const parts=await bvAnalyze([...fs], $("#bbMsg")); bvParts.push(...parts); $("#bbMsg").textContent=""; }catch(e){ $("#bbMsg").textContent="Lỗi: "+e.message; } draw(); };
+  ["bbIn","bbCam"].forEach(id=>{ const i=$("#"+id); i.onchange=()=>{ const fs=[...i.files]; i.value=""; add(fs); }; });
+  $("#bbFmt").onchange=e=>bvFmt=e.target.value;
+  const upload=async()=>{
+    $("#bbGo").disabled=true; let n=0; if(!bvRecs) bvRecs=await hsLoad("BANVE")||[];
+    for(const p of bvParts){ if(p.on===false || !p.cab || p.st) continue;
+      p.st="Đang xử lý…"; draw();
+      try{
+        const base=(p.cab.n+(p.kind==="pdf"&&p.total>1?`_tr${p.pages[0]}${p.pages.length>1?"-"+p.pages[p.pages.length-1]:""}`:"")).replace(/[\\/:*?"<>|]+/g,"_");
+        const outs=[];
+        if(p.kind==="pdf"){
+          const whole = p.pages.length===p.total;
+          if(bvFmt!=="jpg"){
+            if(whole) outs.push({name:p.src.name, mime:"application/pdf", data:await fileToB64(p.src)});
+            else { const L=await needPdfLib(); const srcDoc=await L.PDFDocument.load(await p.src.arrayBuffer()); const nd=await L.PDFDocument.create(); const cp=await nd.copyPages(srcDoc,p.pages.map(x=>x-1)); cp.forEach(pg=>nd.addPage(pg)); const bytes=await nd.save(); let s=""; for(let i=0;i<bytes.length;i+=0x8000) s+=String.fromCharCode.apply(null,bytes.subarray(i,i+0x8000)); outs.push({name:base+".pdf", mime:"application/pdf", data:btoa(s)}); } }
+          if(bvFmt!=="pdf"){ for(const pn of p.pages.slice(0,10)){ const pg=await p.doc.getPage(pn); const d=await pdfPageImage(pg, 2, 0.85); outs.push({name:base+(p.pages.length>1?"_trang"+pn:"")+".jpg", mime:"image/jpeg", data:d.split(",")[1]}); } }
+        } else if(p.kind==="image"){ const d=await imgForUpload(p.src, 3000, 0.9); outs.push(d||{name:p.src.name,mime:p.src.type,data:await fileToB64(p.src)}); }
+        else outs.push({name:p.src.name, mime:p.src.type||"application/octet-stream", data:await fileToB64(p.src)});
+        const sv=await api("saveHoSo",{rec:{kind:"BANVE", quan:p.cab.q, phuong:p.cab.pm||"", cabinets:[p.cab.pe], data:{ten:bvPartName(p), loai:p.loai, tuyen:p.cab.duong||"", ghiChu:"Upload đồng loạt từ file "+p.src.name+(p.kind==="pdf"&&p.total>1?` (trang ${p.pages.join(", ")})`:"")}}});
+        if(!sv.ok) throw new Error(sv.error||"Lỗi lưu"); let rec=sv.rec; rec.files=rec.files||[];
+        for(const o of outs){ const r=await api("addHoSoFile",{id:rec.id, file:o}); if(!r.ok) throw new Error(r.error||"Lỗi tải file"); rec=r.rec; }
+        bvRecs.unshift(rec); p.st="✅ Đã lưu"; n++;
+      }catch(e){ p.st="⛔ "+e.message; }
+      draw(); }
+    $("#bbMsg").textContent=`Đã lưu ${n} bản vẽ, gán vào tủ tương ứng.`; };
+  $("#bvScrim").classList.add("show");
+}
+
+/* ---------- HS CÔNG TRÌNH (thuộc mục Thống kê): bản vẽ · thông số kỹ thuật · hồ sơ sửa chữa ---------- */
+let hsTab="bv", hsQ="";
+function hsTabs(){ $("#hsTabs").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.v===hsTab)); $("#bvOnly").style.display=hsTab==="bv"?"":"none"; }
+async function hsRender(){
+  hsTabs();
+  if(hsTab==="bv"){ bvTerm=hsQ; return bvRender(); }
+  const el=$("#bvBody"); $("#bvWards").innerHTML="";
+  if(hsTab==="ts") return hsSpecs(el);
+  if(hsTab==="sc") return hsRepairs(el);
+}
+/* 🧾 Tổng hợp thông số kỹ thuật theo tủ */
+async function hsSpecs(el){
+  el.innerHTML='<div class="empty">Đang tải thông số…</div>';
+  if(!(await tkEnsure())){ el.innerHTML='<div class="empty">Không tải được thongke.js</div>'; return; }
+  if(!bvRecs && can("banVe")) bvRecs=await hsLoad("BANVE")||[];
+  const toks=vnNorm(hsQ).trim().split(/\s+/).filter(Boolean);
+  const bvBy={}; (bvRecs||[]).forEach(b=>(b.cabinets||[]).forEach(pe=>bvBy[pe]=(bvBy[pe]||0)+1));
+  const rows=TK_ROWS.filter(r=>(activeQuan==="Tất cả"||r[6]===activeQuan) && (!toks.length || toks.every(t=>(r._s+" "+vnNorm((CABINETS.find(c=>c.pe===r[0])||{}).ql||"")).includes(t))));
+  const show=rows.slice(0,300);
+  el.innerHTML=`<div class="fl-head"><span class="who">${rows.length} tủ${rows.length>300?" – hiện 300 đầu, gõ thêm để thu hẹp":""}</span><button class="gps-btn" id="tsXls">⬇ Excel thông số</button></div>
+   <div class="ks-table-wrap"><table class="ks-table ts-t"><thead><tr><th>Tủ điều khiển</th><th>Quận / phường mới</th><th>Loại tủ · thiết bị</th><th>Đèn (LED/HPS)</th><th>Trụ</th><th>Cần</th><th>Cáp ngầm / nổi</th><th>Tuyến</th><th>Người QL</th><th>Bản vẽ</th></tr></thead><tbody>
+   ${show.map((r,i)=>{ const c=CABINETS.find(x=>x.pe===r[0])||{}; return `<tr data-i="${i}"><td style="text-align:left"><b>${highlight(r[1],toks)}</b><div class="who mono">${escHtml(r[0]||"")}${r[14]?" · "+escHtml(r[14]):""}</div></td><td>${escHtml(r[6].replace("Quận ","Q."))}<div class="who">${escHtml(c.pm||r[5]||"")}</div></td><td style="text-align:left">${escHtml(r[10]||"")}<div class="who">${escHtml(r[12]||"")}</div></td><td>${r[20]}<div class="who">${r[24]} / ${r[21]+r[22]}</div></td><td>${r[26]}</td><td>${r[40]}</td><td>${tkFmt(r[51],"m")}<div class="who">${tkFmt(r[50],"m")}</div></td><td>${tkFmt(r[19],"m")}</td><td>${escHtml(c.ql||"")}</td><td>${bvBy[r[0]]?"📐 "+bvBy[r[0]]:""}</td></tr>`; }).join("")}</tbody></table></div>`;
+  el.querySelectorAll(".ts-t tbody tr").forEach(tr=>tr.onclick=()=>tkOpen(show[+tr.dataset.i]));
+  $("#tsXls").onclick=()=>tkExport(rows,"Thong_so_ky_thuat_"+(activeQuan==="Tất cả"?"tat_ca":activeQuan.replace(/\s+/g,"_")));
+}
+/* 🔧 Hồ sơ sửa chữa: sự cố đã xử lý + hồ sơ Driver + biên bản hiện trường */
+async function hsRepairs(el){
+  el.innerHTML='<div class="empty">Đang tổng hợp hồ sơ sửa chữa…</div>';
+  const items=[];
+  (incidents||[]).filter(i=>i.trangThai==="Đã xử lý").forEach(i=>items.push({k:"sc",icon:"🛠️",loai:"Sự cố đã xử lý",quan:i.quan,tu:i.cabinetName,pe:i.cabinetPE,ngay:i.ngay,
+    tieuDe:(i.moTa||"").slice(0,90),noiDung:i.ghiChuXuLy||"",nguoi:incQLOf(i)||i.nguoiGhiNhan||"",hay:[i.cabinetName,i.cabinetPE,i.quan,i.moTa,i.loiSCP,i.ghiChuXuLy,i.nguoiGhiNhan,incQLOf(i),i.lyTrinh].join(" "),
+    open:()=>{ $("#bvTitle").textContent="🛠️ "+(i.cabinetName||"Sự cố"); $("#bvDetail").innerHTML=`<div class="tk-grid">${[["Tủ",i.cabinetName],["Mã PE",i.cabinetPE],["Quận",i.quan],["Ngày ghi nhận",i.ngay],["Mức độ",i.mucDo],["Nguồn",i.nguon||"Ghi nhận"],["Người quản lý",incQLOf(i)],["Người ghi nhận",i.nguoiGhiNhan]].map(([l,v])=>`<div><span>${l}</span><b>${escHtml(v||"—")}</b></div>`).join("")}</div><div class="ks-g">Mô tả sự cố</div><div class="desc">${escHtml(i.moTa||"")}</div><div class="ks-g">Nội dung đã xử lý</div><div class="desc">${escHtml(i.ghiChuXuLy||"(chưa ghi)")}</div>${i.anhHienTruong?`<div class="inc-photos">${String(i.anhHienTruong).split(/\n+/).filter(Boolean).map(u=>`<img class="inc-photo" src="${u}">`).join("")}</div>`:""}`; $("#bvScrim").classList.add("show"); }}));
+  if(can("theoDoiLed")){
+    try{ if(typeof DRIVER_TABLE==="undefined") await loadScript("led.js"); if(!ledLoaded){ ledOv=await hsLoad("LED")||[]; ledLoaded=true; } }catch(e){}
+    (ledOv||[]).filter(o=>o.data.type==="driver").forEach(o=>{ const f=o.data.fields||{}; items.push({k:"drv",icon:"🔧",loai:"Hồ sơ sửa chữa Driver (HD 680)",quan:"",tu:f.tu||f.tuyen,ngay:new Date(o.createdAt).toISOString().slice(0,10),
+      tieuDe:(f.tenBoDen||"Bộ đèn")+(f.congSuatDen?" "+f.congSuatDen+"W":"")+(f.maHang?" · "+f.maHang:""),noiDung:(f.dongCaiDat?"Dòng cài "+f.dongCaiDat+" mA · ":"")+(f.trangThai||""),nguoi:o.nguoiTaoTen,hay:Object.values(f).join(" ")+" "+(o.files||[]).map(x=>x.name).join(" "),open:()=>drvOpen(o)}); });
+  }
+  if(can("khaoSat")){ try{ if(!ksLoaded) await ksLoad(); }catch(e){}
+    (ksRecs||[]).filter(r=>Number(r.mau)===17).forEach(r=>{ const d=r.data||{}; items.push({k:"bb",icon:"📝",loai:"Biên bản hiện trường",quan:r.quan,tu:d.tu,ngay:(d.ngayGio||"").slice(0,10),tieuDe:(d.hangMuc||"Biên bản")+" – "+(d.duong||""),noiDung:(d.ketLuan||"")+" "+(d.kienNghi||""),nguoi:r.nguoiTaoTen,hay:Object.values(d).join(" "),open:()=>{ showView("ks"); ksMau=17; ksRenderList(); ksOpenForm(r); }}); }); }
+  const toks=vnNorm(hsQ).trim().split(/\s+/).filter(Boolean);
+  const L=items.filter(x=>(activeQuan==="Tất cả"||!x.quan||x.quan===activeQuan) && (!toks.length||toks.every(t=>vnNorm(x.hay+" "+x.loai).includes(t)))).sort((a,b)=>String(b.ngay).localeCompare(String(a.ngay)));
+  const cnt=k=>L.filter(x=>x.k===k).length;
+  el.innerHTML=`<div class="ac-kpi"><span>🛠️ ${cnt("sc")} sự cố đã xử lý</span><span>🔧 ${cnt("drv")} hồ sơ Driver</span><span>📝 ${cnt("bb")} biên bản hiện trường</span></div>
+   <div class="fl-head"><span class="who">${L.length} hồ sơ${hsQ?" khớp “"+escHtml(hsQ)+"”":""}</span><button class="gps-btn" id="scXls">⬇ Excel</button></div><div class="lg-list" id="scList"></div>`;
+  const box=$("#scList"); if(!L.length) box.innerHTML='<div class="empty">Chưa có hồ sơ sửa chữa.</div>';
+  L.slice(0,300).forEach(x=>{ const d=document.createElement("div"); d.className="lg-item";
+    d.innerHTML=`<div class="lg-t">${x.icon} ${highlight(x.tieuDe||"",toks)}</div><div class="who">${escHtml(x.loai)} · ${escHtml(x.tu||"")}${x.quan?" · "+escHtml(x.quan):""} · ${escHtml(x.ngay||"")}${x.nguoi?" · "+escHtml(x.nguoi):""}</div>${x.noiDung?`<div class="who">${highlight(x.noiDung.slice(0,140),toks)}</div>`:""}`;
+    d.onclick=x.open; box.appendChild(d); });
+  $("#scXls").onclick=()=>{ if(typeof XLSX==="undefined") return; const aoa=[["STT","Loại hồ sơ","Tủ / tuyến","Quận","Ngày","Nội dung","Kết quả / thông số","Người"],...L.map((x,i)=>[i+1,x.loai,x.tu,x.quan,x.ngay,x.tieuDe,x.noiDung,x.nguoi])];
+    const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(aoa); ws["!cols"]=[{wch:5},{wch:26},{wch:30},{wch:14},{wch:11},{wch:50},{wch:50},{wch:20}]; XLSX.utils.book_append_sheet(wb,ws,"Ho so sua chua"); saveBlob(new Blob([XLSX.write(wb,{bookType:"xlsx",type:"array"})]),"Ho_so_sua_chua_"+todayISO()+".xlsx"); };
+}
+/* xem bản vẽ ngay trong chi tiết tủ (Thống kê) */
+function bvPreviewHtml(list){
+  if(!list.length) return '<div class="who">Chưa có bản vẽ gắn với tủ này.</div>';
+  const first=list[0], f0=(first.files||[]).find(f=>/pdf|image/.test(f.mime))||(first.files||[])[0];
+  let h="";
+  if(f0) h+= /^image\//.test(f0.mime) ? `<a href="https://drive.google.com/file/d/${encodeURIComponent(f0.id)}/view" target="_blank" rel="noopener"><img class="bv-prev-img" src="https://drive.google.com/thumbnail?id=${encodeURIComponent(f0.id)}&sz=w1600" loading="lazy"></a>`
+    : /pdf/.test(f0.mime) ? `<iframe class="bv-prev" src="https://drive.google.com/file/d/${encodeURIComponent(f0.id)}/preview" allow="autoplay" loading="lazy"></iframe>` : "";
+  h+=list.map(b=>`<div class="ks-rec tk-bvr" data-id="${b.id}" style="margin-top:6px"><b>📐 ${escHtml(b.data.ten||"")}</b><div class="who">${escHtml(b.data.loai||"")} · ${(b.files||[]).length} file · ${new Date(b.updatedAt).toLocaleDateString("vi-VN")}</div>
+    <div class="fl-btns" style="margin-top:4px">${(b.files||[]).slice(0,6).map(f=>`<a class="gps-btn" style="text-decoration:none;padding:4px 8px;font-size:12px" target="_blank" rel="noopener" href="https://drive.google.com/file/d/${encodeURIComponent(f.id)}/view">${fileIcon(f.mime,f.name)} Xem</a><button type="button" class="gps-btn bv-dl" data-f="${escHtml(f.id)}" data-n="${escHtml(f.name)}" style="padding:4px 8px;font-size:12px">⬇ ${escHtml(f.name.length>28?f.name.slice(0,26)+"…":f.name)}</button>`).join("")}</div></div>`).join("");
+  return h;
+}
+
 /* ---------- KHO BẢN VẼ (theo phường mới sau sáp nhập) ---------- */
-const BV_TYPES=["Bản vẽ hoàn công","Bản vẽ thiết kế thi công","Sơ đồ nguyên lý tủ điều khiển","Mặt bằng tuyến chiếu sáng","Sơ đồ đấu nối / lý trình","Bản vẽ chi tiết trụ – móng","Khác"];
+const BV_TYPES=["Sơ đồ tuyến trạm đèn","Bản vẽ hoàn công","Bản vẽ thiết kế thi công","Sơ đồ nguyên lý tủ điều khiển","Mặt bằng tuyến chiếu sáng","Sơ đồ đấu nối / lý trình","Bản vẽ chi tiết trụ – móng","Khác"];
 let bvRecs=null, bvPhuong="Tất cả", bvTerm="", bvType="";
 const cabByPe = pe => CABINETS.find(c=>c.pe===pe);
 async function bvRender(force){
   const el=$("#bvBody");
   if(!bvRecs || force){ el.innerHTML='<div class="empty">Đang tải kho bản vẽ…</div>'; bvRecs=await hsLoad("BANVE"); if(!bvRecs){ el.innerHTML='<div class="empty">Không tải được (kiểm tra quyền "Xem Kho bản vẽ").</div>'; return; } }
-  $("#bvAdd").style.display = can("nhapBanVe") ? "" : "none";
+  $("#bvAdd").style.display = can("nhapBanVe") ? "" : "none"; $("#bvBulk").style.display = can("nhapBanVe") ? "" : "none";
   const inQ=bvRecs.filter(r=>activeQuan==="Tất cả"||r.quan===activeQuan);
   // chips phường mới
   const pc=$("#bvWards"); pc.innerHTML="";
@@ -3115,7 +3302,10 @@ function bvOpen(rec, preset){
 }
 $("#bvAdd").onclick=()=>bvOpen(null);
 $("#bvClose").onclick=()=>{ $("#bvScrim").classList.remove("show"); bvRender(); };
-$("#bvSearch").addEventListener("input",e=>{ bvTerm=e.target.value; bvRender(); });
+let hsQT=null; $("#bvSearch").addEventListener("input",e=>{ clearTimeout(hsQT); hsQT=setTimeout(()=>{ hsQ=e.target.value; bvTerm=hsQ; hsRender(); },200); });
+$("#hsTabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{ hsTab=b.dataset.v; hsRender(); });
+document.querySelectorAll(".tk-sub button").forEach(b=>b.onclick=()=>{ if(b.dataset.v==="tk") $("#tabTk").click(); else { showView("bv"); hsRender(); } });
+$("#bvBulk").onclick=()=>{ if(!can("nhapBanVe")){ alert("Bạn chưa được cấp quyền thêm bản vẽ."); return; } bvBulkOpen(); };
 (function(){ const s=$("#bvTypeSel"); s.innerHTML='<option value="">Tất cả loại bản vẽ</option>'+BV_TYPES.map(t=>`<option>${t}</option>`).join(""); s.onchange=()=>{ bvType=s.value; bvRender(); }; })();
 $("#bvXls").onclick=()=>{ if(!bvRecs||typeof XLSX==="undefined") return;
   const rows=bvRecs.filter(r=>activeQuan==="Tất cả"||r.quan===activeQuan);
@@ -3123,7 +3313,7 @@ $("#bvXls").onclick=()=>{ if(!bvRecs||typeof XLSX==="undefined") return;
     ...rows.map((r,i)=>[i+1,r.data.ten,r.data.loai,r.data.soHieu,r.data.ngay,r.quan,r.phuong,r.data.tuyen,(r.cabinets||[]).map(pe=>{const c=cabByPe(pe);return c?c.n+" ("+pe+")":pe;}).join("; "),(r.files||[]).length,(r.files||[]).map(f=>f.name).join("; "),r.nguoiTaoTen,new Date(r.updatedAt).toLocaleString("vi-VN"),r.data.ghiChu])];
   const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(aoa); ws["!cols"]=[{wch:5},{wch:36},{wch:24},{wch:12},{wch:12},{wch:14},{wch:16},{wch:22},{wch:40},{wch:7},{wch:40},{wch:18},{wch:18},{wch:30}];
   XLSX.utils.book_append_sheet(wb,ws,"Kho ban ve"); saveBlob(new Blob([XLSX.write(wb,{bookType:"xlsx",type:"array"})]),"Kho_ban_ve_"+todayISO()+".xlsx"); };
-$("#tabBv").onclick=()=>{ showView("bv"); bvRender(); };
+$("#tabBv").onclick=()=>{ showView("bv"); hsRender(); };
 
 /* ---------- ĐỀ XUẤT LED (công văn) → gộp vào dữ liệu tuyến ---------- */
 function ledDxRoutes(existing){
@@ -3695,9 +3885,8 @@ function showView(name){
   $("#view-files").classList.toggle("active", name==="files");
   $("#view-ks").classList.toggle("active", name==="ks");
   $("#view-tk").classList.toggle("active", name==="tk");
-  $("#view-bv").classList.toggle("active", name==="bv"); $("#tabBv").classList.toggle("active", name==="bv");
+  $("#view-bv").classList.toggle("active", name==="bv"); $("#tabTk").classList.toggle("active", name==="tk"||name==="bv");
   $("#view-led").classList.toggle("active", name==="led"); $("#tabLed").classList.toggle("active", name==="led");
-  $("#tabTk").classList.toggle("active", name==="tk");
   const inSc = ["new","list","map"].includes(name);
   $("#scTabs").style.display = inSc ? "" : "none";
   $("#tabNew").classList.toggle("active", inSc);
@@ -3945,7 +4134,7 @@ function applyUser(u){
   $("#tabFiles").style.display = can("xemFile") ? "" : "none";
   $("#tabKs").style.display = can("khaoSat") ? "" : "none";
   $("#tabTk").style.display = can("thongKe") ? "" : "none";
-  $("#tabBv").style.display = can("banVe") ? "" : "none";
+  document.querySelectorAll('.tk-sub button[data-v="bv"]').forEach(b=>b.style.display = can("banVe") ? "" : "none");
   $("#tabLed").style.display = can("theoDoiLed") ? "" : "none";
   $("#flUpload").style.display = can("taiLenFile") ? "" : "none";
   $("#measureOpen").style.display = can("doKhoangCach") ? "" : "none";
