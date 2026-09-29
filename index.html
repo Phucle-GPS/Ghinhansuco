@@ -433,6 +433,7 @@ button.dl{border:none;}
 .bb-in input,.bb-in select{width:100%;padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font-family:inherit;font-size:12.5px;} .bb-st{font-size:12px;}
 .bv-prev{width:100%;height:420px;border:1px solid var(--border);border-radius:10px;background:#fff;margin-top:6px;} .bv-prev-img{width:100%;max-height:480px;object-fit:contain;border-radius:10px;border:1px solid var(--border);background:#fff;margin-top:6px;}
 .ts-t tbody tr{cursor:pointer;} .ts-t td{font-size:12px;}
+.tk-bvb{color:var(--accent);font-weight:700;}
 .src-tabs{display:flex;gap:8px;margin-bottom:12px;}
 .src-tabs button{flex:1;padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 .src-tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
@@ -712,12 +713,13 @@ nav svg{width:21px;height:21px;}
     <!-- THỐNG KÊ VIEW -->
     <section class="view" id="view-tk">
       <div class="sc-tabs tk-sub"><button data-v="tk" class="on">📊 Thống kê tủ</button><button data-v="bv" class="">🏗️ HS Công trình</button></div>
-      <div class="fl-head"><h2>📊 Thống kê tủ điều khiển</h2><button class="gps-btn" id="tkXls">⬇ Xuất Excel</button></div>
+      <div class="fl-head"><h2>📊 Thống kê tủ điều khiển</h2><div class="fl-btns"><button class="submit-btn" id="tkBulk" style="width:auto;padding:9px 14px">📥 Upload bản vẽ đồng loạt</button><button class="gps-btn" id="tkXls">⬇ Xuất Excel</button></div></div>
       <div class="inc-search">
         <div class="search-wrap"><input type="text" id="tkSearch" placeholder="Tìm tên tủ, mã PE, mã kết nối (T022.16…), mã quản lý, đường, địa chỉ… (có dấu hoặc không dấu)" autocomplete="off"></div>
         <select id="tkSort" class="ql-select">
           <option value="ten">Sắp xếp: theo tên tủ</option><option value="den">Nhiều đèn nhất</option><option value="hps">Còn nhiều đèn HPS nhất</option><option value="led">Tỷ lệ LED cao nhất</option><option value="cap">Cáp dài nhất</option>
         </select>
+        <select id="tkBvF" class="ql-select"><option value="">Bản vẽ: tất cả tủ</option><option value="co">📐 Tủ đã có bản vẽ</option><option value="chua">Tủ chưa có bản vẽ</option></select>
       </div>
       <div class="tk-filters">
         <div class="tk-fl"><span>Nhà cung cấp / thiết bị:</span><div class="chips" id="tkProv"></div></div>
@@ -2633,10 +2635,13 @@ function tkParseQuery(q){
 }
 function tkMatchCond(r,c){ const v=tkPct(r,c.k); if(v==null) return false;
   switch(c.op){ case "<":return v<c.a; case "<=":return v<=c.a; case ">":return v>c.a; case ">=":return v>=c.a; case "=":return Math.abs(v-c.a)<0.05; case ":":return c.b!=null? (v>=c.a&&v<=c.b) : Math.abs(v-c.a)<0.05; } return true; }
+let tkBvF="", tkBvMap={}, tkBvLoading=false, tkCur=null;
+function tkBvRebuild(){ tkBvMap={}; (bvRecs||[]).forEach(b=>(b.cabinets||[]).forEach(pe=>tkBvMap[pe]=(tkBvMap[pe]||0)+1)); }
 function tkFilter(){
   const {conds, rest:tokens}=tkParseQuery(tkTerm);
   let l=TK_ROWS.filter(r=>(activeQuan==="Tất cả"||r[6]===activeQuan)
     && (tkProvSel==="Tất cả" || tkProv(r)===tkProvSel)
+    && (!tkBvF || (tkBvF==="co" ? (tkBvMap[r[0]]||0)>0 : !(tkBvMap[r[0]]||0)))
     && (!tokens.length || tokens.every(t=>r._s.includes(t)))
     && conds.every(c=>tkMatchCond(r,c))
     && ((tkPmin==null && tkPmax==null) || (()=>{ const v=tkPct(r); return v!=null && (tkPmin==null||v>=tkPmin) && (tkPmax==null||v<=tkPmax); })()));
@@ -2664,8 +2669,10 @@ function tkKpis(o){
 async function tkRender(){
   const el=$("#tkBody");
   if(!tkLoaded){ el.innerHTML='<div class="empty">Đang tải dữ liệu thống kê…</div>'; if(!(await tkEnsure())){ el.innerHTML='<div class="empty">Không tải được thongke.js – kiểm tra file trên GitHub.</div>'; return; } }
+  if(can("banVe") && !bvRecs && !tkBvLoading){ tkBvLoading=true; hsLoad("BANVE").then(x=>{ tkBvLoading=false; if(x){ bvRecs=x; tkBvRebuild(); if($("#view-tk").classList.contains("active")) tkRender(); } }); }
+  $("#tkBulk").style.display = can("nhapBanVe") ? "" : "none"; $("#tkBvF").style.display = can("banVe") ? "" : "none";
   const list=tkFilter(), all=TK_ROWS.filter(r=>activeQuan==="Tất cả"||r[6]===activeQuan);
-  const anyF = tkTerm.trim() || tkProvSel!=="Tất cả" || tkPmin!=null || tkPmax!=null;
+  const anyF = tkTerm.trim() || tkProvSel!=="Tất cả" || tkPmin!=null || tkPmax!=null || tkBvF;
   el.innerHTML = tkKpis(tkSum(anyF?list:all));
   if(activeQuan==="Tất cả" && !anyF){
     const qs=QUANS.filter(q=>q!=="Tất cả");
@@ -2689,7 +2696,7 @@ async function tkRender(){
     c.innerHTML=`<div class="tk-top"><div><div class="name">${highlight(r[1],tokens)}</div><div class="code mono">${r[0]?highlight(r[0],tokens):"Chưa có PE"}${r[14]?" · "+highlight(r[14],tokens):""}</div></div><span class="badge ${pv>=100?"st-2":pv>0?"st-1":"st-0"} status-btn" title="${escHtml(TK_PCT[tkPm][0])}">${escHtml(pl)} ${pv==null?"–":pv+"%"}</span></div>
       <div class="tk-prov">📡 ${escHtml(tkProv(r))} · ${escHtml(tkTech(r))}</div>
       <div class="who">${highlight(r[6]+" · "+(r[4]||r[7]),tokens)}</div>
-      <div class="tk-mini"><span>💡 ${r[20]} đèn</span><span>🗼 ${r[26]} trụ</span><span>🦯 ${r[40]} cần</span><span>🔌 ${tkFmt(r[49],"m")} cáp</span></div>`;
+      <div class="tk-mini"><span>💡 ${r[20]} đèn</span><span>🗼 ${r[26]} trụ</span><span>🦯 ${r[40]} cần</span><span>🔌 ${tkFmt(r[49],"m")} cáp</span>${can("banVe")?(tkBvMap[r[0]]?`<span class="tk-bvb">📐 ${tkBvMap[r[0]]} bản vẽ</span>`:`<span class="who">📐 chưa có bản vẽ</span>`):""}</div>`;
     c.onclick=()=>tkOpen(r); box.appendChild(c);
   });
 }
@@ -2719,7 +2726,7 @@ function tkRenderPct(){
 $("#tkPm").addEventListener("change",e=>{ tkPm=e.target.value; tkRenderPct(); tkRender(); });
 ["tkPmin","tkPmax"].forEach(id=>$("#"+id).addEventListener("input",()=>{ const a=$("#tkPmin").value, b=$("#tkPmax").value; tkPmin=a===""?null:parseFloat(a); tkPmax=b===""?null:parseFloat(b); tkRenderPct(); tkRender(); }));
 function tkManager(r){ const c=CABINETS.find(x=>x.pe===r[0]) || (typeof findCabinet==="function"?findCabinet(r[1],r[6]):null); return c; }
-async function tkOpen(r){
+async function tkOpen(r){ tkCur=r;
   const cab=tkManager(r), el=$("#tkDetail");
   $("#tkTitle").textContent=r[1];
   const incs=(incidents||[]).filter(i=>i.cabinetPE===r[0]);
@@ -2734,7 +2741,11 @@ async function tkOpen(r){
   h+=`<div id="tkBv"></div><div id="tkPoles"></div>`;
   el.innerHTML=h; $("#tkScrim").classList.add("show");
   if(can("banVe") && r[0]){ (async()=>{ if(!bvRecs) bvRecs=await hsLoad("BANVE"); const rel=(bvRecs||[]).filter(b=>(b.cabinets||[]).includes(r[0])); const box=$("#tkBv"); if(!box) return;
-    box.innerHTML=`<div class="tk-g">📐 Bản vẽ của tủ (${rel.length})${can("nhapBanVe")?' <button type="button" class="gps-btn" id="tkBvAdd" style="padding:4px 10px;margin-left:6px">＋ Thêm</button>':""}</div>`+bvPreviewHtml(rel);
+    box.innerHTML=`<div class="tk-g">📐 Bản vẽ của tủ (${rel.length})</div>`+(can("nhapBanVe")?`<div class="fl-btns" style="margin:4px 0 6px"><label class="gps-btn fl-pick">📤 Tải bản vẽ lên cho tủ này<input type="file" id="tkBvUp" multiple hidden></label><button type="button" class="gps-btn" id="tkBvLink">🔗 Gán bản vẽ có sẵn</button><button type="button" class="gps-btn" id="tkBvAdd">＋ Nhập tay</button></div>`:"")+bvPreviewHtml(rel);
+    if(can("nhapBanVe")) box.querySelectorAll(".tk-bvr").forEach(x=>{ const bt=document.createElement("button"); bt.type="button"; bt.className="gps-btn tk-unlink"; bt.textContent="✂️ Bỏ gán khỏi tủ"; bt.style.cssText="padding:4px 8px;font-size:12px;margin-top:4px";
+      bt.onclick=async e=>{ e.stopPropagation(); if(!confirm("Bỏ gán bản vẽ này khỏi tủ "+r[1]+"? (bản vẽ vẫn còn trong HS Công trình)")) return; const res=await api("linkBanVe",{id:x.dataset.id, pe:r[0], on:false}); if(res.ok){ const i=bvRecs.findIndex(z=>z.id===res.rec.id); if(i>=0){ res.rec.files=bvRecs[i].files; bvRecs[i]=res.rec; } tkBvRebuild(); tkOpen(r); } else alert(res.error||"Lỗi"); }; x.appendChild(bt); });
+    const up=$("#tkBvUp"); if(up) up.onchange=()=>{ const fs=[...up.files]; up.value=""; const c=CABINETS.find(z=>z.pe===r[0]); if(!c){ alert("Tủ chưa có mã PE trong danh sách tủ – dùng Upload đồng loạt và gán tay."); return; } bvBulkOpen(c, fs); };
+    const lk=$("#tkBvLink"); if(lk) lk.onclick=()=>tkLinkPick(r);
     box.querySelectorAll(".bv-dl").forEach(b=>b.onclick=e=>{ e.stopPropagation(); dlFile(b.dataset.f,b.dataset.n,b); });
     box.querySelectorAll(".tk-bvr b").forEach(x=>x.onclick=()=>{ x=x.parentNode; $("#tkScrim").classList.remove("show"); showView("bv"); hsTab="bv"; hsTabs(); bvRender().then(()=>bvOpen(bvRecs.find(z=>z.id===x.dataset.id))); });
     const a=$("#tkBvAdd"); if(a) a.onclick=()=>{ const c=CABINETS.find(z=>z.pe===r[0]); $("#tkScrim").classList.remove("show"); showView("bv"); hsTab="bv"; bvRender().then(()=>bvOpen(null,{cabinets:[r[0]],quan:c?c.q:r[6],phuong:c?c.pm:""})); };
@@ -2773,6 +2784,26 @@ $("#tkSearch").addEventListener("input",e=>{ tkTerm=e.target.value; tkRender(); 
 $("#tkSort").addEventListener("change",e=>{ tkSort=e.target.value; tkRender(); });
 $("#tkXls").onclick=()=>{ if(tkLoaded) tkExport(tkFilter(), "Thong_ke_tu_"+(activeQuan==="Tất cả"?"tat_ca":activeQuan.replace(/\s+/g,"_"))); };
 $("#tkClose").onclick=()=>$("#tkScrim").classList.remove("show");
+$("#tkBulk").onclick=()=>bvBulkOpen();
+$("#tkBvF").onchange=e=>{ tkBvF=e.target.value; tkRender(); };
+function tkLinkPick(r){
+  const others=(bvRecs||[]).filter(b=>!(b.cabinets||[]).includes(r[0]));
+  $("#bvTitle").textContent="🔗 Gán bản vẽ có sẵn cho tủ "+r[1];
+  $("#bvDetail").innerHTML=`<div class="who">Chọn các bản vẽ trong HS Công trình để gán thêm cho tủ này (1 bản vẽ có thể gán nhiều tủ, ví dụ sơ đồ chung của cả tuyến).</div>
+   <div class="search-wrap" style="margin:8px 0"><input type="text" id="lkQ" placeholder="Tìm tên bản vẽ, tủ, tuyến, tên file…" autocomplete="off"></div>
+   <label class="au-active" style="margin:0"><input type="checkbox" id="lkNo"> Chỉ bản vẽ chưa gán tủ nào</label><div id="lkList" class="lg-list" style="margin-top:8px"></div>
+   <button type="button" class="submit-btn" id="lkGo" style="margin-top:10px">🔗 Gán bản vẽ đã chọn</button><div class="gps-result" id="lkMsg"></div>`;
+  const sel=new Set(), nm=pe=>(CABINETS.find(c=>c.pe===pe)||{}).n||pe;
+  const draw=()=>{ const t=vnNorm($("#lkQ").value).trim().split(/\s+/).filter(Boolean), only=$("#lkNo").checked;
+    const L=others.filter(b=>(!only||!(b.cabinets||[]).length) && (!t.length||t.every(x=>vnNorm([b.data.ten,b.data.loai,b.data.tuyen,b.quan,b.phuong,(b.cabinets||[]).map(nm).join(" "),(b.files||[]).map(f=>f.name).join(" ")].join(" ")).includes(x))));
+    $("#lkList").innerHTML = L.length ? L.slice(0,120).map(b=>`<label class="lg-item" style="display:flex;gap:8px;align-items:flex-start"><input type="checkbox" data-id="${b.id}" ${sel.has(b.id)?"checked":""}><div><div class="lg-t">${escHtml(b.data.ten||"")}</div><div class="who">${escHtml(b.data.loai||"")} · ${escHtml(b.quan||"")}${b.phuong?" · P. "+escHtml(b.phuong):""} · ${(b.files||[]).length} file · ${(b.cabinets||[]).length?"đang gán: "+escHtml((b.cabinets||[]).map(nm).join(", ")):"chưa gán tủ"}</div></div></label>`).join("") : '<div class="empty">Không có bản vẽ phù hợp.</div>';
+    $("#lkList").querySelectorAll("input[data-id]").forEach(c=>c.onchange=()=>{ c.checked?sel.add(c.dataset.id):sel.delete(c.dataset.id); $("#lkGo").textContent="🔗 Gán "+sel.size+" bản vẽ đã chọn"; }); };
+  $("#lkQ").oninput=draw; $("#lkNo").onchange=draw; draw();
+  $("#lkGo").onclick=async()=>{ if(!sel.size) return; $("#lkGo").disabled=true; let n=0;
+    for(const id of sel){ const res=await api("linkBanVe",{id, pe:r[0], on:true}); if(res.ok){ const i=bvRecs.findIndex(z=>z.id===id); if(i>=0){ res.rec.files=bvRecs[i].files; bvRecs[i]=res.rec; } n++; } }
+    $("#lkMsg").textContent=`✅ Đã gán ${n} bản vẽ cho tủ ${r[1]}.`; tkBvRebuild(); setTimeout(()=>{ $("#bvScrim").classList.remove("show"); tkRender(); tkOpen(r); },700); };
+  $("#bvScrim").classList.add("show");
+}
 $("#tabTk").onclick=async ()=>{ showView("tk"); await tkRender(); tkRenderProv(); tkRenderPct(); };
 
 /* ---------- TÀI KHOẢN ĐỒNG LOẠT: tạo mới / cập nhật / phân quyền ---------- */
@@ -3097,8 +3128,8 @@ async function bvAnalyze(files, msgEl){
   return out;
 }
 function bvPartName(p){ return p.cab ? (p.loai||"Bản vẽ")+" – "+p.cab.n : p.src.name.replace(/\.[^.]+$/,"").replace(/_/g," "); }
-function bvBulkOpen(){
-  $("#bvTitle").textContent="📥 Upload bản vẽ đồng loạt";
+function bvBulkOpen(preCab, preFiles){
+  $("#bvTitle").textContent = preCab ? "📤 Tải bản vẽ cho tủ "+preCab.n : "📥 Upload bản vẽ đồng loạt";
   $("#bvDetail").innerHTML=`<div class="who">Chọn nhiều file cùng lúc – <b>mọi định dạng</b> (PDF, ảnh scan, DWG/DXF, Word, Excel, ZIP…). App <b>tự nhận diện tủ</b> theo tiêu đề bản vẽ ("TỦ ĐIỀU KHIỂN - …"), mã PE hoặc tên file; <b>PDF nhiều trang được tự phân tách</b> theo từng tủ. Kiểm tra cột "Gán vào tủ" rồi bấm Tải lên – bản vẽ sẽ hiện trong chi tiết tủ ở mục Thống kê.</div>
    <div class="fl-btns" style="margin:10px 0"><label class="gps-btn fl-pick">📎 Chọn file / thư mục ZIP<input type="file" id="bbIn" multiple hidden></label><label class="gps-btn fl-pick">📷 Chụp bản vẽ giấy<input type="file" id="bbCam" accept="image/*" capture="environment" hidden></label>
      <span class="who" style="align-self:center">Lưu PDF dưới dạng:</span><select id="bbFmt" class="ql-select" style="width:auto"><option value="pdf">PDF (tách theo tủ)</option><option value="jpg">Ảnh JPG (mỗi trang 1 ảnh)</option><option value="both">Cả PDF và ảnh</option></select></div>
@@ -3111,7 +3142,7 @@ function bvBulkOpen(){
        <div class="bb-th">${p.thumb?`<img src="${p.thumb}">`:`<span>${fileIcon(p.src.type,p.src.name)}</span>`}</div>
        <div class="bb-in"><div class="bb-fn" title="${escHtml(p.src.name)}">${escHtml(p.src.name)}${p.kind==="pdf"&&p.total>1?` · trang ${p.pages[0]}${p.pages.length>1?"–"+p.pages[p.pages.length-1]:""}/${p.total}`:""}</div>
        <input class="bb-cab" data-i="${i}" list="bbCabList" value="${p.cab?escHtml(p.cab.n+" | "+p.cab.pe):""}" placeholder="Gõ tên tủ / mã PE để gán" ${p.st?"disabled":""}>
-       <div class="who">${p.cab?`✔ ${escHtml(p.cab.q)} · P. ${escHtml(p.cab.pm||"")} · nhận theo ${escHtml(p.by||"chọn tay")}`:(p.err?escHtml(p.err):"Chưa nhận diện được tủ")}</div>
+       <div class="who">${p.cab?`✔ ${escHtml(p.cab.q)} · P. ${escHtml(p.cab.pm||"")} · nhận theo ${escHtml(p.by||"chọn tay")}`:(p.err?escHtml(p.err):"Chưa nhận diện được tủ")}${p.warn?`<br><span style="color:var(--high)">⚠️ ${escHtml(p.warn)}</span>`:""}</div>
        <select class="bb-loai" data-i="${i}" ${p.st?"disabled":""}>${BV_TYPES.map(t=>`<option ${t===p.loai?"selected":""}>${t}</option>`).join("")}</select>
        <label class="who"><input type="checkbox" class="bb-on" data-i="${i}" ${p.on===false?"":"checked"} ${p.st?"disabled":""}> Tải lên</label> <b class="bb-st">${escHtml(p.st||"")}</b></div></div>`).join("")}</div>
      <datalist id="bbCabList"></datalist>
@@ -3122,7 +3153,9 @@ function bvBulkOpen(){
     el.querySelectorAll(".bb-loai").forEach(s=>s.onchange=()=>bvParts[s.dataset.i].loai=s.value);
     el.querySelectorAll(".bb-on").forEach(c=>c.onchange=()=>{ bvParts[c.dataset.i].on=c.checked; draw(); });
     const g=$("#bbGo"); if(g) g.onclick=upload; };
-  const add=async fs=>{ $("#bbMsg").textContent="Đang phân tích…"; try{ const parts=await bvAnalyze([...fs], $("#bbMsg")); bvParts.push(...parts); $("#bbMsg").textContent=""; }catch(e){ $("#bbMsg").textContent="Lỗi: "+e.message; } draw(); };
+  const add=async fs=>{ $("#bbMsg").textContent="Đang phân tích…"; try{ const parts=await bvAnalyze([...fs], $("#bbMsg"));
+      if(preCab) parts.forEach(p=>{ if(p.cab && p.cab.pe!==preCab.pe) p.warn="Bản vẽ ghi tủ "+p.cab.n+" – đã gán theo tủ đang mở"; p.cab=preCab; p.by="tủ đang mở"; });
+      bvParts.push(...parts); $("#bbMsg").textContent=""; }catch(e){ $("#bbMsg").textContent="Lỗi: "+e.message; } draw(); };
   ["bbIn","bbCam"].forEach(id=>{ const i=$("#"+id); i.onchange=()=>{ const fs=[...i.files]; i.value=""; add(fs); }; });
   $("#bbFmt").onchange=e=>bvFmt=e.target.value;
   const upload=async()=>{
@@ -3146,8 +3179,9 @@ function bvBulkOpen(){
         bvRecs.unshift(rec); p.st="✅ Đã lưu"; n++;
       }catch(e){ p.st="⛔ "+e.message; }
       draw(); }
-    $("#bbMsg").textContent=`Đã lưu ${n} bản vẽ, gán vào tủ tương ứng.`; };
+    $("#bbMsg").textContent=`Đã lưu ${n} bản vẽ, gán vào tủ tương ứng.`; tkBvRebuild(); };
   $("#bvScrim").classList.add("show");
+  if(preFiles && preFiles.length) add(preFiles);
 }
 
 /* ---------- HS CÔNG TRÌNH (thuộc mục Thống kê): bản vẽ · thông số kỹ thuật · hồ sơ sửa chữa ---------- */
@@ -3301,7 +3335,7 @@ function bvOpen(rec, preset){
   $("#bvScrim").classList.add("show");
 }
 $("#bvAdd").onclick=()=>bvOpen(null);
-$("#bvClose").onclick=()=>{ $("#bvScrim").classList.remove("show"); bvRender(); };
+$("#bvClose").onclick=()=>{ $("#bvScrim").classList.remove("show"); tkBvRebuild(); if($("#view-tk").classList.contains("active")){ tkRender(); if($("#tkScrim").classList.contains("show") && tkCur) tkOpen(tkCur); } else hsRender(); };
 let hsQT=null; $("#bvSearch").addEventListener("input",e=>{ clearTimeout(hsQT); hsQT=setTimeout(()=>{ hsQ=e.target.value; bvTerm=hsQ; hsRender(); },200); });
 $("#hsTabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{ hsTab=b.dataset.v; hsRender(); });
 document.querySelectorAll(".tk-sub button").forEach(b=>b.onclick=()=>{ if(b.dataset.v==="tk") $("#tabTk").click(); else { showView("bv"); hsRender(); } });
