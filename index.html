@@ -434,6 +434,7 @@ button.dl{border:none;}
 .bv-prev{width:100%;height:420px;border:1px solid var(--border);border-radius:10px;background:#fff;margin-top:6px;} .bv-prev-img{width:100%;max-height:480px;object-fit:contain;border-radius:10px;border:1px solid var(--border);background:#fff;margin-top:6px;}
 .ts-t tbody tr{cursor:pointer;} .ts-t td{font-size:12px;}
 .tk-bvb{color:var(--accent);font-weight:700;}
+.un-t td{font-size:12.5px;} .un-i{width:100%;min-width:110px;padding:5px 7px;border-radius:7px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font-size:12.5px;}
 .src-tabs{display:flex;gap:8px;margin-bottom:12px;}
 .src-tabs button{flex:1;padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 .src-tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
@@ -1136,6 +1137,8 @@ nav svg{width:21px;height:21px;}
           <button class="gps-btn" id="auSave">Lưu tài khoản</button>
           <button class="gps-btn" id="auResetPw" style="display:none">🔑 Quên mật khẩu → tạo mật khẩu mới</button>
           <button class="gps-btn" id="auResetAcc" style="display:none;color:var(--high)">♻️ Reset tài khoản</button>
+          <button class="gps-btn" id="auRename" style="display:none">✏️ Đổi tên đăng nhập</button>
+          <button class="gps-btn" id="auDelete" style="display:none;color:var(--high)">🗑 Xóa tài khoản</button>
         </div>
         <div class="bk-box" id="auPwBox" style="display:none">
           <div class="who"><b id="auPwFor"></b> – chọn cách tạo mật khẩu mới:</div>
@@ -1177,6 +1180,8 @@ nav svg{width:21px;height:21px;}
             <button type="button" class="submit-btn" id="bkApply" style="width:auto;padding:9px 14px">Áp dụng</button>
           </div>
           <div id="bkRes"></div>
+          <div class="bk-row"><button type="button" class="gps-btn" id="unOpen">🔤 Chuẩn hóa tên đăng nhập cho đồng bộ</button></div>
+          <div class="bk-box" id="unBox" style="display:none"></div>
         </div>
         <div class="bk-box">
           <div class="guide-h">🔐 Bảo vệ tài khoản Quản trị (Face ID / vân tay)</div>
@@ -4245,9 +4250,58 @@ function setAuEdit(u){
   $("#auResetPw").style.display = u ? "" : "none";
   $("#auPwBox").style.display="none";
   $("#auResetAcc").style.display = (u && u.role!=="admin") ? "" : "none";
+  $("#auRename").style.display = u ? "" : "none";
+  $("#auDelete").style.display = (u && u.username!==SESSION.user.username) ? "" : "none";
   $("#auCred").style.display="none";
 }
 $("#auNew").onclick=()=>{ $("#auUser").value=""; $("#auName").value=""; $("#auPass").value=""; $("#auActive").checked=true; setAuRole("user"); setAuEdit(null); $("#auMsg").textContent=""; $("#auUser").focus(); };
+/* ---- đổi tên đăng nhập, xóa tài khoản, chuẩn hóa tên đăng nhập ---- */
+const unameOf = full => { const w=String(full||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").replace(/Đ/g,"D").toLowerCase().replace(/\(.*?\)/g," ").replace(/[^a-z0-9 ]/g," ").trim().split(/\s+/).filter(Boolean);
+  if(w.length<2 || w.some(x=>/\d/.test(x)) || /admin|quan tri|test/.test(w.join(" "))) return ""; return w.slice(0,-1).map(x=>x[0]).join("")+"."+w[w.length-1]; };
+const UNAME_OK=/^[a-z0-9][a-z0-9._-]{1,29}$/;
+function afterRename(r){
+  if(r.selfRenamed){ alert("Bạn vừa đổi tên đăng nhập của chính mình – vui lòng đăng nhập lại bằng tên mới."); goLogin(); return; }
+  bkUsers=[]; loadUsers(); if(typeof acLoad==="function") acLoad(true); }
+$("#auRename").onclick=async()=>{ if(!auEditing) return;
+  const u=(bkUsers||[]).find(x=>x.username===auEditing)||{}; const sug=unameOf(u.fullName||$("#auName").value);
+  let t=prompt(`Tên đăng nhập mới cho "${u.fullName||auEditing}" (hiện tại: ${auEditing})\nQuy ước: chữ cái đầu họ + đệm, dấu chấm, tên – viết thường không dấu.`, sug||auEditing); if(t===null) return;
+  t=t.trim().toLowerCase(); if(!UNAME_OK.test(t)){ alert("Tên đăng nhập chỉ gồm chữ thường không dấu, số và . _ - (2–30 ký tự)."); return; }
+  if(t===auEditing.toLowerCase()) return;
+  if(!confirm(`Đổi "${auEditing}" → "${t}"?\n• Người dùng bị đăng xuất, đăng nhập lại bằng tên mới (mật khẩu giữ nguyên).\n• Sự cố, phiếu khảo sát, hồ sơ, file đã tạo được chuyển theo tên mới.`)) return;
+  const r=await api("renameUser",{from:auEditing,to:t}); if(!r.ok){ $("#auMsg").textContent=r.error||"Lỗi"; return; }
+  $("#auMsg").textContent=`✅ Đã đổi ${auEditing} → ${t} (chuyển ${r.moved} mục dữ liệu).`; $("#auUser").value=t; auEditing=t; $("#auMode").textContent="✏️ Đang sửa tài khoản: "+t; afterRename(r); };
+$("#auDelete").onclick=async()=>{ if(!auEditing) return;
+  const u=(bkUsers||[]).find(x=>x.username===auEditing)||{};
+  if(prompt(`XÓA VĨNH VIỄN tài khoản "${u.fullName||auEditing}" (${auEditing})?\nDữ liệu người này đã ghi (sự cố, khảo sát, hồ sơ) vẫn được giữ.\nNếu chỉ tạm ngưng, hãy bỏ chọn "Đang hoạt động" để KHÓA thay vì xóa.\n\nGõ đúng tên đăng nhập để xác nhận:`)!==auEditing) { $("#auMsg").textContent="Đã hủy xóa."; return; }
+  const r=await api("deleteUser",{username:auEditing}); if(!r.ok){ $("#auMsg").textContent=r.error||"Lỗi"; return; }
+  $("#auNew").click(); $("#auMsg").textContent=`🗑 Đã xóa tài khoản ${r.username}.`; afterRename({}); };
+$("#unOpen").onclick=async()=>{ if(!bkUsers||!bkUsers.length) await loadUsers(); unameBulkOpen(); };
+function unameBulkOpen(){
+  const users=(bkUsers||[]).slice(); const taken=new Set(users.map(u=>u.username.toLowerCase()));
+  const rows=users.map(u=>{ const s=unameOf(u.fullName); return {u, sug:s, skip:!s || u.role==="admin" || s===u.username.toLowerCase()}; });
+  // tránh trùng: thêm số nếu cần
+  const finalSet=new Set(users.filter((u,i)=>rows[i].skip).map(u=>u.username.toLowerCase()));
+  rows.forEach(r=>{ if(r.skip) return; let t=r.sug, k=2; while(finalSet.has(t)) t=r.sug+(k++); r.sug=t; finalSet.add(t); });
+  const box=$("#unBox"); box.style.display="";
+  const draw=()=>{ box.innerHTML=`<div class="guide-h">🔤 Chuẩn hóa tên đăng nhập theo họ tên</div>
+    <div class="who">Quy ước: <b>chữ cái đầu của họ và tên đệm + dấu chấm + tên</b>, viết thường không dấu (vd: Phạm Văn Tính → <b>pv.tinh</b>, Lưu Ngọc Hiền → <b>ln.hien</b>). Tên trùng được thêm số. Tài khoản Quản trị và tên không phải họ tên người được bỏ qua mặc định. Sửa được từng ô trước khi áp dụng; mật khẩu giữ nguyên, người dùng đăng nhập lại bằng tên mới.</div>
+    <div class="ks-table-wrap"><table class="ks-table un-t"><thead><tr><th><input type="checkbox" id="unAll"></th><th>Họ tên</th><th>Tên hiện tại</th><th>Tên mới</th><th>Quyền</th></tr></thead><tbody>${rows.map((r,i)=>`<tr${r.u.username.toLowerCase()===r.sug?' style="opacity:.55"':""}><td><input type="checkbox" class="un-c" data-i="${i}" ${r.skip?"":"checked"}></td><td style="text-align:left">${escHtml(r.u.fullName||"")}</td><td class="mono">${escHtml(r.u.username)}</td><td><input class="un-i mono" data-i="${i}" value="${escHtml(r.skip&&!r.sug?r.u.username.toLowerCase():r.sug||r.u.username.toLowerCase())}"></td><td>${escHtml(ROLE_LABEL[r.u.role]||r.u.role)}</td></tr>`).join("")}</tbody></table></div>
+    <div class="bk-row"><button type="button" class="submit-btn" id="unGo" style="width:auto;padding:9px 14px">✔ Áp dụng cho các dòng đã chọn</button><button type="button" class="gps-btn" id="unX">Đóng</button></div><div class="gps-result" id="unMsg"></div>`;
+    $("#unAll").onchange=e=>box.querySelectorAll(".un-c").forEach(c=>c.checked=e.target.checked);
+    $("#unX").onclick=()=>{ box.style.display="none"; };
+    $("#unGo").onclick=async()=>{ const items=[]; let bad="";
+      box.querySelectorAll(".un-c").forEach(c=>{ if(!c.checked) return; const r=rows[c.dataset.i], t=box.querySelector(`.un-i[data-i="${c.dataset.i}"]`).value.trim().toLowerCase(); if(!UNAME_OK.test(t)) bad+=t+" "; else if(t!==r.u.username.toLowerCase()) items.push({from:r.u.username,to:t}); });
+      if(bad){ $("#unMsg").textContent="Tên không hợp lệ: "+bad; return; } if(!items.length){ $("#unMsg").textContent="Không có tên nào cần đổi."; return; }
+      if(!confirm(`Đổi tên đăng nhập cho ${items.length} tài khoản?\n`+items.slice(0,15).map(x=>x.from+" → "+x.to).join("\n")+(items.length>15?"\n…":"")+"\n\nNhớ báo tên mới cho từng người (mật khẩu không đổi).")) return;
+      $("#unGo").disabled=true; const r=await api("renameUsers",{items});
+      if(!r.ok){ $("#unMsg").textContent=r.error||"Lỗi"; $("#unGo").disabled=false; return; }
+      const msg="Tên đăng nhập app CSKVTT đã được chuẩn hóa:\n"+r.renamed.map(x=>x.from+" → "+x.to).join("\n")+"\nMật khẩu giữ nguyên. Link: https://phucle-gps.github.io/Ghinhansuco/login.html";
+      $("#unMsg").innerHTML=`✅ Đã đổi ${r.renamed.length} tài khoản, chuyển ${r.moved} mục dữ liệu.${r.errors&&r.errors.length?" Bỏ qua: "+escHtml(r.errors.join("; ")):""} <button type="button" class="gps-btn" id="unCp">📋 Sao chép danh sách để gửi Zalo</button>`;
+      $("#unCp").onclick=async()=>{ try{ await navigator.clipboard.writeText(msg); $("#unCp").textContent="✓ Đã sao chép"; }catch(e){ prompt("Sao chép:",msg); } };
+      if(r.selfRenamed){ afterRename(r); return; } bkUsers=[]; await loadUsers(); if(typeof acLoad==="function") acLoad(true); };
+  };
+  draw(); box.scrollIntoView({behavior:"smooth",block:"start"});
+}
 function showCred(r, title, must){ if(must===undefined) must=true;
   const link="https://phucle-gps.github.io/Ghinhansuco/login.html";
   const msg=`Tài khoản app CSKVTT\nLink: ${link}\nTên đăng nhập: ${r.username}\n${must?"Mật khẩu tạm":"Mật khẩu"}: ${r.tempPassword}${must?"\n(Đăng nhập xong app sẽ yêu cầu đổi mật khẩu mới)":""}`;
