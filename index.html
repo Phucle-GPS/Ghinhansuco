@@ -435,6 +435,11 @@ button.dl{border:none;}
 .ts-t tbody tr{cursor:pointer;} .ts-t td{font-size:12px;}
 .tk-bvb{color:var(--accent);font-weight:700;}
 .un-t td{font-size:12.5px;} .un-i{width:100%;min-width:110px;padding:5px 7px;border-radius:7px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font-size:12.5px;}
+.hp-top{position:sticky;top:0;background:var(--surface-2,var(--surface));padding-bottom:8px;z-index:2;} .hp-top input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:14px;font-family:inherit;}
+.hp-idx{display:flex;gap:6px;overflow-x:auto;padding:8px 0 2px;} .hp-chip{flex:0 0 auto;padding:5px 10px;border-radius:100px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:12px;font-family:inherit;cursor:pointer;white-space:nowrap;} .hp-chip.on{background:var(--accent);border-color:var(--accent);color:#1b1b1b;font-weight:700;}
+.hp-sec{border:1px solid var(--border);border-radius:12px;background:var(--surface);margin-top:8px;padding:0 12px;} .hp-sec summary{cursor:pointer;padding:11px 0;font-size:14.5px;display:flex;align-items:center;gap:8px;list-style:none;} .hp-sec summary::-webkit-details-marker{display:none;}
+.hp-sec summary::after{content:"▾";margin-left:auto;color:var(--text-2);transition:transform .2s;} .hp-sec[open] summary::after{transform:rotate(180deg);} .hp-ic{font-size:18px;}
+.hp-sec ul{margin:0 0 12px;padding-left:20px;font-size:13.5px;line-height:1.6;} .hp-sec li{margin:3px 0;} .hp-sec li::marker{content:"– ";color:var(--accent);font-weight:700;}
 .src-tabs{display:flex;gap:8px;margin-bottom:12px;}
 .src-tabs button{flex:1;padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 .src-tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
@@ -581,7 +586,7 @@ nav svg{width:21px;height:21px;}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
       </button>
       <button id="helpBtn" aria-label="Hướng dẫn sử dụng">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 4.7 1.2c0 1.6-2.2 1.8-2.2 3.3"/><path d="M12 17h.01"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.5A1.5 1.5 0 0 1 3.5 4H9a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H3.5A1.5 1.5 0 0 1 2 16z"/><path d="M22 5.5A1.5 1.5 0 0 0 20.5 4H15a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5h6a1.5 1.5 0 0 0 1.5-1.5z"/></svg>
       </button>
       </div>
     </div>
@@ -866,45 +871,28 @@ nav svg{width:21px;height:21px;}
   <div class="modal-scrim" id="helpScrim">
     <div class="modal-sheet">
       <div class="mtop">
-        <h2>Hướng dẫn sử dụng</h2>
+        <h2>📖 Hướng dẫn sử dụng</h2>
         <button class="mclose" id="helpClose" aria-label="Đóng">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
         </button>
       </div>
-
-      <div class="guide-step">
-        <div class="num">1</div>
-        <div class="txt"><h3>Chọn tủ điều khiển</h3>
-          <p>Ở tab "Ghi nhận mới", gõ mã tủ (VD: T020.10) hoặc tên tuyến đường vào ô tìm kiếm, hoặc bấm chip quận để lọc nhanh. Chạm vào tủ cần báo cáo trong danh sách.</p></div>
+      <div class="hp-top"><input type="text" id="hpQ" placeholder="🔎 Tìm trong hướng dẫn…" autocomplete="off"><div class="hp-idx"><button type="button" data-h="start" class="hp-chip">🚀 Bắt đầu</button><button type="button" data-h="new" class="hp-chip">➕ Sự cố – Ghi nhận mới</button><button type="button" data-h="list" class="hp-chip">📋 Sự cố – Danh sách & SCP</button><button type="button" data-h="map" class="hp-chip">🗺️ Bản đồ</button><button type="button" data-h="ks" class="hp-chip">📝 Khảo sát duy tu & Biên bản</button><button type="button" data-h="tk" class="hp-chip">📊 Thống kê tủ</button><button type="button" data-h="bv" class="hp-chip">🏗️ HS Công trình</button><button type="button" data-h="led" class="hp-chip">💡 Theo dõi LED & bảo hành</button><button type="button" data-h="drv" class="hp-chip">🔧 Driver (HD 680/HD-CTCSCC)</button><button type="button" data-h="files" class="hp-chip">📁 File Lưu</button><button type="button" data-h="acc" class="hp-chip">⚙️ Tài khoản của tôi</button><button type="button" data-h="admin" class="hp-chip hp-admin">🛡️ Quản trị (chỉ Quản trị viên)</button><button type="button" data-h="fix" class="hp-chip">🧰 Xử lý nhanh khi gặp lỗi</button></div></div>
+      <div id="hpList">
+        <details class="hp-sec" id="hp-start"><summary><span class="hp-ic">🚀</span><b>Bắt đầu</b></summary><ul><li>Đăng nhập bằng tài khoản Quản trị cấp; lần đầu app yêu cầu đổi mật khẩu.</li><li>📲 <b>Cài app</b> để mở như ứng dụng trên điện thoại.</li><li>Chip quận trên cùng lọc dữ liệu cho mọi mục.</li><li>Tìm kiếm gõ có dấu hay không dấu đều được.</li></ul></details>
+        <details class="hp-sec" id="hp-new"><summary><span class="hp-ic">➕</span><b>Sự cố – Ghi nhận mới</b></summary><ul><li>Tìm tủ theo tên, mã PE, mã kết nối hoặc tên đường → chạm chọn tủ.</li><li>Chọn lý trình, mức độ, mô tả; bấm 📍 lấy GPS.</li><li>📷 Chụp / 🖼️ chọn ảnh – <b>tối đa 10 ảnh</b>, ảnh tự đóng dấu GPS, tên tủ, giờ.</li><li>Bấm <b>Gửi</b> → Telegram báo ngay cho quản lý.</li></ul></details>
+        <details class="hp-sec" id="hp-list"><summary><span class="hp-ic">📋</span><b>Sự cố – Danh sách & SCP</b></summary><ul><li>2 mục riêng: <b>Ghi nhận</b> và <b>SCP</b> (lỗi tủ từ trung tâm).</li><li>Tìm, lọc theo người quản lý; ⬇ xuất Excel.</li><li>Chạm nhãn trạng thái để chuyển Mới → Đang xử lý → <b>Đã xử lý</b> (bắt buộc ghi nội dung xử lý, tự lưu sheet DaXuLy).</li><li>Sự cố SCP được báo cáo lại mỗi sáng nếu còn tồn.</li></ul></details>
+        <details class="hp-sec" id="hp-map"><summary><span class="hp-ic">🗺️</span><b>Bản đồ</b></summary><ul><li>Bật/tắt lớp từng quận, chạm điểm để xem tủ.</li><li>📏 Thước đo GPS: ghi điểm hoặc đi bộ tự ghi, bấm “Dùng kết quả” để điền vào phiếu.</li></ul></details>
+        <details class="hp-sec" id="hp-ks"><summary><span class="hp-ic">📝</span><b>Khảo sát duy tu & Biên bản</b></summary><ul><li>Chọn 1 trong 16 mẫu → chọn tủ để tự điền thông tin.</li><li>🎤 Nói từng ô hoặc 🎙️ đọc cả phiếu; số đọc bằng chữ tự đổi ra số.</li><li>Biên bản hiện trường: ký tên trên màn hình, 🖨️ in PDF hoặc tải Word.</li><li>⬇ Excel tổng hợp tất cả phiếu theo mẫu.</li></ul></details>
+        <details class="hp-sec" id="hp-tk"><summary><span class="hp-ic">📊</span><b>Thống kê tủ</b></summary><ul><li>Xem số liệu đèn, trụ, cần, cáp, % LED theo quận và nhà cung cấp.</li><li>Gõ lọc nhanh: <i>led&lt;50%</i>, <i>slighting led&gt;=90</i>.</li><li>Lọc <b>Bản vẽ: có / chưa có</b>; chạm tủ xem chi tiết, lý trình, bảng trụ 📍 và <b>bản vẽ của tủ</b>.</li><li>📥 <b>Upload bản vẽ đồng loạt</b> – tự nhận tủ, tự tách PDF nhiều trang.</li></ul></details>
+        <details class="hp-sec" id="hp-bv"><summary><span class="hp-ic">🏗️</span><b>HS Công trình</b></summary><ul><li>📐 <b>Bản vẽ & hồ sơ</b>: xem theo quận → phường mới; upload đồng loạt mọi định dạng (PDF, ảnh, DWG, ZIP).</li><li>Trong chi tiết tủ: 📤 tải bản vẽ cho tủ, 🔗 gán bản vẽ có sẵn, ✂️ bỏ gán.</li><li>🧾 <b>Thông số kỹ thuật</b>: bảng tổng hợp từng tủ, xuất Excel.</li><li>🔧 <b>Hồ sơ sửa chữa</b>: sự cố đã xử lý, hồ sơ Driver, biên bản hiện trường.</li><li>Ô 🔎 tìm nội dung trong mục đang xem.</li></ul></details>
+        <details class="hp-sec" id="hp-led"><summary><span class="hp-ic">💡</span><b>Theo dõi LED & bảo hành</b></summary><ul><li>🔎 Ô tìm kiếm chung: tuyến, tủ, mã PE, hãng, công suất (<i>120w</i>), số công văn, tên file, mã driver.</li><li>📊 Tổng quan: tình trạng bảo hành, tuyến <b>hết BH chưa có biên bản</b>, thống kê hãng.</li><li>💡 Tuyến LED / 📄 Văn bản: xem chi tiết, đính kèm hồ sơ; 📥 nhập nhiều văn bản gốc (PDF, scan…).</li><li>⚖️ Căn cứ pháp lý: Điều 28, 29 NĐ 06/2021/NĐ-CP.</li></ul></details>
+        <details class="hp-sec" id="hp-drv"><summary><span class="hp-ic">🔧</span><b>Driver (HD 680/HD-CTCSCC)</b></summary><ul><li>🧮 Nhập công suất đèn, cách đấu, dòng cài đặt → app chọn driver thay thế theo Phụ lục 2.</li><li>＋ <b>Lập hồ sơ</b> (Phụ lục 1) kèm ảnh; app kiểm tra Iout, Uout, công suất.</li><li>🌐 Tìm nguồn driver: Google, datasheet, Shopee, Lazada, Mouser…</li><li>⬇ Excel Phụ lục 1 để đính kèm phiếu lãnh vật tư.</li></ul></details>
+        <details class="hp-sec" id="hp-files"><summary><span class="hp-ic">📁</span><b>File Lưu</b></summary><ul><li>Tải lên ảnh / tài liệu (≤ 20 MB), gắn với tủ.</li><li>⬇ Tải về đúng tên gốc; tick nhiều file → tải ZIP.</li></ul></details>
+        <details class="hp-sec" id="hp-acc"><summary><span class="hp-ic">⚙️</span><b>Tài khoản của tôi</b></summary><ul><li>Đổi mật khẩu; quên mật khẩu hiện tại → 🔑 gửi yêu cầu (nhân viên) hoặc nhận OTP Gmail (Quản trị).</li><li>Đăng xuất khi dùng máy chung.</li></ul></details>
+        <details class="hp-sec hp-admin" id="hp-admin"><summary><span class="hp-ic">🛡️</span><b>Quản trị (chỉ Quản trị viên)</b></summary><ul><li>Tạo tài khoản đơn lẻ hoặc đồng loạt (Excel / ảnh / dán văn bản); mẫu quyền <b>Xem & Ghi nhận · Ghi nhận · Chỉ xem</b>.</li><li>Sửa tài khoản: 🔑 tạo mật khẩu mới, ✏️ đổi tên đăng nhập, 🗑 xóa; 🔤 chuẩn hóa tên đăng nhập hàng loạt.</li><li>📒 Tổng hợp tài khoản: xem mật khẩu do QT cấp (chưa đổi), lần đăng nhập, tự cập nhật.</li><li>🔐 Face ID / vân tay + OTP Gmail; 🛟 sao lưu tự động & Gmail phụ; báo cáo SCP hằng ngày.</li></ul></details>
+        <details class="hp-sec" id="hp-fix"><summary><span class="hp-ic">🧰</span><b>Xử lý nhanh khi gặp lỗi</b></summary><ul><li>Không thấy dữ liệu mới → <b>Ctrl+Shift+R</b> (máy tính) hoặc đóng mở lại app.</li><li>Báo “bản cũ” / thiếu tên người quản lý → tải lại file <b>cabinets.js</b> lên GitHub.</li><li>Không đăng nhập được → nút <b>Quên mật khẩu?</b> ở trang đăng nhập.</li></ul></details>
       </div>
-      <div class="guide-step">
-        <div class="num">2</div>
-        <div class="txt"><h3>Điền thông tin sự cố</h3>
-          <p>Kiểm tra thẻ tủ đã chọn (mã, PE, quận, loại thiết bị), sau đó nhập ngày ghi nhận, mô tả sự cố, chọn mức độ (Thấp / Trung bình / Cao) và tên người báo cáo.</p></div>
-      </div>
-      <div class="guide-step">
-        <div class="num">3</div>
-        <div class="txt"><h3>Lấy tọa độ GPS tại chỗ</h3>
-          <p>Bấm "Lấy vị trí hiện tại" khi đang đứng tại tủ để ghi lại tọa độ thực tế (cho phép ứng dụng truy cập vị trí khi được hỏi). Đây là bước tùy chọn.</p></div>
-      </div>
-      <div class="guide-step">
-        <div class="num">4</div>
-        <div class="txt"><h3>Gửi ghi nhận</h3>
-          <p>Bấm "Gửi ghi nhận sự cố". Sự cố sẽ xuất hiện ngay trong tab "Danh sách sự cố" cho mọi người có tài khoản cùng xem.</p></div>
-      </div>
-      <div class="guide-step">
-        <div class="num">5</div>
-        <div class="txt"><h3>Theo dõi, cập nhật &amp; xuất Excel</h3>
-          <p>Sang tab "Danh sách sự cố": quản trị viên chạm vào nhãn trạng thái để chuyển Mới ghi nhận → Đang xử lý → Đã xử lý; người ghi nhận chạm "Cập nhật tọa độ tại chỗ" để bổ sung GPS cho sự cố của mình; bấm nút "Excel" để tải danh sách đang lọc ra file .xlsx.</p></div>
-      </div>
-      <div class="guide-step">
-        <div class="num">6</div>
-        <div class="txt"><h3>Xem bản đồ tủ theo quận</h3>
-          <p>Tab "Bản đồ" có 2 chế độ: "Google My Maps" (bản đồ đường phố thật, bấm ☰ để tắt/mở lớp từng quận, chạm điểm tủ xem thông tin) và "Sơ đồ nhanh" (chấm màu theo quận, dùng được cả khi mạng yếu). Nút xanh "Vị trí của tôi" định vị bạn, đưa bản đồ về chỗ bạn đứng và liệt kê 5 tủ gần nhất kèm nút Chỉ đường / Ghi sự cố.</p></div>
-      </div>
-      <div class="guide-note">
-        Lưu ý: dữ liệu lưu tập trung trên Google Sheets và tự làm mới mỗi phút. Ảnh hiện trường được lưu vào Google Drive của đơn vị.
-      </div>
+      <div class="guide-note" style="margin-top:10px">Dữ liệu lưu tập trung trên Google Sheets / Drive và tự làm mới mỗi phút. Mở 📖 khi đang ở mục nào, hướng dẫn mục đó sẽ tự mở sẵn.</div>
     </div>
   </div>
   <div class="modal-scrim" id="ksScrim">
@@ -4087,7 +4075,19 @@ function initMap(){
 }
 
 /* ---------- help modal ---------- */
-function openHelp(){ $("#helpScrim").classList.add("show"); }
+function helpCtx(){ const v=(document.querySelector(".view.active")||{}).id||"";
+  if(v==="view-ks") return "ks"; if(v==="view-tk") return "tk"; if(v==="view-bv") return "bv"; if(v==="view-files") return "files";
+  if(v==="view-led") return (typeof ledTab!=="undefined"&&ledTab==="driver")?"drv":"led";
+  const sc=document.querySelector("#scTabs button.on, #scTabs button.active"); const t=sc?sc.dataset.v:""; return t==="list"?"list":t==="map"?"map":"new"; }
+function openHelp(){
+  const adm=typeof isAdmin==="function"&&isAdmin(); document.querySelectorAll(".hp-admin").forEach(x=>x.style.display=adm?"":"none");
+  $("#hpQ").value=""; hpFilter(); document.querySelectorAll(".hp-sec").forEach(d=>d.open=false);
+  const k=helpCtx(), d=$("#hp-"+k); if(d){ d.open=true; setTimeout(()=>d.scrollIntoView({block:"nearest"}),50); }
+  document.querySelectorAll(".hp-chip").forEach(b=>b.classList.toggle("on",b.dataset.h===k));
+  $("#helpScrim").classList.add("show"); }
+function hpFilter(){ const q=vnNorm($("#hpQ").value||"").trim(); document.querySelectorAll(".hp-sec").forEach(d=>{ if(d.classList.contains("hp-admin")&&!(typeof isAdmin==="function"&&isAdmin())) return; const hit=!q||vnNorm(d.textContent).includes(q); d.style.display=hit?"":"none"; if(q&&hit) d.open=true; }); }
+$("#hpQ").addEventListener("input",hpFilter);
+document.querySelectorAll(".hp-chip").forEach(b=>b.onclick=()=>{ document.querySelectorAll(".hp-chip").forEach(x=>x.classList.toggle("on",x===b)); const d=$("#hp-"+b.dataset.h); if(d){ d.open=true; d.scrollIntoView({behavior:"smooth",block:"start"}); } });
 function closeHelp(){ $("#helpScrim").classList.remove("show"); }
 $("#helpBtn").onclick=openHelp;
 $("#helpClose").onclick=closeHelp;
