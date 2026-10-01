@@ -222,6 +222,19 @@ main{flex:1;overflow-y:auto;padding:16px 18px 100px;}
 .ms-val{font-size:40px;font-weight:800;line-height:1.15;color:var(--accent);font-variant-numeric:tabular-nums;}
 .ms-val small{font-size:18px;color:var(--text-2);}
 .ms-sub{font-size:12.5px;color:var(--text-2);}
+.ms-sheet{max-width:760px;} .ms-map-wrap{position:relative;margin-top:10px;} .ms-map{height:330px;border-radius:12px;border:1px solid var(--border);overflow:hidden;background:#dfe6ec;z-index:0;}
+@media (max-width:600px){ .ms-map{height:280px;} }
+.ms-cross{position:absolute;left:50%;top:50%;transform:translate(-50%,-55%);font-size:34px;font-weight:300;color:#ff3b30;text-shadow:0 0 3px #fff,0 0 6px #fff;pointer-events:none;z-index:500;}
+.ms-mapbtns{position:absolute;right:8px;top:8px;display:flex;flex-direction:column;gap:6px;z-index:500;} .ms-mapbtns button{width:36px;height:36px;border-radius:9px;border:none;background:#fff;color:#1b1b1b;font-size:17px;box-shadow:0 2px 6px rgba(0,0,0,.3);cursor:pointer;}
+.ms-src{margin-top:10px;display:flex;flex-direction:column;gap:6px;} .ms-fix{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 11px;border-radius:10px;background:var(--surface-2);font-size:13px;}
+.ms-fix .dot{width:11px;height:11px;border-radius:50%;background:#80868B;flex:0 0 auto;} .ms-fix.rtk .dot{background:#2E7D4F;box-shadow:0 0 0 3px rgba(46,125,79,.25);} .ms-fix.good .dot{background:#34A853;} .ms-fix.mid .dot{background:#E8710A;} .ms-fix.bad .dot{background:#C5221F;}
+.ms-fix.rtk b,.ms-fix.good b{color:var(--done);} .ms-fix.mid b{color:#E8710A;} .ms-fix.bad b{color:var(--high);} .ms-fix .who{font-size:11.5px;}
+.ms-tol{display:flex;align-items:center;gap:10px;font-size:13px;flex-wrap:wrap;} .ms-tol input{flex:1;min-width:140px;accent-color:var(--accent);}
+.ms-occ{margin-top:8px;} .ms-occ-bar{height:8px;border-radius:8px;background:var(--surface-2);overflow:hidden;} .ms-occ-bar i{display:block;height:100%;background:var(--accent);transition:width .4s;} .ms-occ .who{font-size:12.5px;margin-top:4px;line-height:1.5;}
+.ms-k{display:inline-block;font-size:11px;padding:1px 7px;border-radius:100px;background:var(--surface-2);margin-left:4px;} .ms-k.rtk{background:#2E7D4F;color:#fff;} .ms-k.float{background:#1A73E8;color:#fff;} .ms-k.avg{background:#E8A20A;color:#1b1b1b;} .ms-k.map{background:#7B61FF;color:#fff;} .ms-k.over{outline:2px solid var(--high);}
+.ms-pt{background:#1A73E8;color:#fff;border:2px solid #fff;border-radius:50%;font:700 11px/18px Arial;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.4);} .ms-pt.first{background:#2E7D4F;} .ms-pt.last{background:#C1440E;} .ms-pt.over{border-color:#ff3b30;}
+.ms-seglbl{background:rgba(0,0,0,.72);color:#fff;font:700 11px Arial;padding:2px 6px;border-radius:6px;white-space:nowrap;transform:translate(-50%,-50%);}
+.ms-help{margin-top:10px;font-size:12.5px;border:1px solid var(--border);border-radius:10px;padding:6px 10px;} .ms-help summary{cursor:pointer;font-weight:700;} .ms-help ul{margin:6px 0 4px;padding-left:18px;line-height:1.55;}
 .ms-live{margin-top:10px;font-size:12.5px;padding:8px 11px;border-radius:9px;background:var(--surface-2);}
 .ms-live.good{color:var(--done);} .ms-live.mid{color:#E8710A;} .ms-live.bad{color:var(--high);}
 .ms-hint{font-size:12px;color:var(--text-2);margin-top:8px;line-height:1.5;}
@@ -451,6 +464,11 @@ button.dl{border:none;}
 .st-step.ok .st-nn{text-decoration:line-through;color:var(--text-2);} .st-n{flex:0 0 24px;height:24px;border-radius:50%;background:var(--accent);color:#1b1b1b;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;}
 .st-step.ok .st-n{background:var(--done);color:#fff;} .st-g{font-size:11.5px;color:var(--text-2);} .st-nn{font-size:14px;font-weight:600;line-height:1.45;} .st-tt{font-size:13px;color:var(--done);margin-top:3px;line-height:1.45;}
 .st-codes{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap;} .st-t td{font-size:12.5px;} .st-t td:nth-child(n+3){font-size:15px;color:var(--done);font-weight:800;}
+.ms-map-wrap.full{position:fixed;inset:0;z-index:9000;margin:0;background:#000;} .ms-map-wrap.full .ms-map{height:100%;border-radius:0;}
+.ms-live{position:absolute;left:8px;right:56px;bottom:22px;z-index:500;background:rgba(10,20,32,.86);color:#fff;font-size:12.5px;padding:7px 10px;border-radius:10px;line-height:1.4;pointer-events:none;}
+.ms-mapbtns button.on{background:var(--accent);} .ms-cab{font-size:16px;line-height:22px;text-align:center;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6));}
+.ms-fab{position:fixed;right:14px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:900;width:54px;height:54px;border-radius:50%;border:none;background:var(--accent);color:#1b1b1b;font-size:20px;line-height:1;box-shadow:0 4px 14px rgba(0,0,0,.35);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:inherit;}
+.ms-fab span{font-size:10px;font-weight:800;margin-top:1px;} @media (min-width:1000px){ .ms-fab{bottom:28px;right:28px;} }
 .src-tabs{display:flex;gap:8px;margin-bottom:12px;}
 .src-tabs button{flex:1;padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 .src-tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
@@ -903,7 +921,7 @@ nav svg{width:21px;height:21px;}
         <details class="hp-sec" id="hp-start"><summary><span class="hp-ic">🚀</span><b>Bắt đầu</b></summary><ul><li>Đăng nhập bằng tài khoản Quản trị cấp; lần đầu app yêu cầu đổi mật khẩu.</li><li>📲 <b>Cài app</b> để mở như ứng dụng trên điện thoại.</li><li>Chip quận trên cùng lọc dữ liệu cho mọi mục.</li><li>Tìm kiếm gõ có dấu hay không dấu đều được.</li></ul></details>
         <details class="hp-sec" id="hp-new"><summary><span class="hp-ic">➕</span><b>Sự cố – Ghi nhận mới</b></summary><ul><li>Tìm tủ theo tên, mã PE, mã kết nối hoặc tên đường → chạm chọn tủ.</li><li>Chọn lý trình, mức độ, mô tả; bấm 📍 lấy GPS.</li><li>📷 Chụp / 🖼️ chọn ảnh – <b>tối đa 10 ảnh</b>, ảnh tự đóng dấu GPS, tên tủ, giờ.</li><li>Bấm <b>Gửi</b> → Telegram báo ngay cho quản lý.</li></ul></details>
         <details class="hp-sec" id="hp-list"><summary><span class="hp-ic">📋</span><b>Sự cố – Danh sách & SCP</b></summary><ul><li>2 mục riêng: <b>Ghi nhận</b> và <b>SCP</b> (lỗi tủ từ trung tâm).</li><li>Tìm, lọc theo người quản lý; ⬇ xuất Excel.</li><li>Chạm nhãn trạng thái để chuyển Mới → Đang xử lý → <b>Đã xử lý</b> (bắt buộc ghi nội dung xử lý, tự lưu sheet DaXuLy).</li><li>Sự cố SCP được báo cáo lại mỗi sáng nếu còn tồn.</li></ul></details>
-        <details class="hp-sec" id="hp-map"><summary><span class="hp-ic">🗺️</span><b>Bản đồ</b></summary><ul><li>Bật/tắt lớp từng quận, chạm điểm để xem tủ.</li><li>📏 Thước đo GPS: ghi điểm hoặc đi bộ tự ghi, bấm “Dùng kết quả” để điền vào phiếu.</li></ul></details>
+        <details class="hp-sec" id="hp-map"><summary><span class="hp-ic">🗺️</span><b>Bản đồ</b></summary><ul><li>Bật/tắt lớp từng quận, chạm điểm để xem tủ.</li><li>📏 <b>Nút Đo</b> (góc phải dưới): đo khoảng cách kiểu RTK trên bản đồ vệ tinh có tên đường; chỉ ghi điểm khi đạt sai số cho phép (0–1 m).</li><li>Bắt đầu từ tủ điều khiển, đứng yên tại điểm → bấm Đo; khung đen trên bản đồ hiện khoảng cách tới vị trí hiện tại.</li><li>Đạt ≤ 1 m cần máy thu RTK (điện thoại thường ±3–5 m); ⛶ phóng to bản đồ, 🗄️ hiện tủ.</li></ul></details>
         <details class="hp-sec" id="hp-st"><summary><span class="hp-ic">📒</span><b>Sổ tay sửa chữa</b></summary><ul><li>Chọn <b>mã lỗi</b> (DATA/4G, PLC, PM, PW) → làm theo các bước đánh số từ trên xuống, tick ✓ bước đã kiểm tra.</li><li>Lọc theo <b>nhóm</b>: nguồn tủ, bộ nguồn, jack/cáp, SIM, cài đặt, thiết bị.</li><li>🗂️ Theo nhóm / 📋 Bảng tra nhanh: xem nguyên nhân chung cho nhiều mã lỗi.</li><li>Ở thẻ sự cố SCP bấm <b>📒 Cách xử lý</b> để mở đúng mã lỗi; 🖨️ in hoặc ⬇ Excel mang ra hiện trường.</li></ul></details>
         <details class="hp-sec" id="hp-ks"><summary><span class="hp-ic">📝</span><b>Khảo sát duy tu & Biên bản</b></summary><ul><li>Chọn 1 trong 16 mẫu → chọn tủ để tự điền thông tin.</li><li>🎤 Nói từng ô hoặc 🎙️ đọc cả phiếu; số đọc bằng chữ tự đổi ra số.</li><li>Biên bản hiện trường: ký tên trên màn hình, 🖨️ in PDF hoặc tải Word.</li><li>⬇ Excel tổng hợp tất cả phiếu theo mẫu.</li></ul></details>
         <details class="hp-sec" id="hp-tk"><summary><span class="hp-ic">📊</span><b>Thống kê tủ</b></summary><ul><li>Xem số liệu đèn, trụ, cần, cáp, % LED theo quận và nhà cung cấp.</li><li>Gõ lọc nhanh: <i>led&lt;50%</i>, <i>slighting led&gt;=90</i>.</li><li>Lọc <b>Bản vẽ: có / chưa có</b>; chạm tủ xem chi tiết, lý trình, bảng trụ 📍 và <b>bản vẽ của tủ</b>.</li><li>📥 <b>Upload bản vẽ đồng loạt</b> – tự nhận tủ, tự tách PDF nhiều trang.</li></ul></details>
@@ -1002,10 +1020,11 @@ nav svg{width:21px;height:21px;}
       <button class="pin-btn" id="lockOut" style="margin-top:10px">Đăng xuất</button>
     </div>
   </div>
+  <button type="button" class="ms-fab" id="msFab" title="Đo khoảng cách (RTK)">📏<span>Đo</span></button>
   <div class="modal-scrim" id="measureScrim">
-    <div class="modal-sheet">
+    <div class="modal-sheet ms-sheet">
       <div class="mtop">
-        <h2>📏 Đo khoảng cách thực tế</h2>
+        <h2>📏 Đo khoảng cách (chế độ RTK)</h2>
         <button class="mclose" id="measureClose" aria-label="Đóng">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
         </button>
@@ -1015,22 +1034,39 @@ nav svg{width:21px;height:21px;}
         <div class="ms-val"><span id="msTotal">0,0</span> <small>m</small></div>
         <div class="ms-sub" id="msSub">Chưa có điểm đo</div>
       </div>
-      <div class="ms-live" id="msLive">GPS: chưa định vị</div>
-      <div class="seg" id="msModeSeg" style="margin:10px 0">
-        <button data-v="point" class="mid on">Ghi từng điểm</button>
-        <button data-v="walk" class="low">Tự ghi khi đi bộ</button>
+      <div class="ms-map-wrap"><div id="msMap" class="ms-map"></div><div class="ms-cross" id="msCross" style="display:none">＋</div>
+        <div class="ms-mapbtns"><button type="button" id="msLayer" title="Đổi lớp bản đồ">🛰️</button><button type="button" id="msFollow" title="Về vị trí của tôi">◎</button><button type="button" id="msFit" title="Xem toàn tuyến">⤢</button><button type="button" id="msFull" title="Phóng to bản đồ">⛶</button><button type="button" id="msCabs" title="Hiện/ẩn tủ điều khiển" class="on">🗄️</button></div>
+        <div class="ms-live" id="msLiveBox" style="display:none"><span id="msLiveTxt"></span></div></div>
+      <div class="ms-src">
+        <div class="ms-fix" id="msFix"><span class="dot"></span><b id="msFixTxt">Chưa định vị</b><span id="msFixSub" class="who"></span></div>
+        <div class="ms-tol"><label>Sai số cho phép: <b id="msTolV">1,0</b> m</label><input type="range" id="msTol" min="0" max="1" step="0.05" value="1"></div>
+        <div class="fl-btns"><button type="button" class="gps-btn" id="msRtk">📡 Kết nối máy RTK</button><span class="who" id="msRtkSt"></span></div>
       </div>
-      <button class="submit-btn" id="msAdd">📍 Ghi điểm tại vị trí hiện tại</button>
-      <div class="ms-hint" id="msHint">Đứng tại điểm đầu → bấm Ghi điểm. Di chuyển tới điểm kế tiếp → bấm Ghi điểm. App tự cộng dồn số mét.</div>
-      <svg id="msSketch" class="ms-sketch" viewBox="0 0 300 160" style="display:none"></svg>
+      <div class="fl-btns" style="margin-top:8px"><input type="text" id="msCabIn" list="msCabList" class="bk-inp" placeholder="📍 Bắt đầu đo từ tủ điều khiển (gõ tên / mã PE)…" autocomplete="off"><datalist id="msCabList"></datalist></div>
+      <div class="seg" id="msModeSeg" style="margin:10px 0">
+        <button data-v="point" class="mid on">Ghi từng điểm (RTK)</button>
+        <button data-v="walk" class="low">Tự ghi khi đi bộ</button>
+        <button data-v="map" class="low">Chọn trên bản đồ</button>
+      </div>
+      <button class="submit-btn" id="msAdd">📍 Đo điểm tại vị trí hiện tại</button>
+      <div class="ms-occ" id="msOcc" style="display:none"><div class="ms-occ-bar"><i id="msOccBar"></i></div><div id="msOccTxt" class="who"></div>
+        <div class="fl-btns" id="msOccBtns" style="display:none"><button type="button" class="gps-btn" id="msOccKeep">Ghi tạm điểm này</button><button type="button" class="gps-btn" id="msOccMore">⏱ Đo thêm 30 giây</button><button type="button" class="gps-btn" id="msOccCancel">Hủy</button></div></div>
+      <div class="ms-hint" id="msHint"></div>
       <div id="msList" class="ms-list"></div>
       <div class="ms-actions">
         <button class="gps-btn" id="msUndo">↶ Xóa điểm cuối</button>
         <button class="gps-btn" id="msReset">⟲ Đo lại từ đầu</button>
         <button class="gps-btn" id="msCopy">📋 Sao chép kết quả</button>
         <button class="gps-btn" id="msToIncident">➕ Chèn vào mô tả sự cố</button>
-        <a class="gps-btn" id="msMaps" target="_blank" rel="noopener" style="text-decoration:none">🗺️ Xem trên Google Maps</a>
+        <button class="gps-btn" id="msGpx">⬇ GPX/CSV</button>
+        <a class="gps-btn" id="msMaps" target="_blank" rel="noopener" style="text-decoration:none">🗺️ Google Maps</a>
       </div>
+      <details class="ms-help"><summary>ℹ️ Đạt sai số 0–1 m như thế nào?</summary>
+        <ul>
+          <li><b>Máy thu RTK ngoài</b> (fix RTK ±1–3 cm): Android – cài app NTRIP/RTK của máy thu (vd. SW Maps, Lefebure NTRIP Client), bật <i>Vị trí giả lập (mock location)</i> → app này tự nhận vị trí RTK. Máy tính – cắm máy thu qua USB, bấm <b>📡 Kết nối máy RTK</b> (đọc NMEA).</li>
+          <li><b>Chỉ dùng điện thoại</b>: GPS thường ±3–10 m. App <b>đứng yên lấy trung bình nhiều mẫu</b> để giảm dao động; chỉ ghi điểm khi độ chính xác ước tính ≤ sai số cho phép. Ra chỗ thoáng, tránh nhà cao tầng/cây lớn, giữ máy nằm ngang.</li>
+          <li>Mỗi điểm ghi rõ nguồn: <b>RTK Fix / RTK Float / Trung bình tĩnh / Chọn trên bản đồ</b> và sai số ±m.</li>
+        </ul></details>
       <button class="submit-btn" id="msUse" style="display:none;margin-top:12px">✔ Dùng kết quả</button>
       <div class="gps-result" id="msMsg"></div>
     </div>
@@ -1832,122 +1868,179 @@ $("#fsBtn").onclick=()=>{
 };
 
 
-/* ---------- thước đo khoảng cách (GPS thực tế) ---------- */
+/* ---------- THƯỚC ĐO KHOẢNG CÁCH – CHẾ ĐỘ RTK + BẢN ĐỒ THỰC ---------- */
 let msPts = (function(){ try{ return JSON.parse(localStorage.getItem("gnsc_measure")||"[]"); }catch(e){ return []; } })();
-let msMode="point", msWatch=null, msLast=null, msBusy=false;
+let msMode="point", msWatch=null, msLast=null, msBusy=false, msTarget=null, msCur=null, msTol=(()=>{ const v=parseFloat(localStorage.getItem("gnsc_ms_tol")); return isNaN(v)?1:v; })();
 const fmtM = m => m.toLocaleString("vi-VN",{minimumFractionDigits:1,maximumFractionDigits:1});
+const fmtA = a => a<1 ? a.toLocaleString("vi-VN",{maximumFractionDigits:2}) : a.toLocaleString("vi-VN",{maximumFractionDigits:1});
+const MS_KIND={rtk:"RTK Fix",float:"RTK Float",dgps:"DGPS",avg:"Trung bình tĩnh",gps:"GPS",map:"Chọn trên bản đồ",cab:"Tọa độ tủ"};
 function msSave(){ try{ localStorage.setItem("gnsc_measure", JSON.stringify(msPts)); }catch(e){} }
 function msTotal(){ let t=0; for(let i=1;i<msPts.length;i++) t+=distM(msPts[i-1],msPts[i]); return t; }
+/* ---- nguồn vị trí: GPS điện thoại hoặc máy RTK qua USB (NMEA) ---- */
+let msSerial=null, msSubs=new Set(), msGeoId=null;
+function msEmit(g){ msCur=g; msLive(g); msSubs.forEach(f=>{ try{ f(g); }catch(e){} }); }
+function msGeoStart(){ if(msSerial || msGeoId!=null || !navigator.geolocation) return;
+  msGeoId=navigator.geolocation.watchPosition(p=>{ const a=p.coords.accuracy||99; msEmit({lat:p.coords.latitude,lng:p.coords.longitude,acc:a,t:Date.now(),kind:a<=0.1?"rtk":a<=0.6?"float":"gps",src:"geo"}); },
+    e=>{ $("#msFixTxt").textContent = e.code===1?"Chưa cho phép truy cập vị trí":"Mất tín hiệu GPS"; }, {enableHighAccuracy:true, maximumAge:0, timeout:20000}); }
+function msGeoStop(){ if(msGeoId!=null) navigator.geolocation.clearWatch(msGeoId); msGeoId=null; }
+function msSub(fn){ msSubs.add(fn); msGeoStart(); return ()=>msSubs.delete(fn); }
+function nmeaGGA(line){ const f=line.split(","); if(!/^\$..GGA$/.test(f[0])||!f[2]||!f[4]) return null;
+  const dm=(v,h,d)=>{ const deg=parseInt(v.slice(0,d),10), min=parseFloat(v.slice(d)); let x=deg+min/60; if(h==="S"||h==="W") x=-x; return x; };
+  const q=+f[6], hd=parseFloat(f[8])||9; if(!q) return null;
+  const kind=q===4?"rtk":q===5?"float":q===2?"dgps":"gps", acc=q===4?0.02:q===5?Math.max(0.2,hd*0.3):q===2?Math.max(0.8,hd*1):Math.max(2.5,hd*3);
+  return {lat:dm(f[2],f[3],2), lng:dm(f[4],f[5],3), acc, t:Date.now(), kind, sats:+f[7]||0, hdop:hd, src:"rtk"}; }
+async function msRtkConnect(){
+  if(!("serial" in navigator)){ alert("Thiết bị/trình duyệt này không hỗ trợ kết nối USB trực tiếp.\n\nAndroid: dùng app NTRIP/RTK của máy thu và bật Vị trí giả lập (mock location) – app sẽ tự nhận vị trí RTK qua GPS.\nMáy tính: dùng Chrome hoặc Edge."); return; }
+  try{
+    const port=await navigator.serial.requestPort(); const baud=+(prompt("Tốc độ baud của máy thu RTK:", "115200")||115200);
+    await port.open({baudRate:baud}); msSerial=port; msGeoStop(); $("#msRtkSt").textContent="🟢 Đã kết nối máy RTK (USB)"; $("#msRtk").textContent="⏏ Ngắt máy RTK";
+    const dec=new TextDecoderStream(); port.readable.pipeTo(dec.writable).catch(()=>{}); const rd=dec.readable.getReader(); let buf="";
+    (async()=>{ try{ while(msSerial){ const {value,done}=await rd.read(); if(done) break; buf+=value; let i; while((i=buf.indexOf("\n"))>=0){ const ln=buf.slice(0,i).trim(); buf=buf.slice(i+1); const g=nmeaGGA(ln); if(g) msEmit(g); } } }catch(e){} })();
+  }catch(e){ if(e && e.name!=="NotFoundError") alert("Không kết nối được: "+e.message); }
+}
+async function msRtkClose(){ const p=msSerial; msSerial=null; try{ await p.close(); }catch(e){} $("#msRtkSt").textContent=""; $("#msRtk").textContent="📡 Kết nối máy RTK"; if(msSubs.size) msGeoStart(); }
+$("#msRtk").onclick=()=> msSerial ? msRtkClose() : msRtkConnect();
+function msLive(g){
+  const el=$("#msFix"), ok=g.acc<=msTol;
+  el.className="ms-fix "+(g.kind==="rtk"?"rtk":ok?"good":g.acc<=5?"mid":"bad");
+  $("#msFixTxt").textContent=(MS_KIND[g.kind]||"GPS")+" · ±"+fmtA(g.acc)+" m";
+  $("#msFixSub").textContent=` ${g.lat.toFixed(7)}, ${g.lng.toFixed(7)}`+(g.sats?` · ${g.sats} vệ tinh · HDOP ${g.hdop}`:"")+(ok?" · ✔ đạt":` · chưa đạt ≤ ${fmtA(msTol)} m`);
+  msMapLive(g);
+}
+/* ---- đo điểm kiểu RTK: đứng yên, lấy nhiều mẫu, chỉ nhận khi đạt sai số cho phép ---- */
+let msOcc=null;
+function msOccupy(maxSec){
+  if(msOcc) return; const S=[]; const t0=Date.now(); let lim=(maxSec||60)*1000;
+  $("#msOcc").style.display=""; $("#msOccBtns").style.display="none"; $("#msAdd").disabled=true;
+  const est=()=>{ if(!S.length) return null; const best=S.reduce((a,b)=>a.acc<b.acc?a:b);
+    if(best.kind==="rtk"||best.acc<=msTol*0.5) { const R=S.filter(x=>x.acc<=best.acc*1.5); const w=R.map(x=>1/(x.acc*x.acc)), W=w.reduce((a,b)=>a+b,0);
+      return {lat:R.reduce((s,x,i)=>s+x.lat*w[i],0)/W, lng:R.reduce((s,x,i)=>s+x.lng*w[i],0)/W, acc:Math.max(best.acc/Math.sqrt(R.length),best.kind==="rtk"?0.01:0.05), kind:best.kind, n:R.length}; }
+    const w=S.map(x=>1/(x.acc*x.acc)), W=w.reduce((a,b)=>a+b,0), lat=S.reduce((s,x,i)=>s+x.lat*w[i],0)/W, lng=S.reduce((s,x,i)=>s+x.lng*w[i],0)/W;
+    const sd=Math.sqrt(S.reduce((s,x)=>s+Math.pow(distM({lat,lng},x),2),0)/Math.max(1,S.length-1));
+    // sai số GPS điện thoại tương quan theo thời gian → số mẫu "độc lập" ≈ 1 mẫu / 5 giây (ước tính thận trọng)
+    const neff=Math.max(1, Math.min(S.length, (S[S.length-1].t-S[0].t)/5000));
+    const accM=Math.sqrt(S.length/W), se=Math.max(sd/Math.sqrt(neff), accM/Math.sqrt(neff), 0.3); // không nhận nhỏ hơn 0,3 m với GPS điện thoại
+    return {lat,lng,acc:se, kind:"avg", n:S.length, sd}; };
+  const draw=r=>{ const pct=Math.min(100,(Date.now()-t0)/lim*100); $("#msOccBar").style.width=pct+"%";
+    $("#msOccTxt").innerHTML = r ? `Đang đo tĩnh: <b>${r.n}</b> mẫu · ước tính <b>±${fmtA(r.acc)} m</b> (${MS_KIND[r.kind]}) · cần ≤ ${fmtA(msTol)} m · ${Math.round((Date.now()-t0)/1000)} giây. <b>Giữ máy đứng yên.</b>` : "Đang chờ tín hiệu vị trí…"; };
+  const stop=()=>{ unsub(); clearInterval(tk); msOcc=null; $("#msAdd").disabled=false; };
+  const accept=r=>{ stop(); $("#msOcc").style.display="none"; msAddPoint({lat:r.lat,lng:r.lng,acc:Math.round(r.acc*100)/100,t:Date.now(),kind:r.kind,n:r.n}); $("#msMsg").textContent=`✔ Đã ghi điểm ${msPts.length} – ${MS_KIND[r.kind]} ±${fmtA(r.acc)} m (${r.n} mẫu).`; };
+  const unsub=msSub(g=>{ S.push(g); const r=est(); draw(r); if(r && r.acc<=msTol && (r.kind==="rtk" ? r.n>=3 : r.n>=10)) accept(r); });
+  const tk=setInterval(()=>{ const r=est(); draw(r); if(Date.now()-t0>=lim){ clearInterval(tk); unsub(); msOcc.pending=r;
+    $("#msOccTxt").innerHTML = r ? `⚠️ Hết thời gian: chỉ đạt <b>±${fmtA(r.acc)} m</b> > ${fmtA(msTol)} m cho phép. Ra chỗ thoáng hơn / dùng máy RTK, hoặc đo thêm.` : "⚠️ Không nhận được tín hiệu vị trí.";
+    $("#msOccBtns").style.display=""; $("#msOccKeep").style.display=r?"":"none"; } },500);
+  msOcc={S, accept, stop, more:()=>{ lim+=30000; $("#msOccBtns").style.display="none"; const un2=msSub(g=>{ S.push(g); const r=est(); draw(r); if(r && r.acc<=msTol && r.n>=10){ un2(); clearInterval(t2); accept(r); } }); const t2=setInterval(()=>{ const r=est(); draw(r); if(Date.now()-t0>=lim){ clearInterval(t2); un2(); msOcc.pending=r; $("#msOccBtns").style.display=""; } },500); msOcc.stop=()=>{ un2(); clearInterval(t2); msOcc=null; $("#msAdd").disabled=false; }; }};
+}
+$("#msOccKeep").onclick=()=>{ const r=msOcc&&msOcc.pending; if(!r) return; if(!confirm(`Ghi tạm điểm với sai số ±${fmtA(r.acc)} m (vượt mức cho phép ${fmtA(msTol)} m)?`)) return; msOcc.stop(); msOcc=null; $("#msOcc").style.display="none"; $("#msAdd").disabled=false; msAddPoint({lat:r.lat,lng:r.lng,acc:Math.round(r.acc*100)/100,t:Date.now(),kind:r.kind,n:r.n,over:true}); };
+$("#msOccMore").onclick=()=>{ if(msOcc) msOcc.more(); };
+$("#msOccCancel").onclick=()=>{ if(msOcc) msOcc.stop(); msOcc=null; $("#msOcc").style.display="none"; $("#msAdd").disabled=false; };
+function msAddPoint(g){ msPts.push(g); msRender(); if(navigator.vibrate) navigator.vibrate(40); }
+/* ---- bản đồ thực (ảnh vệ tinh / đường phố) ---- */
+let msMap=null, msLayers=null, msLayerIdx=0, msMeMk=null, msMeCirc=null, msLine=null, msMarks=null, msFollow=true, msCabLayer=null, msLiveLine=null, msCabsOn=true;
+/* tủ điều khiển trên bản đồ đo (zoom ≥ 16) */
+function msCabsDraw(){ if(!msMap||!msCabLayer) return; msCabLayer.clearLayers(); if(!msCabsOn || msMap.getZoom()<16) return; const b=msMap.getBounds(), Lf=window.L; let n=0;
+  for(const c of CABINETS){ if(c.lat==null||!b.contains([c.lat,c.lng])) continue; if(++n>150) break;
+    Lf.marker([c.lat,c.lng],{icon:Lf.divIcon({className:"ms-cab",html:"🗄️",iconSize:[22,22]})}).bindTooltip(c.n+" · "+c.pe,{direction:"top"}).on("click",()=>{ if(confirm("Thêm điểm đo tại tủ "+c.n+"?\n(dùng tọa độ tủ trong dữ liệu)")) msAddPoint({lat:c.lat,lng:c.lng,acc:1,t:Date.now(),kind:"cab",name:c.n}); }).addTo(msCabLayer); } }
+async function msMapInit(){
+  if(msMap){ setTimeout(()=>msMap.invalidateSize(),60); return; }
+  if(!window.L || !window.L.map){ const css=document.createElement("link"); css.rel="stylesheet"; css.href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"; document.head.appendChild(css);
+    try{ await loadScript("https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"); }catch(e){ $("#msMap").innerHTML='<div class="empty">Không tải được bản đồ (kiểm tra mạng).</div>'; return; } }
+  const Lf=window.L;
+  const esri=(s,o)=>Lf.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/"+s+"/MapServer/tile/{z}/{y}/{x}",Object.assign({maxZoom:22,maxNativeZoom:19},o||{}));
+  msLayers=[
+    ["🛰️ Vệ tinh + tên đường", Lf.layerGroup([esri("World_Imagery",{attribution:"Ảnh vệ tinh © Esri"}), esri("Reference/World_Transportation",{opacity:.9}), esri("Reference/World_Boundaries_and_Places",{opacity:.9})])],
+    ["🗺️ Bản đồ đường phố", esri("World_Street_Map",{attribution:"© Esri"})],
+    ["🗺️ OpenStreetMap", Lf.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:22,maxNativeZoom:19,attribution:"© OpenStreetMap"})]];
+  let tileErr=0; msLayers.forEach(([,ly])=>{ const each=f=>ly.eachLayer?ly.eachLayer(f):f(ly); each(t=>t.on&&t.on("tileerror",()=>{ if(++tileErr===12 && msMap){ $("#msLayer").click(); tileErr=0; } })); });
+  const c = msPts.length ? [msPts[msPts.length-1].lat,msPts[msPts.length-1].lng] : (msCur?[msCur.lat,msCur.lng]:[10.776,106.700]);
+  msMap=Lf.map("msMap",{zoomControl:true,attributionControl:true,maxZoom:22}).setView(c, msPts.length||msCur?19:13);
+  msLayers[0][1].addTo(msMap); msMarks=Lf.layerGroup().addTo(msMap); msCabLayer=Lf.layerGroup().addTo(msMap); msLiveLine=Lf.layerGroup().addTo(msMap);
+  // luôn vẽ lại đúng kích thước khi cửa sổ/ô bản đồ thay đổi (tránh bản đồ xám)
+  try{ new ResizeObserver(()=>msMap&&msMap.invalidateSize()).observe($("#msMap")); }catch(e){}
+  [150,400,900].forEach(t=>setTimeout(()=>msMap&&msMap.invalidateSize(),t));
+  msMap.on("moveend zoomend",msCabsDraw); msCabsDraw();
+  msMap.on("dragstart",()=>{ msFollow=false; });
+  msMapDraw(); if(msCur) msMapLive(msCur);
+  setTimeout(()=>msMap.invalidateSize(),80);
+}
+function msMapLive(g){ if(!msMap) return; const Lf=window.L, ll=[g.lat,g.lng];
+  if(!msMeMk){ msMeMk=Lf.circleMarker(ll,{radius:7,color:"#fff",weight:2,fillColor:"#1A73E8",fillOpacity:1}).addTo(msMap); msMeCirc=Lf.circle(ll,{radius:g.acc,color:"#1A73E8",weight:1,fillOpacity:.12}).addTo(msMap); }
+  msMeMk.setLatLng(ll); msMeCirc.setLatLng(ll); msMeCirc.setRadius(Math.max(g.acc,0.05));
+  msMeMk.setStyle({fillColor:g.acc<=msTol?"#2E7D4F":"#1A73E8"}); msMeCirc.setStyle({color:g.acc<=msTol?"#2E7D4F":"#1A73E8"});
+  if(msFollow) msMap.setView(ll, Math.max(msMap.getZoom(),18), {animate:false});
+  msLiveLine.clearLayers(); const box=$("#msLiveBox");
+  if(msPts.length){ const a=msPts[msPts.length-1], d=distM(a,g);
+    Lf.polyline([[a.lat,a.lng],ll],{color:"#fff",weight:3,dashArray:"6 6",opacity:.95}).addTo(msLiveLine);
+    box.style.display=""; $("#msLiveTxt").innerHTML=`Từ điểm ${msPts.length} tới vị trí hiện tại: <b>${fmtM(d)} m</b> ±${fmtA(Math.sqrt((a.acc||0)**2+g.acc**2))} m · tổng nếu ghi: <b>${fmtM(msTotal()+d)} m</b>`; }
+  else box.style.display="none"; }
+function msMapDraw(){ if(!msMap) return; const Lf=window.L; msMarks.clearLayers();
+  if(msPts.length>=2){ Lf.polyline(msPts.map(p=>[p.lat,p.lng]),{color:"#F2B705",weight:4,opacity:.95}).addTo(msMarks);
+    for(let i=1;i<msPts.length;i++){ const a=msPts[i-1], b=msPts[i]; Lf.marker([(a.lat+b.lat)/2,(a.lng+b.lng)/2],{icon:Lf.divIcon({className:"ms-seglbl",html:fmtM(distM(a,b))+" m",iconSize:null}),interactive:false}).addTo(msMarks); } }
+  msPts.forEach((p,i)=>{ Lf.marker([p.lat,p.lng],{icon:Lf.divIcon({className:"ms-pt"+(i===0?" first":i===msPts.length-1?" last":"")+(p.over?" over":""),html:String(i+1),iconSize:[22,22]})}).bindTooltip(`Điểm ${i+1} · ${MS_KIND[p.kind]||"GPS"} ±${fmtA(p.acc)} m`).addTo(msMarks); }); }
+$("#msLayer").onclick=()=>{ if(!msMap) return; msMap.removeLayer(msLayers[msLayerIdx][1]); msLayerIdx=(msLayerIdx+1)%msLayers.length; msLayers[msLayerIdx][1].addTo(msMap); $("#msLayer").textContent=msLayerIdx?"🗺️":"🛰️"; $("#msLayer").title="Lớp: "+msLayers[msLayerIdx][0]; };
+$("#msFull").onclick=()=>{ const w=$("#measureScrim .ms-map-wrap"); w.classList.toggle("full"); $("#msFull").textContent=w.classList.contains("full")?"🗗":"⛶"; setTimeout(()=>msMap&&msMap.invalidateSize(),60); };
+$("#msCabs").onclick=()=>{ msCabsOn=!msCabsOn; $("#msCabs").classList.toggle("on",msCabsOn); msCabsDraw(); };
+$("#msCabIn").addEventListener("input",e=>{ const v=e.target.value, dl=$("#msCabList"), pe=(v.split("|")[1]||"").trim(), c=pe&&CABINETS.find(x=>x.pe===pe);
+  if(c){ e.target.value=""; dl.innerHTML=""; if(c.lat==null){ alert("Tủ này chưa có tọa độ."); return; } msAddPoint({lat:c.lat,lng:c.lng,acc:1,t:Date.now(),kind:"cab",name:c.n}); msFollow=false; if(msMap) msMap.setView([c.lat,c.lng],19); $("#msMsg").textContent="✔ Điểm "+msPts.length+" = tủ "+c.n+" (tọa độ dữ liệu). Đi dọc tuyến rồi đo các điểm tiếp theo."; return; }
+  dl.innerHTML=""; if(v.trim().length<2) return; searchCabinets(v,false).list.slice(0,12).forEach(c=>{ const o=document.createElement("option"); o.value=c.n+" | "+c.pe; o.label=c.q; dl.appendChild(o); }); });
+$("#msFollow").onclick=()=>{ msFollow=true; if(msCur && msMap) msMap.setView([msCur.lat,msCur.lng],19); };
+$("#msFit").onclick=()=>{ if(!msMap||!msPts.length) return; msFollow=false; msMap.fitBounds(window.L.latLngBounds(msPts.map(p=>[p.lat,p.lng])).pad(0.25)); };
+/* ---- giao diện ---- */
 function msRender(){
   const tot=msTotal();
   $("#msTotal").textContent = fmtM(tot);
-  $("#msSub").textContent = msPts.length ? `${msPts.length} điểm · ${msPts.length-1} đoạn` + (tot>=1000?` · ≈ ${(tot/1000).toLocaleString("vi-VN",{maximumFractionDigits:3})} km`:"") : "Chưa có điểm đo";
+  const worst=msPts.reduce((m,p)=>Math.max(m,p.acc||0),0);
+  $("#msSub").textContent = msPts.length ? `${msPts.length} điểm · ${msPts.length-1} đoạn` + (msPts.length>1?` · sai số điểm lớn nhất ±${fmtA(worst)} m`:"") + (tot>=1000?` · ≈ ${(tot/1000).toLocaleString("vi-VN",{maximumFractionDigits:3})} km`:"") : "Chưa có điểm đo";
   const list=$("#msList"); list.innerHTML=""; let cum=0;
-  msPts.forEach((p,i)=>{
-    const seg = i ? distM(msPts[i-1],p) : 0; cum+=seg;
+  msPts.forEach((p,i)=>{ const seg=i?distM(msPts[i-1],p):0; cum+=seg;
     const r=document.createElement("div"); r.className="ms-row";
-    const l=document.createElement("div");
-    l.innerHTML = `<b>Điểm ${i+1}</b>${i?` · đoạn <b>+${fmtM(seg)} m</b>`:" · điểm đầu"}<div class="ms-c">${p.lat.toFixed(6)}, ${p.lng.toFixed(6)} (±${p.acc} m) · ${new Date(p.t).toLocaleTimeString("vi-VN")}</div>`;
-    const rr=document.createElement("div"); rr.innerHTML=`<b>${fmtM(cum)} m</b>`;
-    r.appendChild(l); r.appendChild(rr); list.prepend(r);
-  });
-  // sơ đồ phác thảo
-  const sk=$("#msSketch");
-  if(msPts.length>=2){
-    const la=msPts.map(p=>p.lat), lo=msPts.map(p=>p.lng);
-    const k=Math.cos(la[0]*Math.PI/180);
-    const xs=lo.map(v=>v*k), minX=Math.min(...xs), maxX=Math.max(...xs), minY=Math.min(...la), maxY=Math.max(...la);
-    const span=Math.max(maxX-minX, maxY-minY, 1e-7), s=Math.min(260/ span, 120/ span);
-    const P=msPts.map((p,i)=>({x:20+(xs[i]-minX)*s + (260-(maxX-minX)*s)/2, y:140-(p.lat-minY)*s - (120-(maxY-minY)*s)/2}));
-    let svg=`<polyline points="${P.map(q=>q.x.toFixed(1)+","+q.y.toFixed(1)).join(" ")}" fill="none" stroke="#1A73E8" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>`;
-    P.forEach((q,i)=>{ svg+=`<circle cx="${q.x.toFixed(1)}" cy="${q.y.toFixed(1)}" r="${i===0||i===P.length-1?6:4}" fill="${i===0?"#2E7D4F":(i===P.length-1?"#C1440E":"#1A73E8")}" stroke="#fff" stroke-width="1.5"/>`; });
-    if(P.length<=12) P.forEach((q,i)=>{ svg+=`<text x="${(q.x+8).toFixed(1)}" y="${(q.y-6).toFixed(1)}" font-size="10" fill="currentColor">${i+1}</text>`; });
-    sk.innerHTML=svg; sk.style.display="block"; sk.style.color="var(--text-2)";
-  } else sk.style.display="none";
+    r.innerHTML=`<div><b>Điểm ${i+1}</b>${i?` · đoạn <b>+${fmtM(seg)} m</b>`:" · điểm đầu"} <span class="ms-k ${p.kind||"gps"}${p.over?" over":""}">${MS_KIND[p.kind]||"GPS"} ±${fmtA(p.acc)} m${p.n?` · ${p.n} mẫu`:""}</span><div class="ms-c">${p.lat.toFixed(7)}, ${p.lng.toFixed(7)} · ${new Date(p.t).toLocaleTimeString("vi-VN")}</div></div><div><b>${fmtM(cum)} m</b></div>`;
+    list.prepend(r); });
   const mu=$("#msUse");
-  if(msTarget){ mu.style.display=""; mu.disabled=msPts.length<2; mu.textContent=`✔ Dùng ${fmtM(msTotal())} m cho ô "${msTarget.label}"`; } else mu.style.display="none";
-  const mp=$("#msMaps");
-  if(msPts.length>=2){ mp.href="https://www.google.com/maps/dir/"+msPts.slice(0,25).map(p=>p.lat.toFixed(6)+","+p.lng.toFixed(6)).join("/"); mp.style.display=""; }
-  else mp.style.display="none";
-  msSave();
+  if(msTarget){ mu.style.display=""; mu.disabled=msPts.length<2; mu.textContent=`✔ Dùng ${fmtM(tot)} m cho ô "${msTarget.label}"`; } else mu.style.display="none";
+  const mp=$("#msMaps"); if(msPts.length>=2){ mp.href="https://www.google.com/maps/dir/"+msPts.slice(0,25).map(p=>p.lat.toFixed(7)+","+p.lng.toFixed(7)).join("/"); mp.style.display=""; } else mp.style.display="none";
+  msMapDraw(); msSave();
 }
-function msLive(g){
-  const el=$("#msLive");
-  el.className = "ms-live " + (g.acc<=5?"good":(g.acc<=15?"mid":"bad"));
-  el.textContent = `GPS: ${g.lat.toFixed(6)}, ${g.lng.toFixed(6)} · sai số ±${g.acc} m` + (g.acc>15?" – sai số lớn, nên ra chỗ thoáng":"");
+function msSetMode(m){
+  if(msWatch) msStopWalk(); if(msOcc) $("#msOccCancel").click();
+  msMode=m; $("#msModeSeg").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x.dataset.v===m));
+  $("#msCross").style.display = m==="map" ? "" : "none";
+  if(m==="walk"){ $("#msAdd").textContent="▶ Bắt đầu tự ghi khi đi bộ"; $("#msHint").textContent=`Đi dọc tuyến, app chỉ ghi vị trí đạt sai số ≤ ${fmtA(Math.max(msTol,0.5))} m (cần máy RTK) – GPS điện thoại sẽ hiếm khi đạt, nên dùng "Ghi từng điểm".`; }
+  else if(m==="map"){ $("#msAdd").textContent="📌 Thêm điểm tại dấu ＋ giữa bản đồ"; $("#msHint").textContent="Kéo bản đồ (ảnh vệ tinh) cho dấu ＋ trùng vị trí trụ/tủ → bấm Thêm điểm. Độ chính xác phụ thuộc ảnh vệ tinh (thường ±1–3 m), điểm được đánh dấu \"Chọn trên bản đồ\"."; msFollow=false; }
+  else { $("#msAdd").textContent="📍 Đo điểm tại vị trí hiện tại"; $("#msHint").textContent=`Đứng đúng tại điểm cần đo (chân trụ, tủ…) → bấm Đo điểm và giữ máy đứng yên. App lấy nhiều mẫu, chỉ ghi khi đạt sai số ≤ ${fmtA(msTol)} m.`; }
 }
-// lấy vị trí tốt nhất trong tối đa 8 giây (dừng sớm khi sai số ≤ 4 m)
-function msBestFix(cb){
-  if(!navigator.geolocation){ cb(null,"Thiết bị không hỗ trợ GPS."); return; }
-  let best=null, done=false;
-  const finish=()=>{ if(done) return; done=true; navigator.geolocation.clearWatch(id); clearTimeout(tm); best?cb(best,null):cb(null,"Không lấy được vị trí, thử lại."); };
-  const id=navigator.geolocation.watchPosition(pos=>{
-    const g={lat:pos.coords.latitude,lng:pos.coords.longitude,acc:Math.round(pos.coords.accuracy||99),t:Date.now()};
-    msLive(g);
-    if(!best || g.acc<best.acc) best=g;
-    if(best.acc<=4) finish();
-  }, err=>{ if(!best){ done=true; navigator.geolocation.clearWatch(id); clearTimeout(tm); cb(null, err.code===1?"Bạn chưa cho phép truy cập vị trí.":"Không lấy được vị trí."); } },
-  {enableHighAccuracy:true, maximumAge:0, timeout:15000});
-  const tm=setTimeout(finish, 8000);
-}
-function msAddPoint(g){ msPts.push(g); msRender(); if(navigator.vibrate) navigator.vibrate(40); }
+$("#msModeSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>msSetMode(b.dataset.v));
 $("#msAdd").onclick=()=>{
   if(msMode==="walk"){ msWatch ? msStopWalk() : msStartWalk(); return; }
-  if(msBusy) return; msBusy=true;
-  const b=$("#msAdd"); b.disabled=true; b.textContent="Đang lấy vị trí chính xác… (tối đa 8 giây)";
-  msBestFix((g,err)=>{
-    msBusy=false; b.disabled=false; b.textContent="📍 Ghi điểm tại vị trí hiện tại";
-    if(err){ $("#msMsg").textContent=err; return; }
-    $("#msMsg").textContent = g.acc>15 ? `Đã ghi điểm nhưng sai số ±${g.acc} m khá lớn.` : "";
-    msAddPoint(g);
-  });
+  if(msMode==="map"){ if(!msMap) return; const c=msMap.getCenter(); msAddPoint({lat:c.lat,lng:c.lng,acc:msMap.getZoom()>=19?1:2,t:Date.now(),kind:"map"}); return; }
+  msOccupy(60);
 };
-// chế độ đi bộ: chỉ cộng khi đã di chuyển xa hơn sai số GPS (lọc nhiễu khi đứng yên)
-function msStartWalk(){
-  if(!navigator.geolocation){ $("#msMsg").textContent="Thiết bị không hỗ trợ GPS."; return; }
-  msLast = msPts.length ? msPts[msPts.length-1] : null;
-  msWatch = navigator.geolocation.watchPosition(pos=>{
-    const g={lat:pos.coords.latitude,lng:pos.coords.longitude,acc:Math.round(pos.coords.accuracy||99),t:Date.now()};
-    msLive(g);
-    if(g.acc>20) return;
-    if(!msLast){ msLast=g; msAddPoint(g); return; }
-    const d=distM(msLast,g);
-    if(d >= Math.max(5, g.acc, msLast.acc)){ msLast=g; msAddPoint(g); }
-  }, err=>{ $("#msMsg").textContent = err.code===1?"Bạn chưa cho phép truy cập vị trí.":"Mất tín hiệu GPS."; }, {enableHighAccuracy:true, maximumAge:0});
-  $("#msAdd").textContent="⏹ Dừng ghi (đang đi bộ đo…)";
-  $("#msHint").textContent="Đang tự ghi: cứ đi theo tuyến, app cộng dồn số mét (bỏ qua dao động GPS khi đứng yên). Giữ màn hình sáng.";
-}
-function msStopWalk(){
-  if(msWatch!=null) navigator.geolocation.clearWatch(msWatch); msWatch=null;
-  $("#msAdd").textContent="▶ Bắt đầu tự ghi khi đi bộ";
-  $("#msHint").textContent="Bấm Bắt đầu tại điểm đầu tuyến, đi dọc tuyến, tới điểm cuối bấm Dừng.";
-}
-$("#msModeSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>{
-  if(msWatch) msStopWalk();
-  msMode=b.dataset.v;
-  $("#msModeSeg").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));
-  if(msMode==="walk"){ $("#msAdd").textContent="▶ Bắt đầu tự ghi khi đi bộ"; $("#msHint").textContent="Bấm Bắt đầu tại điểm đầu tuyến, đi dọc tuyến, tới điểm cuối bấm Dừng."; }
-  else { $("#msAdd").textContent="📍 Ghi điểm tại vị trí hiện tại"; $("#msHint").textContent="Đứng tại điểm đầu → bấm Ghi điểm. Di chuyển tới điểm kế tiếp → bấm Ghi điểm. App tự cộng dồn số mét."; }
-});
+function msStartWalk(){ msLast=msPts.length?msPts[msPts.length-1]:null; const lim=Math.max(msTol,0.5);
+  msWatch=msSub(g=>{ if(g.acc>lim) return; if(!msLast){ msLast=g; msAddPoint(Object.assign({},g,{acc:Math.round(g.acc*100)/100})); return; }
+    if(distM(msLast,g) >= Math.max(2, g.acc*3)){ msLast=g; msAddPoint(Object.assign({},g,{acc:Math.round(g.acc*100)/100})); } });
+  $("#msAdd").textContent="⏹ Dừng ghi (đang đi bộ đo…)"; }
+function msStopWalk(){ if(msWatch) msWatch(); msWatch=null; $("#msAdd").textContent="▶ Bắt đầu tự ghi khi đi bộ"; }
+$("#msTol").addEventListener("input",e=>{ msTol=Math.max(0.02,parseFloat(e.target.value)); $("#msTolV").textContent=parseFloat(e.target.value)===0?"0 (chỉ nhận RTK Fix ±2 cm)":fmtA(msTol); try{ localStorage.setItem("gnsc_ms_tol",msTol); }catch(x){} if(msCur) msLive(msCur); msSetMode(msMode); });
 $("#msUndo").onclick=()=>{ msPts.pop(); if(msWatch) msLast=msPts[msPts.length-1]||null; msRender(); };
 $("#msReset").onclick=()=>{ if(msPts.length && !confirm("Xóa toàn bộ điểm đo và đo lại từ đầu?")) return; msPts=[]; msLast=null; msRender(); $("#msMsg").textContent=""; };
-function msSummary(){ return `Đo thực tế bằng GPS: ${fmtM(msTotal())} m (${msPts.length} điểm${msPts.length?`, từ ${msPts[0].lat.toFixed(6)},${msPts[0].lng.toFixed(6)} đến ${msPts[msPts.length-1].lat.toFixed(6)},${msPts[msPts.length-1].lng.toFixed(6)}`:""})`; }
+function msSummary(){ const worst=msPts.reduce((m,p)=>Math.max(m,p.acc||0),0); return `Đo thực tế: ${fmtM(msTotal())} m (${msPts.length} điểm, sai số điểm ≤ ±${fmtA(worst)} m${msPts.length?`, từ ${msPts[0].lat.toFixed(7)},${msPts[0].lng.toFixed(7)} đến ${msPts[msPts.length-1].lat.toFixed(7)},${msPts[msPts.length-1].lng.toFixed(7)}`:""})`; }
 $("#msCopy").onclick=async ()=>{ const t=msSummary(); try{ await navigator.clipboard.writeText(t); $("#msMsg").textContent="Đã sao chép: "+t; }catch(e){ $("#msMsg").textContent=t; } };
-$("#msToIncident").onclick=()=>{
-  if(msPts.length<2){ $("#msMsg").textContent="Cần ít nhất 2 điểm."; return; }
-  $("#measureScrim").classList.remove("show"); showView("new");
-  const m=$("#moTa"); m.value = (m.value? m.value.trim()+"\n" : "") + msSummary();
-  if(typeof updateSubmitState==="function") updateSubmitState();
-  window.scrollTo(0,0);
-};
-let msTarget=null;
-$("#measureOpen").onclick=()=>{ msTarget=null; $("#measureScrim").classList.add("show"); msRender(); };
-$("#measureClose").onclick=()=>{ msTarget=null; $("#measureScrim").classList.remove("show"); };
-$("#msUse").onclick=()=>{
-  if(!msTarget) return; const e=$("#"+msTarget.id);
-  if(e){ e.value = (Math.round(msTotal()*10)/10).toString().replace(".",","); e.dispatchEvent(new Event("input")); }
-  msTarget=null; $("#measureScrim").classList.remove("show");
-};
+$("#msGpx").onclick=()=>{ if(!msPts.length) return; const ts=todayISO();
+  const gpx=`<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="CSKVTT"><trk><name>Do khoang cach ${ts}</name><trkseg>\n`+msPts.map((p,i)=>`<trkpt lat="${p.lat.toFixed(8)}" lon="${p.lng.toFixed(8)}"><time>${new Date(p.t).toISOString()}</time><name>${i+1}</name><desc>${MS_KIND[p.kind]||"GPS"} ±${p.acc} m</desc></trkpt>`).join("\n")+`\n</trkseg></trk></gpx>`;
+  saveBlob(new Blob([gpx],{type:"application/gpx+xml"}),"Do_khoang_cach_"+ts+".gpx");
+  let cum=0; const csv="\ufeffSTT,Vĩ độ,Kinh độ,Sai số (m),Cách đo,Số mẫu,Đoạn (m),Cộng dồn (m),Thời gian\n"+msPts.map((p,i)=>{ const s=i?distM(msPts[i-1],p):0; cum+=s; return [i+1,p.lat.toFixed(8),p.lng.toFixed(8),p.acc,MS_KIND[p.kind]||"GPS",p.n||"",s.toFixed(2),cum.toFixed(2),new Date(p.t).toLocaleString("vi-VN")].join(","); }).join("\n");
+  saveBlob(new Blob([csv],{type:"text/csv"}),"Do_khoang_cach_"+ts+".csv"); };
+$("#msToIncident").onclick=()=>{ if(msPts.length<2){ $("#msMsg").textContent="Cần ít nhất 2 điểm."; return; }
+  msClose(); showView("new"); const m=$("#moTa"); m.value=(m.value?m.value.trim()+"\n":"")+msSummary(); if(typeof updateSubmitState==="function") updateSubmitState(); window.scrollTo(0,0); };
+function msOpen(){ $("#measureScrim").classList.add("show"); $("#msTol").value=msTol; $("#msTolV").textContent=fmtA(msTol); msSetMode(msMode); msRender(); msGeoStart(); msSubs.add(msLiveKeep); msMapInit(); }
+const msLiveKeep=()=>{};
+function msClose(){ msTarget=null; if(msOcc) $("#msOccCancel").click(); if(msWatch) msStopWalk(); msSubs.delete(msLiveKeep); if(!msSubs.size) msGeoStop(); $("#measureScrim").classList.remove("show"); }
+$("#measureOpen").onclick=()=>{ msTarget=null; msOpen(); };
+$("#msFab").onclick=()=>{ msTarget=null; msOpen(); };
+$("#measureClose").onclick=msClose;
+$("#msUse").onclick=()=>{ if(!msTarget) return; const e=$("#"+msTarget.id);
+  if(e){ e.value=(Math.round(msTotal()*10)/10).toString().replace(".",","); e.dispatchEvent(new Event("input")); }
+  msClose(); };
 
 
 /* ---------- File Lưu ---------- */
@@ -2358,7 +2451,7 @@ function ksOpenForm(rec){
     const vb = (VOICE_OK && canEdit && x.t!=="c" && x.t!=="d" && x.t!=="dt") ? vFieldBtn(inp,x) : null;
     if(x.t==="m"){ const row=document.createElement("div"); row.className="ks-mrow"; row.appendChild(inp); if(vb) row.appendChild(vb);
       const b=document.createElement("button"); b.type="button"; b.className="gps-btn"; b.textContent="📏 Đo"; b.disabled=!canEdit || !can("doKhoangCach");
-      b.onclick=()=>{ msTarget={id:"ksf_"+x.k, label:x.l}; $("#measureScrim").classList.add("show"); msRender(); };
+      b.onclick=()=>{ msOpen(); msTarget={id:"ksf_"+x.k, label:x.l}; msRender(); };
       row.appendChild(b); w.appendChild(row); }
     else if(x.t==="c"){ const row=document.createElement("label"); row.className="ks-chk"; row.appendChild(inp); row.appendChild(document.createTextNode(" Có")); w.appendChild(row); }
     else if(vb){ const row=document.createElement("div"); row.className="ks-mrow"+(x.t==="a"?" ta":""); row.appendChild(inp); row.appendChild(vb); w.appendChild(row); }
@@ -4267,6 +4360,7 @@ function applyUser(u){
   $("#tabLed").style.display = can("theoDoiLed") ? "" : "none";
   $("#flUpload").style.display = can("taiLenFile") ? "" : "none";
   $("#measureOpen").style.display = can("doKhoangCach") ? "" : "none";
+  $("#msFab").style.display = can("doKhoangCach") ? "" : "none";
   const scpTab = $('#srcTabs button[data-v="scp"]'); if(scpTab) scpTab.style.display = can("xemSCP") ? "" : "none";
   if(!can("xemSCP") && activeSource==="scp") activeSource="manual";
   $("#acctInfo").textContent = "Đăng nhập: " + u.username + " · " + (u.fullName||"") + " · Quyền: " + (ROLE_LABEL[u.role]||u.role);
