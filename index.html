@@ -443,6 +443,14 @@ button.dl{border:none;}
 .sw{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:12.5px;} .sw input{display:none;} .sw span{width:42px;height:24px;border-radius:24px;background:var(--border);position:relative;transition:.2s;}
 .sw span::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s;} .sw input:checked+span{background:var(--done);} .sw input:checked+span::after{left:21px;}
 .scp-cfg{display:flex;flex-direction:column;gap:6px;margin:8px 0;font-size:13px;} .scp-cfg input[type=number]{width:62px;padding:4px 6px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);}
+.st-f{display:flex;gap:8px;align-items:center;margin-bottom:6px;} .st-f .who{flex:0 0 auto;font-size:12px;} .st-row{margin:0;flex-wrap:nowrap;overflow-x:auto;flex:1;min-width:0;} .st-row .chip{flex:0 0 auto;} .st-card .who,#stBody>.who{font-size:12px;color:var(--text-2);}
+.st-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:12px;box-shadow:var(--shadow);}
+.st-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:15px;} .st-head .who{margin-left:auto;} .st-head .gps-btn{padding:4px 9px;font-size:12px;}
+.st-bar{height:6px;border-radius:6px;background:var(--surface-2);overflow:hidden;margin-top:8px;} .st-bar i{display:block;height:100%;background:var(--done);transition:width .3s;}
+.st-step{display:flex;gap:10px;align-items:flex-start;padding:9px 6px;border-top:1px solid var(--border);cursor:pointer;} .st-step input{margin-top:3px;width:18px;height:18px;accent-color:var(--done);flex:0 0 auto;}
+.st-step.ok .st-nn{text-decoration:line-through;color:var(--text-2);} .st-n{flex:0 0 24px;height:24px;border-radius:50%;background:var(--accent);color:#1b1b1b;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;}
+.st-step.ok .st-n{background:var(--done);color:#fff;} .st-g{font-size:11.5px;color:var(--text-2);} .st-nn{font-size:14px;font-weight:600;line-height:1.45;} .st-tt{font-size:13px;color:var(--done);margin-top:3px;line-height:1.45;}
+.st-codes{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap;} .st-t td{font-size:12.5px;} .st-t td:nth-child(n+3){font-size:15px;color:var(--done);font-weight:800;}
 .src-tabs{display:flex;gap:8px;margin-bottom:12px;}
 .src-tabs button{flex:1;padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 .src-tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
@@ -607,6 +615,7 @@ nav svg{width:21px;height:21px;}
       <button data-v="new" class="on">📝 Ghi nhận mới</button>
       <button data-v="list">📋 Danh sách sự cố</button>
       <button data-v="map" id="scMap">🗺️ Bản đồ</button>
+      <button data-v="st">📒 Sổ tay sửa chữa</button>
     </div>
     <!-- GHI NHAN VIEW -->
     <section class="view active" id="view-new">
@@ -771,6 +780,16 @@ nav svg{width:21px;height:21px;}
       <div id="ledBody"></div>
     </section>
 
+    <!-- SỔ TAY SỬA CHỮA -->
+    <section class="view" id="view-st">
+      <div class="fl-head"><h2>📒 Sổ tay sửa chữa</h2><div class="fl-btns"><button class="gps-btn" id="stPrint">🖨️ In</button><button class="gps-btn" id="stXls">⬇ Excel</button></div></div>
+      <div class="lg-box"><div class="search-wrap" style="margin:0"><input type="text" id="stQ" placeholder="🔎 Tìm nguyên nhân / thao tác: RCCB, SIM, bộ nguồn, Selec, trung tính…" autocomplete="off"></div></div>
+      <div class="sc-tabs" id="stModes" style="display:flex;flex-wrap:wrap;margin-bottom:8px"><button data-m="code" class="on">🧭 Theo mã lỗi (từng bước)</button><button data-m="group">🗂️ Theo nhóm kiểm tra</button><button data-m="matrix">📋 Bảng tra nhanh</button></div>
+      <div class="st-f"><span class="who">Mã lỗi:</span><div class="chips st-row" id="stCodes"></div></div>
+      <div class="st-f"><span class="who">Nhóm:</span><div class="chips st-row" id="stGrps"></div></div>
+      <div id="stBody"></div>
+    </section>
+
     <!-- FILE LƯU VIEW -->
     <section class="view" id="view-files">
       <div class="fl-head"><h2>📁 File Lưu</h2><span class="who" id="flCount"></span></div>
@@ -879,12 +898,13 @@ nav svg{width:21px;height:21px;}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
         </button>
       </div>
-      <div class="hp-top"><input type="text" id="hpQ" placeholder="🔎 Tìm trong hướng dẫn…" autocomplete="off"><div class="hp-idx"><button type="button" data-h="start" class="hp-chip">🚀 Bắt đầu</button><button type="button" data-h="new" class="hp-chip">➕ Sự cố – Ghi nhận mới</button><button type="button" data-h="list" class="hp-chip">📋 Sự cố – Danh sách & SCP</button><button type="button" data-h="map" class="hp-chip">🗺️ Bản đồ</button><button type="button" data-h="ks" class="hp-chip">📝 Khảo sát duy tu & Biên bản</button><button type="button" data-h="tk" class="hp-chip">📊 Thống kê tủ</button><button type="button" data-h="bv" class="hp-chip">🏗️ HS Công trình</button><button type="button" data-h="led" class="hp-chip">💡 Theo dõi LED & bảo hành</button><button type="button" data-h="drv" class="hp-chip">🔧 Driver (HD 680/HD-CTCSCC)</button><button type="button" data-h="files" class="hp-chip">📁 File Lưu</button><button type="button" data-h="acc" class="hp-chip">⚙️ Tài khoản của tôi</button><button type="button" data-h="admin" class="hp-chip hp-admin">🛡️ Quản trị (chỉ Quản trị viên)</button><button type="button" data-h="fix" class="hp-chip">🧰 Xử lý nhanh khi gặp lỗi</button></div></div>
+      <div class="hp-top"><input type="text" id="hpQ" placeholder="🔎 Tìm trong hướng dẫn…" autocomplete="off"><div class="hp-idx"><button type="button" data-h="start" class="hp-chip">🚀 Bắt đầu</button><button type="button" data-h="new" class="hp-chip">➕ Sự cố – Ghi nhận mới</button><button type="button" data-h="list" class="hp-chip">📋 Sự cố – Danh sách & SCP</button><button type="button" data-h="map" class="hp-chip">🗺️ Bản đồ</button><button type="button" data-h="st" class="hp-chip">📒 Sổ tay sửa chữa</button><button type="button" data-h="ks" class="hp-chip">📝 Khảo sát duy tu & Biên bản</button><button type="button" data-h="tk" class="hp-chip">📊 Thống kê tủ</button><button type="button" data-h="bv" class="hp-chip">🏗️ HS Công trình</button><button type="button" data-h="led" class="hp-chip">💡 Theo dõi LED & bảo hành</button><button type="button" data-h="drv" class="hp-chip">🔧 Driver (HD 680/HD-CTCSCC)</button><button type="button" data-h="files" class="hp-chip">📁 File Lưu</button><button type="button" data-h="acc" class="hp-chip">⚙️ Tài khoản của tôi</button><button type="button" data-h="admin" class="hp-chip hp-admin">🛡️ Quản trị (chỉ Quản trị viên)</button><button type="button" data-h="fix" class="hp-chip">🧰 Xử lý nhanh khi gặp lỗi</button></div></div>
       <div id="hpList">
         <details class="hp-sec" id="hp-start"><summary><span class="hp-ic">🚀</span><b>Bắt đầu</b></summary><ul><li>Đăng nhập bằng tài khoản Quản trị cấp; lần đầu app yêu cầu đổi mật khẩu.</li><li>📲 <b>Cài app</b> để mở như ứng dụng trên điện thoại.</li><li>Chip quận trên cùng lọc dữ liệu cho mọi mục.</li><li>Tìm kiếm gõ có dấu hay không dấu đều được.</li></ul></details>
         <details class="hp-sec" id="hp-new"><summary><span class="hp-ic">➕</span><b>Sự cố – Ghi nhận mới</b></summary><ul><li>Tìm tủ theo tên, mã PE, mã kết nối hoặc tên đường → chạm chọn tủ.</li><li>Chọn lý trình, mức độ, mô tả; bấm 📍 lấy GPS.</li><li>📷 Chụp / 🖼️ chọn ảnh – <b>tối đa 10 ảnh</b>, ảnh tự đóng dấu GPS, tên tủ, giờ.</li><li>Bấm <b>Gửi</b> → Telegram báo ngay cho quản lý.</li></ul></details>
         <details class="hp-sec" id="hp-list"><summary><span class="hp-ic">📋</span><b>Sự cố – Danh sách & SCP</b></summary><ul><li>2 mục riêng: <b>Ghi nhận</b> và <b>SCP</b> (lỗi tủ từ trung tâm).</li><li>Tìm, lọc theo người quản lý; ⬇ xuất Excel.</li><li>Chạm nhãn trạng thái để chuyển Mới → Đang xử lý → <b>Đã xử lý</b> (bắt buộc ghi nội dung xử lý, tự lưu sheet DaXuLy).</li><li>Sự cố SCP được báo cáo lại mỗi sáng nếu còn tồn.</li></ul></details>
         <details class="hp-sec" id="hp-map"><summary><span class="hp-ic">🗺️</span><b>Bản đồ</b></summary><ul><li>Bật/tắt lớp từng quận, chạm điểm để xem tủ.</li><li>📏 Thước đo GPS: ghi điểm hoặc đi bộ tự ghi, bấm “Dùng kết quả” để điền vào phiếu.</li></ul></details>
+        <details class="hp-sec" id="hp-st"><summary><span class="hp-ic">📒</span><b>Sổ tay sửa chữa</b></summary><ul><li>Chọn <b>mã lỗi</b> (DATA/4G, PLC, PM, PW) → làm theo các bước đánh số từ trên xuống, tick ✓ bước đã kiểm tra.</li><li>Lọc theo <b>nhóm</b>: nguồn tủ, bộ nguồn, jack/cáp, SIM, cài đặt, thiết bị.</li><li>🗂️ Theo nhóm / 📋 Bảng tra nhanh: xem nguyên nhân chung cho nhiều mã lỗi.</li><li>Ở thẻ sự cố SCP bấm <b>📒 Cách xử lý</b> để mở đúng mã lỗi; 🖨️ in hoặc ⬇ Excel mang ra hiện trường.</li></ul></details>
         <details class="hp-sec" id="hp-ks"><summary><span class="hp-ic">📝</span><b>Khảo sát duy tu & Biên bản</b></summary><ul><li>Chọn 1 trong 16 mẫu → chọn tủ để tự điền thông tin.</li><li>🎤 Nói từng ô hoặc 🎙️ đọc cả phiếu; số đọc bằng chữ tự đổi ra số.</li><li>Biên bản hiện trường: ký tên trên màn hình, 🖨️ in PDF hoặc tải Word.</li><li>⬇ Excel tổng hợp tất cả phiếu theo mẫu.</li></ul></details>
         <details class="hp-sec" id="hp-tk"><summary><span class="hp-ic">📊</span><b>Thống kê tủ</b></summary><ul><li>Xem số liệu đèn, trụ, cần, cáp, % LED theo quận và nhà cung cấp.</li><li>Gõ lọc nhanh: <i>led&lt;50%</i>, <i>slighting led&gt;=90</i>.</li><li>Lọc <b>Bản vẽ: có / chưa có</b>; chạm tủ xem chi tiết, lý trình, bảng trụ 📍 và <b>bản vẽ của tủ</b>.</li><li>📥 <b>Upload bản vẽ đồng loạt</b> – tự nhận tủ, tự tách PDF nhiều trang.</li></ul></details>
         <details class="hp-sec" id="hp-bv"><summary><span class="hp-ic">🏗️</span><b>HS Công trình</b></summary><ul><li>📐 <b>Bản vẽ & hồ sơ</b>: xem theo quận → phường mới; upload đồng loạt mọi định dạng (PDF, ảnh, DWG, ZIP).</li><li>Trong chi tiết tủ: 📤 tải bản vẽ cho tủ, 🔗 gán bản vẽ có sẵn, ✂️ bỏ gán.</li><li>🧾 <b>Thông số kỹ thuật</b>: bảng tổng hợp từng tủ, xuất Excel.</li><li>🔧 <b>Hồ sơ sửa chữa</b>: sự cố đã xử lý, hồ sơ Driver, biên bản hiện trường.</li><li>Ô 🔎 tìm nội dung trong mục đang xem.</li></ul></details>
@@ -1613,6 +1633,8 @@ function scpFaultHtml(i){
   if(text) html += `<div class="desc">${escapeHtml(text)}</div>`;
   if(!codes.length && !text) html += `<div class="desc" style="color:var(--text-2)">Chưa có chi tiết lỗi – sẽ cập nhật ở lần đồng bộ sau</div>`;
   if(tu) html += `<div class="who">⏱ Bắt đầu: ${escapeHtml(tu)}</div>`;
+  const stc=[...new Set(codes.map(c=>/4G|DATA/i.test(c)?"DATA/4G":c.toUpperCase()).filter(c=>SO_TAY.codes.some(x=>x.code===c)))];
+  if(stc.length) html += `<button type="button" class="gps-btn st-link" data-codes="${stc.join(",")}" style="margin-top:6px;padding:5px 10px;font-size:12.5px">📒 Cách xử lý ${stc.join(", ")}</button>`;
   return html + `</div>`;
 }
 let incTerm="", incQL="";
@@ -3918,17 +3940,71 @@ $("#acXls").onclick=()=>{ if(typeof XLSX==="undefined") return;
   XLSX.utils.book_append_sheet(wb,ws,"Tai khoan"); saveBlob(new Blob([XLSX.write(wb,{bookType:"xlsx",type:"array"})]),"Tong_hop_tai_khoan_"+todayISO()+".xlsx"); };
 function acStart(){ acLoad(false); clearInterval(acTimer); acTimer=setInterval(()=>{ if($("#accountScrim").classList.contains("show")) acLoad(true); else clearInterval(acTimer); },30000); }
 
+const SO_TAY = {"codes": [{"code": "DATA/4G", "ten": "Mất kết nối truyền thông 4G", "items": [{"g": "tu", "nn": "Tủ bị nhảy RCCB", "tt": "Kiểm tra trạng thái RCCB/MCCB → đóng lại. Nếu nhảy lại: KHÔNG đóng tiếp, tìm điểm chạm/rò rồi mới đóng."}, {"g": "bn", "nn": "Công tắc bộ nguồn chưa bật", "tt": "Bật công tắc bộ nguồn, kiểm tra đèn báo."}, {"g": "bn", "nn": "Bộ nguồn backup: công tắc chọn đang ở chế độ nguồn trực tiếp (Main)", "tt": "Kiểm tra nguồn AC cấp vào bộ backup; chuyển công tắc về đúng chế độ."}, {"g": "bn", "nn": "Bộ nguồn bị hư", "tt": "Đo điện áp ra 12VDC; không có hoặc sai điện áp → thay bộ nguồn."}, {"g": "bn", "nn": "Nguồn cấp L và N của bộ nguồn 12VDC chưa tiếp xúc với dây điện (do cắm dây điện sâu quá nên chỉ tiếp xúc với lớp bọc bảo vệ)", "tt": "Rút dây, tuốt đúng chiều dài lõi đồng, cắm lại cho tiếp xúc rồi siết chặt."}, {"g": "bn", "nn": "Mất L hoặc N của bộ nguồn 12VDC do đầu bị lỏng", "tt": "Siết lại đầu dây L/N tại bộ nguồn 12VDC."}, {"g": "cap", "nn": "Jack cắm nguồn bị lỏng, hư", "tt": "Cắm lại jack nguồn cho chặt; jack lỏng/hư → thay."}, {"g": "sim", "nn": "Khu vực có sóng nhà mạng không ổn định", "tt": "Xem vạch sóng 4G tại tủ; sóng yếu → chỉnh vị trí ăng-ten, báo Phòng Kỹ thuật đổi nhà mạng."}, {"g": "sim", "nn": "SIM hết data", "tt": "Kiểm tra gói data của SIM, báo nạp/gia hạn."}, {"g": "sim", "nn": "Chưa gắn SIM", "tt": "Gắn SIM vào bộ 4G."}, {"g": "sim", "nn": "Lỏng SIM", "tt": "Tháo SIM, vệ sinh tiếp điểm, gắn lại chặt."}, {"g": "sim", "nn": "SIM bị hư", "tt": "Thay SIM mới."}]}, {"code": "PLC", "ten": "Mất kết nối / lỗi PLC", "items": [{"g": "tu", "nn": "Tủ bị nhảy RCCB, MCCB", "tt": "Kiểm tra trạng thái RCCB/MCCB → đóng lại. Nếu nhảy lại: KHÔNG đóng tiếp, tìm điểm chạm/rò rồi mới đóng."}, {"g": "tu", "nn": "Tủ bị mất pha (trùng với pha cấp nguồn cho PLC)", "tt": "Đo điện áp từng pha đầu vào tủ; mất pha lưới → báo Điện lực, mất pha trong tủ → kiểm tra CB/cầu đấu."}, {"g": "tu", "nn": "Tủ bị mất trung tính", "tt": "Đo điện áp L–N; kiểm tra dây N đầu vào và cầu đấu trung tính, siết lại."}, {"g": "bn", "nn": "Bộ nguồn 12VDC bị hư", "tt": "Đo điện áp ra 12VDC; không có hoặc sai điện áp → thay bộ nguồn."}, {"g": "bn", "nn": "Bộ nguồn bị chuyển sang chế độ pin dự phòng (UPS)", "tt": "Kiểm tra nguồn AC cấp vào bộ backup; chuyển công tắc về đúng chế độ."}, {"g": "bn", "nn": "Nguồn cấp L và N của bộ nguồn 12VDC chưa tiếp xúc với dây điện (do cắm dây điện sâu quá nên chỉ tiếp xúc với lớp bọc bảo vệ)", "tt": "Rút dây, tuốt đúng chiều dài lõi đồng, cắm lại cho tiếp xúc rồi siết chặt."}, {"g": "bn", "nn": "Mất L hoặc N của bộ nguồn 12VDC do đầu bị lỏng", "tt": "Siết lại đầu dây L/N tại bộ nguồn 12VDC."}, {"g": "cap", "nn": "Jack cắm nguồn bị lỏng, hư", "tt": "Cắm lại jack nguồn cho chặt; jack lỏng/hư → thay."}, {"g": "cap", "nn": "Lỏng cáp LAN (NVPLM2348-LAN)", "tt": "Kiểm tra, cắm lại cáp đúng cổng; với RS485 kiểm tra đúng cặp dây A/B."}, {"g": "cap", "nn": "Lỏng cáp bộ 4G -> Bộ điều khiển trung tâm (NVPLM2348-LO)", "tt": "Kiểm tra, cắm lại cáp đúng cổng; với RS485 kiểm tra đúng cặp dây A/B."}, {"g": "cd", "nn": "Cài ngày, tháng, năm và thời gian thực của PLC bị sai", "tt": "Cài lại ngày, tháng, năm và giờ thực cho PLC."}, {"g": "tb", "nn": "PLC Logo bị hư (tủ bị hở dẫn đến vô nước hoặc tủ bị mất trung tính)", "tt": "Đo điện áp L–N; kiểm tra dây N đầu vào và cầu đấu trung tính, siết lại."}]}, {"code": "PM", "ten": "Mất kết nối đồng hồ đo điện (Selec)", "items": [{"g": "tu", "nn": "Tủ bị nhảy RCCB, MCCB", "tt": "Kiểm tra trạng thái RCCB/MCCB → đóng lại. Nếu nhảy lại: KHÔNG đóng tiếp, tìm điểm chạm/rò rồi mới đóng."}, {"g": "tu", "nn": "Tủ bị mất pha (trùng với pha cấp nguồn cho đồng hồ)", "tt": "Đo điện áp từng pha đầu vào tủ; mất pha lưới → báo Điện lực, mất pha trong tủ → kiểm tra CB/cầu đấu."}, {"g": "tu", "nn": "Tủ bị mất trung tính", "tt": "Đo điện áp L–N; kiểm tra dây N đầu vào và cầu đấu trung tính, siết lại."}, {"g": "bn", "nn": "Bộ nguồn 12VDC bị hư", "tt": "Đo điện áp ra 12VDC; không có hoặc sai điện áp → thay bộ nguồn."}, {"g": "bn", "nn": "Nguồn cấp L và N của bộ nguồn 12VDC chưa tiếp xúc với dây điện (do cắm dây điện sâu quá nên chỉ tiếp xúc với lớp bọc bảo vệ)", "tt": "Rút dây, tuốt đúng chiều dài lõi đồng, cắm lại cho tiếp xúc rồi siết chặt."}, {"g": "bn", "nn": "Bộ nguồn bị chuyển sang chế độ pin dự phòng (UPS)", "tt": "Kiểm tra nguồn AC cấp vào bộ backup; chuyển công tắc về đúng chế độ."}, {"g": "bn", "nn": "Mất L hoặc N của bộ nguồn 12VDC do đầu bị lỏng", "tt": "Siết lại đầu dây L/N tại bộ nguồn 12VDC."}, {"g": "cap", "nn": "Jack cắm nguồn bị lỏng, hư", "tt": "Cắm lại jack nguồn cho chặt; jack lỏng/hư → thay."}, {"g": "cap", "nn": "Lỏng cáp RS485 đến đồng hồ Selec, đấu sai dây", "tt": "Kiểm tra, cắm lại cáp đúng cổng; với RS485 kiểm tra đúng cặp dây A/B."}, {"g": "cap", "nn": "Lỏng cáp bộ 4G -> Thiết bị giao tiếp (NVPMLM4848-PM)", "tt": "Kiểm tra, cắm lại cáp đúng cổng; với RS485 kiểm tra đúng cặp dây A/B."}, {"g": "cd", "nn": "Đồng hồ Selec cài sai thông số truyền thông (thông số đúng: Id 1, baud 9600, Parity None, Data 8, Stopbit 1)", "tt": "Cài lại Selec: Id 1 · Baud 9600 · Parity None · Data 8 · Stopbit 1."}, {"g": "tb", "nn": "Đồng hồ Selec bị hư (tủ hở dẫn đến vô nước hoặc tủ bị mất trung tính)", "tt": "Đo điện áp L–N; kiểm tra dây N đầu vào và cầu đấu trung tính, siết lại."}]}, {"code": "PW", "ten": "Mất nguồn / lỗi nguồn cấp", "items": [{"g": "tu", "nn": "Tủ bị nhảy RCCB, MCCB", "tt": "Kiểm tra trạng thái RCCB/MCCB → đóng lại. Nếu nhảy lại: KHÔNG đóng tiếp, tìm điểm chạm/rò rồi mới đóng."}, {"g": "tu", "nn": "Tủ bị mất pha (trùng với pha cấp nguồn cho đồng hồ)", "tt": "Đo điện áp từng pha đầu vào tủ; mất pha lưới → báo Điện lực, mất pha trong tủ → kiểm tra CB/cầu đấu."}, {"g": "tu", "nn": "Tủ bị mất trung tính", "tt": "Đo điện áp L–N; kiểm tra dây N đầu vào và cầu đấu trung tính, siết lại."}, {"g": "bn", "nn": "Bộ nguồn 12VDC bị hư", "tt": "Đo điện áp ra 12VDC; không có hoặc sai điện áp → thay bộ nguồn."}, {"g": "bn", "nn": "Nguồn cấp L và N của bộ nguồn 12VDC chưa tiếp xúc với dây điện (do cắm dây điện sâu quá nên chỉ tiếp xúc với lớp bọc bảo vệ)", "tt": "Rút dây, tuốt đúng chiều dài lõi đồng, cắm lại cho tiếp xúc rồi siết chặt."}, {"g": "cap", "nn": "Jack cắm nguồn bị lỏng, hư", "tt": "Cắm lại jack nguồn cho chặt; jack lỏng/hư → thay."}]}], "groups": [{"k": "tu", "ic": "⚡", "t": "Nguồn điện tủ"}, {"k": "bn", "ic": "🔋", "t": "Bộ nguồn 12VDC / UPS"}, {"k": "cap", "ic": "🔌", "t": "Jack & cáp đấu nối"}, {"k": "sim", "ic": "📶", "t": "SIM & sóng 4G"}, {"k": "cd", "ic": "⚙️", "t": "Cài đặt thông số"}, {"k": "tb", "ic": "🧯", "t": "Thiết bị hỏng"}]};
+/* ---------- SỔ TAY SỬA CHỮA (mã lỗi SCP → nguyên nhân → thao tác) ---------- */
+let stCode="", stGrp="", stQ="", stMode="code", stDone={};
+try{ stDone=JSON.parse(sessionStorage.getItem("gnsc_st")||"{}"); }catch(e){}
+const stG=k=>SO_TAY.groups.find(g=>g.k===k)||{ic:"",t:""};
+const stKey=s=>{ const t=vnNorm(s); if(/rccb/.test(t)) return "rccb"; if(/mat pha/.test(t)) return "matpha"; return t; };
+function stOpen(codes){ showView("st"); stCode = codes && codes.length===1 ? codes[0] : ""; stGrp=""; stQ=""; $("#stQ").value=""; stRender(); }
+function stMatch(it){ const q=vnNorm(stQ).trim().split(/\s+/).filter(Boolean); return (!stGrp||it.g===stGrp) && (!q.length||q.every(t=>vnNorm(it.nn+" "+it.tt+" "+stG(it.g).t).includes(t))); }
+function stRender(){
+  const el=$("#stBody");
+  $("#stCodes").innerHTML=[["","Tất cả mã lỗi"],...SO_TAY.codes.map(c=>[c.code,c.code])].map(([k,l])=>`<button class="chip ${k===stCode?"active":""}" data-c="${k}">${k?`<span class="code-chip c-${k.split("/")[0]}">${l}</span>`:l}</button>`).join("");
+  $("#stGrps").innerHTML=[["","Tất cả nhóm"],...SO_TAY.groups.map(g=>[g.k,g.ic+" "+g.t])].map(([k,l])=>`<button class="chip ${k===stGrp?"active":""}" data-g="${k}">${l}</button>`).join("");
+  $("#stModes").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.m===stMode));
+  $("#stCodes").querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{ stCode=b.dataset.c; stRender(); });
+  $("#stGrps").querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{ stGrp=b.dataset.g; stRender(); });
+  const codes=SO_TAY.codes.filter(c=>!stCode||c.code===stCode);
+  const toks=vnNorm(stQ).trim().split(/\s+/).filter(Boolean);
+  let h="";
+  if(stMode==="code"){
+    codes.forEach(c=>{ const its=c.items.filter(stMatch); if(!its.length) return;
+      const done=its.filter(it=>stDone[c.code+"|"+it.nn]).length;
+      h+=`<div class="st-card"><div class="st-head"><span class="code-chip c-${c.code.split("/")[0]}">${escHtml(c.code)}</span><b>${escHtml(c.ten)}</b><span class="who">${done}/${its.length} đã kiểm tra</span><button type="button" class="gps-btn st-reset" data-c="${escHtml(c.code)}">↺ Làm lại</button></div>
+        <div class="st-bar"><i style="width:${its.length?Math.round(done*100/its.length):0}%"></i></div>
+        <div class="who" style="margin:4px 0 6px">Kiểm tra theo thứ tự từ trên xuống: nguồn điện tủ → bộ nguồn → jack/cáp → SIM → cài đặt → thiết bị.</div>`+
+        its.map((it,n)=>{ const k=c.code+"|"+it.nn, ok=!!stDone[k], g=stG(it.g);
+          return `<label class="st-step ${ok?"ok":""}"><input type="checkbox" data-k="${escHtml(k)}" ${ok?"checked":""}><span class="st-n">${n+1}</span><div><div class="st-g">${g.ic} ${escHtml(g.t)}</div><div class="st-nn">${highlight(it.nn,toks)}</div>${it.tt?`<div class="st-tt">👉 ${highlight(it.tt,toks)}</div>`:""}</div></label>`; }).join("")+`</div>`; });
+  } else if(stMode==="group"){
+    SO_TAY.groups.filter(g=>!stGrp||g.k===stGrp).forEach(g=>{ const m={};
+      codes.forEach(c=>c.items.filter(it=>it.g===g.k&&stMatch(it)).forEach(it=>{ const k=stKey(it.nn); (m[k]=m[k]||{it,codes:[]}).codes.push(c.code); }));
+      const L=Object.values(m); if(!L.length) return;
+      h+=`<div class="st-card"><div class="st-head"><b>${g.ic} ${escHtml(g.t)}</b><span class="who">${L.length} nguyên nhân</span></div>`+
+        L.map(x=>`<div class="st-step"><div style="flex:1"><div class="st-nn">${highlight(x.it.nn,toks)}</div>${x.it.tt?`<div class="st-tt">👉 ${highlight(x.it.tt,toks)}</div>`:""}<div class="st-codes">${x.codes.map(c=>`<span class="code-chip c-${c.split("/")[0]}">${escHtml(c)}</span>`).join("")}</div></div></div>`).join("")+`</div>`; });
+  } else {
+    const rows={}; SO_TAY.codes.forEach(c=>c.items.forEach(it=>{ if(!stMatch(it)) return; const k=stKey(it.nn); (rows[k]=rows[k]||{it,set:new Set()}).set.add(c.code); }));
+    const R=Object.values(rows).sort((a,b)=>b.set.size-a.set.size || SO_TAY.groups.findIndex(g=>g.k===a.it.g)-SO_TAY.groups.findIndex(g=>g.k===b.it.g));
+    h+=`<div class="who" style="margin-bottom:6px">Nguyên nhân gây nhiều mã lỗi cùng lúc được xếp lên đầu – kiểm tra trước để xử lý nhanh.</div><div class="ks-table-wrap"><table class="ks-table st-t"><thead><tr><th>Nhóm</th><th>Nguyên nhân cần kiểm tra</th>${SO_TAY.codes.map(c=>`<th>${escHtml(c.code)}</th>`).join("")}</tr></thead><tbody>`+
+      R.map(x=>`<tr><td>${stG(x.it.g).ic}</td><td style="text-align:left">${highlight(x.it.nn,toks)}${x.it.tt?`<div class="who">👉 ${escHtml(x.it.tt)}</div>`:""}</td>${SO_TAY.codes.map(c=>`<td>${x.set.has(c.code)?"✔":""}</td>`).join("")}</tr>`).join("")+`</tbody></table></div>`;
+  }
+  el.innerHTML = h || '<div class="empty">Không có mục phù hợp với bộ lọc.</div>';
+  el.querySelectorAll(".st-step input[data-k]").forEach(c=>c.onchange=()=>{ c.checked?stDone[c.dataset.k]=1:delete stDone[c.dataset.k]; try{ sessionStorage.setItem("gnsc_st",JSON.stringify(stDone)); }catch(e){} stRender(); });
+  el.querySelectorAll(".st-reset").forEach(b=>b.onclick=e=>{ e.preventDefault(); Object.keys(stDone).forEach(k=>{ if(k.startsWith(b.dataset.c+"|")) delete stDone[k]; }); try{ sessionStorage.setItem("gnsc_st",JSON.stringify(stDone)); }catch(e){} stRender(); });
+}
+$("#stQ").addEventListener("input",e=>{ stQ=e.target.value; stRender(); });
+$("#stModes").querySelectorAll("button").forEach(b=>b.onclick=()=>{ stMode=b.dataset.m; stRender(); });
+$("#stXls").onclick=()=>{ if(typeof XLSX==="undefined") return;
+  const aoa=[["SỔ TAY SỬA CHỮA – MÃ LỖI TỦ ĐIỀU KHIỂN (SCP)"],[],["Mã lỗi","Tên lỗi","Bước","Nhóm kiểm tra","Nguyên nhân cần kiểm tra","Thao tác gợi ý"]];
+  SO_TAY.codes.forEach(c=>c.items.forEach((it,n)=>aoa.push([c.code,c.ten,n+1,stG(it.g).t,it.nn,it.tt])));
+  const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(aoa); ws["!cols"]=[{wch:10},{wch:30},{wch:6},{wch:22},{wch:70},{wch:70}]; XLSX.utils.book_append_sheet(wb,ws,"So tay sua chua");
+  saveBlob(new Blob([XLSX.write(wb,{bookType:"xlsx",type:"array"})]),"So_tay_sua_chua.xlsx"); };
+$("#stPrint").onclick=()=>{ const w=window.open("","_blank"); if(!w) return; w.document.write(`<html><head><meta charset="utf-8"><title>Sổ tay sửa chữa</title><style>body{font-family:Arial;font-size:12px;margin:20px}h2{margin:16px 0 4px}ol{margin:4px 0 0 18px}li{margin:4px 0}.g{color:#666;font-size:11px}.t{color:#0b5;}</style></head><body><h1>📒 Sổ tay sửa chữa – mã lỗi tủ điều khiển</h1>`+
+  SO_TAY.codes.filter(c=>!stCode||c.code===stCode).map(c=>`<h2>${c.code} – ${c.ten}</h2><ol>${c.items.map(it=>`<li><span class="g">${stG(it.g).t}</span><br><b>${it.nn}</b>${it.tt?`<br><span class="t">👉 ${it.tt}</span>`:""}</li>`).join("")}</ol>`).join("")+`</body></html>`); w.document.close(); w.print(); };
+
+document.addEventListener("click",e=>{ const b=e.target.closest&&e.target.closest(".st-link"); if(!b) return; e.stopPropagation(); stOpen(b.dataset.codes.split(",")); },true);
 /* ---------- tabs ---------- */
 function showView(name){
   $("#view-new").classList.toggle("active", name==="new");
   $("#view-list").classList.toggle("active", name==="list");
   $("#view-map").classList.toggle("active", name==="map");
+  $("#view-st").classList.toggle("active", name==="st");
   $("#view-files").classList.toggle("active", name==="files");
   $("#view-ks").classList.toggle("active", name==="ks");
   $("#view-tk").classList.toggle("active", name==="tk");
   $("#view-bv").classList.toggle("active", name==="bv"); $("#tabTk").classList.toggle("active", name==="tk"||name==="bv");
   $("#view-led").classList.toggle("active", name==="led"); $("#tabLed").classList.toggle("active", name==="led");
-  const inSc = ["new","list","map"].includes(name);
+  const inSc = ["new","list","map","st"].includes(name);
   $("#scTabs").style.display = inSc ? "" : "none";
   $("#tabNew").classList.toggle("active", inSc);
   $("#scTabs").querySelectorAll("button").forEach(b=>b.classList.toggle("on", b.dataset.v===name));
@@ -3938,8 +4014,8 @@ function showView(name){
   $("#tabList").classList.toggle("active", name==="list");
   $("#tabMap").classList.toggle("active", name==="map");
 }
-$("#tabNew").onclick=()=>{ if(["new","list","map"].some(v=>$("#view-"+v).classList.contains("active"))) return; let v="new"; try{ v=localStorage.getItem("gnsc_sc")||"new"; }catch(e){} const b=$('#scTabs button[data-v="'+v+'"]'); (b && b.style.display!=="none" ? b : $('#scTabs button[data-v="new"]')).click(); };
-$("#scTabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{ try{localStorage.setItem("gnsc_sc",b.dataset.v);}catch(e){} ({new:()=>showView("new"), list:()=>$("#tabList").click(), map:()=>$("#tabMap").click()})[b.dataset.v](); });
+$("#tabNew").onclick=()=>{ if(["new","list","map","st"].some(v=>$("#view-"+v).classList.contains("active"))) return; let v="new"; try{ v=localStorage.getItem("gnsc_sc")||"new"; }catch(e){} const b=$('#scTabs button[data-v="'+v+'"]'); (b && b.style.display!=="none" ? b : $('#scTabs button[data-v="new"]')).click(); };
+$("#scTabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{ try{localStorage.setItem("gnsc_sc",b.dataset.v);}catch(e){} ({new:()=>showView("new"), list:()=>$("#tabList").click(), map:()=>$("#tabMap").click(), st:()=>{ showView("st"); stRender(); }})[b.dataset.v](); });
 $("#tabList").onclick=()=>{showView("list"); renderIncList();};
 $("#tabMap").onclick=()=>{showView("map"); initMap();};
 
@@ -4092,7 +4168,7 @@ function initMap(){
 function helpCtx(){ const v=(document.querySelector(".view.active")||{}).id||"";
   if(v==="view-ks") return "ks"; if(v==="view-tk") return "tk"; if(v==="view-bv") return "bv"; if(v==="view-files") return "files";
   if(v==="view-led") return (typeof ledTab!=="undefined"&&ledTab==="driver")?"drv":"led";
-  const sc=document.querySelector("#scTabs button.on, #scTabs button.active"); const t=sc?sc.dataset.v:""; return t==="list"?"list":t==="map"?"map":"new"; }
+  const sc=document.querySelector("#scTabs button.on, #scTabs button.active"); const t=sc?sc.dataset.v:""; return t==="list"?"list":t==="map"?"map":t==="st"?"st":"new"; }
 function openHelp(){
   const adm=typeof isAdmin==="function"&&isAdmin(); document.querySelectorAll(".hp-admin").forEach(x=>x.style.display=adm?"":"none");
   $("#hpQ").value=""; hpFilter(); document.querySelectorAll(".hp-sec").forEach(d=>d.open=false);
