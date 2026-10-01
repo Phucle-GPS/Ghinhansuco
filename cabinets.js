@@ -1811,6 +1811,6 @@ const MAP_BOUNDS = {"minLat":10.6974931605,"maxLat":10.83732,"minLng":106.601997
 // Phường mới sau sắp xếp (NQ 1685/NQ-UBTVQH15, hiệu lực 01/7/2025)
 const NEW_WARDS = {"Quận 1":["Sài Gòn","Tân Định","Bến Thành","Cầu Ông Lãnh"],"Quận 3":["Bàn Cờ","Xuân Hòa","Nhiêu Lộc"],"Quận 5":["Chợ Quán","An Đông","Chợ Lớn"],"Quận 8":["Chánh Hưng","Phú Định","Bình Đông","Bình Phú"],"Quận 10":["Vườn Lài","Diên Hồng","Hòa Hưng"],"Quận 11":["Minh Phụng","Bình Thới","Hòa Bình","Phú Thọ"],"Quận Bình Thạnh":["Gia Định","Bình Thạnh","Bình Lợi Trung","Thạnh Mỹ Tây","Bình Quới"],"Quận Phú Nhuận":["Đức Nhuận","Cầu Kiệu","Phú Nhuận"]};
 // Giám sát theo quận (bảng Giám sát Phường)
-const GIAM_SAT = {"Quận 1":"Nguyễn Đăng Khoa","Quận 3":"Nguyễn Đăng Khoa","Quận 5":"Trương Văn Ly","Quận 8":"Trương Văn Ly","Quận 10":"Nguyễn Thành Chương","Quận 11":"Nguyễn Thành Chương","Quận Phú Nhuận":"Võ Thanh Quang","Quận Bình Thạnh":"Võ Thanh Quang"};
+const GIAM_SAT = {"Quận 1": "Võ Thanh Quang", "Quận 3": "Võ Thanh Quang", "Quận 5": "Trương Văn Ly", "Quận 8": "Trương Văn Ly", "Quận 10": "Nguyễn Thành Chương", "Quận 11": "Nguyễn Thành Chương", "Quận Phú Nhuận": "Võ Thanh Quang", "Quận Bình Thạnh": "Võ Thanh Quang"};
 // Phiên bản dữ liệu tủ – app dùng để cảnh báo khi file trên GitHub còn cũ
-const CABINETS_VERSION = "2026-09-28-ql-q5-8-10-11";
+const CABINETS_VERSION = "2026-09-30-gs-q1-q3";

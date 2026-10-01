@@ -440,6 +440,9 @@ button.dl{border:none;}
 .hp-sec{border:1px solid var(--border);border-radius:12px;background:var(--surface);margin-top:8px;padding:0 12px;} .hp-sec summary{cursor:pointer;padding:11px 0;font-size:14.5px;display:flex;align-items:center;gap:8px;list-style:none;} .hp-sec summary::-webkit-details-marker{display:none;}
 .hp-sec summary::after{content:"▾";margin-left:auto;color:var(--text-2);transition:transform .2s;} .hp-sec[open] summary::after{transform:rotate(180deg);} .hp-ic{font-size:18px;}
 .hp-sec ul{margin:0 0 12px;padding-left:20px;font-size:13.5px;line-height:1.6;} .hp-sec li{margin:3px 0;} .hp-sec li::marker{content:"– ";color:var(--accent);font-weight:700;}
+.sw{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:12.5px;} .sw input{display:none;} .sw span{width:42px;height:24px;border-radius:24px;background:var(--border);position:relative;transition:.2s;}
+.sw span::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s;} .sw input:checked+span{background:var(--done);} .sw input:checked+span::after{left:21px;}
+.scp-cfg{display:flex;flex-direction:column;gap:6px;margin:8px 0;font-size:13px;} .scp-cfg input[type=number]{width:62px;padding:4px 6px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);}
 .src-tabs{display:flex;gap:8px;margin-bottom:12px;}
 .src-tabs button{flex:1;padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 .src-tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
@@ -1047,6 +1050,17 @@ nav svg{width:21px;height:21px;}
       <div class="field" style="margin-top:12px"><textarea id="scpText" placeholder="Dán danh sách tủ lỗi từ SCP vào đây…" style="min-height:120px"></textarea></div>
       <div class="field"><input type="file" id="scpFile" accept=".xlsx,.xls,.csv,.txt"></div>
       <div class="gps-result" id="scpPreview" style="white-space:pre-line"></div>
+      <div class="bk-box" id="scpCfgBox">
+        <div class="guide-h" style="display:flex;align-items:center;justify-content:space-between;gap:8px">🔁 Đồng bộ sự cố SCP <label class="sw"><input type="checkbox" id="scpOn"><span></span><b id="scpOnTxt">…</b></label></div>
+        <div class="who" id="scpCfgNote">Khi TẮT: không nhận danh sách SCP, không báo Telegram/Gmail, không gửi báo cáo sáng.</div>
+        <div class="scp-cfg">
+          <label>Chỉ báo tủ <b>bắt đầu lỗi trong vòng</b> <input type="number" id="scpOld" min="1" max="720"> giờ <span class="who">(lỗi lâu hơn → ghi nhận, không báo)</span></label>
+          <label>Tủ lỗi <b>lặp lại</b> trong <input type="number" id="scpRep" min="0" max="60"> ngày sau khi tự hết lỗi → mở lại, không báo lần nữa</label>
+          <label><input type="checkbox" id="scpNR"> Báo khi tủ <b>hết lỗi</b> (tự reset)</label>
+          <label><input type="checkbox" id="scpRO"> Báo cáo sáng <b>nhắc lại tủ còn tồn</b> (mặc định chỉ báo lỗi mới)</label>
+        </div>
+        <button type="button" class="gps-btn" id="scpCfgSave">💾 Lưu cài đặt</button> <span class="who" id="scpCfgMsg"></span>
+      </div>
       <label class="au-active"><input type="checkbox" id="scpBaseline"> Lần đầu – chỉ ghi nhận làm mốc, <b>không gửi thông báo</b> (các lỗi tồn đọng hiện có)</label>
       <button class="submit-btn" id="scpSync" disabled>Đồng bộ</button>
       <div id="scpResult" class="scp-result"></div>
@@ -4366,6 +4380,13 @@ function splitRows(text){
   return String(text||"").replace(/\r/g,"").split("\n").map(l=>l.split("\t").map(x=>x.trim()));
 }
 /* Định dạng bảng SCP: Mã | Tên tủ | Khu vực | Sự cố | Thời gian bắt đầu | Thời gian xử lý | Trạng thái */
+/* đọc thời điểm bắt đầu lỗi: "28/09/2026 07:15", "2026-09-28 07:15:00", số ngày Excel */
+function scpTime(s){ s=String(s||"").trim(); if(!s) return 0; let m;
+  if((m=s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})(?:[ T,]+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/))) return new Date(+m[3],+m[2]-1,+m[1],+(m[4]||0),+(m[5]||0),+(m[6]||0)).getTime();
+  if((m=s.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s+(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/))) return new Date(+m[5],+m[4]-1,+m[3],+m[1],+m[2]).getTime();
+  if((m=s.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/))) return new Date(+m[1],+m[2]-1,+m[3],+(m[4]||0),+(m[5]||0)).getTime();
+  if(/^\d{5}(\.\d+)?$/.test(s)) return Math.round((parseFloat(s)-25569)*86400000 + new Date().getTimezoneOffset()*60000);
+  return 0; }
 function parseSCPTable(text){
   const rows = splitRows(text);
   let hi=-1, col={};
@@ -4404,7 +4425,7 @@ function parseSCPTable(text){
     }
     if(sc && !byKey[key]._sc.includes(sc)) byKey[key]._sc.push(sc);
   });
-  const items = order.map(k=>{ const x=byKey[k]; x.tags = (x._sc.join("; ")||"Sự cố trên SCP") + (x.batDau?` (từ ${x.batDau})`:""); delete x._sc; return x; });
+  const items = order.map(k=>{ const x=byKey[k]; x.tags = (x._sc.join("; ")||"Sự cố trên SCP") + (x.batDau?` (từ ${x.batDau})`:""); x.since=scpTime(x.batDau); delete x._sc; return x; });
   return {items, resolved, unmatched};
 }
 function parseSCPByPE(text){
@@ -4452,7 +4473,9 @@ function refreshSCPPreview(){
   if(r.unmatched) msg += ` · ${r.unmatched} tủ chưa khớp danh sách (vẫn ghi nhận theo tên)`;
   if(scpItems.length) msg += "\nVí dụ: " + scpItems.slice(0,3).map(x=>`${x.name} – ${x.tags}`).join(" | ");
   $("#scpPreview").textContent = msg;
-  $("#scpSync").disabled = scpItems.length===0;
+  $("#scpSync").disabled = scpItems.length===0 || (scpCfg && !scpCfg.on);
+  const old=scpItems.filter(x=>x.since && scpCfg && Date.now()-x.since > scpCfg.oldHours*3600000).length;
+  if(old) $("#scpPreview").textContent += `\n⏳ ${old} tủ đã lỗi lâu hơn ${scpCfg.oldHours} giờ → chỉ ghi nhận, không báo.`;
 }
 $("#scpText").addEventListener("input", refreshSCPPreview);
 $("#scpFile").addEventListener("change", async e=>{
@@ -4464,9 +4487,18 @@ $("#scpFile").addEventListener("change", async e=>{
   } else { text = await f.text(); }
   $("#scpText").value = text; refreshSCPPreview();
 });
+let scpCfg=null;
+function scpCfgShow(){ const c=scpCfg||{}; $("#scpOn").checked=!!c.on; $("#scpOnTxt").textContent=c.on?"ĐANG BẬT":"ĐANG TẮT"; $("#scpOnTxt").style.color=c.on?"var(--done)":"var(--high)";
+  $("#scpOld").value=c.oldHours||24; $("#scpRep").value=c.repeatDays??7; $("#scpNR").checked=!!c.notifyReset; $("#scpRO").checked=!!c.remindOld;
+  const adm=isAdmin(); ["scpOn","scpOld","scpRep","scpNR","scpRO"].forEach(id=>$("#"+id).disabled=!adm); $("#scpCfgSave").style.display=adm?"":"none";
+  $("#scpSync").disabled = !c.on || scpItems.length===0; if(!c.on) $("#scpPreview").textContent="⛔ Đồng bộ SCP đang TẮT."+(adm?" Bật công tắc phía trên để đồng bộ.":" Liên hệ Quản trị."); }
+async function scpCfgSaveNow(part){ const r=await api("setScpCfg",{cfg:part}); if(r.ok){ scpCfg=r.cfg; scpCfgShow(); $("#scpCfgMsg").textContent="✅ Đã lưu"; setTimeout(()=>$("#scpCfgMsg").textContent="",2000); } else $("#scpCfgMsg").textContent=r.error||"Lỗi"; }
+$("#scpOn").onchange=e=>{ if(!e.target.checked && !confirm("TẮT đồng bộ SCP?\nApp sẽ không nhận danh sách lỗi SCP và không gửi thông báo cho tới khi bật lại.")){ e.target.checked=true; return; } scpCfgSaveNow({on:e.target.checked}); };
+$("#scpCfgSave").onclick=()=>scpCfgSaveNow({oldHours:$("#scpOld").value, repeatDays:$("#scpRep").value, notifyReset:$("#scpNR").checked, remindOld:$("#scpRO").checked});
 $("#scpBtn").onclick=async ()=>{
   tkEnsure();
   $("#scpScrim").classList.add("show"); $("#scpResult").innerHTML="";
+  api("getScpCfg").then(r=>{ if(r.ok){ scpCfg=r.cfg; scpCfgShow(); } });
   if(!isAdmin()) return;
   const r = await api("getNotify");
   if(r.ok && r.notify){ $("#ntEmails").value=r.notify.emails; $("#ntTgToken").value=r.notify.tgToken; $("#ntTgChat").value=r.notify.tgChat; }
@@ -4479,12 +4511,14 @@ $("#scpSync").onclick=async ()=>{
   const r = await api("syncSCP",{items:scpItems, baseline});
   btn.textContent="Đồng bộ"; btn.disabled=false;
   const el=$("#scpResult"); el.innerHTML="";
-  if(!r.ok){ el.textContent = r.error||"Lỗi đồng bộ"; return; }
+  if(!r.ok){ el.textContent = r.error||"Lỗi đồng bộ"; if(r.off){ scpCfg=Object.assign(scpCfg||{},{on:false}); scpCfgShow(); } return; }
   const add=(title,arr,fmt)=>{ const b=document.createElement("div"); b.className="blk"; const t=document.createElement("b"); t.textContent=title; b.appendChild(t);
     arr.slice(0,40).forEach(x=>{ const d=document.createElement("div"); d.textContent=fmt(x); b.appendChild(d); }); if(arr.length>40){ const d=document.createElement("div"); d.textContent="… và "+(arr.length-40)+" tủ khác"; b.appendChild(d);} el.appendChild(b); };
-  add(`🔴 Sự cố mới: ${r.moi.length}`, r.moi, x=>`${x.name} – ${x.quan} – ${x.tags||""}`);
+  add(`🔴 Lỗi MỚI phát hiện (đã báo): ${r.moi.length}`, r.moi, x=>`${x.name} – ${x.quan} – ${x.tags||""}`);
+  if(r.cu&&r.cu.length) add(`⏳ Lỗi lâu – ghi nhận, KHÔNG báo: ${r.cu.length}`, r.cu, x=>`${x.name} – ${x.quan} – ${x.tags||""}`);
+  if(r.lap&&r.lap.length) add(`🔁 Lỗi lặp lại – mở lại, KHÔNG báo: ${r.lap.length}`, r.lap, x=>`${x.name} – ${x.quan}`);
   const b2=document.createElement("div"); b2.className="blk"; b2.textContent=`⏳ Vẫn còn lỗi (đã báo trước, không báo lại): ${r.vanCon}`; el.appendChild(b2);
-  add(`🟢 Hết lỗi – tự reset: ${r.reset.length}`, r.reset, x=>`${x.name} – ${x.quan}`);
+  add(`🟢 Hết lỗi – tự reset${r.cfg&&r.cfg.notifyReset?"":" (không báo)"}: ${r.reset.length}`, r.reset, x=>`${x.name} – ${x.quan}`);
   const n=document.createElement("div"); n.className="who"; n.style.marginTop="8px";
   n.textContent = r.baseline ? "Chế độ làm mốc: không gửi thông báo." : (r.notified ? "Đã gửi thông báo." : ((r.moi.length||r.reset.length) ? "Chưa gửi thông báo (chưa cài email/Telegram)." : "Không có thay đổi, không gửi thông báo."));
   el.appendChild(n);
