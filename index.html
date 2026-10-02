@@ -474,6 +474,12 @@ button.dl{border:none;}
 .ms-k.edit{background:#F2B705;color:#1b1b1b;} .ms-main{border-top:none;margin-top:6px;} .ms-main .gps-btn.on{background:var(--accent);color:#1b1b1b;border-color:var(--accent);}
 .ms-routes{margin-top:8px;display:flex;flex-direction:column;gap:6px;} .ms-route{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--surface);flex-wrap:wrap;} .ms-route.cur{border-color:var(--accent);}
 .ms-sd{margin-top:10px;padding:10px;border:1px solid var(--border);border-radius:12px;background:var(--surface);} #msSdView{overflow-x:auto;background:#fff;border-radius:8px;padding:4px;} #msSdView svg{max-width:100%;height:auto;}
+.inc-card{cursor:pointer;} .inc-card:hover{border-color:var(--accent);} .row1{position:relative;}
+.inc-view{display:block;margin-top:6px;padding:4px 10px;border-radius:8px;border:1px solid var(--accent);background:transparent;color:var(--accent);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;}
+.id-badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;} .id-desc{white-space:pre-wrap;}
+.id-photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px;} .id-photos img{width:100%;height:110px;object-fit:cover;border-radius:8px;border:1px solid var(--border);}
+.id-share{margin-top:14px;padding-top:10px;border-top:1px solid var(--border);} .id-share .fl-btns{margin-top:8px;} .id-share a.gps-btn{text-decoration:none;}
+.id-nav{display:flex;justify-content:space-between;align-items:center;margin-top:12px;}
 .src-tabs{display:flex;gap:8px;margin-bottom:12px;}
 .src-tabs button{flex:1;padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 .src-tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
@@ -1026,6 +1032,18 @@ nav svg{width:21px;height:21px;}
     </div>
   </div>
   <button type="button" class="ms-fab" id="msFab" title="Đo khoảng cách (RTK)">📏<span>Đo</span></button>
+  <div class="modal-scrim" id="incScrim">
+    <div class="modal-sheet">
+      <div class="mtop"><h2 id="idTitle">Chi tiết sự cố</h2><button class="mclose" id="idClose" aria-label="Đóng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <div id="idBody"></div>
+      <div class="id-share">
+        <button type="button" class="submit-btn" id="idShare">📤 Chia sẻ</button>
+        <div class="fl-btns"><button type="button" class="gps-btn" id="idCopy">📋 Sao chép</button><button type="button" class="gps-btn" id="idZalo">💬 Zalo</button><a class="gps-btn" id="idTg" target="_blank" rel="noopener">✈️ Telegram</a><a class="gps-btn" id="idSms">✉️ SMS</a><a class="gps-btn" id="idMail">📧 Email</a><button type="button" class="gps-btn" id="idPrint">🖨️ In / PDF</button></div>
+        <div class="gps-result" id="idMsg"></div>
+      </div>
+      <div class="id-nav"><button type="button" class="gps-btn" id="idPrev">‹ Sự cố trước</button><span class="who" id="idPos"></span><button type="button" class="gps-btn" id="idNext">Sự cố sau ›</button></div>
+    </div>
+  </div>
   <div class="modal-scrim" id="measureScrim">
     <div class="modal-sheet ms-sheet">
       <div class="mtop">
@@ -1776,7 +1794,9 @@ function renderIncList(){
     card.querySelector(".status-btn").onclick=(ev)=>cycleStatus(i, ev.currentTarget);
     const pinB=card.querySelector(".pin-btn"); if(pinB) pinB.onclick=(ev)=>updateIncidentGPS(i, ev.currentTarget);
     const photoEl = card.querySelector(".inc-photo");
-    if(photoEl) photoEl.onclick=()=>window.open(photoEl.dataset.full, "_blank");
+    card.querySelectorAll(".inc-photo").forEach(ph=>ph.onclick=ev=>{ ev.stopPropagation(); incDetail(i,list); });
+    card.onclick=ev=>{ if(ev.target.closest("button,a,input,select,label")) return; incDetail(i,list); };
+    const vb=document.createElement("button"); vb.type="button"; vb.className="inc-view"; vb.textContent="👁 Xem · 📤 Chia sẻ"; vb.onclick=ev=>{ ev.stopPropagation(); incDetail(i,list); }; card.querySelector(".row1").appendChild(vb);
     el.appendChild(card);
   });
 }
@@ -4355,7 +4375,7 @@ function getSession(){
   try{ return JSON.parse(localStorage.getItem("gnsc_session")||sessionStorage.getItem("gnsc_session")||"null"); }catch(e){ return null; }
 }
 function clearSession(){ localStorage.removeItem("gnsc_session"); sessionStorage.removeItem("gnsc_session"); }
-function goLogin(){ clearSession(); location.replace(/github\.io$/.test(location.hostname)||location.hostname==="localhost" ? "login.html" : "https://phucle-gps.github.io/Ghinhansuco/login.html"); }
+function goLogin(){ try{ if(/^#su-co=/.test(location.hash)) localStorage.setItem("gnsc_after",location.hash); }catch(e){} clearSession(); location.replace(/github\.io$/.test(location.hostname)||location.hostname==="localhost" ? "login.html" : "https://phucle-gps.github.io/Ghinhansuco/login.html"); }
 
 async function api(action, payload){
   try{
@@ -4372,8 +4392,60 @@ async function api(action, payload){
 }
 async function loadIncidents(){
   const r = await api("listIncidents");
-  if(r.ok){ incidents = r.incidents || []; renderIncList(); }
+  if(r.ok){ incidents = r.incidents || []; renderIncList(); incDeepLink(); }
 }
+/* ---------- XEM CHI TIẾT & CHIA SẺ SỰ CỐ ---------- */
+const APP_LINK="https://phucle-gps.github.io/Ghinhansuco/index.html";
+let idCur=null, idList=[];
+const incPhotos=i=>String(i.anhHienTruong||"").split(/\n+/).filter(Boolean);
+const incTime=i=>i.createdAt?new Date(Number(i.createdAt)).toLocaleString("vi-VN",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}):(i.ngay||"");
+function incCab(i){ return CABINETS.find(c=>c.pe===i.cabinetPE) || null; }
+function incShareText(i){ const c=incCab(i), scp=isScp(i), ql=incQLOf(i), gs=(typeof GIAM_SAT!=="undefined"&&GIAM_SAT[i.quan])||"";
+  const pos = scp ? (i.tuLat!=null&&i.tuLat!==""?mapsLink(i.tuLat,i.tuLng):(c&&c.lat!=null?mapsLink(c.lat,c.lng):"")) : (i.gpsLat!=null?mapsLink(i.gpsLat,i.gpsLng):(c&&c.lat!=null?mapsLink(c.lat,c.lng):""));
+  const L=[(scp?"⚠️ SỰ CỐ TỦ (SCP)":"🚨 SỰ CỐ TỦ ĐIỀU KHIỂN")+" – CSKVTT",
+    `Tủ: ${i.cabinetName}${i.cabinetPE?" ("+i.cabinetPE+")":""}`, `Khu vực: ${i.quan||""}${c&&c.pm?" · P. "+c.pm:""}${i.duong||(c&&c.duong)?" · "+(i.duong||c.duong):""}`,
+    `Mức độ: ${i.mucDo||"—"} · Trạng thái: ${i.trangThai}`, scp?`Lỗi: ${i.loiSCP||i.moTa||""}`:`Mô tả: ${i.moTa||""}`, i.lyTrinh?`Lý trình: ${i.lyTrinh}`:"",
+    `Ghi nhận: ${i.nguoiGhiNhan||""} – ${incTime(i)}`, `Quản lý tuyến: ${ql||"—"}${gs?" · Giám sát: "+gs:""}`, i.ghiChuXuLy?`Nội dung xử lý: ${i.ghiChuXuLy}`:"",
+    pos?`📍 Vị trí: ${pos}`:"", ...incPhotos(i).map((u,k)=>`📷 Ảnh ${k+1}: ${u}`), `🔗 Xem trên app: ${APP_LINK}#su-co=${encodeURIComponent(i.id)}`];
+  return L.filter(Boolean).join("\n"); }
+function incDetail(i, list){
+  idCur=i; idList=(list&&list.length?list:incidents); const c=incCab(i), scp=isScp(i), ph=incPhotos(i);
+  $("#idTitle").textContent=(scp?"⚠️ ":"🚨 ")+i.cabinetName;
+  const row=(l,v)=>v?`<div><span>${l}</span><b>${v}</b></div>`:"";
+  $("#idBody").innerHTML=`<div class="id-badges"><span class="badge ${levelClass(i.mucDo)}">${escapeHtml(i.mucDo||"")}</span><span class="badge ${statusClass(i.trangThai)}">${escapeHtml(i.trangThai)}</span>${scp?'<span class="badge st-led-unk">Nguồn SCP</span>':""}</div>
+    ${scp?scpFaultHtml(i):`<div class="ks-g">Mô tả sự cố</div><div class="desc id-desc">${escapeHtml(i.moTa||"")}</div>`}
+    ${i.ghiChuXuLy?`<div class="ks-g">Nội dung xử lý</div><div class="desc">${escapeHtml(i.ghiChuXuLy)}</div>`:""}
+    <div class="tk-grid" style="margin-top:10px">${row("Mã PE",escapeHtml(i.cabinetPE||""))}${row("Quận",escapeHtml(i.quan||""))}${row("Phường mới",escapeHtml(c&&c.pm||""))}${row("Đường",escapeHtml(i.duong||(c&&c.duong)||""))}${row("Lý trình",escapeHtml(i.lyTrinh||""))}
+      ${row("Ghi nhận lúc",escapeHtml(incTime(i)))}${row("Người ghi nhận",escapeHtml(i.nguoiGhiNhan||""))}${row("Quản lý tuyến",escapeHtml(incQLOf(i)||""))}${row("Giám sát",escapeHtml((typeof GIAM_SAT!=="undefined"&&GIAM_SAT[i.quan])||""))}
+      ${row("Vị trí ghi nhận",i.gpsLat!=null?`<a href="${mapsLink(i.gpsLat,i.gpsLng)}" target="_blank" rel="noopener">📍 ${i.gpsLat}, ${i.gpsLng}</a>`:"")}${row("Vị trí tủ",c&&c.lat!=null?`<a href="${mapsLink(c.lat,c.lng)}" target="_blank" rel="noopener">📍 Mở bản đồ</a>`:"")}</div>
+    ${ph.length?`<div class="ks-g">Ảnh hiện trường (${ph.length})</div><div class="id-photos">${ph.map(u=>`<a href="${u}" target="_blank" rel="noopener"><img src="${u}" loading="lazy"></a>`).join("")}</div>`:""}`;
+  const txt=incShareText(i), enc=encodeURIComponent(txt), link=APP_LINK+"#su-co="+encodeURIComponent(i.id);
+  $("#idTg").href="https://t.me/share/url?url="+encodeURIComponent(link)+"&text="+encodeURIComponent(txt.replace(/\n🔗.*$/,""));
+  $("#idSms").href="sms:?&body="+enc; $("#idMail").href="mailto:?subject="+encodeURIComponent("[CSKVTT] Sự cố "+i.cabinetName+" – "+(i.trangThai||""))+"&body="+enc;
+  $("#idShare").style.display = navigator.share ? "" : "none"; $("#idMsg").textContent="";
+  const k=idList.indexOf(i); $("#idPos").textContent=k>=0?`${k+1}/${idList.length}`:""; $("#idPrev").disabled=k<=0; $("#idNext").disabled=k<0||k>=idList.length-1;
+  $("#incScrim").classList.add("show");
+}
+$("#idClose").onclick=()=>{ $("#incScrim").classList.remove("show"); if(location.hash.startsWith("#su-co=")) history.replaceState(null,"",location.pathname+location.search); };
+$("#incScrim").addEventListener("click",e=>{ if(e.target.id==="incScrim") $("#idClose").click(); });
+$("#idPrev").onclick=()=>{ const k=idList.indexOf(idCur); if(k>0) incDetail(idList[k-1],idList); };
+$("#idNext").onclick=()=>{ const k=idList.indexOf(idCur); if(k>=0&&k<idList.length-1) incDetail(idList[k+1],idList); };
+$("#idCopy").onclick=async()=>{ const t=incShareText(idCur); try{ await navigator.clipboard.writeText(t); $("#idMsg").textContent="✅ Đã sao chép nội dung – dán vào Zalo / nhóm chat."; }catch(e){ prompt("Sao chép nội dung:",t); } };
+$("#idShare").onclick=async()=>{ const i=idCur, t=incShareText(i);
+  try{
+    // thử gửi kèm ảnh (nếu trình duyệt cho phép và tải được ảnh)
+    let files=[]; if(navigator.canShare){ for(const [k,u] of incPhotos(i).slice(0,4).entries()){ try{ const r=await fetch(u,{mode:"cors"}); if(!r.ok) continue; const b=await r.blob(); if(!/^image\//.test(b.type)) continue; files.push(new File([b],`su_co_${(i.cabinetName||"tu").replace(/[^\w]+/g,"_")}_${k+1}.jpg`,{type:b.type})); }catch(e){} } if(files.length && !navigator.canShare({files})) files=[]; }
+    await navigator.share(Object.assign({title:"Sự cố "+i.cabinetName, text:t}, files.length?{files}:{}));
+    $("#idMsg").textContent = files.length?`✅ Đã chia sẻ kèm ${files.length} ảnh.`:"✅ Đã chia sẻ (ảnh gửi dạng đường link).";
+  }catch(e){ if(e&&e.name!=="AbortError"){ $("#idCopy").click(); } } };
+$("#idZalo").onclick=async()=>{ const t=incShareText(idCur); try{ await navigator.clipboard.writeText(t); }catch(e){}
+  if(navigator.share){ try{ await navigator.share({title:"Sự cố "+idCur.cabinetName, text:t}); $("#idMsg").textContent="✅ Đã mở bảng chia sẻ – chọn Zalo."; return; }catch(e){ if(e&&e.name==="AbortError") return; } }
+  $("#idMsg").textContent="✅ Đã sao chép nội dung – mở Zalo và dán vào cuộc trò chuyện."; window.open("https://chat.zalo.me/","_blank"); };
+$("#idPrint").onclick=()=>{ const i=idCur, w=window.open("","_blank"); if(!w) return; const ph=incPhotos(i);
+  w.document.write(`<html><head><meta charset="utf-8"><title>Phiếu sự cố ${escapeHtml(i.cabinetName)}</title><style>body{font-family:Arial;margin:24px;font-size:13px}h1{font-size:18px;margin:0 0 4px}pre{white-space:pre-wrap;font-family:Arial;font-size:13px;line-height:1.6}img{width:48%;margin:1%;border:1px solid #ccc}</style></head><body><h1>PHIẾU SỰ CỐ TỦ ĐIỀU KHIỂN – CSKVTT</h1><pre>${escapeHtml(incShareText(i))}</pre>${ph.map(u=>`<img src="${u}">`).join("")}</body></html>`); w.document.close(); setTimeout(()=>w.print(),800); };
+/* mở thẳng sự cố từ đường link chia sẻ (#su-co=ID) */
+function incDeepLink(){ try{ const pend=localStorage.getItem("gnsc_after"); if(pend && !location.hash){ localStorage.removeItem("gnsc_after"); history.replaceState(null,"",location.pathname+pend); } }catch(e){} const m=location.hash.match(/^#su-co=(.+)$/); if(!m) return; const id=decodeURIComponent(m[1]); const i=incidents.find(x=>String(x.id)===id); if(i && !$("#incScrim").classList.contains("show")){ if(typeof showView==="function") showView("list"); incDetail(i); } }
+window.addEventListener("hashchange",incDeepLink);
 
 let viewerName="", canWrite=true;
 const ROLE_LABEL = {admin:"Quản trị", editor:"Xem & Ghi nhận", user:"Được ghi nhận", viewer:"Chỉ xem"};
