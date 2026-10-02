@@ -1848,23 +1848,18 @@ async function exportExcel(){
   if(typeof XLSX==="undefined"){ alert("Không tải được thư viện xuất Excel, thử lại."); return; }
 
   btn.disabled=true;
-  const header = ["STT","Mã PE","Tên tủ","Đường","Quận","Người quản lý","Ngày ghi nhận","Mô tả sự cố","Mức độ","Người ghi nhận","Trạng thái","Tọa độ GPS","Ảnh hiện trường","Nguồn","Lỗi SCP","Ghi chú xử lý","Lý trình"];
-  const rows = list.map((i,idx)=>[
-    idx+1, (i.cabinetPE||i.pe||i.cabinetCode||""), i.cabinetName, i.duong||"", i.quan, incQLOf(i), i.ngay, i.moTa, i.mucDo, i.nguoiGhiNhan, i.trangThai,
-    i.gpsLat!=null ? (i.gpsLat+", "+i.gpsLng) : "", i.anhHienTruong || "", i.nguon||"Thủ công", i.loiSCP||"", i.ghiChuXuLy||"", i.lyTrinh||""
-  ]);
+  const scp = activeSource==="scp";
+  const header = ["STT","Ngày ghi nhận","Giờ","Mã PE","Tên tủ điều khiển","Quận","Tuyến đường","Lý trình", scp?"Lỗi SCP":"Mô tả sự cố","Người ghi nhận","Trạng thái","Mức độ","Người quản lý","Nội dung xử lý","Vị trí GPS","Ảnh hiện trường"];
+  const dt=i=>{ const d=i.createdAt?new Date(Number(i.createdAt)):null; return d&&!isNaN(d)?[("0"+d.getDate()).slice(-2)+"/"+("0"+(d.getMonth()+1)).slice(-2)+"/"+d.getFullYear(), ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2)]:[i.ngay||"",""]; };
+  const rows = list.slice().sort((a,b)=>a.createdAt-b.createdAt).map((i,idx)=>{ const [d,t]=dt(i), c=CABINETS.find(x=>x.pe===i.cabinetPE);
+    const pos = i.gpsLat!=null&&i.gpsLat!=="" ? i.gpsLat+", "+i.gpsLng : (i.tuLat!=null&&i.tuLat!==""? i.tuLat+", "+i.tuLng : (c&&c.lat!=null? c.lat+", "+c.lng : ""));
+    return [idx+1, d, t, (i.cabinetPE||i.pe||i.cabinetCode||""), i.cabinetName, i.quan, i.duong||(c&&c.duong)||"", i.lyTrinh||"", scp?(i.loiSCP||i.moTa||""):(i.moTa||""), i.nguoiGhiNhan||"", i.trangThai, i.mucDo||"", incQLOf(i), i.ghiChuXuLy||"", pos, i.anhHienTruong||""]; });
   const ws = XLSX.utils.aoa_to_sheet([header, ...rows]);
-  ws["!cols"] = [{wch:5},{wch:16},{wch:24},{wch:20},{wch:16},{wch:18},{wch:12},{wch:40},{wch:12},{wch:18},{wch:16},{wch:20},{wch:18},{wch:10},{wch:16},{wch:40},{wch:36}];
+  ws["!cols"] = [{wch:5},{wch:12},{wch:7},{wch:16},{wch:22},{wch:14},{wch:18},{wch:20},{wch:45},{wch:16},{wch:14},{wch:10},{wch:18},{wch:30},{wch:12},{wch:10}];
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Ghi nhan su co");
-  const buf = XLSX.write(wb, {bookType:"xlsx", type:"array"});
-  const blob = new Blob([buf], {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
-  const filename = (activeSource==="scp"?"Su_co_tu_SCP_":"Ghi_nhan_su_co_")+todayISO()+".xlsx";
-
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a"); a.href=url; a.download=filename;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url), 4000);
+  XLSX.utils.book_append_sheet(wb, ws, scp?"Su co SCP":"Bao cao su co");
+  const filename = (scp?"Su_co_tu_SCP_":"Ghi_nhan_su_co_")+todayISO()+".xlsx";
+  try{ await xlsSave(wb, filename, {filter: incQL?("Người QL: "+incQL):""}); }catch(err){ alert("Lỗi xuất Excel: "+err.message); }
   btn.disabled=false;
 }
 $("#exportBtn").onclick=exportExcel;
@@ -2633,8 +2628,8 @@ function ksSheetFor(f, recs){
   const extra=["Người khảo sát","Ngày khảo sát","Tọa độ GPS","Ảnh hiện trường"];
   const ncol=1+f.fields.length+extra.length;
   const aoa=[], merges=[];
-  aoa.push(["Mẫu "+f.id, f.title+(f.sub?" "+f.sub:"")]); merges.push({s:{r:0,c:1},e:{r:0,c:ncol-1}});
-  aoa.push([activeQuan!=="Tất cả"?"Khu vực: "+activeQuan:"Khu vực: Tất cả", "", "Xuất ngày "+new Date().toLocaleString("vi-VN")]);
+  aoa.push(["Mẫu "+f.id+" – "+f.title+(f.sub?" "+f.sub:"")]);
+  aoa.push(["Khu vực: "+(activeQuan!=="Tất cả"?activeQuan:"Tất cả các quận")]);
   const h1=["Stt"], h2=[""];
   let c=1;
   f.fields.forEach((x,i)=>{
@@ -2680,9 +2675,7 @@ function ksExport(ids){
     XLSX.utils.book_append_sheet(wb, ksSheetFor(f, rs), (id+"."+f.short).replace(/[\\\/\?\*\[\]:]/g,"").slice(0,31)); });
   if(!any && ids.length>1 && !vis.length){ alert("Chưa có phiếu khảo sát nào để xuất."); return; }
   const name = ids.length>1 ? "Tong_hop_khao_sat_duy_tu_"+todayISO()+".xlsx" : "Khao_sat_Mau_"+ids[0]+"_"+todayISO()+".xlsx";
-  const buf=XLSX.write(wb,{bookType:"xlsx",type:"array"});
-  const url=URL.createObjectURL(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
-  const a=document.createElement("a"); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),4000);
+  xlsSave(wb, name);
 }
 $("#tabKs").onclick=async ()=>{ showView("ks"); $("#ksBody").innerHTML='<div class="empty">Đang tải…</div>'; await ksLoad(true); ksRender(); };
 
@@ -2980,7 +2973,7 @@ async function tkOpen(r){ tkCur=r;
     XLSX.utils.book_append_sheet(wb,ws,"Chi tiet tru"); tkDownload(wb,"Chi_tiet_tru_"+(r[0]||r[16]));
   };
 }
-function tkDownload(wb,name){ const buf=XLSX.write(wb,{bookType:"xlsx",type:"array"}); const url=URL.createObjectURL(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})); const a=document.createElement("a"); a.href=url; a.download=name+"_"+todayISO()+".xlsx"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),4000); }
+function tkDownload(wb,name){ xlsSave(wb, (/^Thong|^TK/i.test(name)?"":"Thong_ke_")+name+"_"+todayISO()+".xlsx"); }
 function tkExport(list,name){
   if(typeof XLSX==="undefined"){ alert("Không tải được thư viện Excel."); return; }
   const PK=Object.keys(TK_PCT);
@@ -3117,7 +3110,7 @@ function bkShowResults(res, sel, fname){
   const x=$("#bkXls"); if(x) x.onclick=()=>{ if(typeof XLSX==="undefined") return alert("Không tải được thư viện Excel");
     const aoa=[["DANH SÁCH TÀI KHOẢN – "+new Date().toLocaleString("vi-VN")],["Link đăng nhập: "+link],["STT","Họ tên","Tên đăng nhập","Mật khẩu tạm","Quyền","Kết quả"],...withPw.map((r,i)=>[i+1,r.fullName,r.username,r.tempPassword,({editor:"Xem & Ghi nhận",user:"Ghi nhận",viewer:"Chỉ xem",admin:"Quản trị"})[r.role]||"",r.created?"Tạo mới":"Cấp lại"])];
     const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(aoa); ws["!cols"]=[{wch:5},{wch:24},{wch:16},{wch:14},{wch:10},{wch:10}]; XLSX.utils.book_append_sheet(wb,ws,"Tai khoan");
-    const buf=XLSX.write(wb,{bookType:"xlsx",type:"array"}), url=URL.createObjectURL(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})); const a=document.createElement("a"); a.href=url; a.download=fname+"_"+todayISO()+".xlsx"; document.body.appendChild(a); a.click(); a.remove(); };
+    xlsSave(wb, fname+"_"+todayISO()+".xlsx"); };
   const c=$("#bkCopy"); if(c) c.onclick=async()=>{ const msg=withPw.map(r=>`${r.fullName||r.username}\nLink: ${link}\nTên đăng nhập: ${r.username}\nMật khẩu tạm: ${r.tempPassword}`).join("\n\n----------\n\n"); try{ await navigator.clipboard.writeText(msg); c.textContent="✓ Đã sao chép"; }catch(e){ prompt("Sao chép:",msg); } };
 }
 /* nguồn dữ liệu: file / ảnh (OCR) / văn bản */
@@ -3443,7 +3436,7 @@ async function hsRepairs(el){
     d.innerHTML=`<div class="lg-t">${x.icon} ${highlight(x.tieuDe||"",toks)}</div><div class="who">${escHtml(x.loai)} · ${escHtml(x.tu||"")}${x.quan?" · "+escHtml(x.quan):""} · ${escHtml(x.ngay||"")}${x.nguoi?" · "+escHtml(x.nguoi):""}</div>${x.noiDung?`<div class="who">${highlight(x.noiDung.slice(0,140),toks)}</div>`:""}`;
     d.onclick=x.open; box.appendChild(d); });
   $("#scXls").onclick=()=>{ if(typeof XLSX==="undefined") return; const aoa=[["STT","Loại hồ sơ","Tủ / tuyến","Quận","Ngày","Nội dung","Kết quả / thông số","Người"],...L.map((x,i)=>[i+1,x.loai,x.tu,x.quan,x.ngay,x.tieuDe,x.noiDung,x.nguoi])];
-    const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(aoa); ws["!cols"]=[{wch:5},{wch:26},{wch:30},{wch:14},{wch:11},{wch:50},{wch:50},{wch:20}]; XLSX.utils.book_append_sheet(wb,ws,"Ho so sua chua"); saveBlob(new Blob([XLSX.write(wb,{bookType:"xlsx",type:"array"})]),"Ho_so_sua_chua_"+todayISO()+".xlsx"); };
+    const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(aoa); ws["!cols"]=[{wch:5},{wch:26},{wch:30},{wch:14},{wch:11},{wch:50},{wch:50},{wch:20}]; XLSX.utils.book_append_sheet(wb,ws,"Ho so sua chua"); xlsSave(wb,"Ho_so_sua_chua_"+todayISO()+".xlsx"); };
 }
 /* xem bản vẽ ngay trong chi tiết tủ (Thống kê) */
 function bvPreviewHtml(list){
@@ -3556,7 +3549,7 @@ $("#bvXls").onclick=()=>{ if(!bvRecs||typeof XLSX==="undefined") return;
   const aoa=[["STT","Tên bản vẽ","Loại","Số hiệu","Năm/ngày","Quận","Phường (sau sáp nhập)","Tuyến đường","Tủ điều khiển liên quan","Số file","Danh sách file","Người lập","Cập nhật","Ghi chú"],
     ...rows.map((r,i)=>[i+1,r.data.ten,r.data.loai,r.data.soHieu,r.data.ngay,r.quan,r.phuong,r.data.tuyen,(r.cabinets||[]).map(pe=>{const c=cabByPe(pe);return c?c.n+" ("+pe+")":pe;}).join("; "),(r.files||[]).length,(r.files||[]).map(f=>f.name).join("; "),r.nguoiTaoTen,new Date(r.updatedAt).toLocaleString("vi-VN"),r.data.ghiChu])];
   const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(aoa); ws["!cols"]=[{wch:5},{wch:36},{wch:24},{wch:12},{wch:12},{wch:14},{wch:16},{wch:22},{wch:40},{wch:7},{wch:40},{wch:18},{wch:18},{wch:30}];
-  XLSX.utils.book_append_sheet(wb,ws,"Kho ban ve"); saveBlob(new Blob([XLSX.write(wb,{bookType:"xlsx",type:"array"})]),"Kho_ban_ve_"+todayISO()+".xlsx"); };
+  XLSX.utils.book_append_sheet(wb,ws,"Kho ban ve"); xlsSave(wb,"Kho_ban_ve_"+todayISO()+".xlsx"); };
 $("#tabBv").onclick=()=>{ showView("bv"); hsRender(); };
 
 /* ---------- ĐỀ XUẤT LED (công văn) → gộp vào dữ liệu tuyến ---------- */
@@ -3661,7 +3654,7 @@ function ledDriver(el){
     ws["!cols"]=head.map((h,i)=>({wch:i===0?5:[1,2,15].includes(i)?30:14})); XLSX.utils.book_append_sheet(wb,ws,"Phu luc 1");
     const pl2=[["Bộ đèn","Đấu nối","Tên vật tư","Mã hàng hóa","Công suất","Vin (Vac)","Iout (Adc)","Uout (Vdc)","Chuẩn kết nối","NSX","Kích thước","Nhà cung cấp"]]; DRIVER_TABLE.forEach(r=>["noiTiep","songSong"].forEach(k=>{ const d=r[k]; pl2.push(["LED "+r.den+"W",k==="noiTiep"?"Nối tiếp":"Song song",d.ten,d.ma,d.p+"W",d.vin,d.iout,d.uout,"1-10V, Dynadimmer, 5 cấp",d.nsx,d.kt,d.ncc]); }));
     XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(pl2),"Phu luc 2");
-    saveBlob(new Blob([XLSX.write(wb,{bookType:"xlsx",type:"array"})]),"Phu_luc_1_thong_so_Driver_"+todayISO()+".xlsx"); };
+    xlsSave(wb,"Phu_luc_1_thong_so_Driver_"+todayISO()+".xlsx"); };
 }
 function drvOpen(o){
   const isNew=!o, f=(o&&o.data.fields)||{cskv:"CSKV Trung Tâm", trangThai:"Đề xuất"};
@@ -3919,7 +3912,7 @@ function ledTuyen(el,D){
     const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(aoa); ws["!cols"]=aoa[0].map((h,i)=>({wch:i===1?30:i===8?40:14})); XLSX.utils.book_append_sheet(wb,ws,"Theo doi LED");
     if(window.__ledHist) XLSX.utils.book_append_sheet(wb,window.__ledHist,"Den tat BH 2020");
     const v2=XLSX.utils.aoa_to_sheet([["STT","Loại văn bản","Ngày","Quận","Công trình","Tuyến / địa điểm","Bên A","Bên B","Số hợp đồng","Tình trạng","Ghi chú","Số file đính kèm"],...D.vbs.map((v,i)=>[i+1,v.loai,v.ngay,v.quan,v.congTrinh,v.tuyen,v.benA,v.benB,v.soHD,v.tinhTrang,v.ghiChu,v._ov?(v._ov.files||[]).length:0])]); XLSX.utils.book_append_sheet(wb,v2,"Van ban");
-    saveBlob(new Blob([XLSX.write(wb,{bookType:"xlsx",type:"array"})]),"Theo_doi_LED_bao_hanh_"+todayISO()+".xlsx"); };
+    xlsSave(wb,"Theo_doi_LED_bao_hanh_"+todayISO()+".xlsx"); };
 }
 function ledVB(el,D){
   const tokens=vnNorm(ledTerm).trim().split(/\s+/).filter(Boolean);
@@ -4118,7 +4111,7 @@ $("#acXls").onclick=()=>{ if(typeof XLSX==="undefined") return;
   const aoa=[["TỔNG HỢP TÀI KHOẢN APP CSKVTT – "+new Date().toLocaleString("vi-VN")],["Link: https://phucle-gps.github.io/Ghinhansuco/login.html"],["STT","Họ tên","Tên đăng nhập","Quyền","Trạng thái","Mật khẩu (do Quản trị cấp, chưa đổi)","Nguồn mật khẩu","Buộc đổi khi đăng nhập","Đổi mật khẩu lần cuối","Đăng nhập gần nhất","Phiên đang mở","Yêu cầu cấp lại","Ngày tạo"],
     ...acList.map((a,i)=>[i+1,a.fullName,a.username,ROLE_LABEL[a.role]||a.role,a.active?"Hoạt động":"Đã khóa",a.tempPassword||(acPwState(a)==="self"?"(người dùng tự đặt – không xem được)":"(chưa theo dõi)"),a.pwBy,a.mustChange?"Có":"",acDT(a.pwChangedAt),acDT(a.lastLogin),a.sessions||"",a.yeuCauReset||"",acDT(a.createdAt)])];
   const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(aoa); ws["!cols"]=[{wch:5},{wch:24},{wch:16},{wch:14},{wch:11},{wch:26},{wch:26},{wch:10},{wch:17},{wch:17},{wch:8},{wch:22},{wch:17}];
-  XLSX.utils.book_append_sheet(wb,ws,"Tai khoan"); saveBlob(new Blob([XLSX.write(wb,{bookType:"xlsx",type:"array"})]),"Tong_hop_tai_khoan_"+todayISO()+".xlsx"); };
+  XLSX.utils.book_append_sheet(wb,ws,"Tai khoan"); xlsSave(wb,"Tong_hop_tai_khoan_"+todayISO()+".xlsx"); };
 function acStart(){ acLoad(false); clearInterval(acTimer); acTimer=setInterval(()=>{ if($("#accountScrim").classList.contains("show")) acLoad(true); else clearInterval(acTimer); },30000); }
 
 const SO_TAY = {"codes": [{"code": "DATA/4G", "ten": "Mất kết nối truyền thông 4G", "items": [{"g": "tu", "nn": "Tủ bị nhảy RCCB", "tt": "Kiểm tra trạng thái RCCB/MCCB → đóng lại. Nếu nhảy lại: KHÔNG đóng tiếp, tìm điểm chạm/rò rồi mới đóng."}, {"g": "bn", "nn": "Công tắc bộ nguồn chưa bật", "tt": "Bật công tắc bộ nguồn, kiểm tra đèn báo."}, {"g": "bn", "nn": "Bộ nguồn backup: công tắc chọn đang ở chế độ nguồn trực tiếp (Main)", "tt": "Kiểm tra nguồn AC cấp vào bộ backup; chuyển công tắc về đúng chế độ."}, {"g": "bn", "nn": "Bộ nguồn bị hư", "tt": "Đo điện áp ra 12VDC; không có hoặc sai điện áp → thay bộ nguồn."}, {"g": "bn", "nn": "Nguồn cấp L và N của bộ nguồn 12VDC chưa tiếp xúc với dây điện (do cắm dây điện sâu quá nên chỉ tiếp xúc với lớp bọc bảo vệ)", "tt": "Rút dây, tuốt đúng chiều dài lõi đồng, cắm lại cho tiếp xúc rồi siết chặt."}, {"g": "bn", "nn": "Mất L hoặc N của bộ nguồn 12VDC do đầu bị lỏng", "tt": "Siết lại đầu dây L/N tại bộ nguồn 12VDC."}, {"g": "cap", "nn": "Jack cắm nguồn bị lỏng, hư", "tt": "Cắm lại jack nguồn cho chặt; jack lỏng/hư → thay."}, {"g": "sim", "nn": "Khu vực có sóng nhà mạng không ổn định", "tt": "Xem vạch sóng 4G tại tủ; sóng yếu → chỉnh vị trí ăng-ten, báo Phòng Kỹ thuật đổi nhà mạng."}, {"g": "sim", "nn": "SIM hết data", "tt": "Kiểm tra gói data của SIM, báo nạp/gia hạn."}, {"g": "sim", "nn": "Chưa gắn SIM", "tt": "Gắn SIM vào bộ 4G."}, {"g": "sim", "nn": "Lỏng SIM", "tt": "Tháo SIM, vệ sinh tiếp điểm, gắn lại chặt."}, {"g": "sim", "nn": "SIM bị hư", "tt": "Thay SIM mới."}]}, {"code": "PLC", "ten": "Mất kết nối / lỗi PLC", "items": [{"g": "tu", "nn": "Tủ bị nhảy RCCB, MCCB", "tt": "Kiểm tra trạng thái RCCB/MCCB → đóng lại. Nếu nhảy lại: KHÔNG đóng tiếp, tìm điểm chạm/rò rồi mới đóng."}, {"g": "tu", "nn": "Tủ bị mất pha (trùng với pha cấp nguồn cho PLC)", "tt": "Đo điện áp từng pha đầu vào tủ; mất pha lưới → báo Điện lực, mất pha trong tủ → kiểm tra CB/cầu đấu."}, {"g": "tu", "nn": "Tủ bị mất trung tính", "tt": "Đo điện áp L–N; kiểm tra dây N đầu vào và cầu đấu trung tính, siết lại."}, {"g": "bn", "nn": "Bộ nguồn 12VDC bị hư", "tt": "Đo điện áp ra 12VDC; không có hoặc sai điện áp → thay bộ nguồn."}, {"g": "bn", "nn": "Bộ nguồn bị chuyển sang chế độ pin dự phòng (UPS)", "tt": "Kiểm tra nguồn AC cấp vào bộ backup; chuyển công tắc về đúng chế độ."}, {"g": "bn", "nn": "Nguồn cấp L và N của bộ nguồn 12VDC chưa tiếp xúc với dây điện (do cắm dây điện sâu quá nên chỉ tiếp xúc với lớp bọc bảo vệ)", "tt": "Rút dây, tuốt đúng chiều dài lõi đồng, cắm lại cho tiếp xúc rồi siết chặt."}, {"g": "bn", "nn": "Mất L hoặc N của bộ nguồn 12VDC do đầu bị lỏng", "tt": "Siết lại đầu dây L/N tại bộ nguồn 12VDC."}, {"g": "cap", "nn": "Jack cắm nguồn bị lỏng, hư", "tt": "Cắm lại jack nguồn cho chặt; jack lỏng/hư → thay."}, {"g": "cap", "nn": "Lỏng cáp LAN (NVPLM2348-LAN)", "tt": "Kiểm tra, cắm lại cáp đúng cổng; với RS485 kiểm tra đúng cặp dây A/B."}, {"g": "cap", "nn": "Lỏng cáp bộ 4G -> Bộ điều khiển trung tâm (NVPLM2348-LO)", "tt": "Kiểm tra, cắm lại cáp đúng cổng; với RS485 kiểm tra đúng cặp dây A/B."}, {"g": "cd", "nn": "Cài ngày, tháng, năm và thời gian thực của PLC bị sai", "tt": "Cài lại ngày, tháng, năm và giờ thực cho PLC."}, {"g": "tb", "nn": "PLC Logo bị hư (tủ bị hở dẫn đến vô nước hoặc tủ bị mất trung tính)", "tt": "Đo điện áp L–N; kiểm tra dây N đầu vào và cầu đấu trung tính, siết lại."}]}, {"code": "PM", "ten": "Mất kết nối đồng hồ đo điện (Selec)", "items": [{"g": "tu", "nn": "Tủ bị nhảy RCCB, MCCB", "tt": "Kiểm tra trạng thái RCCB/MCCB → đóng lại. Nếu nhảy lại: KHÔNG đóng tiếp, tìm điểm chạm/rò rồi mới đóng."}, {"g": "tu", "nn": "Tủ bị mất pha (trùng với pha cấp nguồn cho đồng hồ)", "tt": "Đo điện áp từng pha đầu vào tủ; mất pha lưới → báo Điện lực, mất pha trong tủ → kiểm tra CB/cầu đấu."}, {"g": "tu", "nn": "Tủ bị mất trung tính", "tt": "Đo điện áp L–N; kiểm tra dây N đầu vào và cầu đấu trung tính, siết lại."}, {"g": "bn", "nn": "Bộ nguồn 12VDC bị hư", "tt": "Đo điện áp ra 12VDC; không có hoặc sai điện áp → thay bộ nguồn."}, {"g": "bn", "nn": "Nguồn cấp L và N của bộ nguồn 12VDC chưa tiếp xúc với dây điện (do cắm dây điện sâu quá nên chỉ tiếp xúc với lớp bọc bảo vệ)", "tt": "Rút dây, tuốt đúng chiều dài lõi đồng, cắm lại cho tiếp xúc rồi siết chặt."}, {"g": "bn", "nn": "Bộ nguồn bị chuyển sang chế độ pin dự phòng (UPS)", "tt": "Kiểm tra nguồn AC cấp vào bộ backup; chuyển công tắc về đúng chế độ."}, {"g": "bn", "nn": "Mất L hoặc N của bộ nguồn 12VDC do đầu bị lỏng", "tt": "Siết lại đầu dây L/N tại bộ nguồn 12VDC."}, {"g": "cap", "nn": "Jack cắm nguồn bị lỏng, hư", "tt": "Cắm lại jack nguồn cho chặt; jack lỏng/hư → thay."}, {"g": "cap", "nn": "Lỏng cáp RS485 đến đồng hồ Selec, đấu sai dây", "tt": "Kiểm tra, cắm lại cáp đúng cổng; với RS485 kiểm tra đúng cặp dây A/B."}, {"g": "cap", "nn": "Lỏng cáp bộ 4G -> Thiết bị giao tiếp (NVPMLM4848-PM)", "tt": "Kiểm tra, cắm lại cáp đúng cổng; với RS485 kiểm tra đúng cặp dây A/B."}, {"g": "cd", "nn": "Đồng hồ Selec cài sai thông số truyền thông (thông số đúng: Id 1, baud 9600, Parity None, Data 8, Stopbit 1)", "tt": "Cài lại Selec: Id 1 · Baud 9600 · Parity None · Data 8 · Stopbit 1."}, {"g": "tb", "nn": "Đồng hồ Selec bị hư (tủ hở dẫn đến vô nước hoặc tủ bị mất trung tính)", "tt": "Đo điện áp L–N; kiểm tra dây N đầu vào và cầu đấu trung tính, siết lại."}]}, {"code": "PW", "ten": "Mất nguồn / lỗi nguồn cấp", "items": [{"g": "tu", "nn": "Tủ bị nhảy RCCB, MCCB", "tt": "Kiểm tra trạng thái RCCB/MCCB → đóng lại. Nếu nhảy lại: KHÔNG đóng tiếp, tìm điểm chạm/rò rồi mới đóng."}, {"g": "tu", "nn": "Tủ bị mất pha (trùng với pha cấp nguồn cho đồng hồ)", "tt": "Đo điện áp từng pha đầu vào tủ; mất pha lưới → báo Điện lực, mất pha trong tủ → kiểm tra CB/cầu đấu."}, {"g": "tu", "nn": "Tủ bị mất trung tính", "tt": "Đo điện áp L–N; kiểm tra dây N đầu vào và cầu đấu trung tính, siết lại."}, {"g": "bn", "nn": "Bộ nguồn 12VDC bị hư", "tt": "Đo điện áp ra 12VDC; không có hoặc sai điện áp → thay bộ nguồn."}, {"g": "bn", "nn": "Nguồn cấp L và N của bộ nguồn 12VDC chưa tiếp xúc với dây điện (do cắm dây điện sâu quá nên chỉ tiếp xúc với lớp bọc bảo vệ)", "tt": "Rút dây, tuốt đúng chiều dài lõi đồng, cắm lại cho tiếp xúc rồi siết chặt."}, {"g": "cap", "nn": "Jack cắm nguồn bị lỏng, hư", "tt": "Cắm lại jack nguồn cho chặt; jack lỏng/hư → thay."}]}], "groups": [{"k": "tu", "ic": "⚡", "t": "Nguồn điện tủ"}, {"k": "bn", "ic": "🔋", "t": "Bộ nguồn 12VDC / UPS"}, {"k": "cap", "ic": "🔌", "t": "Jack & cáp đấu nối"}, {"k": "sim", "ic": "📶", "t": "SIM & sóng 4G"}, {"k": "cd", "ic": "⚙️", "t": "Cài đặt thông số"}, {"k": "tb", "ic": "🧯", "t": "Thiết bị hỏng"}]};
@@ -4169,11 +4162,156 @@ $("#stXls").onclick=()=>{ if(typeof XLSX==="undefined") return;
   const aoa=[["SỔ TAY SỬA CHỮA – MÃ LỖI TỦ ĐIỀU KHIỂN (SCP)"],[],["Mã lỗi","Tên lỗi","Bước","Nhóm kiểm tra","Nguyên nhân cần kiểm tra","Thao tác gợi ý"]];
   SO_TAY.codes.forEach(c=>c.items.forEach((it,n)=>aoa.push([c.code,c.ten,n+1,stG(it.g).t,it.nn,it.tt])));
   const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(aoa); ws["!cols"]=[{wch:10},{wch:30},{wch:6},{wch:22},{wch:70},{wch:70}]; XLSX.utils.book_append_sheet(wb,ws,"So tay sua chua");
-  saveBlob(new Blob([XLSX.write(wb,{bookType:"xlsx",type:"array"})]),"So_tay_sua_chua.xlsx"); };
+  xlsSave(wb,"So_tay_sua_chua.xlsx"); };
 $("#stPrint").onclick=()=>{ const w=window.open("","_blank"); if(!w) return; w.document.write(`<html><head><meta charset="utf-8"><title>Sổ tay sửa chữa</title><style>body{font-family:Arial;font-size:12px;margin:20px}h2{margin:16px 0 4px}ol{margin:4px 0 0 18px}li{margin:4px 0}.g{color:#666;font-size:11px}.t{color:#0b5;}</style></head><body><h1>📒 Sổ tay sửa chữa – mã lỗi tủ điều khiển</h1>`+
   SO_TAY.codes.filter(c=>!stCode||c.code===stCode).map(c=>`<h2>${c.code} – ${c.ten}</h2><ol>${c.items.map(it=>`<li><span class="g">${stG(it.g).t}</span><br><b>${it.nn}</b>${it.tt?`<br><span class="t">👉 ${it.tt}</span>`:""}</li>`).join("")}</ol>`).join("")+`</body></html>`); w.document.close(); w.print(); };
 
 document.addEventListener("click",e=>{ const b=e.target.closest&&e.target.closest(".st-link"); if(!b) return; e.stopPropagation(); stOpen(b.dataset.codes.split(",")); },true);
+/* ================= XUẤT EXCEL THEO MẪU BÁO CÁO CHUẨN (CSKVTT) =================
+   Mọi nút "Xuất Excel" đi qua xlsSave(wb, tên file): giữ dữ liệu, trình bày lại theo mẫu
+   Bao_cao_ghi_nhan_su_co.xlsx: tiêu đề đơn vị, tên báo cáo, ngày, bảng kẻ ô nền xanh, liên kết, phần ký tên, in A4 ngang. */
+const XR_ORG1="CHIẾU SÁNG KHU VỰC TRUNG TÂM", XR_ORG2="XÍ NGHIỆP CHIẾU SÁNG SÀI GÒN", XR_SIGN_L="NGƯỜI LẬP BÁO CÁO", XR_SIGN_R="GIÁM ĐỐC XNCS SÀI GÒN";
+const XR_TITLES=[[/^Su_co_tu_SCP/,"BÁO CÁO SỰ CỐ TỦ ĐIỀU KHIỂN (NGUỒN SCP)"],[/^Ghi_nhan_su_co/,"BÁO CÁO GHI NHẬN SỰ CỐ TỦ ĐIỀU KHIỂN CHIẾU SÁNG"],[/^Kho_ban_ve/,"DANH MỤC HỒ SƠ BẢN VẼ CÔNG TRÌNH"],
+  [/^Ho_so_sua_chua/,"TỔNG HỢP HỒ SƠ SỬA CHỮA"],[/^Thong_so|^Thong_ke|^TK_|^Thongke/i,"BÁO CÁO THỐNG KÊ TỦ ĐIỀU KHIỂN CHIẾU SÁNG"],[/^Theo_doi_LED/,"BÁO CÁO THEO DÕI ĐÈN LED VÀ BẢO HÀNH"],
+  [/^Phu_luc_1/,"PHỤ LỤC 1 – THÔNG SỐ DRIVER BỘ ĐÈN LED HIỆN HỮU"],[/^So_tay/,"SỔ TAY SỬA CHỮA – MÃ LỖI TỦ ĐIỀU KHIỂN"],[/^Tong_hop_tai_khoan|^Tai_khoan/,"TỔNG HỢP TÀI KHOẢN SỬ DỤNG APP CSKVTT"],
+  [/khao_sat/i,"BÁO CÁO KHẢO SÁT DUY TU HỆ THỐNG CHIẾU SÁNG"],[/File_Luu/i,"DANH MỤC FILE LƯU TRỮ"]];
+(function(){ if(typeof XLSX==="undefined"||XLSX.__xr) return; const o=XLSX.utils.aoa_to_sheet; XLSX.utils.aoa_to_sheet=function(a,opt){ const ws=o.call(this,a,opt); try{ ws.__aoa=a; }catch(e){} return ws; }; XLSX.__xr=1; })();
+const xrEsc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,"");
+const xrCol=n=>{ let s=""; n++; while(n){ const m=(n-1)%26; s=String.fromCharCode(65+m)+s; n=Math.floor((n-1)/26); } return s; };
+const xrNonEmpty=r=>(r||[]).filter(v=>v!==""&&v!=null).length;
+const xrUrls=v=>String(v==null?"":v).split(/\s*\n\s*|\s+(?=https?:)/).filter(x=>/^https?:\/\//.test(x));
+const xrIsCoord=v=>/^-?\d{1,3}\.\d{3,},\s*-?\d{1,3}\.\d{3,}$/.test(String(v||"").trim());
+const xrLinkText=(u,i)=>/google\.[^/]+\/maps|maps\.google|maps\?q=/.test(u)?"Bản đồ":/drive\.google|googleusercontent|\.(jpe?g|png|webp)(\?|$)/i.test(u)?"Ảnh "+(i||1):/t\.me|zalo/.test(u)?"Mở link":"Mở link";
+/* phân tích 1 sheet SheetJS → {titles, head:[[...]], rows, merges(header), widths} */
+function xrParse(ws){
+  let aoa=ws.__aoa || XLSX.utils.sheet_to_json(ws,{header:1,defval:""}); aoa=aoa.map(r=>(r||[]).map(v=>v==null?"":v));
+  const titles=[]; let i=0; while(i<aoa.length && xrNonEmpty(aoa[i])<=1){ const t=(aoa[i]||[]).find(v=>v!==""); if(t!=null&&t!=="") titles.push(String(t)); i++; }
+  if(i>=aoa.length) return {notes:true,titles,lines:aoa.map(r=>r.filter(v=>v!=="").join("  "))};
+  const merges=(ws["!merges"]||[]); let hN=1; if(merges.some(m=>m.s.r===i && m.e.r===i+1) || merges.some(m=>m.s.r===i && m.e.c>m.s.c && xrNonEmpty(aoa[i+1])>0 && xrNonEmpty(aoa[i+1])<xrNonEmpty(aoa[i]))) hN=2;
+  const head=aoa.slice(i,i+hN), rows=aoa.slice(i+hN); while(rows.length && !xrNonEmpty(rows[rows.length-1])) rows.pop();
+  const hm=merges.filter(m=>m.s.r>=i && m.e.r<i+hN).map(m=>({s:{r:m.s.r-i,c:m.s.c},e:{r:m.e.r-i,c:m.e.c}}));
+  const ncol=Math.max(...head.map(r=>r.length), ...rows.map(r=>r.length), 1);
+  return {titles, head, rows, hm, ncol, widths:(ws["!cols"]||[]).map(c=>c&&c.wch)};
+}
+/* tách cột chứa nhiều đường link (ảnh) thành "Số ảnh" + "Ảnh 1..n"; cột tọa độ → link Bản đồ */
+function xrExpand(P){
+  if(P.notes) return P; const last=P.head[P.head.length-1], top=P.head[0];
+  const hdr=c=>String(last[c]||top[c]||"");
+  const plan=[]; for(let c=0;c<P.ncol;c++){ const vals=P.rows.map(r=>r[c]); const maxU=Math.max(0,...vals.map(v=>xrUrls(v).length));
+    const multi=maxU>1 || (maxU===1 && /ảnh|anh|photo|file/i.test(hdr(c)));
+    plan.push(multi?{c,k:"img",n:Math.min(maxU,15)}:{c,k:xrIsCoord(vals.find(v=>v!=="")||"")||/gps|tọa độ|vị trí/i.test(hdr(c))&&vals.some(xrIsCoord)?"gps":"keep"}); }
+  if(!plan.some(p=>p.k!=="keep")) return P;
+  const nh=P.head.map(()=>[]), nr=P.rows.map(()=>[]), nw=[], map=[];
+  plan.forEach(p=>{ const w=P.widths[p.c];
+    if(p.k==="img"){ map.push([p.c,nw.length]); P.head.forEach((h,ri)=>nh[ri].push(ri===P.head.length-1?"Số ảnh":(P.head.length>1?"":h[p.c])));
+      if(P.head.length===1) nh[0][nh[0].length-1]="Số ảnh"; nw.push(8);
+      for(let k=0;k<p.n;k++){ P.head.forEach((h,ri)=>nh[ri].push(ri===P.head.length-1?"Ảnh "+(k+1):"")); nw.push(9); }
+      P.rows.forEach((r,ri)=>{ const us=xrUrls(r[p.c]); nr[ri].push(us.length||""); for(let k=0;k<p.n;k++) nr[ri].push(us[k]?{link:us[k],text:"Ảnh "+(k+1)}:""); }); }
+    else { map.push([p.c,nw.length]); P.head.forEach((h,ri)=>nh[ri].push(h[p.c]===undefined?"":h[p.c])); nw.push(w);
+      P.rows.forEach((r,ri)=>{ const v=r[p.c]; if(p.k==="gps"&&xrIsCoord(v)){ const [a,b]=String(v).split(/,\s*/); nr[ri].push({link:"https://www.google.com/maps?q="+a+","+b,text:"Bản đồ"}); } else nr[ri].push(v===undefined?"":v); }); } });
+  const cm=c=>{ let best=0; map.forEach(([o,n])=>{ if(o<=c) best=n; }); return best; };
+  P.hm=P.hm.map(m=>({s:{r:m.s.r,c:cm(m.s.c)},e:{r:m.e.r,c:cm(m.e.c)}}));
+  if(P.head.length===1 && plan.some(p=>p.k==="gps")) nh[0]=nh[0].map(h=>/^tọa độ gps$/i.test(String(h))?"Vị trí GPS":h);
+  return Object.assign({},P,{head:nh,rows:nr,widths:nw,ncol:nw.length});
+}
+/* ghi 1 worksheet XML */
+function xrSheetXml(P, title, sub, links){
+  const S={org1:1,org2:2,title:3,sub:4,head:5,c:6,l:7,n0:8,n2:9,link:10,totL:11,totN:12,date:13,sign:14,note:16,totC:17};
+  const rowsX=[]; const merges=[]; let R=0; const N=Math.max(P.ncol||1,6);
+  const cell=(r,c,v,s)=>{ const ref=xrCol(c)+r; if(v===""||v==null) return `<c r="${ref}" s="${s}"/>`;
+    if(typeof v==="object"&&v.link){ links.push({ref,url:v.link}); return `<c r="${ref}" s="${S.link}" t="inlineStr"><is><t>${xrEsc(v.text||xrLinkText(v.link))}</t></is></c>`; }
+    if(typeof v==="number"&&isFinite(v)) return `<c r="${ref}" s="${s}"><v>${v}</v></c>`;
+    const t=String(v); if(/^https?:\/\/\S+$/.test(t)){ links.push({ref,url:t}); return `<c r="${ref}" s="${S.link}" t="inlineStr"><is><t>${xrEsc(xrLinkText(t))}</t></is></c>`; }
+    return `<c r="${ref}" s="${s}" t="inlineStr"><is><t xml:space="preserve">${xrEsc(t)}</t></is></c>`; };
+  const row=(cells,ht)=>{ R++; rowsX.push(`<row r="${R}"${ht?` ht="${ht}" customHeight="1"`:""}>${cells.map(([c,v,s])=>cell(R,c,v,s)).join("")}</row>`); return R; };
+  const mg=(r1,c1,r2,c2)=>{ if(r1!==r2||c1!==c2) merges.push(`<mergeCell ref="${xrCol(c1)}${r1}:${xrCol(c2)}${r2}"/>`); };
+  const orgW=Math.min(4,N-1);
+  mg(row([[0,XR_ORG1,S.org1]],15.6),0,R,orgW); mg(row([[0,XR_ORG2,S.org2]],15.6),0,R,orgW); row([]);
+  mg(row([[0,title,S.title]],title.length>90?40:22),0,R,N-1);
+  sub.forEach(s=>mg(row([[0,s,S.sub]],16.8),0,R,N-1)); row([]);
+  let hdr1=0, hdrN=0, frzC=0;
+  if(P.notes){ P.lines.filter(Boolean).forEach(l=>mg(row([[0,l,S.note]]),0,R,N-1)); }
+  else {
+    // căn lề theo cột: số → phải, ngắn → giữa, chữ dài → trái
+    const al=[]; for(let c=0;c<P.ncol;c++){ const vs=P.rows.map(r=>r[c]).filter(v=>v!==""&&v!=null&&typeof v!=="object");
+      const num=vs.length&&vs.filter(v=>typeof v==="number").length>=vs.length*0.8, avg=vs.length?vs.reduce((s,v)=>s+String(v).length,0)/vs.length:0;
+      const h=String((P.head[P.head.length-1]||[])[c]||(P.head[0]||[])[c]||"");
+      al.push(/^stt$/i.test(h)||c===0&&avg<=4?"c": num?(vs.some(v=>typeof v==="number"&&!Number.isInteger(v))?"n2":"n0") : (avg<=14?"c":"l")); }
+    P.head.forEach(h=>{ const r=row(Array.from({length:P.ncol},(_,c)=>[c,h[c]===undefined?"":h[c],S.head]),32); if(!hdr1) hdr1=r; hdrN=r; });
+    P.hm.forEach(m=>mg(hdr1+m.s.r,m.s.c,hdr1+m.e.r,m.e.c));
+    if(P.head.length===2){ for(let c=0;c<P.ncol;c++){ if(!String(P.head[1][c]||"") && !P.hm.some(m=>m.s.c<=c&&m.e.c>=c)) mg(hdr1,c,hdr1+1,c); } }
+    P.rows.forEach(r=>{ const tot=/^t[ổo]ng( cộng)?\b|^cộng\b/i.test(String(r[0]||r[1]||"").trim());
+      row(Array.from({length:P.ncol},(_,c)=>{ const v=r[c]===undefined?"":r[c]; const a=al[c];
+        return [c,v, tot ? (a==="n0"||a==="n2"?S.totN:a==="c"?S.totC:S.totL) : (a==="n0"?S.n0:a==="n2"?S.n2:a==="c"?S.c:S.l)]; }), null); });
+    const hh=Array.from({length:P.ncol},(_,c)=>String(P.head[P.head.length-1][c]||P.head[0][c]||"")); const ti=hh.findIndex(h=>/^tên|tuyến đường|họ tên|^tủ/i.test(h)); frzC=ti>=0&&ti<=5?ti+1:0;
+  }
+  // phần ký tên
+  row([]); row([]); const half=Math.max(2,Math.floor(N/2));
+  mg(row([[half,"TP.HCM, ngày ….. tháng ….. năm "+new Date().getFullYear(),S.date]]),half,R,N-1);
+  const sr=row([[1,XR_SIGN_L,S.sign],[half,XR_SIGN_R,S.sign]]); mg(sr,1,sr,Math.max(1,half-2)); mg(sr,half,sr,N-1);
+  row([]); row([]); row([]); const who=(typeof SESSION!=="undefined"&&SESSION&&SESSION.user)?(SESSION.user.fullName||SESSION.user.username):"";
+  if(who){ const nr=row([[1,who,S.sign]]); mg(nr,1,nr,Math.max(1,half-2)); }
+  // độ rộng cột
+  const W=Array.from({length:N},(_,c)=>{ let w=(P.widths||[])[c]; if(!w){ const h=String(((P.head||[[]])[ (P.head||[[]]).length-1 ]||[])[c]||""); w=Math.min(45,Math.max(8,h.length+2)); } return Math.min(60,Math.max(5,w+1)); });
+  const cols=`<cols>${W.map((w,c)=>`<col min="${c+1}" max="${c+1}" width="${w}" customWidth="1"/>`).join("")}</cols>`;
+  const pane = hdrN ? `<pane ${frzC?`xSplit="${frzC}" `:""}ySplit="${hdrN}" topLeftCell="${xrCol(frzC)}${hdrN+1}" activePane="${frzC?"bottomRight":"bottomLeft"}" state="frozen"/>` : "";
+  const hl=links.length?`<hyperlinks>${links.map((l,k)=>`<hyperlink ref="${l.ref}" r:id="rId${k+1}"/>`).join("")}</hyperlinks>`:"";
+  const xml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheetPr><pageSetUpPr fitToPage="1"/></sheetPr><sheetViews><sheetView workbookViewId="0">${pane}</sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"/>${cols}<sheetData>${rowsX.join("")}</sheetData>${merges.length?`<mergeCells count="${merges.length}">${merges.join("")}</mergeCells>`:""}${hl}<pageMargins left="0.4" right="0.4" top="0.6" bottom="0.6" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="0"/></worksheet>`;
+  return {xml, hdr1, hdrN};
+}
+const XR_STYLES=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<numFmts count="1"><numFmt numFmtId="164" formatCode="#,##0.0#"/></numFmts>
+<fonts count="7"><font><sz val="11"/><name val="Times New Roman"/></font><font><sz val="12"/><name val="Times New Roman"/></font><font><b/><sz val="12"/><name val="Times New Roman"/></font><font><b/><sz val="15"/><name val="Times New Roman"/></font><font><b/><sz val="11"/><name val="Times New Roman"/></font><font><u/><sz val="11"/><color rgb="FF0563C1"/><name val="Times New Roman"/></font><font><i/><sz val="12"/><name val="Times New Roman"/></font></fonts>
+<fills count="4"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFDDEBF7"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFF2CC"/><bgColor indexed="64"/></patternFill></fill></fills>
+<borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color auto="1"/></left><right style="thin"><color auto="1"/></right><top style="thin"><color auto="1"/></top><bottom style="thin"><color auto="1"/></bottom><diagonal/></border></borders>
+<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+<cellXfs count="18">
+<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
+<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
+<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
+<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
+<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
+<xf numFmtId="0" fontId="4" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
+<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
+<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center" wrapText="1"/></xf>
+<xf numFmtId="3" fontId="0" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="center"/></xf>
+<xf numFmtId="164" fontId="0" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="center"/></xf>
+<xf numFmtId="0" fontId="5" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
+<xf numFmtId="0" fontId="4" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center" wrapText="1"/></xf>
+<xf numFmtId="3" fontId="4" fillId="3" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="center"/></xf>
+<xf numFmtId="0" fontId="6" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center"/></xf>
+<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center"/></xf>
+<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center"/></xf>
+<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="left" vertical="top" wrapText="1"/></xf>
+<xf numFmtId="0" fontId="4" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
+</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+async function xlsSave(wb, fname, opt){
+  opt=opt||{};
+  if(typeof JSZip==="undefined"){ try{ await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"); }catch(e){} }
+  if(typeof JSZip==="undefined"){ saveBlob(new Blob([XLSX.write(wb,{bookType:"xlsx",type:"array"})]),fname); return; }
+  const base=(XR_TITLES.find(([re])=>re.test(fname))||[])[1]||"BÁO CÁO";
+  const zip=new JSZip(), sheets=[], names=wb.SheetNames||[];
+  const d=new Date(), ds=("0"+d.getDate()).slice(-2)+"/"+("0"+(d.getMonth()+1)).slice(-2)+"/"+d.getFullYear();
+  const filt=[opt.filter, (typeof activeQuan!=="undefined"&&activeQuan!=="Tất cả")?activeQuan:""].filter(Boolean).join(" · ");
+  names.forEach((nm,si)=>{ let P=xrExpand(xrParse(wb.Sheets[nm]));
+    let title=(P.titles[0]||"").replace(/\s*[–-]\s*\d{1,2}[:/].*$/,"").trim(); const extra=P.titles.slice(1).filter(t=>!/^xuất ngày|^\(ngày|^ngày xuất/i.test(t));
+    const VN={"Den tat BH 2020":"Đèn tắt còn bảo hành 2020","Van ban":"Văn bản, biên bản","Phu luc 2":"Phụ lục 2 – Driver thay thế","Chi tiet tru":"Chi tiết trụ – cần – đèn","Tong hop":"Tổng hợp","Huong dan":"Hướng dẫn"};
+    if(!title) title = names.length>1 && si>0 ? base+" – "+(VN[nm]||nm) : base;
+    title=title.toUpperCase();
+    const sub=["(Ngày "+ds+(filt?" · "+filt:"")+")",...extra];
+    const links=[]; const X=xrSheetXml(P,title,sub,links);
+    zip.file(`xl/worksheets/sheet${si+1}.xml`,X.xml);
+    if(links.length) zip.file(`xl/worksheets/_rels/sheet${si+1}.xml.rels`,`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${links.map((l,k)=>`<Relationship Id="rId${k+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="${xrEsc(l.url)}" TargetMode="External"/>`).join("")}</Relationships>`);
+    sheets.push({nm:String(nm).replace(/[\\/?*\[\]:]/g,"").slice(0,31)||("Sheet"+(si+1)), hdr1:X.hdr1, hdrN:X.hdrN}); });
+  zip.file("[Content_Types].xml",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${sheets.map((s,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join("")}</Types>`);
+  zip.file("_rels/.rels",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`);
+  zip.file("xl/workbook.xml",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${sheets.map((s,i)=>`<sheet name="${xrEsc(s.nm)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join("")}</sheets><definedNames>${sheets.map((s,i)=>s.hdr1?`<definedName name="_xlnm.Print_Titles" localSheetId="${i}">'${xrEsc(s.nm.replace(/'/g,"''"))}'!$${s.hdr1}:$${s.hdrN}</definedName>`:"").join("")}</definedNames></workbook>`);
+  zip.file("xl/_rels/workbook.xml.rels",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${sheets.map((s,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join("")}<Relationship Id="rId${sheets.length+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`);
+  zip.file("xl/styles.xml",XR_STYLES);
+  const blob=await zip.generateAsync({type:"blob",mimeType:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+  saveBlob(blob,fname);
+}
+
 /* ---------- tabs ---------- */
 function showView(name){
   $("#view-new").classList.toggle("active", name==="new");
