@@ -469,6 +469,11 @@ button.dl{border:none;}
 .ms-mapbtns button.on{background:var(--accent);} .ms-cab{font-size:16px;line-height:22px;text-align:center;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6));}
 .ms-fab{position:fixed;right:14px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:900;width:54px;height:54px;border-radius:50%;border:none;background:var(--accent);color:#1b1b1b;font-size:20px;line-height:1;box-shadow:0 4px 14px rgba(0,0,0,.35);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:inherit;}
 .ms-fab span{font-size:10px;font-weight:800;margin-top:1px;} @media (min-width:1000px){ .ms-fab{bottom:28px;right:28px;} }
+.ms-pt.drag{font-size:13px;line-height:26px;box-shadow:0 0 0 4px rgba(242,183,5,.6),0 2px 6px rgba(0,0,0,.5);cursor:grab;} .ms-pt.moved{border-color:#F2B705;}
+.ms-pa{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px;} .ms-pa button{padding:3px 8px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:11.5px;font-family:inherit;cursor:pointer;}
+.ms-k.edit{background:#F2B705;color:#1b1b1b;} .ms-main{border-top:none;margin-top:6px;} .ms-main .gps-btn.on{background:var(--accent);color:#1b1b1b;border-color:var(--accent);}
+.ms-routes{margin-top:8px;display:flex;flex-direction:column;gap:6px;} .ms-route{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--surface);flex-wrap:wrap;} .ms-route.cur{border-color:var(--accent);}
+.ms-sd{margin-top:10px;padding:10px;border:1px solid var(--border);border-radius:12px;background:var(--surface);} #msSdView{overflow-x:auto;background:#fff;border-radius:8px;padding:4px;} #msSdView svg{max-width:100%;height:auto;}
 .src-tabs{display:flex;gap:8px;margin-bottom:12px;}
 .src-tabs button{flex:1;padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 .src-tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
@@ -1053,6 +1058,14 @@ nav svg{width:21px;height:21px;}
         <div class="fl-btns" id="msOccBtns" style="display:none"><button type="button" class="gps-btn" id="msOccKeep">Ghi tạm điểm này</button><button type="button" class="gps-btn" id="msOccMore">⏱ Đo thêm 30 giây</button><button type="button" class="gps-btn" id="msOccCancel">Hủy</button></div></div>
       <div class="ms-hint" id="msHint"></div>
       <div id="msList" class="ms-list"></div>
+      <div class="ms-actions ms-main">
+        <button class="gps-btn" id="msEdit">✥ Di dời điểm</button>
+        <button class="gps-btn" id="msSaveR">💾 Lưu tuyến</button>
+        <button class="gps-btn" id="msOpenR">📂 Tuyến đã lưu</button>
+        <button class="gps-btn" id="msSd">📐 Sơ đồ đơn tuyến</button>
+      </div>
+      <div id="msRoutes" class="ms-routes" style="display:none"></div>
+      <div id="msSdBox" class="ms-sd" style="display:none"><div class="fl-head"><b>📐 Sơ đồ đơn tuyến</b><div class="fl-btns"><button class="gps-btn" id="msSdSvg">⬇ Ảnh PNG</button><button class="gps-btn" id="msSdPrint">🖨️ In</button></div></div><div id="msSdView"></div></div>
       <div class="ms-actions">
         <button class="gps-btn" id="msUndo">↶ Xóa điểm cuối</button>
         <button class="gps-btn" id="msReset">⟲ Đo lại từ đầu</button>
@@ -1873,7 +1886,7 @@ let msPts = (function(){ try{ return JSON.parse(localStorage.getItem("gnsc_measu
 let msMode="point", msWatch=null, msLast=null, msBusy=false, msTarget=null, msCur=null, msTol=(()=>{ const v=parseFloat(localStorage.getItem("gnsc_ms_tol")); return isNaN(v)?1:v; })();
 const fmtM = m => m.toLocaleString("vi-VN",{minimumFractionDigits:1,maximumFractionDigits:1});
 const fmtA = a => a<1 ? a.toLocaleString("vi-VN",{maximumFractionDigits:2}) : a.toLocaleString("vi-VN",{maximumFractionDigits:1});
-const MS_KIND={rtk:"RTK Fix",float:"RTK Float",dgps:"DGPS",avg:"Trung bình tĩnh",gps:"GPS",map:"Chọn trên bản đồ",cab:"Tọa độ tủ"};
+const MS_KIND={rtk:"RTK Fix",float:"RTK Float",dgps:"DGPS",avg:"Trung bình tĩnh",gps:"GPS",map:"Chọn trên bản đồ",cab:"Tọa độ tủ",edit:"Di dời thủ công"};
 function msSave(){ try{ localStorage.setItem("gnsc_measure", JSON.stringify(msPts)); }catch(e){} }
 function msTotal(){ let t=0; for(let i=1;i<msPts.length;i++) t+=distM(msPts[i-1],msPts[i]); return t; }
 /* ---- nguồn vị trí: GPS điện thoại hoặc máy RTK qua USB (NMEA) ---- */
@@ -1976,12 +1989,23 @@ function msMapLive(g){ if(!msMap) return; const Lf=window.L, ll=[g.lat,g.lng];
 function msMapDraw(){ if(!msMap) return; const Lf=window.L; msMarks.clearLayers();
   if(msPts.length>=2){ Lf.polyline(msPts.map(p=>[p.lat,p.lng]),{color:"#F2B705",weight:4,opacity:.95}).addTo(msMarks);
     for(let i=1;i<msPts.length;i++){ const a=msPts[i-1], b=msPts[i]; Lf.marker([(a.lat+b.lat)/2,(a.lng+b.lng)/2],{icon:Lf.divIcon({className:"ms-seglbl",html:fmtM(distM(a,b))+" m",iconSize:null}),interactive:false}).addTo(msMarks); } }
-  msPts.forEach((p,i)=>{ Lf.marker([p.lat,p.lng],{icon:Lf.divIcon({className:"ms-pt"+(i===0?" first":i===msPts.length-1?" last":"")+(p.over?" over":""),html:String(i+1),iconSize:[22,22]})}).bindTooltip(`Điểm ${i+1} · ${MS_KIND[p.kind]||"GPS"} ±${fmtA(p.acc)} m`).addTo(msMarks); }); }
+  msPts.forEach((p,i)=>{ const mk=Lf.marker([p.lat,p.lng],{draggable:msEditOn,autoPan:true,icon:Lf.divIcon({className:"ms-pt"+(i===0?" first":i===msPts.length-1?" last":"")+(p.over?" over":"")+(p.moved?" moved":"")+(msEditOn?" drag":""),html:String(i+1),iconSize:msEditOn?[30,30]:[22,22]})})
+      .bindTooltip(`${escHtml(msName(p,i))} · ${MS_KIND[p.kind]||"GPS"} ±${fmtA(p.acc)} m${p.moved?" · đã di dời":""}`).addTo(msMarks);
+    mk.on("dragend",e=>{ const ll=e.target.getLatLng(); msMovePoint(i,ll.lat,ll.lng); }); }); }
+/* ---- di dời điểm thủ công ---- */
+let msEditOn=false;
+function msName(p,i){ return p.name || (i===0?"Điểm đầu":"Điểm "+(i+1)); }
+function msMovePoint(i,lat,lng){ const p=msPts[i]; if(!p) return;
+  if(!p.moved){ p.orig={lat:p.lat,lng:p.lng,acc:p.acc,kind:p.kind}; }
+  const d=distM({lat:p.orig.lat,lng:p.orig.lng},{lat,lng}); p.lat=lat; p.lng=lng; p.moved=true; p.kind="edit"; p.acc=Math.max(p.orig.acc||0, 0.5);
+  msRender(); $("#msMsg").textContent=`✥ Đã di dời ${msName(p,i)} ${fmtM(d)} m so với vị trí đo – khoảng cách đã tính lại.`; }
+function msEditToggle(on){ msEditOn = on===undefined ? !msEditOn : on; $("#msEdit").classList.toggle("on",msEditOn); $("#msEdit").textContent=msEditOn?"✔ Xong di dời":"✥ Di dời điểm";
+  $("#msHint").textContent = msEditOn ? "Kéo các điểm đánh số trên bản đồ tới đúng vị trí (chân trụ, tủ…). Hoặc chọn ✥ ở danh sách điểm để đặt điểm vào dấu ＋ giữa bản đồ." : ""; msMapDraw(); }
 $("#msLayer").onclick=()=>{ if(!msMap) return; msMap.removeLayer(msLayers[msLayerIdx][1]); msLayerIdx=(msLayerIdx+1)%msLayers.length; msLayers[msLayerIdx][1].addTo(msMap); $("#msLayer").textContent=msLayerIdx?"🗺️":"🛰️"; $("#msLayer").title="Lớp: "+msLayers[msLayerIdx][0]; };
 $("#msFull").onclick=()=>{ const w=$("#measureScrim .ms-map-wrap"); w.classList.toggle("full"); $("#msFull").textContent=w.classList.contains("full")?"🗗":"⛶"; setTimeout(()=>msMap&&msMap.invalidateSize(),60); };
 $("#msCabs").onclick=()=>{ msCabsOn=!msCabsOn; $("#msCabs").classList.toggle("on",msCabsOn); msCabsDraw(); };
 $("#msCabIn").addEventListener("input",e=>{ const v=e.target.value, dl=$("#msCabList"), pe=(v.split("|")[1]||"").trim(), c=pe&&CABINETS.find(x=>x.pe===pe);
-  if(c){ e.target.value=""; dl.innerHTML=""; if(c.lat==null){ alert("Tủ này chưa có tọa độ."); return; } msAddPoint({lat:c.lat,lng:c.lng,acc:1,t:Date.now(),kind:"cab",name:c.n}); msFollow=false; if(msMap) msMap.setView([c.lat,c.lng],19); $("#msMsg").textContent="✔ Điểm "+msPts.length+" = tủ "+c.n+" (tọa độ dữ liệu). Đi dọc tuyến rồi đo các điểm tiếp theo."; return; }
+  if(c){ e.target.value=""; dl.innerHTML=""; if(c.lat==null){ alert("Tủ này chưa có tọa độ."); return; } msAddPoint({lat:c.lat,lng:c.lng,acc:1,t:Date.now(),kind:"cab",name:"Tủ "+c.n}); msFollow=false; if(msMap) msMap.setView([c.lat,c.lng],19); $("#msMsg").textContent="✔ Điểm "+msPts.length+" = tủ "+c.n+" (tọa độ dữ liệu). Đi dọc tuyến rồi đo các điểm tiếp theo."; return; }
   dl.innerHTML=""; if(v.trim().length<2) return; searchCabinets(v,false).list.slice(0,12).forEach(c=>{ const o=document.createElement("option"); o.value=c.n+" | "+c.pe; o.label=c.q; dl.appendChild(o); }); });
 $("#msFollow").onclick=()=>{ msFollow=true; if(msCur && msMap) msMap.setView([msCur.lat,msCur.lng],19); };
 $("#msFit").onclick=()=>{ if(!msMap||!msPts.length) return; msFollow=false; msMap.fitBounds(window.L.latLngBounds(msPts.map(p=>[p.lat,p.lng])).pad(0.25)); };
@@ -1994,8 +2018,15 @@ function msRender(){
   const list=$("#msList"); list.innerHTML=""; let cum=0;
   msPts.forEach((p,i)=>{ const seg=i?distM(msPts[i-1],p):0; cum+=seg;
     const r=document.createElement("div"); r.className="ms-row";
-    r.innerHTML=`<div><b>Điểm ${i+1}</b>${i?` · đoạn <b>+${fmtM(seg)} m</b>`:" · điểm đầu"} <span class="ms-k ${p.kind||"gps"}${p.over?" over":""}">${MS_KIND[p.kind]||"GPS"} ±${fmtA(p.acc)} m${p.n?` · ${p.n} mẫu`:""}</span><div class="ms-c">${p.lat.toFixed(7)}, ${p.lng.toFixed(7)} · ${new Date(p.t).toLocaleTimeString("vi-VN")}</div></div><div><b>${fmtM(cum)} m</b></div>`;
+    r.innerHTML=`<div><b>${i+1}. ${escHtml(msName(p,i))}</b>${i?` · đoạn <b>+${fmtM(seg)} m</b>`:" · điểm đầu"} <span class="ms-k ${p.kind||"gps"}${p.over?" over":""}">${MS_KIND[p.kind]||"GPS"} ±${fmtA(p.acc)} m${p.n?` · ${p.n} mẫu`:""}</span>${p.moved?` <span class="ms-k edit">✥ di dời ${fmtM(distM(p.orig,p))} m</span>`:""}<div class="ms-c">${p.lat.toFixed(7)}, ${p.lng.toFixed(7)} · ${new Date(p.t).toLocaleTimeString("vi-VN")}</div>
+      <div class="ms-pa"><button type="button" data-a="name" data-i="${i}">✏️ Đặt tên</button><button type="button" data-a="here" data-i="${i}">✥ Đặt vào ＋</button>${p.moved?`<button type="button" data-a="undo" data-i="${i}">↺ Vị trí đo gốc</button>`:""}<button type="button" data-a="del" data-i="${i}">🗑</button></div></div><div><b>${fmtM(cum)} m</b></div>`;
     list.prepend(r); });
+  list.querySelectorAll(".ms-pa button").forEach(b=>b.onclick=()=>{ const i=+b.dataset.i, p=msPts[i]; if(!p) return;
+    if(b.dataset.a==="name"){ const n=prompt("Tên điểm (vd: Tủ Bàn Cờ 1, Trụ 5, Mốc góc đường):", p.name||msName(p,i)); if(n===null) return; p.name=n.trim(); msRender(); }
+    if(b.dataset.a==="here"){ if(!msMap) return; msCrossShow(true); const c=msMap.getCenter(); if(!confirm(`Đặt "${msName(p,i)}" vào vị trí dấu ＋ giữa bản đồ?\n(kéo bản đồ cho ＋ trùng điểm cần đặt trước khi bấm)`)) return; msMovePoint(i,c.lat,c.lng); }
+    if(b.dataset.a==="undo"){ Object.assign(p,p.orig); delete p.orig; p.moved=false; msRender(); }
+    if(b.dataset.a==="del"){ if(!confirm("Xóa "+msName(p,i)+"?")) return; msPts.splice(i,1); msRender(); } });
+  if($("#msSdBox").style.display!=="none") msSdDraw();
   const mu=$("#msUse");
   if(msTarget){ mu.style.display=""; mu.disabled=msPts.length<2; mu.textContent=`✔ Dùng ${fmtM(tot)} m cho ô "${msTarget.label}"`; } else mu.style.display="none";
   const mp=$("#msMaps"); if(msPts.length>=2){ mp.href="https://www.google.com/maps/dir/"+msPts.slice(0,25).map(p=>p.lat.toFixed(7)+","+p.lng.toFixed(7)).join("/"); mp.style.display=""; } else mp.style.display="none";
@@ -2021,14 +2052,51 @@ function msStartWalk(){ msLast=msPts.length?msPts[msPts.length-1]:null; const li
   $("#msAdd").textContent="⏹ Dừng ghi (đang đi bộ đo…)"; }
 function msStopWalk(){ if(msWatch) msWatch(); msWatch=null; $("#msAdd").textContent="▶ Bắt đầu tự ghi khi đi bộ"; }
 $("#msTol").addEventListener("input",e=>{ msTol=Math.max(0.02,parseFloat(e.target.value)); $("#msTolV").textContent=parseFloat(e.target.value)===0?"0 (chỉ nhận RTK Fix ±2 cm)":fmtA(msTol); try{ localStorage.setItem("gnsc_ms_tol",msTol); }catch(x){} if(msCur) msLive(msCur); msSetMode(msMode); });
+function msCrossShow(on){ $("#msCross").style.display = on||msMode==="map" ? "" : "none"; }
+$("#msEdit").onclick=()=>{ msEditToggle(); msCrossShow(msEditOn); if(msEditOn && msPts.length && msMap){ msFollow=false; msMap.fitBounds(window.L.latLngBounds(msPts.map(p=>[p.lat,p.lng])).pad(0.25)); } };
+/* ---- lưu tuyến đo để đo tiếp sau ---- */
+const msRoutesGet=()=>{ try{ return JSON.parse(localStorage.getItem("gnsc_ms_routes")||"[]"); }catch(e){ return []; } };
+const msRoutesSet=a=>{ try{ localStorage.setItem("gnsc_ms_routes",JSON.stringify(a.slice(0,50))); }catch(e){ alert("Bộ nhớ máy đầy – xuất GPX/CSV để lưu."); } };
+let msRouteId=null;
+$("#msSaveR").onclick=()=>{ if(!msPts.length){ alert("Chưa có điểm đo."); return; } const all=msRoutesGet(); const cur=all.find(r=>r.id===msRouteId);
+  const n=prompt("Tên tuyến đo (vd: Tuyến cáp Bàn Cờ 1 – hẻm 16):", cur?cur.name:(msPts[0].name?msPts[0].name+" – ":"")+"Tuyến "+new Date().toLocaleDateString("vi-VN")); if(n===null) return;
+  const rec={id:msRouteId||("r"+Date.now()), name:n.trim()||"Tuyến đo", t:Date.now(), pts:JSON.parse(JSON.stringify(msPts)), total:msTotal()};
+  msRouteId=rec.id; msRoutesSet([rec,...all.filter(r=>r.id!==rec.id)]); $("#msMsg").textContent=`💾 Đã lưu "${rec.name}" (${rec.pts.length} điểm, ${fmtM(rec.total)} m). Có thể đo tiếp hoặc mở lại sau trong 📂 Tuyến đã lưu.`; msRoutesDraw(); };
+function msRoutesDraw(){ const box=$("#msRoutes"), all=msRoutesGet();
+  box.innerHTML = all.length ? all.map(r=>`<div class="ms-route${r.id===msRouteId?" cur":""}"><div><b>${escHtml(r.name)}</b><div class="who">${r.pts.length} điểm · ${fmtM(r.total||0)} m · ${new Date(r.t).toLocaleString("vi-VN")}</div></div><div class="fl-btns"><button type="button" class="gps-btn" data-o="${r.id}">▶ Mở & đo tiếp</button><button type="button" class="gps-btn" data-x="${r.id}">🗑</button></div></div>`).join("") : '<div class="who">Chưa có tuyến nào được lưu trên máy này.</div>';
+  box.querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{ const r=msRoutesGet().find(x=>x.id===b.dataset.o); if(!r) return; if(msPts.length && msRouteId!==r.id && !confirm("Mở tuyến này sẽ thay các điểm đang đo (chưa lưu sẽ mất). Tiếp tục?")) return;
+    msPts=JSON.parse(JSON.stringify(r.pts)); msRouteId=r.id; msRender(); box.style.display="none"; if(msMap){ msFollow=false; msMap.fitBounds(window.L.latLngBounds(msPts.map(p=>[p.lat,p.lng])).pad(0.25)); } $("#msMsg").textContent=`📂 Đã mở "${r.name}" – đo tiếp điểm ${msPts.length+1}.`; });
+  box.querySelectorAll("[data-x]").forEach(b=>b.onclick=()=>{ if(!confirm("Xóa tuyến đã lưu này?")) return; msRoutesSet(msRoutesGet().filter(x=>x.id!==b.dataset.x)); if(msRouteId===b.dataset.x) msRouteId=null; msRoutesDraw(); }); }
+$("#msOpenR").onclick=()=>{ const b=$("#msRoutes"); b.style.display=b.style.display==="none"?"":"none"; msRoutesDraw(); };
+/* ---- sơ đồ đơn tuyến (SVG) ---- */
+function msSdSvg(){ const N=msPts.length; if(N<1) return "";
+  const per=Math.max(2,Math.min(6, Math.floor(((document.getElementById("msSdView").clientWidth||700)-60)/120)+1)), rows=Math.ceil(N/per), W=60+(per-1)*130+60, rowH=150, H=60+rows*rowH;
+  const pos=i=>{ const r=Math.floor(i/per), k=i%per, c=r%2? per-1-k : k; return {x:60+c*130, y:88+r*rowH}; };
+  let s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" font-family="Arial" font-size="12"><rect width="100%" height="100%" fill="#fff"/>`;
+  s+=`<text x="12" y="22" font-size="14" font-weight="700" fill="#1F4E78">SƠ ĐỒ ĐƠN TUYẾN – ${escHtml((msRoutesGet().find(r=>r.id===msRouteId)||{}).name||"Tuyến đo")}</text><text x="12" y="42" fill="#333" font-weight="700">Tổng chiều dài: ${fmtM(msTotal())} m · ${N} điểm · ${N-1} đoạn</text>`;
+  let cum=0;
+  for(let i=1;i<N;i++){ const a=pos(i-1), b=pos(i), d=distM(msPts[i-1],msPts[i]); const mx=(a.x+b.x)/2, my=(a.y+b.y)/2, vert=a.x===b.x;
+    s+=`<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#E8A20A" stroke-width="4"/>`;
+    const lx = vert ? (mx+80>W ? mx-72 : mx+8) : 0;
+    s+= vert ? `<rect x="${lx}" y="${my-10}" width="64" height="20" rx="5" fill="#1F4E78"/><text x="${lx+32}" y="${my+4}" text-anchor="middle" fill="#fff" font-weight="700">${fmtM(d)} m</text>`
+             : `<rect x="${mx-34}" y="${my-30}" width="68" height="20" rx="5" fill="#1F4E78"/><text x="${mx}" y="${my-16}" text-anchor="middle" fill="#fff" font-weight="700">${fmtM(d)} m</text>`; }
+  msPts.forEach((p,i)=>{ const q=pos(i); if(i) cum+=distM(msPts[i-1],p); const nm=msName(p,i), isCab=p.kind==="cab"||/tủ/i.test(nm);
+    s+= isCab ? `<rect x="${q.x-13}" y="${q.y-13}" width="26" height="26" fill="#2E7D4F" stroke="#fff" stroke-width="2"/>` : `<circle cx="${q.x}" cy="${q.y}" r="13" fill="${i===0?"#2E7D4F":i===N-1?"#C1440E":"#1A73E8"}" stroke="#fff" stroke-width="2"/>`;
+    s+=`<text x="${q.x}" y="${q.y+4}" text-anchor="middle" fill="#fff" font-weight="700">${i+1}</text>`;
+    const lines=[nm.length>20?nm.slice(0,19)+"…":nm, "Lũy kế "+fmtM(cum)+" m"]; s+=`<text x="${q.x}" y="${q.y+30}" text-anchor="middle" fill="#111" font-weight="700">${escHtml(lines[0])}</text><text x="${q.x}" y="${q.y+45}" text-anchor="middle" fill="#555">${lines[1]}</text>${p.moved?`<text x="${q.x}" y="${q.y+58}" text-anchor="middle" fill="#C1440E" font-size="10">✥ di dời</text>`:""}`; });
+  return s+`<text x="12" y="${H-8}" fill="#888" font-size="10">CSKVTT · ${new Date().toLocaleString("vi-VN")} · sai số điểm lớn nhất ±${fmtA(msPts.reduce((m,p)=>Math.max(m,p.acc||0),0))} m</text></svg>`; }
+function msSdDraw(){ $("#msSdView").innerHTML = msPts.length ? msSdSvg() : '<div class="who">Chưa có điểm đo.</div>'; }
+$("#msSd").onclick=()=>{ const b=$("#msSdBox"); b.style.display=b.style.display==="none"?"":"none"; $("#msSd").classList.toggle("on",b.style.display!=="none"); if(b.style.display!=="none"){ msSdDraw(); b.scrollIntoView({behavior:"smooth",block:"start"}); } };
+$("#msSdSvg").onclick=()=>{ const svg=msSdSvg(); if(!svg) return; const img=new Image(); img.onload=()=>{ const c=document.createElement("canvas"); c.width=img.width*2; c.height=img.height*2; const x=c.getContext("2d"); x.scale(2,2); x.drawImage(img,0,0); c.toBlob(b=>saveBlob(b,"So_do_don_tuyen_"+todayISO()+".png"),"image/png"); }; img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg); };
+$("#msSdPrint").onclick=()=>{ const w=window.open("","_blank"); if(!w) return; let cum=0; w.document.write(`<html><head><meta charset="utf-8"><title>Sơ đồ đơn tuyến</title><style>body{font-family:Arial;margin:16px}svg{max-width:100%;height:auto}table{border-collapse:collapse;margin-top:12px;font-size:12px}td,th{border:1px solid #999;padding:4px 8px}</style></head><body>${msSdSvg()}<table><tr><th>STT</th><th>Tên điểm</th><th>Đoạn (m)</th><th>Lũy kế (m)</th><th>Tọa độ</th><th>Cách đo</th></tr>${msPts.map((p,i)=>{ const d=i?distM(msPts[i-1],p):0; cum+=d; return `<tr><td>${i+1}</td><td>${escHtml(msName(p,i))}</td><td>${i?fmtM(d):""}</td><td>${fmtM(cum)}</td><td>${p.lat.toFixed(7)}, ${p.lng.toFixed(7)}</td><td>${MS_KIND[p.kind]||"GPS"} ±${fmtA(p.acc)} m</td></tr>`; }).join("")}</table></body></html>`); w.document.close(); w.print(); };
 $("#msUndo").onclick=()=>{ msPts.pop(); if(msWatch) msLast=msPts[msPts.length-1]||null; msRender(); };
-$("#msReset").onclick=()=>{ if(msPts.length && !confirm("Xóa toàn bộ điểm đo và đo lại từ đầu?")) return; msPts=[]; msLast=null; msRender(); $("#msMsg").textContent=""; };
+$("#msReset").onclick=()=>{ if(msPts.length && !confirm("Xóa toàn bộ điểm đo và đo lại từ đầu?\n(Tuyến đã 💾 lưu vẫn còn trong 📂 Tuyến đã lưu)")) return; msPts=[]; msLast=null; msRouteId=null; msRender(); $("#msMsg").textContent=""; };
 function msSummary(){ const worst=msPts.reduce((m,p)=>Math.max(m,p.acc||0),0); return `Đo thực tế: ${fmtM(msTotal())} m (${msPts.length} điểm, sai số điểm ≤ ±${fmtA(worst)} m${msPts.length?`, từ ${msPts[0].lat.toFixed(7)},${msPts[0].lng.toFixed(7)} đến ${msPts[msPts.length-1].lat.toFixed(7)},${msPts[msPts.length-1].lng.toFixed(7)}`:""})`; }
 $("#msCopy").onclick=async ()=>{ const t=msSummary(); try{ await navigator.clipboard.writeText(t); $("#msMsg").textContent="Đã sao chép: "+t; }catch(e){ $("#msMsg").textContent=t; } };
 $("#msGpx").onclick=()=>{ if(!msPts.length) return; const ts=todayISO();
   const gpx=`<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="CSKVTT"><trk><name>Do khoang cach ${ts}</name><trkseg>\n`+msPts.map((p,i)=>`<trkpt lat="${p.lat.toFixed(8)}" lon="${p.lng.toFixed(8)}"><time>${new Date(p.t).toISOString()}</time><name>${i+1}</name><desc>${MS_KIND[p.kind]||"GPS"} ±${p.acc} m</desc></trkpt>`).join("\n")+`\n</trkseg></trk></gpx>`;
   saveBlob(new Blob([gpx],{type:"application/gpx+xml"}),"Do_khoang_cach_"+ts+".gpx");
-  let cum=0; const csv="\ufeffSTT,Vĩ độ,Kinh độ,Sai số (m),Cách đo,Số mẫu,Đoạn (m),Cộng dồn (m),Thời gian\n"+msPts.map((p,i)=>{ const s=i?distM(msPts[i-1],p):0; cum+=s; return [i+1,p.lat.toFixed(8),p.lng.toFixed(8),p.acc,MS_KIND[p.kind]||"GPS",p.n||"",s.toFixed(2),cum.toFixed(2),new Date(p.t).toLocaleString("vi-VN")].join(","); }).join("\n");
+  let cum=0; const csv="\ufeffSTT,Tên điểm,Vĩ độ,Kinh độ,Sai số (m),Cách đo,Số mẫu,Đoạn (m),Cộng dồn (m),Thời gian\n"+msPts.map((p,i)=>{ const s=i?distM(msPts[i-1],p):0; cum+=s; return [i+1,'"'+msName(p,i).replace(/"/g,"'")+'"',p.lat.toFixed(8),p.lng.toFixed(8),p.acc,MS_KIND[p.kind]||"GPS",p.n||"",s.toFixed(2),cum.toFixed(2),new Date(p.t).toLocaleString("vi-VN")].join(","); }).join("\n");
   saveBlob(new Blob([csv],{type:"text/csv"}),"Do_khoang_cach_"+ts+".csv"); };
 $("#msToIncident").onclick=()=>{ if(msPts.length<2){ $("#msMsg").textContent="Cần ít nhất 2 điểm."; return; }
   msClose(); showView("new"); const m=$("#moTa"); m.value=(m.value?m.value.trim()+"\n":"")+msSummary(); if(typeof updateSubmitState==="function") updateSubmitState(); window.scrollTo(0,0); };
