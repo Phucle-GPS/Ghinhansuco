@@ -515,6 +515,12 @@ nav button.active::after{transform:rotate(-45deg) scale(1);animation:wdBob 2.6s 
 .ms-fab{animation:wdFloat 3.2s ease-in-out infinite;} @keyframes wdFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 body.wd-off .wd-clip,body.wd-off .wd-drop{display:none !important;} body.wd-off .view.active,body.wd-off .ms-fab,body.wd-off nav button.active::after{animation:none !important;}
 @media (prefers-reduced-motion:reduce){ .wd-clip,.wd-drop{display:none !important;} .view.active,.ms-fab,nav button.active::after,.modal-scrim.show .modal-sheet{animation:none !important;} }
+.lt-sum{padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);font-size:13px;margin-bottom:6px;}
+.ltp-list{display:flex;flex-direction:column;gap:6px;} .lt-row{border:1px solid var(--border);border-radius:10px;background:var(--surface);overflow:hidden;} .lt-row.open{border-color:var(--accent);}
+.lt-h{display:flex;gap:8px;align-items:flex-start;padding:8px 10px;cursor:pointer;font-size:13px;} .lt-caret{transition:transform .2s;color:var(--accent);margin-top:1px;} .lt-row.open .lt-caret{transform:rotate(90deg);}
+.lt-d .who,.lt-h .who,.lt-sum .who{font-size:12px;color:var(--text-2);} .lt-kw{font-weight:800;color:var(--accent);white-space:nowrap;font-size:13px;} .lt-d{padding:0 10px 10px;}
+.lt-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;} .lt-chip{display:inline-block;padding:2px 7px;border-radius:999px;font-size:11.5px;border:1px solid var(--c);color:var(--c);background:color-mix(in srgb,var(--c) 10%,transparent);white-space:nowrap;}
+.lt-t td{font-size:12px;}
 .src-tabs{display:flex;gap:8px;margin-bottom:12px;}
 .src-tabs button{flex:1;padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 .src-tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
@@ -2975,8 +2981,9 @@ async function tkOpen(r){ tkCur=r;
   h+=grp("Thông tin chung",[["Quận",escHtml(r[6])],["Phường / Xã",escHtml(r[5])],["Đường",escHtml(r[4])],["Địa chỉ",escHtml(r[7])],["Tên cũ",escHtml(r[3])],["Người quản lý",escHtml(cab&&cab.ql||"—")],["Giám sát",escHtml((typeof GIAM_SAT!=="undefined"&&GIAM_SAT[r[6]])||"—")],["Chiều dài tuyến",tkFmt(r[19],"m")],["Đơn vị vận hành",escHtml(r[8])]]);
   h+=grp("Điều khiển & kết nối",[["Nhà cung cấp",escHtml(tkProv(r))],["Công nghệ",escHtml(tkTech(r))],["Loại tủ",escHtml(r[10]||"—")],["Kết nối trung tâm",escHtml(r[11]||"—")],["Thiết bị kết nối",escHtml(r[12]||"—")],["Bộ điều khiển",escHtml(r[9]||"—")],["Mã kết nối (SCP)",escHtml(r[14]||"—")],["Mã quản lý",escHtml(r[15]||"—")],["Công tác QLVH",escHtml(r[13]||"—")]]);
   ["Đèn (bộ)","Trụ","Cần","Cáp (m)"].forEach(g=>{ const items=TK_NUM.filter(x=>x[2]===g && (tkNum(r[x[1]])||x[0].startsWith("Tổng"))); h+=grp(g, items.map(([l,i,,u])=>[l,tkFmt(r[i],u)])); });
-  if(cab && cab.lt && cab.lt.length) h+=`<div class="tk-g">Lý trình (${cab.lt.length} tuyến)</div><div class="tk-lt">${cab.lt.map(l=>`<div><b>${escHtml(l[0])}</b>${l[1]?" · trụ "+escHtml(l[1]):""}<span class="who"> · ${[l[2]!=null&&l[2]!==""?Math.round(l[2])+" m":"",l[3]?l[3]+" đèn":"",l[4]?l[4]+" trụ":""].filter(Boolean).join(" · ")}</span></div>`).join("")}</div>`;
+  if(cab && cab.lt && cab.lt.length) h+=`<div id="tkLt"><div class="tk-g">Lý trình (${cab.lt.length} tuyến)</div><div class="tk-lt">${cab.lt.map(l=>`<div><b>${escHtml(l[0])}</b>${l[1]?" · trụ "+escHtml(l[1]):""}<span class="who"> · ${[l[2]!=null&&l[2]!==""?Math.round(l[2])+" m":"",l[3]?l[3]+" đèn":"",l[4]?l[4]+" trụ":""].filter(Boolean).join(" · ")}</span></div>`).join("")}</div></div>`;
   if(incs.length) h+=`<div class="tk-g">Sự cố đã ghi nhận (${incs.length})</div><div class="tk-lt">${incs.slice(0,15).map(i=>`<div>${escHtml(i.ngay||"")} · <b>${escHtml(i.trangThai||"")}</b> · ${escHtml((i.moTa||"").slice(0,90))}</div>`).join("")}</div>`;
+  if(!(cab && cab.lt && cab.lt.length)) h+=`<div id="tkLt"></div>`;
   h+=`<div id="tkBv"></div><div id="tkPoles"></div>`;
   el.innerHTML=h; $("#tkScrim").classList.add("show");
   if(can("banVe") && r[0]){ (async()=>{ if(!bvRecs) bvRecs=await hsLoad("BANVE"); const rel=(bvRecs||[]).filter(b=>(b.cabinets||[]).includes(r[0])); const box=$("#tkBv"); if(!box) return;
@@ -2996,6 +3003,7 @@ async function tkOpen(r){ tkCur=r;
   pb.innerHTML='<div class="who" style="margin-top:12px">Đang tải chi tiết trụ…</div>'; await tkEnsureDet(r[6]);
   const det = window.TK_DET ? window.TK_DET[String(r[16])] : null;
   if(!det){ pb.innerHTML='<div class="who" style="margin-top:12px">Chưa có dữ liệu chi tiết từng trụ – cần – đèn cho tủ này (dữ liệu chi tiết đã có đủ 8 quận).</div>'; return; }
+  try{ ltRender(det, cab); }catch(e){ console.error(e); }
   const pwr = window.TK_PW && window.TK_PW[String(r[16])];
   let t = pwr && Object.keys(pwr).length ? `<div class="tk-g">Đèn theo công suất</div><div class="tk-mini">${Object.entries(pwr).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<span class="ks-sum-chip">${escHtml(k)}: <b>${v}</b></span>`).join("")}</div>` : "";
   t+=`<div class="tk-g">Chi tiết trụ – cần – đèn (${det.length} trụ)</div><div class="ks-table-wrap"><table class="ks-table tk-poles"><thead><tr><th>Trụ</th><th>Tuyến / lý trình</th><th>Cao (m)</th><th>Loại trụ</th><th>Cần</th><th>Đèn</th><th></th></tr></thead><tbody>`;
@@ -4369,6 +4377,53 @@ async function xlsSave(wb, fname, opt){
   },{passive:true});
   window.wdSet=v=>{ localStorage.setItem("gnsc_wd",v?"on":"off"); document.body.classList.toggle("wd-off",!v); };
 })();
+/* ---------- CÔNG SUẤT ĐÈN THEO TỪNG LÝ TRÌNH (xem nhanh) ---------- */
+function lampParse(s){ const out=[]; String(s||"").split(/\s*;\s*/).filter(Boolean).forEach(part=>{
+  const n=+((part.match(/×\s*(\d+)/)||[])[1]||1), sp=(part.split("|")[1]||part).replace(/×\s*\d+/,"").trim(); let cat, w=null, lab, m;
+  if(/^LED/i.test(part)){ cat="LED"; if((m=sp.match(/(\d+)\s*W\s*-\s*<?\s*(\d+)\s*W/i))){ w=+m[1]; lab=`LED ${m[1]}–${m[2]}W`; } else if((m=sp.match(/(\d+)\s*W/))){ w=+m[1]; lab=`LED ${m[1]}W`; } }
+  else if(/HPS/i.test(part) && !/trang trí/i.test(part)){ cat="HPS"; if((m=sp.match(/(\d+)(?:\s*\/\s*(\d+))?\s*W/i))){ w=+m[1]; lab=m[2]?`HPS ${m[1]}/${m[2]}W`:`HPS ${m[1]}W`; } }
+  else if(/Metal Halide|^MH/i.test(part)){ cat="MH"; if((m=sp.match(/(\d+)\s*W(?:\s*-\s*(\d+)\s*W)?/i))){ w=+m[1]; lab=m[2]?`MH ${m[1]}–${m[2]}W`:`MH ${m[1]}W`; } }
+  else if(/trang trí|compact|halogen|sợi đốt/i.test(part)){ cat="Trang trí"; lab="Đèn trang trí"; }
+  else { cat="Khác"; lab=sp||"Khác"; }
+  out.push({cat, w, lab:lab||cat, n}); }); return out; }
+const LT_C={LED:"#2E7D4F",HPS:"#E8710A",MH:"#8E44AD","Trang trí":"#1A73E8","Khác":"#80868B"};
+function ltStats(poles){
+  const lamps={}, pole={}, arm={}, hs=[]; let n=0, w=0, unk=0;
+  poles.forEach(d=>{ lampParse(d[10]).forEach(l=>{ const k=l.lab; (lamps[k]=lamps[k]||{cat:l.cat,w:l.w,n:0}).n+=l.n; n+=l.n; if(l.w) w+=l.w*l.n; else unk+=l.n; });
+    if(d[6]) pole[d[6]]=(pole[d[6]]||0)+1; if(d[9]) arm[d[9]]=(arm[d[9]]||0)+1; if(d[5]) hs.push(+d[5]); });
+  return {lamps, pole, arm, n, w, unk, hmin:hs.length?Math.min(...hs):null, hmax:hs.length?Math.max(...hs):null}; }
+function ltChips(L){ return Object.entries(L).sort((a,b)=>b[1].n-a[1].n).map(([k,v])=>`<span class="lt-chip" style="--c:${LT_C[v.cat]||"#80868B"}">${escHtml(k)} <b>×${v.n}</b></span>`).join(""); }
+const ltKW=w=>w>=1000?(w/1000).toLocaleString("vi-VN",{maximumFractionDigits:2})+" kW":w+" W";
+function ltRender(det, cab){
+  const box=$("#tkLt"); if(!box || !det || !det.length) return;
+  const groups={}; det.forEach(d=>{ const k=d[2]||"(chưa ghi tuyến)"; (groups[k]=groups[k]||[]).push(d); });
+  const lt = (cab&&cab.lt&&cab.lt.length) ? cab.lt.map(l=>({code:l[0],range:l[1],len:l[2],den:l[3],tru:l[4]})) : [];
+  Object.keys(groups).forEach(k=>{ if(!lt.some(x=>x.code===k)) lt.push({code:k,range:(groups[k][0]||[])[3]||"",len:null,den:null,tru:groups[k].length}); });
+  const all=ltStats(det);
+  let t=`<div class="tk-g">⚡ Lý trình & công suất đèn (${lt.length} tuyến) <span class="who">– chạm từng tuyến để xem thông số</span></div>
+    <div class="lt-sum">Cả tủ: <b>${all.n}</b> đèn · công suất ước tính <b>${ltKW(all.w)}</b>${all.unk?` <span class="who">(+${all.unk} đèn trang trí chưa rõ W)</span>`:""}<div class="lt-chips">${ltChips(all.lamps)}</div></div><div class="ltp-list">`;
+  lt.forEach((x,i)=>{ const P=groups[x.code]||[]; const S=ltStats(P);
+    t+=`<div class="lt-row" data-i="${i}"><div class="lt-h"><span class="lt-caret">▸</span><div style="flex:1;min-width:0"><b>${escHtml(x.code)}</b>${x.range?` · trụ ${escHtml(x.range)}`:""}
+        <div class="who">${[x.len!=null&&x.len!==""?Math.round(x.len)+" m":"", (x.den||S.n)?(x.den||S.n)+" đèn":"", (x.tru||P.length)?(x.tru||P.length)+" trụ":""].filter(Boolean).join(" · ")}</div>
+        <div class="lt-chips">${ltChips(S.lamps)||'<span class="who">Chưa có dữ liệu đèn chi tiết</span>'}</div></div><div class="lt-kw">${S.w?ltKW(S.w):"—"}</div></div>
+      <div class="lt-d" style="display:none"></div></div>`; });
+  box.innerHTML=t+`</div>`;
+  box.querySelectorAll(".lt-row").forEach(row=>row.querySelector(".lt-h").onclick=()=>{ const d=row.querySelector(".lt-d"), open=d.style.display==="none";
+    row.classList.toggle("open",open); d.style.display=open?"":"none"; if(!open||d.innerHTML) return;
+    const x=lt[+row.dataset.i], P=groups[x.code]||[], S=ltStats(P), dw=[...new Set(P.map(p=>p[4]).filter(Boolean))];
+    const kv=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${escHtml(k)} <b>×${v}</b>`).join("<br>")||"—";
+    const first=P.find(p=>p[7]);
+    d.innerHTML=`<div class="tk-grid"><div><span>Tuyến / lý trình</span><b>${escHtml(x.code)}${x.range?" · trụ "+escHtml(x.range):""}</b></div><div><span>Đường</span><b>${escHtml(dw.join(", ")||"—")}</b></div>
+       <div><span>Chiều dài</span><b>${x.len!=null&&x.len!==""?Math.round(x.len).toLocaleString("vi-VN")+" m":"—"}</b></div><div><span>Số trụ / số đèn</span><b>${P.length} trụ · ${S.n} đèn</b></div>
+       <div><span>Tổng công suất ước tính</span><b>${S.w.toLocaleString("vi-VN")} W${S.w>=1000?" ("+ltKW(S.w)+")":""}</b></div><div><span>Công suất TB / đèn</span><b>${S.n-S.unk>0?Math.round(S.w/(S.n-S.unk))+" W":"—"}</b></div>
+       <div><span>Chiều cao trụ</span><b>${S.hmin!=null?(S.hmin===S.hmax?S.hmin:S.hmin+"–"+S.hmax)+" m":"—"}</b></div><div><span>Loại đèn</span><b>${kv(Object.fromEntries(Object.entries(S.lamps).map(([k,v])=>[k,v.n])))}</b></div>
+       <div><span>Loại trụ</span><b>${kv(S.pole)}</b></div><div><span>Loại cần</span><b>${kv(S.arm)}</b></div></div>
+      ${S.unk?`<div class="who" style="margin-top:4px">* ${S.unk} đèn trang trí chưa có công suất trong dữ liệu – không tính vào tổng.</div>`:""}
+      <div class="who" style="margin-top:4px">Công suất LED tính theo cận dưới của dải (vd LED 100–110W tính 100W).</div>
+      <div class="ks-table-wrap" style="margin-top:8px"><table class="ks-table lt-t"><thead><tr><th>Trụ</th><th>Cao</th><th>Loại trụ</th><th>Đèn / công suất</th><th></th></tr></thead><tbody>${P.map(p=>`<tr><td>${escHtml(p[0])}</td><td>${p[5]?p[5]:""}</td><td>${escHtml(p[6]||"")}</td><td style="text-align:left">${lampParse(p[10]).map(l=>`<span class="lt-chip" style="--c:${LT_C[l.cat]}">${escHtml(l.lab)}${l.n>1?" ×"+l.n:""}</span>`).join(" ")||"—"}</td><td>${p[7]?`<a target="_blank" rel="noopener" href="${mapsLink(p[7],p[8])}">📍</a>`:""}</td></tr>`).join("")}</tbody></table></div>
+      ${first?`<a class="gps-btn" style="margin-top:6px;display:inline-block;text-decoration:none" target="_blank" rel="noopener" href="${mapsLink(first[7],first[8])}">🗺️ Mở bản đồ đầu tuyến</a>`:""}`; });
+}
+
 /* ---------- tabs ---------- */
 function showView(name){
   $("#view-new").classList.toggle("active", name==="new");
