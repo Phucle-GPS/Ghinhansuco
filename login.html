@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="manifest" href="manifest.json">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0B1420;--surface:#16273B;--surface-2:#1D3049;--text:#EDF1F5;--text-2:#9FB0BF;--border:rgba(255,255,255,.12);--accent:#F2B705;--accent-ink:#0B1420;--err:#FF6A3D;}
 *{box-sizing:border-box}
@@ -46,6 +46,22 @@ button.primary:disabled{opacity:.5}
 .fp-tabs{display:flex;gap:6px;margin:4px 0 10px;}
 .fp-tabs button{flex:1;padding:9px 6px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text-2);font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;}
 .fp-tabs button.on{background:var(--accent);border-color:var(--accent);color:#1b1b1b;}
+</style>
+<style id="ai-login">
+:root{--bg:#070D1A;--surface:rgba(20,32,58,.62);--surface-2:rgba(32,48,82,.55);--text:#E8F0FF;--text-2:#93A6C6;--border:rgba(140,175,255,.16);--accent:#5EE7FF;--amber:#FFB547;--violet:#8B7CFF;--err:#FF6B6B;--grad:linear-gradient(120deg,#2BC4E8,#7B6CFF);}
+body{font-family:"Be Vietnam Pro",-apple-system,"Segoe UI",sans-serif !important;background:
+  radial-gradient(70vw 45vh at 8% -8%,rgba(255,181,71,.24),transparent 62%),radial-gradient(60vw 55vh at 105% 8%,rgba(94,231,255,.2),transparent 60%),
+  radial-gradient(70vw 50vh at 50% 115%,rgba(139,124,255,.22),transparent 62%),var(--bg) !important;background-attachment:fixed !important;}
+.card{padding:26px 22px;border-radius:24px;border:1px solid var(--border);background:linear-gradient(180deg,rgba(20,32,58,.7),rgba(14,24,48,.55));
+  box-shadow:0 20px 60px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06);backdrop-filter:blur(20px) saturate(150%);-webkit-backdrop-filter:blur(20px) saturate(150%);}
+.logo{box-shadow:0 0 0 1px rgba(94,231,255,.3),0 12px 34px rgba(94,231,255,.25) !important;}
+h1{font-weight:800;letter-spacing:.02em;font-size:28px !important;background:linear-gradient(100deg,var(--accent),var(--violet) 50%,var(--amber));-webkit-background-clip:text;background-clip:text;color:transparent;}
+input[type=text],input[type=password]{background:rgba(8,16,32,.55) !important;border:1px solid var(--border) !important;}
+input:focus{outline:none !important;border-color:rgba(94,231,255,.7) !important;box-shadow:0 0 0 3px rgba(94,231,255,.2);}
+button.primary{background:var(--grad) !important;color:#fff !important;border-radius:14px !important;box-shadow:0 12px 28px rgba(123,108,255,.35),inset 0 1px 0 rgba(255,255,255,.25);}
+.sheet{background:linear-gradient(180deg,#0E1830,#0B1428) !important;border:1px solid var(--border);border-bottom:none;}
+.fp-tabs button.on{background:var(--grad) !important;border-color:transparent !important;color:#fff !important;}
+.links a{color:var(--text-2) !important;}
 </style>
 </head>
 <body>
