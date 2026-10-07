@@ -480,6 +480,41 @@ button.dl{border:none;}
 .id-photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px;} .id-photos img{width:100%;height:110px;object-fit:cover;border-radius:8px;border:1px solid var(--border);}
 .id-share{margin-top:14px;padding-top:10px;border-top:1px solid var(--border);} .id-share .fl-btns{margin-top:8px;} .id-share a.gps-btn{text-decoration:none;}
 .id-nav{display:flex;justify-content:space-between;align-items:center;margin-top:12px;}
+
+/* ===== GIAO DIỆN SỐNG ĐỘNG – HIỆU ỨNG GIỌT NƯỚC ===== */
+.wd-host{position:relative;}
+.wd-clip{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;z-index:0;}
+.wd-ring,.wd-ring2,.wd-core{position:absolute;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%) scale(0);}
+.wd-core{background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.85) 0%,rgba(140,200,255,.55) 35%,rgba(26,115,232,.18) 65%,transparent 72%);animation:wdCore .55s cubic-bezier(.2,.7,.3,1) forwards;}
+.wd-ring{border:2px solid rgba(80,170,255,.75);box-shadow:0 0 8px rgba(80,170,255,.45),inset 0 0 6px rgba(255,255,255,.5);animation:wdRing .75s cubic-bezier(.15,.65,.3,1) forwards;}
+.wd-ring2{border:1.5px solid rgba(242,183,5,.7);animation:wdRing .95s .12s cubic-bezier(.15,.65,.3,1) forwards;}
+@keyframes wdCore{0%{transform:translate(-50%,-50%) scale(.1);opacity:.95}60%{opacity:.6}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
+@keyframes wdRing{0%{transform:translate(-50%,-50%) scale(.05);opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
+/* giọt nước rơi xuống điểm chạm */
+.wd-drop{position:fixed;width:12px;height:12px;margin:-6px 0 0 -6px;pointer-events:none;z-index:99999;border-radius:50% 50% 50% 0;transform:rotate(-45deg);
+  background:radial-gradient(circle at 30% 30%,#fff 0%,#9fd3ff 35%,#1A73E8 100%);box-shadow:0 2px 6px rgba(26,115,232,.45);animation:wdFall .32s ease-in forwards;}
+@keyframes wdFall{0%{transform:translateY(-34px) rotate(-45deg) scale(.6);opacity:0}30%{opacity:1}100%{transform:translateY(0) rotate(-45deg) scale(1);opacity:0}}
+.wd-press{transition:transform .12s ease;} .wd-press:active{transform:scale(.965);}
+/* thanh điều hướng: giọt nước đánh dấu mục đang mở + biểu tượng nảy */
+nav button{position:relative;transition:color .25s;}
+nav button svg{transition:transform .35s cubic-bezier(.3,1.6,.5,1);}
+nav button.active svg{transform:translateY(-3px) scale(1.12);}
+nav button::after{content:"";position:absolute;top:3px;left:50%;width:8px;height:8px;margin-left:-4px;border-radius:50% 50% 50% 0;transform:rotate(-45deg) scale(0);
+  background:radial-gradient(circle at 30% 30%,#fff 0%,var(--accent) 60%);transition:transform .35s cubic-bezier(.3,1.6,.5,1);}
+nav button.active::after{transform:rotate(-45deg) scale(1);animation:wdBob 2.6s ease-in-out infinite;}
+@keyframes wdBob{0%,100%{top:3px}50%{top:0}}
+/* chuyển màn hình mượt */
+.view.active{animation:wdView .32s ease both;}
+@keyframes wdView{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.modal-scrim.show .modal-sheet{animation:wdSheet .32s cubic-bezier(.2,.8,.3,1) both;}
+@keyframes wdSheet{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+/* thẻ nổi nhẹ khi rê chuột (máy tính) */
+@media (hover:hover){ .tk-card,.inc-card,.cab-card,.ks-rec,.lg-item,.st-card,.bv-q{transition:transform .2s ease,box-shadow .2s ease;} .tk-card:hover,.inc-card:hover,.cab-card:hover,.ks-rec:hover,.lg-item:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.12);} }
+.chip.active,.sc-tabs button.on,.hp-chip.on{animation:wdPop .3s cubic-bezier(.3,1.6,.5,1);}
+@keyframes wdPop{0%{transform:scale(.9)}100%{transform:scale(1)}}
+.ms-fab{animation:wdFloat 3.2s ease-in-out infinite;} @keyframes wdFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+body.wd-off .wd-clip,body.wd-off .wd-drop{display:none !important;} body.wd-off .view.active,body.wd-off .ms-fab,body.wd-off nav button.active::after{animation:none !important;}
+@media (prefers-reduced-motion:reduce){ .wd-clip,.wd-drop{display:none !important;} .view.active,.ms-fab,nav button.active::after,.modal-scrim.show .modal-sheet{animation:none !important;} }
 .src-tabs{display:flex;gap:8px;margin-bottom:12px;}
 .src-tabs button{flex:1;padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 .src-tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
@@ -1190,6 +1225,7 @@ nav svg{width:21px;height:21px;}
       <div class="guide-h">Đổi mật khẩu</div>
       <div class="field"><input type="password" id="pwOld" placeholder="Mật khẩu hiện tại" autocomplete="current-password"></div>
       <div class="field"><input type="password" id="pwNew" placeholder="Mật khẩu mới (tối thiểu 6 ký tự)" autocomplete="new-password"></div>
+      <label class="au-active" style="margin:4px 0 10px"><input type="checkbox" id="wdOn"> 💧 Hiệu ứng giọt nước & chuyển động khi chạm</label>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="gps-btn" id="pwSave">Lưu mật khẩu mới</button><button class="gps-btn" id="pwForgot">🔑 Quên mật khẩu hiện tại?</button></div>
       <div class="gps-result" id="pwMsg"></div>
       <div class="bk-box" id="pfBox" style="display:none">
@@ -4009,6 +4045,7 @@ async function bioVerify(){ const b=bioInfo(); if(!b||!window.PublicKeyCredentia
   try{ await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)), allowCredentials:[{type:"public-key", id:b64uBytes(b.credId)}], userVerification:"required", timeout:60000}}); return true; }catch(e){ return false; } }
 function deviceLabel(){ const u=navigator.userAgent; return (/iPhone|iPad/.test(u)?"iPhone/iPad":/Android/.test(u)?"Android":/Mac/.test(u)?"Mac":/Windows/.test(u)?"Windows":"Thiết bị")+" · "+new Date().toLocaleDateString("vi-VN"); }
 /* quên mật khẩu hiện tại (trong mục Tài khoản) */
+$("#wdOn").checked = localStorage.getItem("gnsc_wd")!=="off"; $("#wdOn").onchange=e=>wdSet(e.target.checked);
 $("#pwForgot").onclick=()=>{
   const u=SESSION.user, box=$("#pfBox"); box.style.display = box.style.display==="none" ? "" : "none"; $("#pfMsg").textContent="";
   if(u.role==="admin"){ $("#pfNote").innerHTML="Tài khoản <b>Quản trị</b>: nhận <b>mã OTP</b> qua Gmail khôi phục rồi tạo mật khẩu mới, không cần mật khẩu cũ."; $("#pfAdmin").style.display=""; $("#pfReq").style.display="none"; }
@@ -4312,6 +4349,26 @@ async function xlsSave(wb, fname, opt){
   saveBlob(blob,fname);
 }
 
+
+/* ===== HIỆU ỨNG GIỌT NƯỚC KHI CHẠM ===== */
+(function(){
+  const SEL="button,a.gps-btn,label.gps-btn,.chip,.hp-chip,.tk-card,.inc-card,.cab-card,.ks-rec,.lg-item,.bv-w,.bv-card,.st-step,.sc-tabs button,nav button,.mclose,summary,.ms-fab,.user-row,.ks-form-card,.ks-card,.inc-view,.fl-card,.hs-file";
+  const on=()=>localStorage.getItem("gnsc_wd")!=="off";
+  if(!on()) document.body.classList.add("wd-off");
+  document.addEventListener("pointerdown",e=>{
+    if(!on() || e.button>0) return;
+    const el=e.target.closest&&e.target.closest(SEL); if(!el || el.disabled) return;
+    const cs=getComputedStyle(el); if(cs.position==="static") el.classList.add("wd-host");
+    let clip=el.querySelector(":scope > .wd-clip"); if(!clip){ clip=document.createElement("span"); clip.className="wd-clip"; el.appendChild(clip); }
+    const r=el.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top;
+    const d=Math.max(Math.hypot(x,y),Math.hypot(r.width-x,y),Math.hypot(x,r.height-y),Math.hypot(r.width-x,r.height-y))*2;
+    [["wd-core",d*0.9],["wd-ring",d],["wd-ring2",d*1.15]].forEach(([c,s])=>{ const sp=document.createElement("span"); sp.className=c; sp.style.cssText=`left:${x}px;top:${y}px;width:${s}px;height:${s}px`; clip.appendChild(sp); setTimeout(()=>sp.remove(),1150); });
+    const dr=document.createElement("span"); dr.className="wd-drop"; dr.style.left=e.clientX+"px"; dr.style.top=e.clientY+"px"; document.body.appendChild(dr); setTimeout(()=>dr.remove(),360);
+    if(navigator.vibrate && localStorage.getItem("gnsc_wdv")!=="off"){ try{ navigator.vibrate(6); }catch(_){} }
+    if(!el.classList.contains("wd-press")) el.classList.add("wd-press");
+  },{passive:true});
+  window.wdSet=v=>{ localStorage.setItem("gnsc_wd",v?"on":"off"); document.body.classList.toggle("wd-off",!v); };
+})();
 /* ---------- tabs ---------- */
 function showView(name){
   $("#view-new").classList.toggle("active", name==="new");
