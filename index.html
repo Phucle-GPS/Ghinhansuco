@@ -767,6 +767,76 @@ h2{letter-spacing:-.01em;}
 @media (min-width:1000px){ nav{max-width:520px !important;} }
 @media (prefers-reduced-motion:reduce){ header h1 span{animation:none;background-position:0 0;} }
 </style>
+<style id="hub-style">
+/* ============ TRANG CHỦ – MENU VÒNG CUNG ============ */
+#view-home{padding-top:6px;}
+body.home-on #quanChips{display:none !important;}
+.hub-hello{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin:2px 2px 4px;}
+.hub-hello b{font-size:17px;font-weight:800;letter-spacing:-.01em;}
+.hub-hello small{display:block;color:var(--text-2);font-size:12px;margin-top:2px;}
+.hub-hello .hub-date{font-size:11.5px;color:var(--text-2);text-align:right;white-space:nowrap;}
+.hub{position:relative;width:100%;max-width:560px;margin:0 auto;aspect-ratio:400/440;user-select:none;-webkit-user-select:none;}
+.hub svg.hub-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;}
+.hub .seg{transition:opacity .3s, filter .3s, transform .35s;transform-box:view-box;}
+.hub.has-sel .seg{opacity:.38;}
+.hub.has-sel .seg.on{opacity:1;filter:drop-shadow(0 0 8px var(--sc));}
+.hub .seg-n{font:800 13px "Be Vietnam Pro",sans-serif;fill:#fff;text-anchor:middle;dominant-baseline:central;letter-spacing:.02em;}
+.hub .arr{stroke:#FF5A6E;stroke-width:2.2;stroke-linecap:round;fill:none;opacity:.75;transition:opacity .3s;}
+.hub .arr-h{fill:#FF5A6E;opacity:.85;}
+.hub.has-sel .arr,.hub.has-sel .arr-h{opacity:.18;}
+.hub.has-sel .arr.on,.hub.has-sel .arr-h.on{opacity:1;}
+.hub .orbit{fill:none;stroke:color-mix(in srgb,var(--accent) 22%,transparent);stroke-width:1;stroke-dasharray:2 6;}
+/* phím trung tâm */
+.hub-key{position:absolute;transform:translate(-50%,-50%);width:33%;aspect-ratio:1;border:none;padding:0;cursor:pointer;background:none;font-family:inherit;z-index:2;}
+.hub-key .cap{position:absolute;inset:0;border-radius:24%;
+  background:linear-gradient(160deg,color-mix(in srgb,var(--solid) 70%,#fff 30%),var(--solid) 55%);
+  box-shadow:0 14px 0 -2px color-mix(in srgb,var(--solid) 70%,#000 30%),0 18px 34px rgba(0,0,0,.45),inset 0 2px 0 rgba(255,255,255,.35),0 0 0 1px var(--border),0 0 38px color-mix(in srgb,var(--accent) 30%,transparent);
+  transform:perspective(500px) rotateX(10deg) rotateY(-12deg);transition:transform .25s;}
+.hub-key .face{position:absolute;inset:9%;border-radius:20%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:6%;
+  background:radial-gradient(120% 90% at 30% 15%,color-mix(in srgb,var(--accent) 16%,transparent),transparent 60%),linear-gradient(180deg,color-mix(in srgb,var(--surface-2) 90%,transparent),var(--surface));
+  border:1px solid var(--border);}
+.hub-key:active .cap{transform:perspective(500px) rotateX(10deg) rotateY(-12deg) translateY(6px);}
+.hub-key .k1{font-size:clamp(8px,2.4vw,11px);font-weight:700;color:var(--text-2);line-height:1.25;}
+.hub-key .k2{font-size:clamp(17px,5.4vw,25px);font-weight:900;letter-spacing:.02em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;margin-top:3px;}
+.hub-key .k3{font-size:clamp(14px,4vw,20px);margin-bottom:2px;filter:drop-shadow(0 0 8px var(--amber));animation:hubBulb 2.8s ease-in-out infinite;}
+@keyframes hubBulb{0%,100%{opacity:.75}50%{opacity:1}}
+/* các mục quanh vòng cung */
+.hub-it{position:absolute;transform:translate(calc(var(--icw,48px) / -2),-50%);display:flex;align-items:center;gap:8px;border:none;background:none;padding:0;color:var(--text);font-family:inherit;cursor:pointer;text-align:left;z-index:2;}
+.hub.anim .hub-it > span{animation:hubIn .5s cubic-bezier(.2,1.4,.4,1) backwards;animation-delay:inherit;}
+.hub-it .ic{flex:0 0 auto;width:clamp(42px,12.5vw,54px);height:clamp(42px,12.5vw,54px);border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--c) 55%,#fff 10%),color-mix(in srgb,var(--c) 85%,#000 15%));color:#fff;
+  box-shadow:0 6px 18px color-mix(in srgb,var(--c) 45%,transparent),inset 0 1px 0 rgba(255,255,255,.4),0 0 0 3px color-mix(in srgb,var(--c) 22%,transparent);transition:transform .3s cubic-bezier(.3,1.6,.5,1),box-shadow .3s;}
+.hub-it .ic svg{width:46%;height:46%;}
+.hub-it .lb{display:flex;flex-direction:column;min-width:0;}
+.hub-it .lb b{font-size:clamp(12.5px,3.6vw,15px);font-weight:800;line-height:1.15;white-space:nowrap;}
+.hub-it .lb small{font-size:clamp(9.5px,2.7vw,11px);color:var(--text-2);line-height:1.25;margin-top:2px;max-width:30vw;}
+@media (min-width:560px){ .hub-it .lb small{max-width:150px;} }
+.hub-it.on .ic{transform:scale(1.14);box-shadow:0 0 0 3px var(--c),0 0 26px var(--c);}
+.hub.has-sel .hub-it:not(.on){opacity:.55;}
+.hub-it .lb b::after{content:" ›";color:var(--c);opacity:0;transition:opacity .2s;}
+.hub-it.on .lb b::after{opacity:1;}
+@keyframes hubIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+/* bảng mục con ẩn */
+.hub-sub{max-width:560px;margin:4px auto 0;border-radius:20px;padding:14px;background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);
+  backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);position:relative;overflow:hidden;animation:hubSub .35s ease both;}
+.hub-sub::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c);box-shadow:0 0 14px var(--c);}
+@keyframes hubSub{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.hub-sub .hs-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.hub-sub .hs-n{flex:0 0 auto;width:34px;height:34px;border-radius:11px;background:var(--c);color:#fff;font-weight:900;font-size:13px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px color-mix(in srgb,var(--c) 50%,transparent);}
+.hub-sub .hs-t{flex:1;min-width:0;} .hub-sub .hs-t b{font-size:15.5px;font-weight:800;display:block;} .hub-sub .hs-t small{color:var(--text-2);font-size:12px;}
+.hub-sub .hs-x{border:1px solid var(--border);background:var(--surface-2);color:var(--text-2);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;flex:0 0 auto;}
+.hub-sub .hs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;}
+.hub-sub .hs-btn{display:flex;align-items:center;gap:8px;text-align:left;padding:11px 12px;border-radius:14px;border:1px solid color-mix(in srgb,var(--c) 35%,var(--border));
+  background:linear-gradient(135deg,color-mix(in srgb,var(--c) 16%,transparent),transparent 70%),var(--surface-2);color:var(--text);font:600 13.5px "Be Vietnam Pro",sans-serif;cursor:pointer;animation:hubSub .35s ease both;}
+.hub-sub .hs-btn:active{transform:scale(.97);}
+.hub-sub .hs-btn i{font-style:normal;font-size:17px;}
+.hub-tip{text-align:center;color:var(--text-2);font-size:12px;margin:10px 0 2px;}
+.hub-stats{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px auto 0;max-width:560px;}
+.hub-stats span{font-size:11.5px;padding:5px 10px;border-radius:100px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-2);}
+.hub-stats span b{color:var(--text);}
+body.wd-off .hub-it,body.wd-off .hub-key .k3{animation:none !important;}
+@media (prefers-reduced-motion:reduce){ .hub-it,.hub-sub,.hub-sub .hs-btn,.hub-key .k3{animation:none !important;} }
+</style>
 </head>
 <body>
 <div id="app">
@@ -801,8 +871,15 @@ h2{letter-spacing:-.01em;}
       <button data-v="map" id="scMap">🗺️ Bản đồ</button>
       <button data-v="st">📒 Sổ tay sửa chữa</button>
     </div>
+    <!-- TRANG CHỦ -->
+    <section class="view active" id="view-home">
+      <div class="hub-hello"><div><b id="hubHi">Xin chào 👋</b><small>Chọn một mục quanh vòng cung để mở các chức năng con</small></div><div class="hub-date" id="hubDate"></div></div>
+      <div class="hub" id="hub"></div>
+      <div id="hubSub"></div>
+      <div class="hub-stats" id="hubStats"></div>
+    </section>
     <!-- GHI NHAN VIEW -->
-    <section class="view active" id="view-new">
+    <section class="view" id="view-new">
       <div id="offlineNote" class="offline-note" style="display:none">Không kết nối được máy chủ — kiểm tra mạng rồi tải lại trang.</div>
 
       <div id="pickStep">
@@ -1040,7 +1117,11 @@ h2{letter-spacing:-.01em;}
   </main>
 
   <nav>
-    <button class="active" id="tabNew">
+    <button class="active" id="tabHome">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="12" r="3"/><path d="M12 4a9 9 0 0 1 0 16"/><circle cx="18.5" cy="6.5" r="1.6"/><circle cx="20.5" cy="12" r="1.6"/><circle cx="18.5" cy="17.5" r="1.6"/></svg>
+      Trang chủ
+    </button>
+    <button id="tabNew">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
       <span class='nl'>Sự cố</span>
     </button>
@@ -4542,6 +4623,7 @@ function ltRender(det, cab){
 
 /* ---------- tabs ---------- */
 function showView(name){
+  $("#view-home").classList.toggle("active", name==="home"); $("#tabHome").classList.toggle("active", name==="home"); document.body.classList.toggle("home-on", name==="home"); if(name!=="home") window.scrollTo(0,0);
   $("#view-new").classList.toggle("active", name==="new");
   $("#view-list").classList.toggle("active", name==="list");
   $("#view-map").classList.toggle("active", name==="map");
@@ -4565,6 +4647,101 @@ $("#tabNew").onclick=()=>{ if(["new","list","map","st"].some(v=>$("#view-"+v).cl
 $("#scTabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{ try{localStorage.setItem("gnsc_sc",b.dataset.v);}catch(e){} ({new:()=>showView("new"), list:()=>$("#tabList").click(), map:()=>$("#tabMap").click(), st:()=>{ showView("st"); stRender(); }})[b.dataset.v](); });
 $("#tabList").onclick=()=>{showView("list"); renderIncList();};
 $("#tabMap").onclick=()=>{showView("map"); initMap();};
+
+/* ---------- TRANG CHỦ: menu vòng cung, mục con ẩn bên trong ---------- */
+const HUB_IC={
+ sc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>',
+ ks:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2h6V3M9 10h6M9 14h6M9 18h3"/></svg>',
+ tk:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+ led:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/></svg>',
+ fl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
+ cc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/></svg>'
+};
+function hubSc(v){ const b=$('#scTabs button[data-v="'+v+'"]'); if(b) b.click(); }
+function hubHs(t){ showView("bv"); hsTab=t; hsRender(); }
+function hubLed(v){ $("#tabLed").click(); const b=$('#ledTabs button[data-v="'+v+'"]'); if(b) b.click(); }
+const HUB=[
+ {k:"sc",t:"Sự cố",d:"Ghi nhận, danh sách, bản đồ, sổ tay",c:"#2F6BFF",subs:[
+   {i:"📝",t:"Ghi nhận mới",go:()=>hubSc("new")},
+   {i:"📋",t:"Danh sách sự cố",go:()=>hubSc("list")},
+   {i:"🖥️",t:"Sự cố tủ SCP",ok:()=>can("xemSCP"),go:()=>{ activeSource="scp"; try{localStorage.setItem("gnsc_src","scp");}catch(e){} hubSc("list"); }},
+   {i:"🗺️",t:"Bản đồ tủ",ok:()=>can("xemBanDo"),go:()=>hubSc("map")},
+   {i:"📒",t:"Sổ tay sửa chữa",go:()=>hubSc("st")}]},
+ {k:"ks",t:"Khảo sát",d:"Khảo sát duy tu, biên bản",c:"#22B8E6",ok:()=>can("khaoSat"),subs:[
+   {i:"📋",t:"Danh mục mẫu khảo sát",go:()=>{ ksMau=null; $("#tabKs").click(); }},
+   {i:"📝",t:"Biên bản hiện trường",go:async()=>{ await $("#tabKs").onclick(); ksMau=17; ksRenderList(); }}]},
+ {k:"tk",t:"Thống kê",d:"Tủ điều khiển, HS công trình",c:"#17C3A2",ok:()=>can("thongKe"),subs:[
+   {i:"📊",t:"Thống kê tủ",go:()=>$("#tabTk").click()},
+   {i:"📐",t:"Bản vẽ & hồ sơ",ok:()=>can("banVe"),go:()=>hubHs("bv")},
+   {i:"🧾",t:"Thông số kỹ thuật",ok:()=>can("banVe"),go:()=>hubHs("ts")},
+   {i:"🔧",t:"Hồ sơ sửa chữa",ok:()=>can("banVe"),go:()=>hubHs("sc")}]},
+ {k:"led",t:"Theo dõi LED",d:"Bảo hành, văn bản, driver",c:"#7FCF3F",ok:()=>can("theoDoiLed"),subs:[
+   {i:"📊",t:"Tổng quan",go:()=>hubLed("tong")},
+   {i:"💡",t:"Tuyến LED",go:()=>hubLed("tuyen")},
+   {i:"📄",t:"Văn bản",go:()=>hubLed("vb")},
+   {i:"⚠️",t:"Cần xử lý",go:()=>hubLed("viec")},
+   {i:"🔧",t:"Driver",go:()=>hubLed("driver")},
+   {i:"⚖️",t:"Căn cứ pháp lý",go:()=>hubLed("luat")}]},
+ {k:"fl",t:"File Lưu",d:"Kho tài liệu, tải lên",c:"#FFA53A",ok:()=>can("xemFile"),subs:[
+   {i:"📂",t:"Kho file lưu",go:()=>$("#tabFiles").click()},
+   {i:"⬆️",t:"Tải file lên",ok:()=>can("taiLenFile"),go:()=>{ $("#tabFiles").click(); setTimeout(()=>{ const u=$("#flUpload"); if(u) u.scrollIntoView({behavior:"smooth",block:"center"}); },120); }}]},
+ {k:"cc",t:"Công cụ",d:"Đo RTK, tài khoản, hướng dẫn",c:"#FF5C8A",subs:[
+   {i:"📏",t:"Đo khoảng cách RTK",ok:()=>can("doKhoangCach"),go:()=>$("#msFab").click()},
+   {i:"⚙️",t:"Tài khoản & giao diện",go:()=>$("#accountBtn").click()},
+   {i:"📖",t:"Hướng dẫn sử dụng",go:()=>$("#helpBtn").click()},
+   {i:"⛶",t:"Toàn màn hình",go:()=>$("#fsBtn").click()}]}
+];
+let hubSel=null;
+function hubItems(){ return HUB.filter(x=>!x.ok||x.ok()).map(x=>Object.assign({},x,{subs:x.subs.filter(s=>!s.ok||s.ok())})).filter(x=>x.subs.length); }
+function hubArc(cx,cy,r1,r2,a0,a1){ const R=Math.PI/180, p=(r,a)=>[cx+r*Math.cos(a*R),cy+r*Math.sin(a*R)], L=(a1-a0)>180?1:0;
+  const [x1,y1]=p(r2,a0),[x2,y2]=p(r2,a1),[x3,y3]=p(r1,a1),[x4,y4]=p(r1,a0);
+  return `M${x1.toFixed(1)} ${y1.toFixed(1)}A${r2} ${r2} 0 ${L} 1 ${x2.toFixed(1)} ${y2.toFixed(1)}L${x3.toFixed(1)} ${y3.toFixed(1)}A${r1} ${r1} 0 ${L} 0 ${x4.toFixed(1)} ${y4.toFixed(1)}Z`; }
+function homeRender(){
+  const el=$("#hub"); if(!el) return;
+  const W=400,H=440,cx=74,cy=220,r1=124,r2=156,r3=202,rk=94;
+  const its=hubItems(), n=its.length; if(hubSel && !its.some(x=>x.k===hubSel)) hubSel=null;
+  const A=n>1?66:0, step=n>1?2*A/(n-1):40, half=Math.min(step/2,22);
+  const R=Math.PI/180;
+  let svg=`<svg class="hub-svg" viewBox="0 0 ${W} ${H}" aria-hidden="true"><defs>`;
+  its.forEach((x,i)=>{ svg+=`<linearGradient id="hg${i}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${x.c}" stop-opacity=".95"/><stop offset="1" stop-color="${x.c}" stop-opacity=".7"/></linearGradient>`; });
+  svg+=`</defs><circle class="orbit" cx="${cx}" cy="${cy}" r="${r3}"/><circle class="orbit" cx="${cx}" cy="${cy}" r="${(r1+r2)/2+40}" style="opacity:.0"/>`;
+  let html="";
+  its.forEach((x,i)=>{
+    const a=-A+i*step, on=hubSel===x.k?" on":"";
+    svg+=`<g class="seg${on}" style="--sc:${x.c}"><path d="${hubArc(cx,cy,r1,r2,a-half+1.2,a+half-1.2)}" fill="url(#hg${i})"/>`+
+      `<text class="seg-n" x="${(cx+(r1+r2)/2*Math.cos(a*R)).toFixed(1)}" y="${(cy+(r1+r2)/2*Math.sin(a*R)).toFixed(1)}">${String(i+1).padStart(2,"0")}</text></g>`;
+    const ax=cx+rk*Math.cos(a*R), ay=cy+rk*Math.sin(a*R), bx=cx+(r1-6)*Math.cos(a*R), by=cy+(r1-6)*Math.sin(a*R);
+    const hx=cx+(r1-1)*Math.cos(a*R), hy=cy+(r1-1)*Math.sin(a*R), px=-Math.sin(a*R)*4.5, py=Math.cos(a*R)*4.5;
+    svg+=`<line class="arr${on}" x1="${ax.toFixed(1)}" y1="${ay.toFixed(1)}" x2="${bx.toFixed(1)}" y2="${by.toFixed(1)}"/><path class="arr-h${on}" d="M${hx.toFixed(1)} ${hy.toFixed(1)}L${(bx+px).toFixed(1)} ${(by+py).toFixed(1)}L${(bx-px).toFixed(1)} ${(by-py).toFixed(1)}Z"/>`;
+    const ix=cx+r3*Math.cos(a*R), iy=cy+r3*Math.sin(a*R);
+    html+=`<button type="button" class="hub-it${on}" data-k="${x.k}" style="--c:${x.c};left:${(ix/W*100).toFixed(2)}%;top:${(iy/H*100).toFixed(2)}%;animation-delay:${i*70}ms" aria-label="${escHtml(x.t)}">`+
+      `<span class="ic">${HUB_IC[x.k]||""}</span><span class="lb"><b>${escHtml(x.t)}</b><small>${escHtml(x.d)}</small></span></button>`;
+  });
+  svg+=`</svg>`;
+  el.classList.toggle("has-sel",!!hubSel); el.classList.toggle("anim",!el.dataset.done); el.dataset.done="1";
+  el.innerHTML=svg+`<button type="button" class="hub-key" id="hubKey" style="left:${(cx/W*100).toFixed(2)}%;top:${(cy/H*100).toFixed(2)}%" title="Hệ thống chiếu sáng đô thị – CSKVTT"><span class="cap"></span><span class="face"><span class="k3">💡</span><span class="k1">Hệ thống chiếu sáng đô thị</span><span class="k2">CSKVTT</span></span></button>`+html;
+  // icon tròn nằm đúng trên quỹ đạo: dịch nút sang phải nửa icon
+  el.querySelectorAll(".hub-it").forEach(b=>{ b.onclick=()=>{ hubSel = hubSel===b.dataset.k ? null : b.dataset.k; homeRender(); if(hubSel){ const s=$("#hubSub"); setTimeout(()=>{ if(s.getBoundingClientRect().top>innerHeight-140) s.scrollIntoView({behavior:"smooth",block:"nearest"}); },60); } }; });
+  const ic=el.querySelector(".hub-it .ic"); if(ic) el.style.setProperty("--icw", ic.offsetWidth+"px");
+  $("#hubKey").onclick=()=>{ hubSel=null; homeRender(); };
+  hubSubRender(its);
+  try{ const u=SESSION&&SESSION.user; $("#hubHi").textContent="Xin chào, "+((u&&(u.fullName||u.username))||"bạn")+" 👋"; }catch(e){}
+  try{ const d=new Date(); $("#hubDate").innerHTML=["CN","T2","T3","T4","T5","T6","T7"][d.getDay()]+", "+d.toLocaleDateString("vi-VN")+"<br>"+(QUANS.length-1)+" quận"; }catch(e){}
+  try{ const nInc=(typeof incidents!=="undefined"&&incidents)?incidents.filter(i=>!/xong|đã xử lý|hoàn thành/i.test(i.trangThai||i.status||"")).length:null;
+    $("#hubStats").innerHTML=`<span>🗄️ Tủ điều khiển: <b>${CABINETS.length}</b></span><span>👷 Quản lý: <b>${(typeof MANAGERS!=="undefined"&&MANAGERS.length)||"—"}</b></span>`+(nInc!=null?`<span>⚡ Sự cố đang mở: <b>${nInc}</b></span>`:""); }catch(e){}
+}
+function hubSubRender(its){
+  const box=$("#hubSub"); const x=(its||hubItems()).find(z=>z.k===hubSel);
+  if(!x){ box.innerHTML=`<div class="hub-tip">👆 Chạm vào một mục để xem các chức năng bên trong</div>`; return; }
+  const idx=(its||hubItems()).indexOf(x)+1;
+  box.innerHTML=`<div class="hub-sub" style="--c:${x.c}"><div class="hs-top"><span class="hs-n">${String(idx).padStart(2,"0")}</span><div class="hs-t"><b>${escHtml(x.t)}</b><small>${escHtml(x.d)}</small></div><button type="button" class="hs-x" aria-label="Đóng">✕</button></div>`+
+    `<div class="hs-grid">`+x.subs.map((s,j)=>`<button type="button" class="hs-btn" data-j="${j}" style="animation-delay:${j*45}ms"><i>${s.i}</i>${escHtml(s.t)}</button>`).join("")+`</div></div>`;
+  box.querySelector(".hs-x").onclick=()=>{ hubSel=null; homeRender(); };
+  box.querySelectorAll(".hs-btn").forEach(b=>b.onclick=()=>{ const s=x.subs[+b.dataset.j]; try{ s.go(); }catch(e){ console.error(e); } });
+}
+$("#tabHome").onclick=()=>{ showView("home"); homeRender(); };
+window.addEventListener("resize",()=>{ if($("#view-home").classList.contains("active")){ const el=$("#hub"), ic=el&&el.querySelector(".hub-it .ic"); if(ic) el.style.setProperty("--icw", ic.offsetWidth+"px"); } });
+try{ showView("home"); homeRender(); }catch(e){}
 
 /* ---------- bản đồ tủ điều khiển ---------- */
 const QUAN_COLORS = {
@@ -4758,7 +4935,7 @@ async function api(action, payload){
 }
 async function loadIncidents(){
   const r = await api("listIncidents");
-  if(r.ok){ incidents = r.incidents || []; renderIncList(); incDeepLink(); }
+  if(r.ok){ incidents = r.incidents || []; renderIncList(); incDeepLink(); try{ if($("#view-home").classList.contains("active")) homeRender(); }catch(e){} }
 }
 /* ---------- XEM CHI TIẾT & CHIA SẺ SỰ CỐ ---------- */
 const APP_LINK="https://phucle-gps.github.io/Ghinhansuco/index.html";
@@ -4875,6 +5052,7 @@ function applyUser(u){
     $("#photoBtn").disabled=true; $("#gpsBtn").disabled=true;
   }
   const permNames = PERMS.filter(p=>can(p[0])).map(p=>p[1]);
+  try{ homeRender(); }catch(e){}
   $("#acctInfo").textContent += u.role==="admin" ? " · Toàn quyền" : " · Được phép: " + (permNames.join(", ")||"không có");
 }
 
