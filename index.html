@@ -994,7 +994,7 @@ body.wd-off .hub-tide{animation:none;}
     </div>
     <!-- TRANG CHỦ -->
     <section class="view active" id="view-home">
-      <div class="hub-hello"><div><b id="hubHi">Xin chào 👋</b><small>Chọn một mục quanh vòng cung để mở các chức năng con</small></div><div style="text-align:right"><div class="hub-date" id="hubDate"></div><button type="button" class="hub-mode" id="hubMode">◐ Vòng cung</button></div></div>
+      <div class="hub-hello"><div><b id="hubHi">Xin chào 👋</b><small>Chọn một mục quanh vòng cung để mở các chức năng con</small></div><div style="text-align:right"><div class="hub-date" id="hubDate"></div><button type="button" class="hub-mode" id="hubMode" style="display:none">◐ Vòng cung</button></div></div>
       <div id="hubTide"></div>
       <div class="hub" id="hub"></div>
       <div id="hubSub"></div>
@@ -1173,6 +1173,10 @@ body.wd-off .hub-tide{animation:none;}
         <div class="tc-chart" id="tcChart" style="margin-top:12px"></div>
         <div id="tcList"></div>
       </div>
+      <div class="tc-card" id="tc-news">
+        <h3>📰 Tin triều cường online <span class="sp"></span><span class="who" id="tcAutoInfo"></span></h3>
+        <div id="tcNews"><div class="empty">Chưa có tin.</div></div>
+      </div>
       <div class="tc-card" id="tc-tin">
         <h3>📝 Bản tin để gửi & báo cáo <span class="sp"></span><select id="tcRange" style="width:auto;padding:6px 8px;font-size:12.5px"><option value="1">Hôm nay</option><option value="2">2 ngày</option><option value="3" selected>3 ngày</option><option value="7">7 ngày</option></select></h3>
         <textarea id="tcMsg" spellcheck="false"></textarea>
@@ -1210,11 +1214,13 @@ body.wd-off .hub-tide{animation:none;}
           <label>Số ngày trong bản tin<select id="tcDays"><option>1</option><option>2</option><option selected>3</option><option>5</option><option>7</option></select></label>
           <label>Chat ID riêng (tùy chọn)<input type="text" id="tcChat" placeholder="để trống = nhóm sự cố"></label>
         </div>
+        <label class="tc-chk"><input type="checkbox" id="tcAutoK"> Tự động lấy dự báo đỉnh triều Phú An từ <b>Trung tâm Dự báo KTTV quốc gia</b> (bản tin 16h hằng ngày) → báo Telegram ngay</label>
+        <label class="tc-chk"><input type="checkbox" id="tcAutoN"> Theo dõi <b>tin triều cường trên báo chí</b> (Google Tin tức) → báo Telegram khi có tin mới</label>
         <label class="tc-chk"><input type="checkbox" id="tcOn"> Tự động gửi bản tin triều cường qua Telegram mỗi ngày</label>
         <label class="tc-chk"><input type="checkbox" id="tcOnly"> Chỉ gửi khi có đỉnh triều từ BĐ I trở lên</label>
         <label class="tc-form" style="display:block"><span style="font-size:11.5px;color:var(--text-2);font-weight:700">Khu vực / tủ cần lưu ý khi triều cường (in vào bản tin)</span><textarea id="tcKV" placeholder="VD: Tủ Trần Xuân Soạn (Q7 cũ), tuyến ven kênh Tàu Hủ – Bến Nghé, Q8: Phạm Thế Hiển…"></textarea></label>
-        <div class="tc-btns"><button class="gps-btn pri" id="tcCfgSave">💾 Lưu cài đặt</button><button class="gps-btn" id="tcRunNow">📨 Gửi thử bản tin tự động</button></div>
-        <div class="tc-note">Mặc định theo ngưỡng báo động trạm Phú An, Nhà Bè (BĐ I 1,40 m · BĐ II 1,50 m · BĐ III 1,60 m) – chỉnh lại nếu có văn bản mới. Bản tin gửi tới nhóm Telegram đã cài ở 🔄 SCP → Nơi nhận thông báo.</div>
+        <div class="tc-btns"><button class="gps-btn pri" id="tcCfgSave">💾 Lưu cài đặt</button><button class="gps-btn" id="tcAutoNow">⚡ Lấy dữ liệu online ngay</button><button class="gps-btn" id="tcRunNow">📨 Gửi thử bản tin tự động</button></div>
+        <div class="tc-note">Mặc định theo ngưỡng báo động trạm Phú An, Nhà Bè (BĐ I 1,40 m · BĐ II 1,50 m · BĐ III 1,60 m) – chỉnh lại nếu có văn bản mới. Bản tin gửi tới nhóm Telegram đã cài ở 🔄 SCP → Nơi nhận thông báo. Nguồn online được kiểm tra <b>mỗi giờ</b>; số liệu KTTV tự lưu vào bảng đỉnh triều (trạm Phú An).</div>
       </div>
     </section>
 
@@ -4888,12 +4894,9 @@ const HUB=[
  {k:"fl",t:"File Lưu",d:"Kho tài liệu, tải lên",c:"#FFA53A",ok:()=>can("xemFile"),subs:[
    {i:"📂",t:"Kho file lưu",go:()=>$("#tabFiles").click()},
    {i:"⬆️",t:"Tải file lên",ok:()=>can("taiLenFile"),go:()=>{ $("#tabFiles").click(); setTimeout(()=>{ const u=$("#flUpload"); if(u) u.scrollIntoView({behavior:"smooth",block:"center"}); },120); }}]},
- {k:"tc",t:"Triều cường",d:"Dự báo đỉnh triều, gửi Telegram",c:"#8B6CFF",subs:[
-   {i:"🌊",t:"Đỉnh triều & mức báo động",go:()=>tcOpen("bang")},
-   {i:"📝",t:"Bản tin – gửi & chia sẻ",go:()=>tcOpen("tin")},
-   {i:"➕",t:"Nhập / dán dự báo",ok:()=>can("nhapTrieu"),go:()=>tcOpen("nhap")},
-   {i:"⚙️",t:"Cài đặt báo tự động",ok:()=>isAdmin(),go:()=>tcOpen("cai")}]},
- {k:"cc",t:"Công cụ",d:"Đo RTK, tài khoản, hướng dẫn",c:"#FF5C8A",subs:[
+ {k:"cc",t:"Công cụ",d:"Triều cường, đo RTK, tài khoản",c:"#FF5C8A",subs:[
+   {i:"🌊",t:"Triều cường – đỉnh triều & bản tin",go:()=>tcOpen("bang")},
+   {i:"📰",t:"Tin triều cường online",go:()=>tcOpen("news")},
    {i:"📏",t:"Đo khoảng cách RTK",ok:()=>can("doKhoangCach"),go:()=>$("#msFab").click()},
    {i:"⚙️",t:"Tài khoản & giao diện",go:()=>$("#accountBtn").click()},
    {i:"📖",t:"Hướng dẫn sử dụng",go:()=>$("#helpBtn").click()},
@@ -4908,7 +4911,7 @@ function homeRender(){
   const el=$("#hub"); if(!el) return;
   const W=400,H=440,cx=74,cy=220,r1=124,r2=156,r3=202,rk=94;
   const its=hubItems(), n=its.length; if(hubSel && !its.some(x=>x.k===hubSel)) hubSel=null;
-  { const mb=$("#hubMode"); if(mb) mb.textContent = hubStyle==="hud" ? "◐ Vòng cung" : "◉ HUD AI"; }
+  
   if(hubStyle==="hud"){ hudRender(its); hubSubRender(its); try{ const u=SESSION&&SESSION.user; $("#hubHi").textContent="Xin chào, "+((u&&(u.fullName||u.username))||"bạn")+" 👋"; }catch(e){} try{ const d=new Date(); $("#hubDate").innerHTML=["CN","T2","T3","T4","T5","T6","T7"][d.getDay()]+", "+d.toLocaleDateString("vi-VN"); }catch(e){} return; }
   el.className="hub"; $("#hubStats").className="hub-stats";
   const A=n>1?66:0, step=n>1?2*A/(n-1):40, half=Math.min(step/2,22);
@@ -4952,7 +4955,7 @@ function hubSubRender(its){
 }
 
 /* ---------- TRANG CHỦ kiểu HUD AI ---------- */
-let hubStyle=(function(){ try{ return localStorage.getItem("gnsc_home")||"hud"; }catch(e){ return "hud"; } })();
+let hubStyle="arc"; /* giữ giao diện vòng cung theo mẫu */
 function hudArc(r,a0,a1){ const R=Math.PI/180,cx=200,cy=215; const x1=cx+r*Math.cos(a0*R),y1=cy+r*Math.sin(a0*R),x2=cx+r*Math.cos(a1*R),y2=cy+r*Math.sin(a1*R); return `M${x1.toFixed(1)} ${y1.toFixed(1)}A${r} ${r} 0 ${(a1-a0)>180?1:0} 1 ${x2.toFixed(1)} ${y2.toFixed(1)}`; }
 function hudData(){
   const inc=(typeof incidents!=="undefined"&&incidents)||[];
@@ -5017,7 +5020,7 @@ function hudRender(its){
 $("#hubMode").onclick=()=>{ hubStyle=hubStyle==="hud"?"arc":"hud"; try{ localStorage.setItem("gnsc_home",hubStyle); }catch(e){} $("#hub").dataset.done=""; homeRender(); };
 
 /* ---------- TRIỀU CƯỜNG ---------- */
-let tcRows=[], tcCfg={bd1:1.4,bd2:1.5,bd3:1.6,days:3,hour:6,on:false,onlyAlert:true,khuVuc:""}, tcLoaded=false, tcEditId=null, tcParsed=[];
+let tcNews=[], tcRows=[], tcCfg={bd1:1.4,bd2:1.5,bd3:1.6,days:3,hour:6,on:false,onlyAlert:true,khuVuc:""}, tcLoaded=false, tcEditId=null, tcParsed=[];
 const tcTH=["Chủ nhật","Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy"];
 function tcISO(d){ const z=n=>String(n).padStart(2,"0"); return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate()); }
 function tcToday(k){ const d=new Date(); d.setDate(d.getDate()+(k||0)); return tcISO(d); }
@@ -5028,7 +5031,7 @@ function tcLv(h){ const c=tcCfg; if(h===""||h==null) return {k:-1,t:"",e:""}; co
 function tcBadge(h){ const l=tcLv(h); return l.k<0?"":`<span class="tc-lv k${l.k}">${l.e} ${escHtml(l.t)}</span>`; }
 function tcDayLabel(d){ const p=d.split("-"), dt=new Date(+p[0],+p[1]-1,+p[2]); return tcTH[dt.getDay()]+" "+p[2]+"/"+p[1]+"/"+p[0]; }
 function tcMax(r){ return Math.max(Number(r.phuAn)||0,Number(r.nhaBe)||0); }
-async function tcLoad(force){ if(tcLoaded&&!force) return; const r=await api("listTide"); if(r&&r.ok){ tcRows=r.rows||[]; tcCfg=Object.assign(tcCfg,r.cfg||{}); tcLoaded=true; } }
+async function tcLoad(force){ if(tcLoaded&&!force) return; const r=await api("listTide"); if(r&&r.ok){ tcRows=r.rows||[]; tcCfg=Object.assign(tcCfg,r.cfg||{}); tcNews=r.news||[]; tcLoaded=true; } }
 function tcUpcoming(days){ const a=tcToday(0), b=tcToday((days||3)-1); return tcRows.filter(r=>r.ngay>=a&&r.ngay<=b); }
 function tcText(days, by){
   const rows=tcUpcoming(days), c=tcCfg;
@@ -5077,6 +5080,9 @@ function tcRender(){
      <div class="s">Phú An ${tcM(next.phuAn)} · Nhà Bè ${tcM(next.nhaBe)}${top3&&top3!==next?`<br>Cao nhất 3 ngày: <b>${tcM(tcMax(top3))}</b> lúc ${escHtml(top3.gio||"")} ${top3.ngay.slice(8)}/${top3.ngay.slice(5,7)} ${tcBadge(tcMax(top3))}`:""}</div></div></div>`
     : `<div class="empty">Chưa có dự báo đỉnh triều từ hôm nay.${can("nhapTrieu")?" Bấm ➕ Nhập / dán dự báo bên dưới.":" Liên hệ người phụ trách cập nhật."}</div>`;
   $("#tcChart").innerHTML=tcChart();
+  $("#tcNews").innerHTML = tcNews.length ? tcNews.slice(0,10).map(n=>`<a class="lg-item" href="${escHtml(n.link)}" target="_blank" rel="noopener" style="display:block;text-decoration:none;color:inherit"><div class="lg-t">📰 ${escHtml(n.tieuDe)}</div><div class="who">${escHtml(n.nguon||"")}${n.thoiGian?" · "+escHtml(n.thoiGian):""}</div></a>`).join("") : '<div class="empty">Chưa có tin triều cường nào'+((c.autoNews)?" trong 3 ngày qua.":". Quản trị bật “Theo dõi tin triều cường trên báo chí” ở phần Cài đặt.")+'</div>';
+  $("#tcAutoInfo").textContent = (c.autoKttv||c.autoNews) ? "🟢 Tự động mỗi giờ"+(c.lastAuto?" · "+new Date(c.lastAuto).toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit"}):"") : "⚪ Chưa bật tự động";
+  if(c.lastAutoMsg && /lỗi|không|KTTV:|Tin tức:/i.test(c.lastAutoMsg)) $("#tcAutoInfo").title=c.lastAutoMsg;
   const list=tcRows.filter(r=>r.ngay>=tcToday(-2)), by={}; list.forEach(r=>(by[r.ngay]=by[r.ngay]||[]).push(r));
   const ed=can("nhapTrieu");
   $("#tcList").innerHTML=Object.keys(by).sort().map(d=>`<div class="tc-day">📅 ${tcDayLabel(d)}${d===tcToday(0)?" · HÔM NAY":""}</div>`+by[d].map(r=>`<div class="tc-row${d<tcToday(0)?" past":""}" data-id="${escHtml(r.id)}"><div><b>${escHtml(r.gio||"--:--")}</b></div><div><span class="st">Phú An</span><b>${tcM(r.phuAn)}</b> ${tcBadge(r.phuAn)}</div><div><span class="st">Nhà Bè</span><b>${tcM(r.nhaBe)}</b> ${tcBadge(r.nhaBe)}</div><div class="act">${ed?`<button type="button" data-a="e" title="Sửa">✏️</button><button type="button" data-a="d" title="Xóa">🗑</button>`:""}</div>${r.ghiChu||r.nguon?`<div class="gc">${escHtml(r.ghiChu||"")}${r.ghiChu&&r.nguon?" · ":""}${r.nguon?"Nguồn: "+escHtml(r.nguon):""}</div>`:""}</div>`).join("")).join("") || "";
@@ -5086,7 +5092,7 @@ function tcRender(){
   $("#tc-nhap").style.display=ed?"":"none"; $("#tcSend").style.display=ed?"":"none";
   $("#tc-cai").style.display=isAdmin()?"":"none";
   if(isAdmin()){ $("#tcB1").value=String(c.bd1).replace(".",","); $("#tcB2").value=String(c.bd2).replace(".",","); $("#tcB3").value=String(c.bd3).replace(".",",");
-    if(!$("#tcHour").options.length) for(let i=0;i<24;i++) $("#tcHour").add(new Option(i+":00",i)); $("#tcHour").value=c.hour; $("#tcDays").value=c.days; $("#tcChat").value=c.chat||""; $("#tcOn").checked=!!c.on; $("#tcOnly").checked=c.onlyAlert!==false; $("#tcKV").value=c.khuVuc||""; }
+    if(!$("#tcHour").options.length) for(let i=0;i<24;i++) $("#tcHour").add(new Option(i+":00",i)); $("#tcHour").value=c.hour; $("#tcDays").value=c.days; $("#tcChat").value=c.chat||""; $("#tcOn").checked=!!c.on; $("#tcAutoK").checked=!!c.autoKttv; $("#tcAutoN").checked=!!c.autoNews; $("#tcOnly").checked=c.onlyAlert!==false; $("#tcKV").value=c.khuVuc||""; }
 }
 async function tcOpen(sec){ showView("tc"); if(!tcLoaded) $("#tcNow").innerHTML='<div class="empty">Đang tải…</div>'; await tcLoad(); tcRender(); tcCompose(); hubTideRender();
   if(sec&&sec!=="bang"){ const el=$("#tc-"+sec); if(el&&el.style.display!=="none") setTimeout(()=>el.scrollIntoView({behavior:"smooth",block:"start"}),80); } }
@@ -5123,9 +5129,13 @@ $("#tcCopy").onclick=async()=>{ const t=$("#tcMsg").value; try{ await navigator.
 $("#tcShare").onclick=async()=>{ const t=$("#tcMsg").value; if(navigator.share){ try{ await navigator.share({title:"Bản tin triều cường",text:t}); return; }catch(e){ if(e&&e.name==="AbortError") return; } } $("#tcCopy").click(); alert("Đã sao chép bản tin – dán vào Zalo, email hoặc báo cáo."); };
 $("#tcSend").onclick=async()=>{ const t=$("#tcMsg").value.trim(); if(!t) return; if(!confirm("Gửi bản tin triều cường này vào nhóm Telegram?")) return;
   const b=$("#tcSend"); b.disabled=true; b.textContent="Đang gửi…"; const r=await api("sendTide",{text:t}); b.disabled=false; b.textContent="📤 Gửi Telegram"; alert(r.ok?"✅ Đã gửi bản tin vào Telegram":"Không gửi được: "+(r.error||"lỗi")); };
-$("#tcCfgSave").onclick=async()=>{ const cfg={bd1:tcN($("#tcB1").value),bd2:tcN($("#tcB2").value),bd3:tcN($("#tcB3").value),hour:+$("#tcHour").value,days:+$("#tcDays").value,chat:$("#tcChat").value.trim(),on:$("#tcOn").checked,onlyAlert:$("#tcOnly").checked,khuVuc:$("#tcKV").value.trim()};
+$("#tcCfgSave").onclick=async()=>{ const cfg={bd1:tcN($("#tcB1").value),bd2:tcN($("#tcB2").value),bd3:tcN($("#tcB3").value),hour:+$("#tcHour").value,days:+$("#tcDays").value,chat:$("#tcChat").value.trim(),on:$("#tcOn").checked,autoKttv:$("#tcAutoK").checked,autoNews:$("#tcAutoN").checked,onlyAlert:$("#tcOnly").checked,khuVuc:$("#tcKV").value.trim()};
   if(!(cfg.bd1&&cfg.bd2&&cfg.bd3&&cfg.bd1<cfg.bd2&&cfg.bd2<cfg.bd3)) return alert("Ngưỡng báo động phải tăng dần: BĐ I < BĐ II < BĐ III");
   const r=await api("setTideCfg",{cfg}); if(!r.ok) return alert(r.error||"Lỗi"); tcCfg=Object.assign(tcCfg,r.cfg||cfg); tcRender(); tcCompose(); hubTideRender(); alert("✅ "+(r.message||"Đã lưu")); };
+$("#tcAutoNow").onclick=async()=>{ const b=$("#tcAutoNow"); b.disabled=true; b.textContent="Đang lấy dữ liệu…"; const r=await api("tideAutoNow"); b.disabled=false; b.textContent="⚡ Lấy dữ liệu online ngay";
+  const k=r.kttv||{}; let m=k.ok?"✅ KTTV: Phú An "+String(k.row.phuAn).replace(".",",")+" m lúc "+k.row.gio+" ngày "+k.row.ngay.split("-").reverse().join("/"):(k.skipped?"ℹ️ KTTV: "+k.skipped:"");
+  if(r.news!=null) m+=(m?"\n":"")+"📰 Tin mới: "+r.news; if(r.error) m+=(m?"\n":"")+"⚠️ "+r.error+(k.mau?"\n— Mẫu nội dung: "+k.mau:""); if(r.sent) m+="\n📤 Đã báo Telegram";
+  alert(m||"Không có cập nhật mới"); await tcLoad(true); tcRender(); tcCompose(); hubTideRender(); };
 $("#tcRunNow").onclick=async()=>{ const r=await api("tideRunNow"); alert(r.ok?(r.skipped?"ℹ️ "+r.skipped:"✅ Đã gửi bản tin tự động ("+(r.sent||0)+" đỉnh triều)"):"Không gửi được: "+(r.error||"lỗi")); };
 $("#tcXls").onclick=async()=>{ if(typeof XLSX==="undefined") return alert("Thư viện Excel chưa tải xong, thử lại sau giây lát");
   const rows=tcRows.filter(r=>r.ngay>=tcToday(-30)); const c=tcCfg;
