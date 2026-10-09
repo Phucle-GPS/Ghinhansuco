@@ -1173,8 +1173,12 @@ body.wd-off .hub-tide{animation:none;}
         <div class="tc-chart" id="tcChart" style="margin-top:12px"></div>
         <div id="tcList"></div>
       </div>
+      <div class="tc-card" id="tc-ngap">
+        <h3>🚧 Tuyến đường đang ngập / nguy cơ ngập <span class="sp"></span><span class="who" id="tcAutoInfo"></span></h3>
+        <div id="tcNgap"><div class="empty">Chưa có dữ liệu.</div></div>
+      </div>
       <div class="tc-card" id="tc-news">
-        <h3>📰 Tin triều cường online <span class="sp"></span><span class="who" id="tcAutoInfo"></span></h3>
+        <h3>📰 Tin triều cường trên báo</h3>
         <div id="tcNews"><div class="empty">Chưa có tin.</div></div>
       </div>
       <div class="tc-card" id="tc-tin">
@@ -1215,7 +1219,9 @@ body.wd-off .hub-tide{animation:none;}
           <label>Chat ID riêng (tùy chọn)<input type="text" id="tcChat" placeholder="để trống = nhóm sự cố"></label>
         </div>
         <label class="tc-chk"><input type="checkbox" id="tcAutoK"> Tự động lấy dự báo đỉnh triều Phú An từ <b>Trung tâm Dự báo KTTV quốc gia</b> (bản tin 16h hằng ngày) → báo Telegram ngay</label>
-        <label class="tc-chk"><input type="checkbox" id="tcAutoN"> Theo dõi <b>tin triều cường trên báo chí</b> (Google Tin tức) → báo Telegram khi có tin mới</label>
+        <label class="tc-chk"><input type="checkbox" id="tcAutoG"> <span>Quét <b>tuyến đường đang ngập / nguy cơ ngập trên địa bàn</b> (Cổng 1022 – Thoát nước, báo VnExpress/Tuổi Trẻ/Thanh Niên, danh sách tuyến hay ngập × dự báo triều) → báo Telegram danh sách tuyến, tủ, người quản lý</span></label>
+        <label class="tc-chk"><input type="checkbox" id="tcAutoN"> Lưu tin triều cường trên báo để xem trong app (không gửi Telegram)</label>
+        <label class="tc-form" style="display:block;margin-bottom:6px"><span style="font-size:11.5px;color:var(--text-2);font-weight:700">Tuyến hay ngập do triều – mỗi dòng: Tên đường | Ngưỡng triều (m) | Ghi chú</span><textarea id="tcTT" placeholder="Calmette | 1,60 | Q1&#10;Bình Quới | 1,60 | Bình Thạnh"></textarea></label>
         <label class="tc-chk"><input type="checkbox" id="tcOn"> Tự động gửi bản tin triều cường qua Telegram mỗi ngày</label>
         <label class="tc-chk"><input type="checkbox" id="tcOnly"> Chỉ gửi khi có đỉnh triều từ BĐ I trở lên</label>
         <label class="tc-form" style="display:block"><span style="font-size:11.5px;color:var(--text-2);font-weight:700">Khu vực / tủ cần lưu ý khi triều cường (in vào bản tin)</span><textarea id="tcKV" placeholder="VD: Tủ Trần Xuân Soạn (Q7 cũ), tuyến ven kênh Tàu Hủ – Bến Nghé, Q8: Phạm Thế Hiển…"></textarea></label>
@@ -4896,7 +4902,7 @@ const HUB=[
    {i:"⬆️",t:"Tải file lên",ok:()=>can("taiLenFile"),go:()=>{ $("#tabFiles").click(); setTimeout(()=>{ const u=$("#flUpload"); if(u) u.scrollIntoView({behavior:"smooth",block:"center"}); },120); }}]},
  {k:"cc",t:"Công cụ",d:"Triều cường, đo RTK, tài khoản",c:"#FF5C8A",subs:[
    {i:"🌊",t:"Triều cường – đỉnh triều & bản tin",go:()=>tcOpen("bang")},
-   {i:"📰",t:"Tin triều cường online",go:()=>tcOpen("news")},
+   {i:"🚧",t:"Tuyến đang ngập / nguy cơ ngập",go:()=>tcOpen("ngap")},
    {i:"📏",t:"Đo khoảng cách RTK",ok:()=>can("doKhoangCach"),go:()=>$("#msFab").click()},
    {i:"⚙️",t:"Tài khoản & giao diện",go:()=>$("#accountBtn").click()},
    {i:"📖",t:"Hướng dẫn sử dụng",go:()=>$("#helpBtn").click()},
@@ -5020,7 +5026,7 @@ function hudRender(its){
 $("#hubMode").onclick=()=>{ hubStyle=hubStyle==="hud"?"arc":"hud"; try{ localStorage.setItem("gnsc_home",hubStyle); }catch(e){} $("#hub").dataset.done=""; homeRender(); };
 
 /* ---------- TRIỀU CƯỜNG ---------- */
-let tcNews=[], tcRows=[], tcCfg={bd1:1.4,bd2:1.5,bd3:1.6,days:3,hour:6,on:false,onlyAlert:true,khuVuc:""}, tcLoaded=false, tcEditId=null, tcParsed=[];
+let tcNgap=[], tcNews=[], tcRows=[], tcCfg={bd1:1.4,bd2:1.5,bd3:1.6,days:3,hour:6,on:false,onlyAlert:true,khuVuc:""}, tcLoaded=false, tcEditId=null, tcParsed=[];
 const tcTH=["Chủ nhật","Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy"];
 function tcISO(d){ const z=n=>String(n).padStart(2,"0"); return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate()); }
 function tcToday(k){ const d=new Date(); d.setDate(d.getDate()+(k||0)); return tcISO(d); }
@@ -5031,7 +5037,7 @@ function tcLv(h){ const c=tcCfg; if(h===""||h==null) return {k:-1,t:"",e:""}; co
 function tcBadge(h){ const l=tcLv(h); return l.k<0?"":`<span class="tc-lv k${l.k}">${l.e} ${escHtml(l.t)}</span>`; }
 function tcDayLabel(d){ const p=d.split("-"), dt=new Date(+p[0],+p[1]-1,+p[2]); return tcTH[dt.getDay()]+" "+p[2]+"/"+p[1]+"/"+p[0]; }
 function tcMax(r){ return Math.max(Number(r.phuAn)||0,Number(r.nhaBe)||0); }
-async function tcLoad(force){ if(tcLoaded&&!force) return; const r=await api("listTide"); if(r&&r.ok){ tcRows=r.rows||[]; tcCfg=Object.assign(tcCfg,r.cfg||{}); tcNews=r.news||[]; tcLoaded=true; } }
+async function tcLoad(force){ if(tcLoaded&&!force) return; const r=await api("listTide"); if(r&&r.ok){ tcRows=r.rows||[]; tcCfg=Object.assign(tcCfg,r.cfg||{}); tcNews=r.news||[]; tcNgap=r.ngap||[]; tcLoaded=true; } }
 function tcUpcoming(days){ const a=tcToday(0), b=tcToday((days||3)-1); return tcRows.filter(r=>r.ngay>=a&&r.ngay<=b); }
 function tcText(days, by){
   const rows=tcUpcoming(days), c=tcCfg;
@@ -5080,8 +5086,16 @@ function tcRender(){
      <div class="s">Phú An ${tcM(next.phuAn)} · Nhà Bè ${tcM(next.nhaBe)}${top3&&top3!==next?`<br>Cao nhất 3 ngày: <b>${tcM(tcMax(top3))}</b> lúc ${escHtml(top3.gio||"")} ${top3.ngay.slice(8)}/${top3.ngay.slice(5,7)} ${tcBadge(tcMax(top3))}`:""}</div></div></div>`
     : `<div class="empty">Chưa có dự báo đỉnh triều từ hôm nay.${can("nhapTrieu")?" Bấm ➕ Nhập / dán dự báo bên dưới.":" Liên hệ người phụ trách cập nhật."}</div>`;
   $("#tcChart").innerHTML=tcChart();
+  const qS=q=>String(q||"").replace("Quận Bình Thạnh","Bình Thạnh").replace("Quận Phú Nhuận","Phú Nhuận").replace("Quận ","Q");
+  $("#tcNgap").innerHTML = tcNgap.length ? tcNgap.map(x=>{ const now=x.trangThai==="dang ngap"; return `<div class="pa-card" style="--c:${now?"var(--high)":"var(--amber)"}"><div class="pa-top"><span class="pa-b ${now?"kc":"op"}">${now?"🔴 ĐANG NGẬP":"🟠 NGUY CƠ NGẬP"}</span><span class="who">${x.lanCuoi?new Date(x.lanCuoi).toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit"})+" "+new Date(x.lanCuoi).toLocaleDateString("vi-VN"):""}</span></div>
+     <div class="pa-addr">🛣️ ${escHtml(x.duong)} <small>· ${escHtml(qS(x.quan))}${x.phuong?" (P. "+escHtml(x.phuong)+")":""}</small></div>
+     ${x.soTu?`<div class="pa-meta">🗄️ ${x.soTu} tủ: ${escHtml(x.tu)}${x.ql?"<br>👤 QL: "+escHtml(x.ql):""}</div>`:""}
+     <div class="pa-meta">📌 ${escHtml(x.nguon)}</div>${x.trichDan?`<div class="pa-desc" style="font-size:12.5px;opacity:.9">“${escHtml(String(x.trichDan).slice(0,220))}”</div>`:""}
+     ${x.link?`<div class="pa-act"><a class="gps-btn" href="${escHtml(x.link)}" target="_blank" rel="noopener" style="text-decoration:none">🔗 Xem nguồn</a></div>`:""}</div>`; }).join("")
+    : '<div class="empty">'+(c.autoNgap?"✅ Hiện chưa ghi nhận tuyến nào trên địa bàn đang ngập hoặc có nguy cơ ngập.":"Quản trị bật “Quét tuyến đường đang ngập…” ở phần Cài đặt.")+'</div>';
+  $("#tc-news").style.display = tcNews.length||c.autoNews ? "" : "none";
   $("#tcNews").innerHTML = tcNews.length ? tcNews.slice(0,10).map(n=>`<a class="lg-item" href="${escHtml(n.link)}" target="_blank" rel="noopener" style="display:block;text-decoration:none;color:inherit"><div class="lg-t">📰 ${escHtml(n.tieuDe)}</div><div class="who">${escHtml(n.nguon||"")}${n.thoiGian?" · "+escHtml(n.thoiGian):""}</div></a>`).join("") : '<div class="empty">Chưa có tin triều cường nào'+((c.autoNews)?" trong 3 ngày qua.":". Quản trị bật “Theo dõi tin triều cường trên báo chí” ở phần Cài đặt.")+'</div>';
-  $("#tcAutoInfo").textContent = (c.autoKttv||c.autoNews) ? "🟢 Tự động mỗi giờ"+(c.lastAuto?" · "+new Date(c.lastAuto).toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit"}):"") : "⚪ Chưa bật tự động";
+  $("#tcAutoInfo").textContent = (c.autoKttv||c.autoNews||c.autoNgap) ? "🟢 Tự động mỗi giờ"+(c.lastAuto?" · "+new Date(c.lastAuto).toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit"}):"") : "⚪ Chưa bật tự động";
   if(c.lastAutoMsg && /lỗi|không|KTTV:|Tin tức:/i.test(c.lastAutoMsg)) $("#tcAutoInfo").title=c.lastAutoMsg;
   const list=tcRows.filter(r=>r.ngay>=tcToday(-2)), by={}; list.forEach(r=>(by[r.ngay]=by[r.ngay]||[]).push(r));
   const ed=can("nhapTrieu");
@@ -5092,7 +5106,7 @@ function tcRender(){
   $("#tc-nhap").style.display=ed?"":"none"; $("#tcSend").style.display=ed?"":"none";
   $("#tc-cai").style.display=isAdmin()?"":"none";
   if(isAdmin()){ $("#tcB1").value=String(c.bd1).replace(".",","); $("#tcB2").value=String(c.bd2).replace(".",","); $("#tcB3").value=String(c.bd3).replace(".",",");
-    if(!$("#tcHour").options.length) for(let i=0;i<24;i++) $("#tcHour").add(new Option(i+":00",i)); $("#tcHour").value=c.hour; $("#tcDays").value=c.days; $("#tcChat").value=c.chat||""; $("#tcOn").checked=!!c.on; $("#tcAutoK").checked=!!c.autoKttv; $("#tcAutoN").checked=!!c.autoNews; $("#tcOnly").checked=c.onlyAlert!==false; $("#tcKV").value=c.khuVuc||""; }
+    if(!$("#tcHour").options.length) for(let i=0;i<24;i++) $("#tcHour").add(new Option(i+":00",i)); $("#tcHour").value=c.hour; $("#tcDays").value=c.days; $("#tcChat").value=c.chat||""; $("#tcOn").checked=!!c.on; $("#tcAutoK").checked=!!c.autoKttv; $("#tcAutoN").checked=!!c.autoNews; $("#tcAutoG").checked=!!c.autoNgap; $("#tcTT").value=c.tuyenTrieu||""; $("#tcOnly").checked=c.onlyAlert!==false; $("#tcKV").value=c.khuVuc||""; }
 }
 async function tcOpen(sec){ showView("tc"); if(!tcLoaded) $("#tcNow").innerHTML='<div class="empty">Đang tải…</div>'; await tcLoad(); tcRender(); tcCompose(); hubTideRender();
   if(sec&&sec!=="bang"){ const el=$("#tc-"+sec); if(el&&el.style.display!=="none") setTimeout(()=>el.scrollIntoView({behavior:"smooth",block:"start"}),80); } }
@@ -5129,12 +5143,14 @@ $("#tcCopy").onclick=async()=>{ const t=$("#tcMsg").value; try{ await navigator.
 $("#tcShare").onclick=async()=>{ const t=$("#tcMsg").value; if(navigator.share){ try{ await navigator.share({title:"Bản tin triều cường",text:t}); return; }catch(e){ if(e&&e.name==="AbortError") return; } } $("#tcCopy").click(); alert("Đã sao chép bản tin – dán vào Zalo, email hoặc báo cáo."); };
 $("#tcSend").onclick=async()=>{ const t=$("#tcMsg").value.trim(); if(!t) return; if(!confirm("Gửi bản tin triều cường này vào nhóm Telegram?")) return;
   const b=$("#tcSend"); b.disabled=true; b.textContent="Đang gửi…"; const r=await api("sendTide",{text:t}); b.disabled=false; b.textContent="📤 Gửi Telegram"; alert(r.ok?"✅ Đã gửi bản tin vào Telegram":"Không gửi được: "+(r.error||"lỗi")); };
-$("#tcCfgSave").onclick=async()=>{ const cfg={bd1:tcN($("#tcB1").value),bd2:tcN($("#tcB2").value),bd3:tcN($("#tcB3").value),hour:+$("#tcHour").value,days:+$("#tcDays").value,chat:$("#tcChat").value.trim(),on:$("#tcOn").checked,autoKttv:$("#tcAutoK").checked,autoNews:$("#tcAutoN").checked,onlyAlert:$("#tcOnly").checked,khuVuc:$("#tcKV").value.trim()};
+$("#tcCfgSave").onclick=async()=>{ const cfg={bd1:tcN($("#tcB1").value),bd2:tcN($("#tcB2").value),bd3:tcN($("#tcB3").value),hour:+$("#tcHour").value,days:+$("#tcDays").value,chat:$("#tcChat").value.trim(),on:$("#tcOn").checked,autoKttv:$("#tcAutoK").checked,autoNews:$("#tcAutoN").checked,autoNgap:$("#tcAutoG").checked,tuyenTrieu:$("#tcTT").value.trim(),onlyAlert:$("#tcOnly").checked,khuVuc:$("#tcKV").value.trim()};
   if(!(cfg.bd1&&cfg.bd2&&cfg.bd3&&cfg.bd1<cfg.bd2&&cfg.bd2<cfg.bd3)) return alert("Ngưỡng báo động phải tăng dần: BĐ I < BĐ II < BĐ III");
+  const sm={}; CABINETS.forEach(c=>{ if(!c.duong) return; const k=c.duong.trim()+"|"+c.q; const o=sm[k]=sm[k]||{d:c.duong.trim(),q:c.q,p:[],tu:[],ql:[],n:0}; o.n++; if(c.pm&&!o.p.includes(c.pm)) o.p.push(c.pm); if(o.tu.length<3) o.tu.push(c.n); if(c.ql&&!o.ql.includes(c.ql)&&o.ql.length<3) o.ql.push(c.ql); });
+  const ss=await api("syncStreets",{streets:Object.values(sm).map(o=>({d:o.d,q:o.q,p:o.p.join(","),n:o.n,tu:o.tu.join(";"),ql:o.ql.join(",")}))}); if(!ss.ok) return alert("Không đồng bộ được danh sách tuyến đường: "+(ss.error||""));
   const r=await api("setTideCfg",{cfg}); if(!r.ok) return alert(r.error||"Lỗi"); tcCfg=Object.assign(tcCfg,r.cfg||cfg); tcRender(); tcCompose(); hubTideRender(); alert("✅ "+(r.message||"Đã lưu")); };
 $("#tcAutoNow").onclick=async()=>{ const b=$("#tcAutoNow"); b.disabled=true; b.textContent="Đang lấy dữ liệu…"; const r=await api("tideAutoNow"); b.disabled=false; b.textContent="⚡ Lấy dữ liệu online ngay";
   const k=r.kttv||{}; let m=k.ok?"✅ KTTV: Phú An "+String(k.row.phuAn).replace(".",",")+" m lúc "+k.row.gio+" ngày "+k.row.ngay.split("-").reverse().join("/"):(k.skipped?"ℹ️ KTTV: "+k.skipped:"");
-  if(r.news!=null) m+=(m?"\n":"")+"📰 Tin mới: "+r.news; if(r.error) m+=(m?"\n":"")+"⚠️ "+r.error+(k.mau?"\n— Mẫu nội dung: "+k.mau:""); if(r.sent) m+="\n📤 Đã báo Telegram";
+  if(r.ngapTong!=null) m+=(m?"\n":"")+"🚧 Tuyến ngập/nguy cơ đang theo dõi: "+r.ngapTong+(r.ngap?" (mới "+r.ngap+")":""); if(r.error) m+=(m?"\n":"")+"⚠️ "+r.error+(k.mau?"\n— Mẫu nội dung: "+k.mau:""); if(r.sent) m+="\n📤 Đã báo Telegram";
   alert(m||"Không có cập nhật mới"); await tcLoad(true); tcRender(); tcCompose(); hubTideRender(); };
 $("#tcRunNow").onclick=async()=>{ const r=await api("tideRunNow"); alert(r.ok?(r.skipped?"ℹ️ "+r.skipped:"✅ Đã gửi bản tin tự động ("+(r.sent||0)+" đỉnh triều)"):"Không gửi được: "+(r.error||"lỗi")); };
 $("#tcXls").onclick=async()=>{ if(typeof XLSX==="undefined") return alert("Thư viện Excel chưa tải xong, thử lại sau giây lát");
@@ -5144,7 +5160,9 @@ $("#tcXls").onclick=async()=>{ if(typeof XLSX==="undefined") return alert("Thư 
   XLSX.utils.book_append_sheet(wb,ws,"Trieu cuong");
   try{ await xlsSave(wb,"Bao_cao_trieu_cuong_"+todayISO()+".xlsx",{filter:"Ngưỡng BĐ I "+tcM(c.bd1)+" · BĐ II "+tcM(c.bd2)+" · BĐ III "+tcM(c.bd3)}); }catch(e){ alert("Lỗi xuất Excel: "+e.message); } };
 /* cảnh báo trên trang chủ khi có đỉnh triều từ BĐ I trong 3 ngày tới */
-function hubTideRender(){ const box=$("#hubTide"); if(!box) return; const rs=tcUpcoming(3).filter(r=>tcLv(tcMax(r)).k>=1).sort((a,b)=>tcMax(b)-tcMax(a));
+function hubTideRender(){ const box=$("#hubTide"); if(!box) return; const fl=tcNgap.filter(x=>x.trangThai==="dang ngap");
+  if(fl.length){ box.innerHTML=`<div class="hub-tide" style="--c:#FF6B6B"><b style="font-size:20px">🚧</b><span><b>Đang ngập ${fl.length} tuyến trên địa bàn</b><br>${escHtml(fl.slice(0,3).map(x=>x.duong).join(", "))}${fl.length>3?"…":""}</span><b>›</b></div>`; box.firstChild.onclick=()=>tcOpen("ngap"); return; }
+  const rs=tcUpcoming(3).filter(r=>tcLv(tcMax(r)).k>=1).sort((a,b)=>tcMax(b)-tcMax(a));
   if(!rs.length){ box.innerHTML=""; return; } const r=rs[0], l=tcLv(tcMax(r)), col=["","#F5C518","#FF8A3D","#FF6B6B"][l.k];
   box.innerHTML=`<div class="hub-tide" style="--c:${col}"><b style="font-size:20px">🌊</b><span><b>Triều cường ${l.e} ${escHtml(l.t)}</b><br>Đỉnh ${tcM(tcMax(r))} lúc ${escHtml(r.gio||"--:--")} ${r.ngay.slice(8)}/${r.ngay.slice(5,7)}${rs.length>1?" · "+rs.length+" đỉnh ≥ BĐ I trong 3 ngày":""}</span><b>›</b></div>`;
   box.firstChild.onclick=()=>tcOpen("bang"); }
