@@ -957,6 +957,11 @@ body.wd-off .hub-tide{animation:none;}
 .pa-act{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;}
 .pa-act .gps-btn{padding:7px 10px;font-size:12px;}
 </style>
+<style id="inc-del-style">
+.inc-del{color:var(--high) !important;border-color:color-mix(in srgb,var(--high) 45%,var(--border)) !important;}
+.inc-toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);max-width:92vw;padding:11px 16px;border-radius:14px;background:var(--solid);color:var(--text);border:1px solid var(--border);box-shadow:var(--shadow);font-size:13px;font-weight:600;z-index:3000;opacity:0;pointer-events:none;transition:.3s;}
+.inc-toast.show{opacity:1;transform:translate(-50%,0);}
+</style>
 </head>
 <body>
 <div id="app">
@@ -1376,7 +1381,7 @@ body.wd-off .hub-tide{animation:none;}
       <div id="hpList">
         <details class="hp-sec" id="hp-start"><summary><span class="hp-ic">🚀</span><b>Bắt đầu</b></summary><ul><li>Đăng nhập bằng tài khoản Quản trị cấp; lần đầu app yêu cầu đổi mật khẩu.</li><li>📲 <b>Cài app</b> để mở như ứng dụng trên điện thoại.</li><li>Chip quận trên cùng lọc dữ liệu cho mọi mục.</li><li>Tìm kiếm gõ có dấu hay không dấu đều được.</li></ul></details>
         <details class="hp-sec" id="hp-new"><summary><span class="hp-ic">➕</span><b>Sự cố – Ghi nhận mới</b></summary><ul><li>Tìm tủ theo tên, mã PE, mã kết nối hoặc tên đường → chạm chọn tủ.</li><li>Chọn lý trình, mức độ, mô tả; bấm 📍 lấy GPS.</li><li>📷 Chụp / 🖼️ chọn ảnh – <b>tối đa 10 ảnh</b>, ảnh tự đóng dấu GPS, tên tủ, giờ.</li><li>Bấm <b>Gửi</b> → Telegram báo ngay cho quản lý.</li></ul></details>
-        <details class="hp-sec" id="hp-list"><summary><span class="hp-ic">📋</span><b>Sự cố – Danh sách & SCP</b></summary><ul><li>2 mục riêng: <b>Ghi nhận</b> và <b>SCP</b> (lỗi tủ từ trung tâm).</li><li>Tìm, lọc theo người quản lý; ⬇ xuất Excel.</li><li>Chạm nhãn trạng thái để chuyển Mới → Đang xử lý → <b>Đã xử lý</b> (bắt buộc ghi nội dung xử lý, tự lưu sheet DaXuLy).</li><li>Sự cố SCP được báo cáo lại mỗi sáng nếu còn tồn.</li></ul></details>
+        <details class="hp-sec" id="hp-list"><summary><span class="hp-ic">📋</span><b>Sự cố – Danh sách & SCP</b></summary><ul><li>2 mục riêng: <b>Ghi nhận</b> và <b>SCP</b> (lỗi tủ từ trung tâm).</li><li>Tìm, lọc theo người quản lý; ⬇ xuất Excel.</li><li>Chạm nhãn trạng thái để chuyển Mới → Đang xử lý → <b>Đã xử lý</b> (bắt buộc ghi nội dung xử lý) – sự cố đã xử lý được tổng hợp vào sheet <b>DaXuLy</b> và không còn hiện trên danh sách.</li><li>🗑 <b>Xóa</b> sự cố nhập sai: người ghi nhận xóa sự cố của mình, Quản trị xóa mọi sự cố; phải ghi lý do, bản ghi lưu ở sheet SuCoDaXoa.</li><li>Sự cố SCP được báo cáo lại mỗi sáng nếu còn tồn.</li></ul></details>
         <details class="hp-sec" id="hp-map"><summary><span class="hp-ic">🗺️</span><b>Bản đồ</b></summary><ul><li>Bật/tắt lớp từng quận, chạm điểm để xem tủ.</li><li>📏 <b>Nút Đo</b> (góc phải dưới): đo khoảng cách kiểu RTK trên bản đồ vệ tinh có tên đường; chỉ ghi điểm khi đạt sai số cho phép (0–1 m).</li><li>Bắt đầu từ tủ điều khiển, đứng yên tại điểm → bấm Đo; khung đen trên bản đồ hiện khoảng cách tới vị trí hiện tại.</li><li>Đạt ≤ 1 m cần máy thu RTK (điện thoại thường ±3–5 m); ⛶ phóng to bản đồ, 🗄️ hiện tủ.</li></ul></details>
         <details class="hp-sec" id="hp-st"><summary><span class="hp-ic">📒</span><b>Sổ tay sửa chữa</b></summary><ul><li>Chọn <b>mã lỗi</b> (DATA/4G, PLC, PM, PW) → làm theo các bước đánh số từ trên xuống, tick ✓ bước đã kiểm tra.</li><li>Lọc theo <b>nhóm</b>: nguồn tủ, bộ nguồn, jack/cáp, SIM, cài đặt, thiết bị.</li><li>🗂️ Theo nhóm / 📋 Bảng tra nhanh: xem nguyên nhân chung cho nhiều mã lỗi.</li><li>Ở thẻ sự cố SCP bấm <b>📒 Cách xử lý</b> để mở đúng mã lỗi; 🖨️ in hoặc ⬇ Excel mang ra hiện trường.</li></ul></details>
         <details class="hp-sec" id="hp-pa"><summary><span class="hp-ic">📢</span><b>Phản ánh 1022</b></summary><ul><li>Sự cố → 📢 <b>Phản ánh 1022</b>: phản ánh lĩnh vực Chiếu sáng trên Cổng 1022 tại Q1, 3, 5, 8, 10, 11, Phú Nhuận, Bình Thạnh (cũ).</li><li>Tự kiểm tra <b>30 phút/lần</b>, có phản ánh mới → Telegram nhận ngay bản báo cáo (mã PAKN, địa chỉ, nội dung, hạn xử lý, người quản lý).</li><li>Lọc theo quận, trạng thái, tìm kiếm; app gợi ý <b>tủ gần</b> theo tên đường → ➕ Ghi nhận sự cố.</li><li>🔗 Chia sẻ báo cáo, ⬇ Excel; bấm 🔗 Mở 1022 để xem bản gốc.</li></ul></details>
@@ -1485,7 +1490,7 @@ body.wd-off .hub-tide{animation:none;}
       <div id="idBody"></div>
       <div class="id-share">
         <button type="button" class="submit-btn" id="idShare">📤 Chia sẻ</button>
-        <div class="fl-btns"><button type="button" class="gps-btn" id="idCopy">📋 Sao chép</button><button type="button" class="gps-btn" id="idZalo">💬 Zalo</button><a class="gps-btn" id="idTg" target="_blank" rel="noopener">✈️ Telegram</a><a class="gps-btn" id="idSms">✉️ SMS</a><a class="gps-btn" id="idMail">📧 Email</a><button type="button" class="gps-btn" id="idPrint">🖨️ In / PDF</button></div>
+        <div class="fl-btns"><button type="button" class="gps-btn" id="idCopy">📋 Sao chép</button><button type="button" class="gps-btn" id="idDel" style="display:none;color:var(--high)">🗑 Xóa sự cố</button><button type="button" class="gps-btn" id="idZalo">💬 Zalo</button><a class="gps-btn" id="idTg" target="_blank" rel="noopener">✈️ Telegram</a><a class="gps-btn" id="idSms">✉️ SMS</a><a class="gps-btn" id="idMail">📧 Email</a><button type="button" class="gps-btn" id="idPrint">🖨️ In / PDF</button></div>
         <div class="gps-result" id="idMsg"></div>
       </div>
       <div class="id-nav"><button type="button" class="gps-btn" id="idPrev">‹ Sự cố trước</button><span class="who" id="idPos"></span><button type="button" class="gps-btn" id="idNext">Sự cố sau ›</button></div>
@@ -2113,7 +2118,7 @@ async function saveIncident(record){
 
 /* ---------- danh sách view ---------- */
 function renderStatusFilters(){
-  const opts = ["Tất cả", ...STATUS];
+  const opts = ["Tất cả", ...STATUS.filter(s=>s!=="Đã xử lý")];
   const wrap = $("#statusFilters"); wrap.innerHTML="";
   opts.forEach(s=>{
     const b=document.createElement("button");
@@ -2165,6 +2170,7 @@ function incQLOf(i){ if(i._ql!==undefined) return i._ql; const pe=String(i.cabin
 function filteredIncidents(){
   const tokens = vnNorm(incTerm).trim().split(/\s+/).filter(Boolean);
   return incidents.filter(i=>{
+    if(i.trangThai==="Đã xử lý") return false;
     if((activeSource==="scp") !== isScp(i)) return false;
     if(activeQuan!=="Tất cả" && i.quan!==activeQuan) return false;
     if(activeStatus!=="Tất cả" && i.trangThai!==activeStatus) return false;
@@ -2246,6 +2252,7 @@ function renderIncList(){
     card.querySelectorAll(".inc-photo").forEach(ph=>ph.onclick=ev=>{ ev.stopPropagation(); incDetail(i,list); });
     card.onclick=ev=>{ if(ev.target.closest("button,a,input,select,label")) return; incDetail(i,list); };
     const vb=document.createElement("button"); vb.type="button"; vb.className="inc-view"; vb.textContent="👁 Xem · 📤 Chia sẻ"; vb.onclick=ev=>{ ev.stopPropagation(); incDetail(i,list); }; card.querySelector(".row1").appendChild(vb);
+    if(canDeleteInc(i)){ const db=document.createElement("button"); db.type="button"; db.className="inc-view inc-del"; db.textContent="🗑 Xóa"; db.title="Xóa sự cố nhập sai"; db.onclick=ev=>{ ev.stopPropagation(); deleteIncident(i); }; card.querySelector(".row1").appendChild(db); }
     el.appendChild(card);
   });
 }
@@ -2253,14 +2260,25 @@ function renderIncList(){
 function escapeHtml(s){ const d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
 
 function isAdmin(){ return !!(SESSION && SESSION.user && SESSION.user.role==="admin"); }
+function canDeleteInc(i){ return isAdmin() || (!!SESSION && !!SESSION.user && i.nguoiTao===SESSION.user.username && !isScp(i)); }
+function incToast(msg){ let t=$("#incToast"); if(!t){ t=document.createElement("div"); t.id="incToast"; t.className="inc-toast"; document.body.appendChild(t); } t.textContent=msg; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),3800); }
+async function deleteIncident(i){
+  if(!canDeleteInc(i)) return alert("Bạn chỉ được xóa sự cố do chính mình ghi nhận.");
+  const reason=prompt("XÓA sự cố “"+(i.cabinetName||"")+"” ("+(i.ngay||"")+")\nNhập lý do xóa (vd: nhập sai tủ, ghi trùng):","Nhập liệu sai");
+  if(reason===null) return; if(reason.trim().length<3) return alert("Vui lòng nhập lý do xóa.");
+  if(!confirm("Xác nhận xóa vĩnh viễn sự cố này khỏi danh sách?\n(Bản ghi được lưu ở sheet SuCoDaXoa để đối chiếu)")) return;
+  const r=await api("deleteIncident",{id:i.id, reason:reason.trim()});
+  if(!r.ok) return alert(r.error||"Không xóa được");
+  incidents=incidents.filter(x=>x.id!==i.id); $("#incScrim").classList.remove("show"); renderIncList(); incToast("🗑 Đã xóa sự cố “"+(i.cabinetName||"")+"”."); try{ homeRender(); }catch(e){}
+}
 function canEditInc(i){ return isAdmin() || (can("capNhatGPS") && SESSION && i.nguoiTao===SESSION.user.username); }
 async function cycleStatus(i, btn){
   if(!can("doiTrangThai")){ return; }
-  const next = STATUS[(STATUS.indexOf(i.trangThai)+1) % STATUS.length];
+  const next = STATUS[Math.min(STATUS.indexOf(i.trangThai)+1, STATUS.length-1)];
   const prev = i.trangThai;
   let note;
   if(next==="Đã xử lý"){
-    note = prompt("Nội dung đã xử lý (sẽ được ghi vào sheet \"DaXuLy\"):", i.ghiChuXuLy||"");
+    note = prompt("ĐÃ XỬ LÝ – "+(i.cabinetName||"")+"\nNhập nội dung đã xử lý. Sự cố sẽ được tổng hợp vào sheet \"DaXuLy\" và không còn hiện trên danh sách:", i.ghiChuXuLy||"");
     if(note===null) return;
     if(!note.trim()){ alert("Vui lòng nhập nội dung đã xử lý."); return; }
     i.ghiChuXuLy=note.trim();
@@ -2270,6 +2288,7 @@ async function cycleStatus(i, btn){
   btn.className = "badge status-btn "+statusClass(next);
   const patch={trangThai:next}; if(note!==undefined) patch.ghiChuXuLy=note.trim();
   const r = await api("updateIncident",{id:i.id, patch});
+  if(r.ok && next==="Đã xử lý"){ incidents=incidents.filter(x=>x!==i); if(incDone) incDone.unshift(i); renderIncList(); incToast("✅ Đã chuyển “"+(i.cabinetName||"sự cố")+"” sang sheet DaXuLy – không còn hiện trên danh sách."); try{ homeRender(); }catch(e){} return; }
   if(r.ok && note!==undefined) renderIncList();
   if(!r.ok){ i.trangThai=prev; btn.textContent=prev; btn.className="badge status-btn "+statusClass(prev); alert(r.error||"Không cập nhật được"); }
 }
@@ -3867,7 +3886,7 @@ async function hsSpecs(el){
 async function hsRepairs(el){
   el.innerHTML='<div class="empty">Đang tổng hợp hồ sơ sửa chữa…</div>';
   const items=[];
-  (incidents||[]).filter(i=>i.trangThai==="Đã xử lý").forEach(i=>items.push({k:"sc",icon:"🛠️",loai:"Sự cố đã xử lý",quan:i.quan,tu:i.cabinetName,pe:i.cabinetPE,ngay:i.ngay,
+  (await loadDoneIncidents()).forEach(i=>items.push({k:"sc",icon:"🛠️",loai:"Sự cố đã xử lý",quan:i.quan,tu:i.cabinetName,pe:i.cabinetPE,ngay:i.ngay,
     tieuDe:(i.moTa||"").slice(0,90),noiDung:i.ghiChuXuLy||"",nguoi:incQLOf(i)||i.nguoiGhiNhan||"",hay:[i.cabinetName,i.cabinetPE,i.quan,i.moTa,i.loiSCP,i.ghiChuXuLy,i.nguoiGhiNhan,incQLOf(i),i.lyTrinh].join(" "),
     open:()=>{ $("#bvTitle").textContent="🛠️ "+(i.cabinetName||"Sự cố"); $("#bvDetail").innerHTML=`<div class="tk-grid">${[["Tủ",i.cabinetName],["Mã PE",i.cabinetPE],["Quận",i.quan],["Ngày ghi nhận",i.ngay],["Mức độ",i.mucDo],["Nguồn",i.nguon||"Ghi nhận"],["Người quản lý",incQLOf(i)],["Người ghi nhận",i.nguoiGhiNhan]].map(([l,v])=>`<div><span>${l}</span><b>${escHtml(v||"—")}</b></div>`).join("")}</div><div class="ks-g">Mô tả sự cố</div><div class="desc">${escHtml(i.moTa||"")}</div><div class="ks-g">Nội dung đã xử lý</div><div class="desc">${escHtml(i.ghiChuXuLy||"(chưa ghi)")}</div>${i.anhHienTruong?`<div class="inc-photos">${String(i.anhHienTruong).split(/\n+/).filter(Boolean).map(u=>`<img class="inc-photo" src="${u}">`).join("")}</div>`:""}`; $("#bvScrim").classList.add("show"); }}));
   if(can("theoDoiLed")){
@@ -5426,9 +5445,11 @@ async function api(action, payload){
     return {ok:false, error:"Không kết nối được máy chủ"};
   }
 }
+let incDone=null; /* sự cố đã xử lý – chỉ dùng cho Hồ sơ sửa chữa, không hiện trên danh sách */
+async function loadDoneIncidents(force){ if(incDone&&!force) return incDone; const r=await api("listDoneIncidents"); incDone=(r&&r.ok&&r.incidents)||incDone||[]; return incDone; }
 async function loadIncidents(){
   const r = await api("listIncidents");
-  if(r.ok){ incidents = r.incidents || []; renderIncList(); incDeepLink(); try{ if($("#view-home").classList.contains("active")) homeRender(); }catch(e){} }
+  if(r.ok){ incidents = (r.incidents || []).filter(i=>i.trangThai!=="Đã xử lý"); renderIncList(); incDeepLink(); try{ if($("#view-home").classList.contains("active")) homeRender(); }catch(e){} }
 }
 /* ---------- XEM CHI TIẾT & CHIA SẺ SỰ CỐ ---------- */
 const APP_LINK="https://phucle-gps.github.io/Ghinhansuco/index.html";
@@ -5458,10 +5479,11 @@ function incDetail(i, list){
   const txt=incShareText(i), enc=encodeURIComponent(txt), link=APP_LINK+"#su-co="+encodeURIComponent(i.id);
   $("#idTg").href="https://t.me/share/url?url="+encodeURIComponent(link)+"&text="+encodeURIComponent(txt.replace(/\n🔗.*$/,""));
   $("#idSms").href="sms:?&body="+enc; $("#idMail").href="mailto:?subject="+encodeURIComponent("[CSKVTT] Sự cố "+i.cabinetName+" – "+(i.trangThai||""))+"&body="+enc;
-  $("#idShare").style.display = navigator.share ? "" : "none"; $("#idMsg").textContent="";
+  $("#idShare").style.display = navigator.share ? "" : "none"; $("#idMsg").textContent=""; $("#idDel").style.display = canDeleteInc(i) ? "" : "none";
   const k=idList.indexOf(i); $("#idPos").textContent=k>=0?`${k+1}/${idList.length}`:""; $("#idPrev").disabled=k<=0; $("#idNext").disabled=k<0||k>=idList.length-1;
   $("#incScrim").classList.add("show");
 }
+$("#idDel").onclick=()=>deleteIncident(idCur);
 $("#idClose").onclick=()=>{ $("#incScrim").classList.remove("show"); if(location.hash.startsWith("#su-co=")) history.replaceState(null,"",location.pathname+location.search); };
 $("#incScrim").addEventListener("click",e=>{ if(e.target.id==="incScrim") $("#idClose").click(); });
 $("#idPrev").onclick=()=>{ const k=idList.indexOf(idCur); if(k>0) incDetail(idList[k-1],idList); };
