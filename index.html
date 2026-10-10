@@ -962,6 +962,26 @@ body.wd-off .hub-tide{animation:none;}
 .inc-toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);max-width:92vw;padding:11px 16px;border-radius:14px;background:var(--solid);color:var(--text);border:1px solid var(--border);box-shadow:var(--shadow);font-size:13px;font-weight:600;z-index:3000;opacity:0;pointer-events:none;transition:.3s;}
 .inc-toast.show{opacity:1;transform:translate(-50%,0);}
 </style>
+<style id="flv-style">
+.id-ph{position:relative;display:inline-block;}
+.id-ph-dl{position:absolute;right:5px;bottom:5px;width:30px;height:30px;border-radius:50%;border:none;background:rgba(0,0,0,.6);color:#fff;font-size:15px;cursor:pointer;}
+.inc-photos{position:relative;}
+.inc-ph-dl{align-self:center;min-width:46px;height:46px;border-radius:12px;border:1px dashed var(--border);background:var(--surface-2);color:var(--accent);font:800 15px "Be Vietnam Pro",sans-serif;cursor:pointer;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;}
+.inc-ph-dl small{font-size:10px;color:var(--text-2);margin-top:2px;}
+.flv-body{max-height:70vh;overflow:auto;border-radius:12px;background:color-mix(in srgb,var(--solid) 70%,transparent);padding:8px;}
+.flv-img{max-width:100%;display:block;margin:0 auto;border-radius:8px;}
+.flv-frame{width:100%;height:68vh;border:0;border-radius:10px;background:#fff;}
+.flv-text{white-space:pre-wrap;font-size:12.5px;margin:0;}
+.flv-pw{position:relative;margin:0 auto 10px;max-width:100%;}
+.flv-page{width:100%;height:auto;display:block;background:#fff;border-radius:6px;box-shadow:0 2px 10px rgba(0,0,0,.25);}
+.flv-pn{position:absolute;left:8px;top:8px;font-size:11px;font-weight:800;padding:2px 8px;border-radius:100px;background:rgba(0,0,0,.6);color:#fff;}
+.flv-merge{border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:10px;background:var(--surface-2);}
+.flv-queue{margin:8px 0;}
+.flv-q{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 9px;border-radius:10px;background:var(--surface);border:1px solid var(--border);margin-bottom:5px;font-size:13px;}
+.flv-q small{color:var(--text-2);} .flv-q button{border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:8px;width:28px;height:28px;margin-left:3px;cursor:pointer;}
+.flv-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--text-2);}
+.flv-row select,.flv-row input,#flvNote{font:500 13px "Be Vietnam Pro",sans-serif;padding:7px 9px;border-radius:10px;border:1px solid var(--border);background:var(--field);color:var(--text);margin-left:4px;}
+</style>
 </head>
 <body>
 <div id="app">
@@ -1380,7 +1400,7 @@ body.wd-off .hub-tide{animation:none;}
       <div class="hp-top"><input type="text" id="hpQ" placeholder="🔎 Tìm trong hướng dẫn…" autocomplete="off"><div class="hp-idx"><button type="button" data-h="start" class="hp-chip">🚀 Bắt đầu</button><button type="button" data-h="new" class="hp-chip">➕ Sự cố – Ghi nhận mới</button><button type="button" data-h="list" class="hp-chip">📋 Sự cố – Danh sách & SCP</button><button type="button" data-h="map" class="hp-chip">🗺️ Bản đồ</button><button type="button" data-h="st" class="hp-chip">📒 Sổ tay sửa chữa</button><button type="button" data-h="pa" class="hp-chip">📢 Phản ánh 1022</button><button type="button" data-h="ks" class="hp-chip">📝 Khảo sát duy tu & Biên bản</button><button type="button" data-h="tk" class="hp-chip">📊 Thống kê tủ</button><button type="button" data-h="bv" class="hp-chip">🏗️ HS Công trình</button><button type="button" data-h="led" class="hp-chip">💡 Theo dõi LED & bảo hành</button><button type="button" data-h="drv" class="hp-chip">🔧 Driver (HD 680/HD-CTCSCC)</button><button type="button" data-h="files" class="hp-chip">📁 File Lưu</button><button type="button" data-h="tc" class="hp-chip">🌊 Triều cường</button><button type="button" data-h="acc" class="hp-chip">⚙️ Tài khoản của tôi</button><button type="button" data-h="admin" class="hp-chip hp-admin">🛡️ Quản trị (chỉ Quản trị viên)</button><button type="button" data-h="fix" class="hp-chip">🧰 Xử lý nhanh khi gặp lỗi</button></div></div>
       <div id="hpList">
         <details class="hp-sec" id="hp-start"><summary><span class="hp-ic">🚀</span><b>Bắt đầu</b></summary><ul><li>Đăng nhập bằng tài khoản Quản trị cấp; lần đầu app yêu cầu đổi mật khẩu.</li><li>📲 <b>Cài app</b> để mở như ứng dụng trên điện thoại.</li><li>Chip quận trên cùng lọc dữ liệu cho mọi mục.</li><li>Tìm kiếm gõ có dấu hay không dấu đều được.</li></ul></details>
-        <details class="hp-sec" id="hp-new"><summary><span class="hp-ic">➕</span><b>Sự cố – Ghi nhận mới</b></summary><ul><li>Tìm tủ theo tên, mã PE, mã kết nối hoặc tên đường → chạm chọn tủ.</li><li>Chọn lý trình, mức độ, mô tả; bấm 📍 lấy GPS.</li><li>📷 Chụp / 🖼️ chọn ảnh – <b>tối đa 10 ảnh</b>, ảnh tự đóng dấu GPS, tên tủ, giờ.</li><li>Bấm <b>Gửi</b> → Telegram báo ngay cho quản lý.</li></ul></details>
+        <details class="hp-sec" id="hp-new"><summary><span class="hp-ic">➕</span><b>Sự cố – Ghi nhận mới</b></summary><ul><li>Tìm tủ theo tên, mã PE, mã kết nối hoặc tên đường → chạm chọn tủ.</li><li>Chọn lý trình, mức độ, mô tả; bấm 📍 lấy GPS.</li><li>📷 Chụp / 🖼️ chọn ảnh – <b>tối đa 10 ảnh</b>, ảnh tự đóng dấu GPS, tên tủ, giờ.</li><li>Bấm <b>Gửi</b> → Telegram báo ngay cho quản lý.</li><li>Ở Danh sách / chi tiết sự cố: nút <b>⬇</b> tải ảnh hiện trường gốc về máy (điện thoại: chọn “Lưu hình ảnh”) để làm biên bản.</li></ul></details>
         <details class="hp-sec" id="hp-list"><summary><span class="hp-ic">📋</span><b>Sự cố – Danh sách & SCP</b></summary><ul><li>2 mục riêng: <b>Ghi nhận</b> và <b>SCP</b> (lỗi tủ từ trung tâm).</li><li>Tìm, lọc theo người quản lý; ⬇ xuất Excel.</li><li>Chạm nhãn trạng thái để chuyển Mới → Đang xử lý → <b>Đã xử lý</b> (bắt buộc ghi nội dung xử lý) – sự cố đã xử lý được tổng hợp vào sheet <b>DaXuLy</b> và không còn hiện trên danh sách.</li><li>🗑 <b>Xóa</b> sự cố nhập sai: người ghi nhận xóa sự cố của mình, Quản trị xóa mọi sự cố; phải ghi lý do, bản ghi lưu ở sheet SuCoDaXoa.</li><li>Sự cố SCP được báo cáo lại mỗi sáng nếu còn tồn.</li></ul></details>
         <details class="hp-sec" id="hp-map"><summary><span class="hp-ic">🗺️</span><b>Bản đồ</b></summary><ul><li>Bật/tắt lớp từng quận, chạm điểm để xem tủ.</li><li>📏 <b>Nút Đo</b> (góc phải dưới): đo khoảng cách kiểu RTK trên bản đồ vệ tinh có tên đường; chỉ ghi điểm khi đạt sai số cho phép (0–1 m).</li><li>Bắt đầu từ tủ điều khiển, đứng yên tại điểm → bấm Đo; khung đen trên bản đồ hiện khoảng cách tới vị trí hiện tại.</li><li>Đạt ≤ 1 m cần máy thu RTK (điện thoại thường ±3–5 m); ⛶ phóng to bản đồ, 🗄️ hiện tủ.</li></ul></details>
         <details class="hp-sec" id="hp-st"><summary><span class="hp-ic">📒</span><b>Sổ tay sửa chữa</b></summary><ul><li>Chọn <b>mã lỗi</b> (DATA/4G, PLC, PM, PW) → làm theo các bước đánh số từ trên xuống, tick ✓ bước đã kiểm tra.</li><li>Lọc theo <b>nhóm</b>: nguồn tủ, bộ nguồn, jack/cáp, SIM, cài đặt, thiết bị.</li><li>🗂️ Theo nhóm / 📋 Bảng tra nhanh: xem nguyên nhân chung cho nhiều mã lỗi.</li><li>Ở thẻ sự cố SCP bấm <b>📒 Cách xử lý</b> để mở đúng mã lỗi; 🖨️ in hoặc ⬇ Excel mang ra hiện trường.</li></ul></details>
@@ -1390,7 +1410,7 @@ body.wd-off .hub-tide{animation:none;}
         <details class="hp-sec" id="hp-bv"><summary><span class="hp-ic">🏗️</span><b>HS Công trình</b></summary><ul><li>📐 <b>Bản vẽ & hồ sơ</b>: xem theo quận → phường mới; upload đồng loạt mọi định dạng (PDF, ảnh, DWG, ZIP).</li><li>Trong chi tiết tủ: 📤 tải bản vẽ cho tủ, 🔗 gán bản vẽ có sẵn, ✂️ bỏ gán.</li><li>🧾 <b>Thông số kỹ thuật</b>: bảng tổng hợp từng tủ, xuất Excel.</li><li>🔧 <b>Hồ sơ sửa chữa</b>: sự cố đã xử lý, hồ sơ Driver, biên bản hiện trường.</li><li>Ô 🔎 tìm nội dung trong mục đang xem.</li></ul></details>
         <details class="hp-sec" id="hp-led"><summary><span class="hp-ic">💡</span><b>Theo dõi LED & bảo hành</b></summary><ul><li>🔎 Ô tìm kiếm chung: tuyến, tủ, mã PE, hãng, công suất (<i>120w</i>), số công văn, tên file, mã driver.</li><li>📊 Tổng quan: tình trạng bảo hành, tuyến <b>hết BH chưa có biên bản</b>, thống kê hãng.</li><li>💡 Tuyến LED / 📄 Văn bản: xem chi tiết, đính kèm hồ sơ; 📥 nhập nhiều văn bản gốc (PDF, scan…).</li><li>⚖️ Căn cứ pháp lý: Điều 28, 29 NĐ 06/2021/NĐ-CP.</li></ul></details>
         <details class="hp-sec" id="hp-drv"><summary><span class="hp-ic">🔧</span><b>Driver (HD 680/HD-CTCSCC)</b></summary><ul><li>🧮 Nhập công suất đèn, cách đấu, dòng cài đặt → app chọn driver thay thế theo Phụ lục 2.</li><li>＋ <b>Lập hồ sơ</b> (Phụ lục 1) kèm ảnh; app kiểm tra Iout, Uout, công suất.</li><li>🌐 Tìm nguồn driver: Google, datasheet, Shopee, Lazada, Mouser…</li><li>⬇ Excel Phụ lục 1 để đính kèm phiếu lãnh vật tư.</li></ul></details>
-        <details class="hp-sec" id="hp-files"><summary><span class="hp-ic">📁</span><b>File Lưu</b></summary><ul><li>Tải lên ảnh / tài liệu (≤ 20 MB), gắn với tủ.</li><li>⬇ Tải về đúng tên gốc; tick nhiều file → tải ZIP.</li></ul></details>
+        <details class="hp-sec" id="hp-files"><summary><span class="hp-ic">📁</span><b>File Lưu</b></summary><ul><li>Tải lên ảnh / tài liệu (≤ 20 MB), gắn với tủ.</li><li>⬇ Tải về đúng tên gốc; tick nhiều file → tải ZIP.</li><li>👁 <b>Xem lại</b> ngay trong app (ảnh, PDF từng trang, Word/Excel qua Drive).</li><li>➕ <b>Ghép / chèn thêm</b>: thêm PDF hoặc ảnh vào đầu, cuối hoặc sau trang bất kỳ → xem trước → ghi đè file hoặc lưu thành file mới.</li></ul></details>
         <details class="hp-sec" id="hp-tc"><summary><span class="hp-ic">🌊</span><b>Triều cường</b></summary><ul><li>Trang chủ → 🌊 <b>Triều cường</b>: xem đỉnh triều sắp tới tại Phú An, Nhà Bè và mức báo động (🟢 dưới BĐ I · 🟡 BĐ I · 🟠 BĐ II · 🔴 BĐ III).</li><li>➕ Nhập từng đỉnh triều hoặc 📋 <b>dán bản tin</b> Đài KTTV Nam Bộ → 🔍 Tách số liệu → Lưu.</li><li>📝 Bản tin tự soạn sẵn, sửa được → 📤 <b>Gửi Telegram</b>, 🔗 Chia sẻ (Zalo, Gmail…), 📋 Sao chép, ⬇ Excel để báo cáo.</li><li>Quản trị: ⚙️ bật gửi tự động mỗi sáng, chỉnh ngưỡng BĐ, ghi khu vực/tủ cần lưu ý.</li></ul></details>
         <details class="hp-sec" id="hp-acc"><summary><span class="hp-ic">⚙️</span><b>Tài khoản của tôi</b></summary><ul><li>Đổi mật khẩu; quên mật khẩu hiện tại → 🔑 gửi yêu cầu (nhân viên) hoặc nhận OTP Gmail (Quản trị).</li><li>Đăng xuất khi dùng máy chung.</li></ul></details>
         <details class="hp-sec hp-admin" id="hp-admin"><summary><span class="hp-ic">🛡️</span><b>Quản trị (chỉ Quản trị viên)</b></summary><ul><li>Tạo tài khoản đơn lẻ hoặc đồng loạt (Excel / ảnh / dán văn bản); mẫu quyền <b>Xem & Ghi nhận · Ghi nhận · Chỉ xem</b>.</li><li>Sửa tài khoản: 🔑 tạo mật khẩu mới, ✏️ đổi tên đăng nhập, 🗑 xóa; 🔤 chuẩn hóa tên đăng nhập hàng loạt.</li><li>📒 Tổng hợp tài khoản: xem mật khẩu do QT cấp (chưa đổi), lần đăng nhập, tự cập nhật.</li><li>🔐 Face ID / vân tay + OTP Gmail; 🛟 sao lưu tự động & Gmail phụ; báo cáo SCP hằng ngày.</li></ul></details>
@@ -1459,6 +1479,24 @@ body.wd-off .hub-tide{animation:none;}
       <div class="mtop"><h2 id="tkTitle">Tủ điều khiển</h2>
         <button class="mclose" id="tkClose" aria-label="Đóng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
       <div id="tkDetail"></div>
+    </div>
+  </div>
+  <div class="modal-scrim" id="flvScrim">
+    <div class="modal-sheet ks-sheet" style="max-width:920px">
+      <div class="mtop"><h2 id="flvTitle">File</h2><button class="mclose" id="flvClose" aria-label="Đóng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <div class="flv-info who" id="flvInfo"></div>
+      <div class="fl-btns" style="margin:8px 0 10px"><button type="button" class="gps-btn" id="flvDl">⬇ Tải về</button><a class="gps-btn" id="flvDrive" target="_blank" rel="noopener" style="text-decoration:none">↗ Mở Google Drive</a><button type="button" class="gps-btn" id="flvMergeBtn">➕ Ghép / chèn thêm</button></div>
+      <div id="flvMerge" class="flv-merge" style="display:none">
+        <div class="ks-g">➕ Ghép / chèn thêm trang vào file</div>
+        <div class="who" style="margin-bottom:6px">Chọn thêm file PDF hoặc ảnh (chụp, chọn nhiều) – app ghép thành <b>một file PDF</b>. Dùng ↑ ↓ để sắp xếp thứ tự.</div>
+        <div class="fl-btns"><label class="gps-btn fl-pick">📎 Chọn PDF / ảnh<input type="file" id="flvAdd" multiple accept="application/pdf,image/*" hidden></label><label class="gps-btn fl-pick">📷 Chụp ảnh<input type="file" id="flvCam" accept="image/*" capture="environment" hidden></label></div>
+        <div id="flvQueue" class="flv-queue"></div>
+        <div class="flv-row"><label>Vị trí chèn <select id="flvPos"><option value="end">Cuối file</option><option value="start">Đầu file</option><option value="after">Sau trang…</option></select></label><input type="number" id="flvAfter" min="1" value="1" style="display:none;width:80px"><label>Lưu <select id="flvMode"><option value="replace">Ghi đè file này</option><option value="new">Thành file mới</option></select></label></div>
+        <input type="text" id="flvNote" placeholder="Ghi chú lần ghép (tùy chọn)" style="width:100%;margin-top:8px">
+        <div class="fl-btns" style="margin-top:8px"><button type="button" class="gps-btn" id="flvPreview">👁 Xem trước</button><button type="button" class="submit-btn" id="flvSave" style="flex:1">💾 Ghép & lưu</button></div>
+        <div class="who" id="flvMsg" style="margin-top:6px"></div>
+      </div>
+      <div id="flvBody" class="flv-body"><div class="empty">Đang tải…</div></div>
     </div>
   </div>
   <div class="modal-scrim" id="bvScrim">
@@ -2236,7 +2274,7 @@ function renderIncList(){
       ${i.nguon==="SCP" ? `<div class="scp-tag">${["Nguồn SCP", i.trangThai!=="Đã xử lý" ? "tồn "+tonDong(i) : ""].filter(Boolean).join(" · ")}</div>` : ""}
       ${i.ghiChuXuLy ? `<div class="who" style="margin-top:4px">📝 ${escapeHtml(i.ghiChuXuLy)}</div>` : ""}
       <div class="who" style="margin-top:6px">👤 Quản lý tuyến: ${escapeHtml(incQLOf(i)||"—")}${(typeof GIAM_SAT!=="undefined"&&GIAM_SAT[i.quan])?` · Giám sát: ${escapeHtml(GIAM_SAT[i.quan])}`:""}</div>
-      ${i.anhHienTruong ? `<div class="inc-photos">${String(i.anhHienTruong).split(/\n+/).filter(Boolean).map(u=>`<img class="inc-photo" src="${u}" data-full="${u}" loading="lazy">`).join("")}</div>` : ""}
+      ${i.anhHienTruong ? `<div class="inc-photos">${String(i.anhHienTruong).split(/\n+/).filter(Boolean).map(u=>`<img class="inc-photo" src="${u}" data-full="${u}" loading="lazy">`).join("")}<button type="button" class="inc-ph-dl" title="Tải ảnh về máy">⬇<small>${String(i.anhHienTruong).split(/\n+/).filter(Boolean).length}</small></button></div>` : ""}
       <div class="row2">
         <span class="who">${escapeHtml(i.nguoiGhiNhan)} · ${i.ngay}</span>
         <button class="badge status-btn ${statusClass(i.trangThai)}" data-id="${i.id}" ${can("doiTrangThai")?'':'disabled style="cursor:default"'}>${i.trangThai}</button>
@@ -2250,6 +2288,7 @@ function renderIncList(){
     const pinB=card.querySelector(".pin-btn"); if(pinB) pinB.onclick=(ev)=>updateIncidentGPS(i, ev.currentTarget);
     const photoEl = card.querySelector(".inc-photo");
     card.querySelectorAll(".inc-photo").forEach(ph=>ph.onclick=ev=>{ ev.stopPropagation(); incDetail(i,list); });
+    const pdl=card.querySelector(".inc-ph-dl"); if(pdl) pdl.onclick=ev=>{ ev.stopPropagation(); const n=incPhotos(i).length; incPhotoDl(i,[...Array(n).keys()],pdl); };
     card.onclick=ev=>{ if(ev.target.closest("button,a,input,select,label")) return; incDetail(i,list); };
     const vb=document.createElement("button"); vb.type="button"; vb.className="inc-view"; vb.textContent="👁 Xem · 📤 Chia sẻ"; vb.onclick=ev=>{ ev.stopPropagation(); incDetail(i,list); }; card.querySelector(".row1").appendChild(vb);
     if(canDeleteInc(i)){ const db=document.createElement("button"); db.type="button"; db.className="inc-view inc-del"; db.textContent="🗑 Xóa"; db.title="Xóa sự cố nhập sai"; db.onclick=ev=>{ ev.stopPropagation(); deleteIncident(i); }; card.querySelector(".row1").appendChild(db); }
@@ -2260,6 +2299,27 @@ function renderIncList(){
 function escapeHtml(s){ const d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
 
 function isAdmin(){ return !!(SESSION && SESSION.user && SESSION.user.role==="admin"); }
+/* tải ảnh hiện trường gốc về điện thoại / máy tính (đặt tên theo tủ – ngày – số thứ tự) */
+function incPhotoIds(i){ return incPhotos(i).map(u=>(String(u).match(/[?&]id=([^&]+)/)||String(u).match(/\/d\/([^/]+)/)||[])[1]).map(x=>x?decodeURIComponent(x):""); }
+function incPhotoName(i,k){ const safe=s=>String(s||"").normalize("NFC").replace(/[\\/:*?"<>|]+/g,"_").replace(/\s+/g,"_").slice(0,60); return safe(i.cabinetName||i.cabinetPE||"Su_co")+"_"+String(i.ngay||todayISO()).replace(/-/g,"")+"_anh"+(k+1)+".jpg"; }
+async function incPhotoDl(i, ks, btn){
+  const ids=incPhotoIds(i), msg=$("#idPhMsg"), o=btn?btn.textContent:"";
+  const set=t=>{ if(msg) msg.textContent=t; };
+  if(btn){ btn.disabled=true; btn.textContent="⏳"; }
+  try{
+    const files=[];
+    for(const k of ks){ const id=ids[k]; if(!id) continue; set(`Đang tải ảnh ${files.length+1}/${ks.length}…`);
+      const r=await api("getFileData",{driveId:id});
+      if(r.ok){ files.push(new File([b64ToBlob(r.data,r.mime||"image/jpeg")], incPhotoName(i,k), {type:r.mime||"image/jpeg"})); }
+      else { try{ const b=await fetch(incPhotos(i)[k]).then(x=>x.blob()); files.push(new File([b], incPhotoName(i,k), {type:b.type||"image/jpeg"})); }catch(e){ window.open("https://drive.google.com/uc?export=download&id="+encodeURIComponent(id),"_blank"); } } }
+    if(!files.length){ set(""); return; }
+    const mobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if(mobile && navigator.canShare && navigator.canShare({files})){ try{ await navigator.share({files, title:"Ảnh sự cố "+(i.cabinetName||"")}); set("✅ Chọn “Lưu hình ảnh” để lưu vào thư viện ảnh."); return; }catch(e){ if(e&&e.name==="AbortError"){ set(""); return; } } }
+    if(files.length>1 && !mobile){ if(typeof JSZip==="undefined") await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"); const z=new JSZip(); files.forEach(f=>z.file(f.name,f)); saveBlob(await z.generateAsync({type:"blob"}), incPhotoName(i,0).replace(/_anh1\.jpg$/,"_anh.zip")); }
+    else for(const f of files){ saveBlob(f, f.name); await new Promise(r=>setTimeout(r,400)); }
+    set(`✅ Đã tải ${files.length} ảnh.`);
+  }finally{ if(btn){ btn.disabled=false; btn.textContent=o; } }
+}
 function canDeleteInc(i){ return isAdmin() || (!!SESSION && !!SESSION.user && i.nguoiTao===SESSION.user.username && !isScp(i)); }
 function incToast(msg){ let t=$("#incToast"); if(!t){ t=document.createElement("div"); t.id="incToast"; t.className="inc-toast"; document.body.appendChild(t); } t.textContent=msg; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),3800); }
 async function deleteIncident(i){
@@ -2629,7 +2689,8 @@ function renderFiles(){
     const ac=document.createElement("div"); ac.className="fl-act";
     const dl=document.createElement("button"); dl.type="button"; dl.className="dl"; dl.textContent="⬇ Tải về"; dl.title="Tải về đúng tên & định dạng gốc"; dl.onclick=()=>dlFile(f.driveId,f.tenGoc,dl);
     const sel=document.createElement("label"); sel.className="fl-sel"; sel.innerHTML=`<input type="checkbox" ${flSel.has(f.id)?"checked":""}>`; sel.querySelector("input").onchange=e=>{ e.target.checked?flSel.add(f.id):flSel.delete(f.id); flSelUpd(); }; th.appendChild(sel);
-    const vw=document.createElement("a"); vw.textContent="👁 Xem"; vw.href="https://drive.google.com/file/d/"+encodeURIComponent(f.driveId)+"/view"; vw.target="_blank"; vw.rel="noopener";
+    const vw=document.createElement("button"); vw.type="button"; vw.textContent="👁 Xem"; vw.title="Xem lại, ghép / chèn thêm"; vw.onclick=()=>flvOpen(f);
+    th.style.cursor="pointer"; th.onclick=()=>flvOpen(f);
     ac.appendChild(dl); ac.appendChild(vw);
     if(isAdmin() || (SESSION && f.nguoiTai===SESSION.user.username)){
       const dx=document.createElement("button"); dx.className="del"; dx.textContent="🗑"; dx.title="Xóa file";
@@ -2643,6 +2704,81 @@ let flSel=new Set();
 function flSelUpd(){ $("#flZip").disabled=!flSel.size; $("#flZip").textContent = flSel.size ? `⬇ Tải ${flSel.size} file đã chọn (ZIP)` : "⬇ Tải file đã chọn (ZIP)"; }
 $("#flAll").addEventListener("change",e=>{ flSel = new Set(e.target.checked ? flFiles.map(f=>f.id) : []); renderFiles(); flSelUpd(); });
 $("#flZip").onclick=()=>dlZip(flFiles.filter(f=>flSel.has(f.id)).map(f=>({id:f.driveId,name:f.tenGoc,folder:f.cabinetName||""})),"File_Luu",$("#flZipMsg"));
+
+/* ---------- FILE LƯU: XEM LẠI + GHÉP / CHÈN THÊM ---------- */
+let flvCur=null, flvBytes=null, flvMime="", flvPages=0, flvAdds=[];
+const flvIsPdf=f=>/pdf/i.test(f.mime||"")||/\.pdf$/i.test(f.tenGoc||""), flvIsImg=f=>/^image\//i.test(f.mime||"")||/\.(jpe?g|png|gif|webp|heic)$/i.test(f.tenGoc||"");
+function flvCanMerge(f){ return can("taiLenFile") && (flvIsPdf(f)||flvIsImg(f)); }
+async function flvOpen(f){
+  flvCur=f; flvBytes=null; flvPages=0; flvAdds=[]; $("#flvQueue").innerHTML=""; $("#flvMsg").textContent=""; $("#flvNote").value="";
+  $("#flvTitle").textContent=fileIcon(f.mime,f.tenGoc)+" "+f.tenGoc;
+  $("#flvInfo").textContent=[fmtSize(f.size), new Date(f.createdAt).toLocaleString("vi-VN"), "👤 "+(f.nguoiTaiTen||f.nguoiTai||""), f.cabinetName?"🗄️ "+f.cabinetName:"", f.ghiChu?"📝 "+f.ghiChu:""].filter(Boolean).join(" · ");
+  $("#flvDrive").href="https://drive.google.com/file/d/"+encodeURIComponent(f.driveId)+"/view";
+  const own=isAdmin()||(SESSION&&f.nguoiTai===SESSION.user.username);
+  $("#flvMode").querySelector('[value="replace"]').disabled=!own; $("#flvMode").value=own?"replace":"new";
+  $("#flvMergeBtn").style.display=flvCanMerge(f)?"":"none"; $("#flvMerge").style.display="none";
+  $("#flvScrim").classList.add("show");
+  const body=$("#flvBody"); body.innerHTML='<div class="empty">Đang tải nội dung…</div>';
+  if(!(flvIsPdf(f)||flvIsImg(f)||/^text\/|csv|json/i.test(f.mime||""))){ body.innerHTML=`<iframe class="flv-frame" src="https://drive.google.com/file/d/${encodeURIComponent(f.driveId)}/preview" allow="autoplay"></iframe>`; return; }
+  const r=await api("getFileData",{driveId:f.driveId}); if(flvCur!==f) return;
+  if(!r.ok){ body.innerHTML=`<iframe class="flv-frame" src="https://drive.google.com/file/d/${encodeURIComponent(f.driveId)}/preview"></iframe>`; return; }
+  const blob=b64ToBlob(r.data,r.mime); flvMime=r.mime||f.mime; flvBytes=new Uint8Array(await blob.arrayBuffer());
+  if(flvIsImg(f)){ flvPages=1; body.innerHTML=`<img class="flv-img" src="${URL.createObjectURL(blob)}" alt="">`; }
+  else if(flvIsPdf(f)){ await flvRenderPdf(flvBytes, body); }
+  else { body.innerHTML=`<pre class="flv-text">${escHtml(await blob.text()).slice(0,200000)}</pre>`; }
+  $("#flvAfter").max=flvPages||1;
+}
+async function flvRenderPdf(bytes, box, label){
+  await needPdfJs(); const pdf=await pdfjsLib.getDocument({data:bytes.slice()}).promise; if(!label) flvPages=pdf.numPages;
+  box.innerHTML=`<div class="who" style="margin-bottom:6px">${label||""}${pdf.numPages} trang</div>`; const W=Math.min(860, box.clientWidth||600);
+  for(let p=1;p<=pdf.numPages;p++){ const pg=await pdf.getPage(p), vp0=pg.getViewport({scale:1}), sc=Math.min(2,(W/vp0.width))*(window.devicePixelRatio>1?1.5:1), vp=pg.getViewport({scale:sc});
+    const cv=document.createElement("canvas"); cv.width=vp.width; cv.height=vp.height; cv.className="flv-page"; const wrap=document.createElement("div"); wrap.className="flv-pw"; wrap.innerHTML=`<span class="flv-pn">Trang ${p}</span>`; wrap.appendChild(cv); box.appendChild(wrap);
+    await pg.render({canvasContext:cv.getContext("2d"), viewport:vp}).promise; }
+}
+function flvQueueRender(){ const q=$("#flvQueue");
+  q.innerHTML=flvAdds.length?flvAdds.map((x,k)=>`<div class="flv-q"><span>${k+1}. ${/pdf/i.test(x.type)?"📕":"🖼️"} ${escHtml(x.name)} <small>${fmtSize(x.size)}</small></span><span><button type="button" data-a="u" data-k="${k}">↑</button><button type="button" data-a="d" data-k="${k}">↓</button><button type="button" data-a="x" data-k="${k}">✕</button></span></div>`).join(""):'<div class="who">Chưa chọn file nào.</div>';
+  q.querySelectorAll("button").forEach(b=>b.onclick=()=>{ const k=+b.dataset.k; if(b.dataset.a==="x") flvAdds.splice(k,1); else { const j=b.dataset.a==="u"?k-1:k+1; if(j>=0&&j<flvAdds.length) [flvAdds[k],flvAdds[j]]=[flvAdds[j],flvAdds[k]]; } flvQueueRender(); }); }
+["flvAdd","flvCam"].forEach(id=>$("#"+id).addEventListener("change",e=>{ [...e.target.files].forEach(f=>{ if(/pdf/i.test(f.type)||/^image\//.test(f.type)||/\.pdf$/i.test(f.name)) flvAdds.push(f); }); e.target.value=""; flvQueueRender(); }));
+$("#flvPos").onchange=()=>{ $("#flvAfter").style.display=$("#flvPos").value==="after"?"":"none"; };
+$("#flvMergeBtn").onclick=()=>{ const m=$("#flvMerge"); m.style.display=m.style.display==="none"?"":"none"; flvQueueRender(); $("#flvPos").querySelector('[value="after"]').disabled=flvPages<2; };
+async function flvImgPage(doc, PDFLib, file){
+  const bmp=await new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=()=>rej(new Error("Không đọc được ảnh "+(file.name||""))); im.src=URL.createObjectURL(file); });
+  const s=Math.min(1,2400/Math.max(bmp.width,bmp.height)), cv=document.createElement("canvas"); cv.width=Math.round(bmp.width*s); cv.height=Math.round(bmp.height*s); const cx=cv.getContext("2d"); cx.fillStyle="#fff"; cx.fillRect(0,0,cv.width,cv.height); cx.drawImage(bmp,0,0,cv.width,cv.height);
+  const jpg=await doc.embedJpg(Uint8Array.from(atob(cv.toDataURL("image/jpeg",0.88).split(",")[1]),c=>c.charCodeAt(0)));
+  const land=cv.width>cv.height, PW=land?842:595, PH=land?595:842, M=18, k=Math.min((PW-2*M)/cv.width,(PH-2*M)/cv.height);
+  const page=doc.addPage([PW,PH]); page.drawImage(jpg,{x:(PW-cv.width*k)/2,y:(PH-cv.height*k)/2,width:cv.width*k,height:cv.height*k}); return page; }
+async function flvBuild(){
+  if(!flvBytes) throw new Error("Chưa tải xong file gốc");
+  if(!flvAdds.length) throw new Error("Chọn thêm ít nhất 1 file PDF hoặc ảnh để ghép");
+  const PDFLib=await needPdfLib(), {PDFDocument}=PDFLib;
+  /* tài liệu phần thêm */
+  const add=await PDFDocument.create();
+  for(const f of flvAdds){ $("#flvMsg").textContent="Đang xử lý "+f.name+"…";
+    if(/pdf/i.test(f.type)||/\.pdf$/i.test(f.name)){ const src=await PDFDocument.load(new Uint8Array(await f.arrayBuffer()),{ignoreEncryption:true}); (await add.copyPages(src,src.getPageIndices())).forEach(p=>add.addPage(p)); }
+    else await flvImgPage(add, PDFLib, f); }
+  /* tài liệu gốc */
+  let base; if(flvIsPdf(flvCur)) base=await PDFDocument.load(flvBytes,{ignoreEncryption:true}); else { base=await PDFDocument.create(); await flvImgPage(base, PDFLib, new File([flvBytes],flvCur.tenGoc,{type:flvMime})); }
+  const n=base.getPageCount(), pos=$("#flvPos").value, at=pos==="start"?0:pos==="after"?Math.max(1,Math.min(n,Number($("#flvAfter").value)||n)):n;
+  const out=await PDFDocument.create(); const bp=await out.copyPages(base,base.getPageIndices()), ap=await out.copyPages(add,add.getPageIndices());
+  bp.slice(0,at).forEach(p=>out.addPage(p)); ap.forEach(p=>out.addPage(p)); bp.slice(at).forEach(p=>out.addPage(p));
+  out.setTitle(flvCur.tenGoc.replace(/\.[^.]+$/,"")); out.setProducer("CSKVTT"); 
+  return {bytes:await out.save(), pages:out.getPageCount(), added:ap.length, at};
+}
+$("#flvPreview").onclick=async()=>{ try{ const r=await flvBuild(); $("#flvMsg").textContent=`Xem trước: ${r.pages} trang (thêm ${r.added} trang ${r.at===0?"ở đầu":"sau trang "+r.at}). Chưa lưu.`; await flvRenderPdf(r.bytes,$("#flvBody"),"👁 XEM TRƯỚC KẾT QUẢ GHÉP · "); }catch(e){ $("#flvMsg").textContent="⚠️ "+e.message; } };
+$("#flvSave").onclick=async()=>{ const b=$("#flvSave"); b.disabled=true;
+  try{ const r=await flvBuild(); if(r.bytes.length>20*1024*1024) throw new Error("File sau khi ghép "+fmtSize(r.bytes.length)+" – vượt 20 MB, hãy bớt ảnh hoặc lưu thành nhiều file");
+    const name=flvCur.tenGoc.replace(/\.[^.]+$/,"")+".pdf", data=await new Promise(res=>{ const fr=new FileReader(); fr.onload=()=>res(String(fr.result).split(",")[1]); fr.readAsDataURL(new Blob([r.bytes],{type:"application/pdf"})); });
+    $("#flvMsg").textContent="Đang tải lên ("+fmtSize(r.bytes.length)+")…";
+    const note=$("#flvNote").value.trim(), mode=$("#flvMode").value;
+    const res = mode==="replace" ? await api("replaceFile",{id:flvCur.id, file:{name, mime:"application/pdf", data, ghiChu:note}})
+      : await api("uploadFile",{file:{name:name.replace(/\.pdf$/,"_ghep.pdf"), mime:"application/pdf", data, ghiChu:("Ghép từ "+flvCur.tenGoc+(note?" – "+note:"")).slice(0,500), cabinetPE:flvCur.cabinetPE, cabinetName:flvCur.cabinetName, quan:flvCur.quan}});
+    if(!res.ok) throw new Error(res.error||"Không lưu được");
+    if(mode==="replace") flFiles=flFiles.map(x=>x.id===flvCur.id?res.file:x); else flFiles.unshift(res.file);
+    renderFiles(); $("#flvMsg").textContent=`✅ Đã lưu ${r.pages} trang.`; flvOpen(res.file);
+  }catch(e){ $("#flvMsg").textContent="⚠️ "+e.message; } finally{ b.disabled=false; } };
+$("#flvDl").onclick=()=>dlFile(flvCur.driveId, flvCur.tenGoc, $("#flvDl"));
+$("#flvClose").onclick=()=>{ $("#flvScrim").classList.remove("show"); flvCur=null; };
+$("#flvScrim").addEventListener("click",e=>{ if(e.target.id==="flvScrim") $("#flvClose").click(); });
 async function loadFiles(){
   if(!can("xemFile")) return;
   $("#flList").innerHTML='<div class="empty" style="grid-column:1/-1">Đang tải danh sách…</div>';
@@ -5475,7 +5611,9 @@ function incDetail(i, list){
     <div class="tk-grid" style="margin-top:10px">${row("Mã PE",escapeHtml(i.cabinetPE||""))}${row("Quận",escapeHtml(i.quan||""))}${row("Phường mới",escapeHtml(c&&c.pm||""))}${row("Đường",escapeHtml(i.duong||(c&&c.duong)||""))}${row("Lý trình",escapeHtml(i.lyTrinh||""))}
       ${row("Ghi nhận lúc",escapeHtml(incTime(i)))}${row("Người ghi nhận",escapeHtml(i.nguoiGhiNhan||""))}${row("Quản lý tuyến",escapeHtml(incQLOf(i)||""))}${row("Giám sát",escapeHtml((typeof GIAM_SAT!=="undefined"&&GIAM_SAT[i.quan])||""))}
       ${row("Vị trí ghi nhận",i.gpsLat!=null?`<a href="${mapsLink(i.gpsLat,i.gpsLng)}" target="_blank" rel="noopener">📍 ${i.gpsLat}, ${i.gpsLng}</a>`:"")}${row("Vị trí tủ",c&&c.lat!=null?`<a href="${mapsLink(c.lat,c.lng)}" target="_blank" rel="noopener">📍 Mở bản đồ</a>`:"")}</div>
-    ${ph.length?`<div class="ks-g">Ảnh hiện trường (${ph.length})</div><div class="id-photos">${ph.map(u=>`<a href="${u}" target="_blank" rel="noopener"><img src="${u}" loading="lazy"></a>`).join("")}</div>`:""}`;
+    ${ph.length?`<div class="ks-g" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">Ảnh hiện trường (${ph.length}) <button type="button" class="gps-btn" id="idPhAll" style="padding:5px 10px;font-size:12px">⬇ Tải ${ph.length>1?"tất cả "+ph.length+" ảnh":"ảnh"} về máy</button><span class="who" id="idPhMsg"></span></div><div class="id-photos">${ph.map((u,k)=>`<div class="id-ph"><a href="${u}" target="_blank" rel="noopener"><img src="${u}" loading="lazy"></a><button type="button" class="id-ph-dl" data-k="${k}" title="Tải ảnh gốc">⬇</button></div>`).join("")}</div>`:""}`;
+  $("#idBody").querySelectorAll(".id-ph-dl").forEach(b=>b.onclick=()=>incPhotoDl(i,[+b.dataset.k],b));
+  const pa=$("#idPhAll"); if(pa) pa.onclick=()=>incPhotoDl(i,ph.map((_,k)=>k),pa);
   const txt=incShareText(i), enc=encodeURIComponent(txt), link=APP_LINK+"#su-co="+encodeURIComponent(i.id);
   $("#idTg").href="https://t.me/share/url?url="+encodeURIComponent(link)+"&text="+encodeURIComponent(txt.replace(/\n🔗.*$/,""));
   $("#idSms").href="sms:?&body="+enc; $("#idMail").href="mailto:?subject="+encodeURIComponent("[CSKVTT] Sự cố "+i.cabinetName+" – "+(i.trangThai||""))+"&body="+enc;
