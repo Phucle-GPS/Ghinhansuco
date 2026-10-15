@@ -1,8 +1,8 @@
 {
   "id": "quytrinh.html",
-  "name": "QT Sửa chữa – CSKVTT",
-  "short_name": "QT Sửa chữa",
-  "description": "Ghi nhận sự cố, 1022, kho vật tư, kế hoạch duy tu – dùng trên điện thoại và máy tính",
+  "name": "Kho vật tư – CSKVTT",
+  "short_name": "Kho vật tư",
+  "description": "Nhập kho, xuất kho (phiếu lãnh), tồn động, nhập hoàn – tìm phiếu, thiết bị bằng giọng nói",
   "lang": "vi",
   "start_url": "quytrinh.html?nguon=app",
   "scope": "quytrinh",
@@ -36,8 +36,8 @@
   ],
   "shortcuts": [
     {
-      "name": "Nhập kết quả phiếu sửa",
-      "url": "quytrinh.html?lam=kqps",
+      "name": "Tìm phiếu, thiết bị",
+      "url": "quytrinh.html?lam=tim",
       "icons": [
         {
           "src": "qtsc-icon-192.png",
@@ -46,8 +46,8 @@
       ]
     },
     {
-      "name": "Ghi kết quả sửa chữa",
-      "url": "quytrinh.html?lam=kq",
+      "name": "Nhập Kho từ ảnh, file",
+      "url": "quytrinh.html?lam=nk",
       "icons": [
         {
           "src": "qtsc-icon-192.png",
@@ -56,8 +56,8 @@
       ]
     },
     {
-      "name": "Ghi sự cố mới",
-      "url": "quytrinh.html?lam=suco",
+      "name": "Xuất Kho – phiếu lãnh",
+      "url": "quytrinh.html?lam=xk",
       "icons": [
         {
           "src": "qtsc-icon-192.png",
@@ -66,8 +66,8 @@
       ]
     },
     {
-      "name": "Sự cố 1022",
-      "url": "quytrinh.html?v=s1022",
+      "name": "Nhập Hoàn",
+      "url": "quytrinh.html?lam=hoan",
       "icons": [
         {
           "src": "qtsc-icon-192.png",
@@ -87,17 +87,7 @@
         {
           "name": "files",
           "accept": [
-            "image/*",
-            "application/pdf",
-            ".pdf",
-            ".xlsx",
-            ".xls",
-            ".csv",
-            ".docx",
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            "application/vnd.ms-excel",
-            "text/csv",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            "*/*"
           ]
         }
       ]

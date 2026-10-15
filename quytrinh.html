@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>QT Sửa chữa – CSKVTT</title>
+<title>Kho vật tư – CSKVTT</title>
 <link rel="manifest" href="quytrinh-manifest.json">
 <meta name="theme-color" content="#0E3B37">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="QT Sửa chữa">
+<meta name="apple-mobile-web-app-title" content="Kho vật tư">
 <link rel="apple-touch-icon" href="qtsc-apple-icon.png">
 <link rel="icon" type="image/png" href="qtsc-icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -189,6 +189,17 @@ tr.kqtru td{background:var(--amber-soft)}
 .logo{width:34px;height:34px;flex:0 0 auto}
 .brand .bt,.lgb .bt{display:flex;flex-direction:column;line-height:1.15}.brand .bt small,.lgb .bt small{font-size:11px;font-weight:500;opacity:.7}
 #mTitle{display:flex;align-items:center;gap:8px}#mbar .logo{width:26px;height:26px}
+#timBar{position:sticky;top:0;z-index:20;background:var(--bg);padding:10px 0 8px;margin:0 0 4px}
+.timw{display:flex;align-items:center;gap:6px;background:var(--paper);border:1.5px solid var(--line);border-radius:24px;padding:4px 6px 4px 14px;max-width:760px}
+.timw:focus-within{border-color:var(--amber);box-shadow:0 0 0 3px var(--amber-soft)}.timw>svg{width:20px;height:20px;color:var(--muted);flex:0 0 auto}
+#timQ{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:16px;color:var(--ink);padding:8px 2px}#timQ::-webkit-search-cancel-button{display:none}
+#timX,#timMic{all:unset;cursor:pointer;width:38px;height:38px;display:grid;place-items:center;border-radius:50%;color:var(--muted)}#timMic{background:var(--amber);color:#14222E}#timMic svg{width:20px;height:20px}#timMic.on{background:#B42A25;color:#fff;animation:nhap 1s infinite}
+@keyframes nhap{50%{box-shadow:0 0 0 8px rgba(180,42,37,.25)}}
+#timKQ{position:absolute;left:0;right:0;max-width:760px;max-height:70vh;overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.2);margin-top:6px;padding:4px}
+.tkh{font-size:12px;font-weight:700;text-transform:uppercase;color:var(--muted);padding:8px 10px 4px}
+.tkr{all:unset;display:block;box-sizing:border-box;width:100%;cursor:pointer;padding:8px 10px;border-radius:8px;line-height:1.45}.tkr:hover,.tkr:focus{background:var(--amber-soft)}.tkr b.ok{color:var(--green)}.tkr b.no{color:var(--red)}
+table.mini{font-size:13px}table.mini td,table.mini th{padding:4px 8px}.kpi.click{cursor:pointer}
+@media (max-width:760px){main{padding-top:0!important}#timBar{top:calc(env(safe-area-inset-top,0px) + 52px);padding:8px 0;margin:0 -12px 6px;padding-left:12px;padding-right:12px}#timKQ{left:8px;right:8px;max-height:65vh}}
 ol.hl{margin:6px 0;padding-left:22px}ol.hl li{margin:4px 0}
 .hgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
 details.hd summary{cursor:pointer}
@@ -202,31 +213,18 @@ td input.mini{width:80px;padding:3px 6px}
 <body>
 <header id="mbar"><button type="button" id="mMenu" aria-label="Mở menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><b id="mTitle">CSKVTT</b><i id="mSync" aria-hidden="true"></i><button type="button" class="nut-cai" id="mCai" aria-label="Cài app lên điện thoại"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M12 7v7M9 11l3 3 3-3"/></svg></button><button type="button" id="mAdd" class="qe" aria-label="Thêm nhanh">＋</button></header>
 <div id="mBack"></div>
-<nav id="tabs" aria-label="Điều hướng nhanh"><button type="button" data-t="dash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Tổng quan</button><button type="button" data-t="suco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.5"/></svg>Sự cố<em id="tbd" hidden></em></button><button type="button" data-t="add" class="add qe"><span class="c">＋</span>Thêm</button><button type="button" data-t="kho"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8l9-5 9 5v11l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v10"/></svg>Kho</button><button type="button" data-t="kehoach"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Kế hoạch</button></nav>
+<nav id="tabs" aria-label="Điều hướng nhanh"><button type="button" data-t="tondong"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8l9-5 9 5v11l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v10"/></svg>Tồn Động</button><button type="button" data-t="nhapkho"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>Nhập</button><button type="button" data-t="add" class="add qe"><span class="c">＋</span>Thêm</button><button type="button" data-t="xuatkho"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5M4 21h16"/></svg>Xuất</button><button type="button" data-t="nhaphoan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg>Hoàn<em id="tbd" hidden></em></button></nav>
 <div class="app">
   <aside id="nav">
-    <div class="brand"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect x=".5" y=".5" width="31" height="31" rx="7" fill="#0E5C54" stroke="rgba(255,255,255,.35)"/><path d="M10 26V11.5a6 5 0 0 1 11-2.8" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M18.5 8.3h8l-2.2 3h-3.8z" fill="#fff"/><circle cx="22.4" cy="11.8" r="1.3" fill="#F5B642"/><path d="M14.5 25.5l8-7" stroke="#F5B642" stroke-width="2.6" stroke-linecap="round"/><circle cx="24" cy="17.4" r="2.5" fill="none" stroke="#F5B642" stroke-width="2"/><circle cx="13.6" cy="26.3" r="2" fill="none" stroke="#F5B642" stroke-width="1.8"/></svg><span class="bt">QT Sửa chữa<small>CSKVTT – Chiếu sáng KV Trung tâm</small></span></div>
-    <button data-v="dash">Tổng quan</button>
-    <div class="ng" data-g="suco"><button type="button" class="nh" data-g="suco" aria-expanded="false"><span>Sự cố</span><span class="bd" data-gbd hidden></span><i class="mui" aria-hidden="true"></i></button><div class="nsub">
-      <button data-v="suco">Danh sách sự cố <span class="bd" id="bdSuco" hidden></span></button>
-      <button data-v="s1022">Sự cố 1022 <span class="bd" id="bd1022" hidden></span></button>
-      <button data-v="phieusua">Phân tách, in phiếu sửa</button>
-      <button data-v="import">Nhập dữ liệu, ảnh, file</button>
-    </div></div>
-    <div class="ng" data-g="kho"><button type="button" class="nh" data-g="kho" aria-expanded="false"><span>Kho vật tư</span><span class="bd" data-gbd hidden></span><i class="mui" aria-hidden="true"></i></button><div class="nsub">
-      <button data-v="px">Phiếu xuất</button>
-      <button data-v="pn">Phiếu nhập</button>
-      <button data-v="nh">Nhập hoàn</button>
-      <button data-v="capphat">Cấp phát theo ngày</button>
-      <button data-v="tonkho">Tồn kho <span class="bd" id="bdTK" hidden></span></button>
-      <button data-v="vattu">Đối chiếu vật tư thi công <span class="bd" id="bdVT" hidden></span></button>
-    </div></div>
-    <div class="ng" data-g="kehoach"><button type="button" class="nh" data-g="kehoach" aria-expanded="false"><span>Kế hoạch</span><span class="bd" data-gbd hidden></span><i class="mui" aria-hidden="true"></i></button><div class="nsub">
-      <button data-v="kehoach">Kế hoạch, khối lượng</button>
-      <button data-v="sosanh">So sánh, số còn lại</button>
-    </div></div>
+    <div class="brand"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect x=".5" y=".5" width="31" height="31" rx="7" fill="#0E5C54" stroke="rgba(255,255,255,.35)"/><path d="M10 26V11.5a6 5 0 0 1 11-2.8" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M18.5 8.3h8l-2.2 3h-3.8z" fill="#fff"/><circle cx="22.4" cy="11.8" r="1.3" fill="#F5B642"/><path d="M14.5 25.5l8-7" stroke="#F5B642" stroke-width="2.6" stroke-linecap="round"/><circle cx="24" cy="17.4" r="2.5" fill="none" stroke="#F5B642" stroke-width="2"/><circle cx="13.6" cy="26.3" r="2" fill="none" stroke="#F5B642" stroke-width="1.8"/></svg><span class="bt">Kho vật tư<small>CSKVTT – Chiếu sáng KV Trung tâm</small></span></div>
+    <button data-v="tondong">Tồn Động <span class="bd" id="bdTK" hidden></span></button>
+    <button data-v="nhapkho">Nhập Kho</button>
+    <button data-v="xuatkho">Xuất Kho</button>
+    <button data-v="nhaphoan">Nhập Hoàn <span class="bd" id="bdNH" hidden></span></button>
+    <div hidden id="navAn"><button data-v="dash">Tổng quan</button><button data-v="suco">Danh sách sự cố <span class="bd" id="bdSuco" hidden></span></button><button data-v="s1022">Sự cố 1022 <span class="bd" id="bd1022" hidden></span></button><button data-v="phieusua">Phân tách, in phiếu sửa</button><button data-v="import">Nhập dữ liệu, ảnh, file</button><button data-v="px">Phiếu xuất</button><button data-v="pn">Phiếu nhập</button><button data-v="nh">Nhập hoàn</button><button data-v="capphat">Cấp phát theo ngày</button><button data-v="tonkho">Tồn kho <span class="bd" id="bdTKcu" hidden></span></button><button data-v="vattu">Đối chiếu vật tư thi công <span class="bd" id="bdVT" hidden></span></button><button data-v="kehoach">Kế hoạch, khối lượng</button><button data-v="sosanh">So sánh, số còn lại</button></div>
     <div class="ng" data-g="hethong"><button type="button" class="nh" data-g="hethong" aria-expanded="false"><span>Hệ thống</span><span class="bd" data-gbd hidden></span><i class="mui" aria-hidden="true"></i></button><div class="nsub">
       <button data-v="taikhoan" class="qa">Tài khoản, phân quyền</button>
+      <button data-v="import">Lịch sử nhập, nạp file</button>
       <button data-v="caidat">Cài đặt, sao lưu</button>
       <button data-v="huongdan">Hướng dẫn</button>
     </div></div>
@@ -235,7 +233,7 @@ td input.mini{width:80px;padding:3px 6px}
     <div id="userBox"></div><small id="syncBox"></small>
     <small id="clock"></small>
   </aside>
-  <main id="main"></main>
+  <main><div id="timBar"><div class="timw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="timQ" type="search" enterkeyhint="search" autocomplete="off" aria-label="Tìm kiếm phiếu, thiết bị"><button type="button" id="timX" aria-label="Xóa">✕</button><button type="button" id="timMic" aria-label="Nói để tìm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div><div id="timKQ" hidden></div></div><div id="main"></div></main>
 </div>
 <div class="toasts" id="toasts" aria-live="polite"></div>
 
@@ -327,7 +325,7 @@ function level(x){if(x.trangThai==='Đã xử lý')return'choDong';const h=ageH(
 const LV={thuong:['Trong hạn','pa'],qua24:['Tồn >24h','pa'],qua48:['Tồn >48h','pr'],choDong:['Đã xử lý, chờ đóng','pg']};
 const pillTT=t=>`<span class="pill ${t==='Đã đóng'||t==='Đã xử lý'?'pg':t&&t.startsWith('Tạm dừng')?'pr':'pa'}">${esc(t||'Mới')}</span>`;
 const cvSet=()=>new Set([...S.goi,...S.kh].map(x=>x.maCV));
-function maHopLe(ma){return S.suco.some(x=>x.ma===ma)||cvSet().has(ma)}
+function maHopLe(ma){return !!String(ma||'').trim()}
 function capNhatDMVT(lines){lines.forEach(l=>{if(!l.maVT)return;let d=S.dmvt.find(x=>x.maVT===l.maVT);if(!d){d={maVT:l.maVT,tenVT:l.tenVT||'',dvt:l.dvt||'',tonMin:0};S.dmvt.push(d)}else{d.tenVT||=l.tenVT||'';d.dvt||=l.dvt||''}})}
 const khoList=()=>[...new Set([...KHO_MD,...S.pn.map(p=>p.kho),...S.px.map(p=>p.kho)].filter(Boolean))];
 function soAnh(refType,refId){return S.files.filter(f=>f.refType===refType&&f.refId===refId).length}
@@ -687,7 +685,7 @@ let audioCtx=null;
 function beep(){if(!S.cfg.amThanh)return;try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();[0,0.25].forEach(t=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.value=880;o.connect(g);g.connect(audioCtx.destination);g.gain.setValueAtTime(0.15,audioCtx.currentTime+t);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+t+0.2);o.start(audioCtx.currentTime+t);o.stop(audioCtx.currentTime+t+0.2)})}catch(e){}}
 function toast(title,body,kind=''){const t=document.createElement('div');t.className='toast '+kind;t.innerHTML=`<header><span>${esc(title)}</span><button aria-label="Đóng">✕</button></header><div style="white-space:pre-line">${esc(body)}</div>`;t.querySelector('button').onclick=()=>t.remove();$('#toasts').prepend(t);while($('#toasts').children.length>5)$('#toasts').lastChild.remove();if(kind==='g')setTimeout(()=>t.remove(),8000)}
 function osNotify(title,body){try{if(navigator.vibrate)navigator.vibrate([300,150,300]);if('Notification' in window&&Notification.permission==='granted'){if(swReg&&swReg.active){swReg.showNotification(title,{body,tag:'cskvtt-1022',renotify:true,requireInteraction:true,icon:'qtsc-icon-192.png',badge:'qtsc-icon-192.png',vibrate:[300,150,300],data:{v:'s1022'}});return}const n=new Notification(title,{body,tag:'cskvtt-1022',renotify:true,requireInteraction:true});n.onclick=()=>{window.focus();go('s1022');n.close()}}}catch(e){}}
-async function tick1022(){if(ROLE()!=='admin')return;
+async function tick1022(){return;
   const now=Date.now();const due=[];
   S.suco.forEach(x=>{if(x.nhom!=='1022'||isClosed(x))return;const lv=level(x);const last=x.lanNhac?Date.parse(x.lanNhac):0;if(now-last>=(S.cfg.nhip[lv]||60)*6e4){due.push({x,lv});x.lanNhac=new Date(now).toISOString();x.soLanNhac=(x.soLanNhac||0)+1}});
   if(due.length){
@@ -708,13 +706,14 @@ const PF={pn:{q:'',loai:'',from:ymd(new Date(today.getFullYear(),today.getMonth(
 PF.nh={q:'',loai:'',from:ymd(new Date(today.getFullYear(),today.getMonth(),1)),to:ymd(today)};
 const TK={kho:'',from:ymd(new Date(today.getFullYear(),today.getMonth(),1)),to:ymd(today),chiCB:false,q:''};
 const CP={from:ymd(new Date(today.getFullYear(),today.getMonth(),1)),to:ymd(today),loai:'Thi công',kho:''};
-function go(v){cur=v;moMenu(false);capNhatDT(v);moNhomNav(v);for(const k in SEL)SEL[k].clear();document.querySelectorAll('#nav button[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===v));freeURLs();render()}
+const GO_AL={dash:'tondong',tonkho:'tondong',pn:'nhapkho',px:'xuatkho',nh:'nhaphoan',suco:'tondong',s1022:'tondong',phieusua:'tondong',kehoach:'tondong',sosanh:'tondong',capphat:'xuatkho',vattu:'nhaphoan'};
+function go(v){v=GO_AL[v]||v;if(!V[v])v='tondong';cur=v;moMenu(false);capNhatDT(v);moNhomNav(v);for(const k in SEL)SEL[k].clear();document.querySelectorAll('#nav button[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===v));freeURLs();render()}
 function badges(){setTimeout(()=>capNhatDT(cur),0);
   const mo=S.suco.filter(x=>!isClosed(x)).length;const o1022=S.suco.filter(x=>x.nhom==='1022'&&!isDone(x));const c48=o1022.filter(x=>ageH(x)>=48).length;
   const vt=vatTuRows().filter(r=>r.flags.length).length;const tk=tonKho('',new Date(2000,0,1),new Date()).filter(r=>r.flags.length).length;
   const set=(id,n)=>{const e=$(id);e.hidden=!n;e.textContent=n};set('#bdSuco',mo);set('#bd1022',o1022.length);set('#bdVT',vt);set('#bdTK',tk);
-  $('#bd1022').style.background=c48?'#B42A25':'#B87400';
-  document.title=(o1022.length?`(${o1022.length}) `:'')+'CSKVTT – Quy trình sửa chữa chiếu sáng';
+  $('#bd1022').style.background=c48?'#B42A25':'#B87400';{const nh=S.px.filter(laLanh).filter(p=>treoPL(p).tt==='con').length;const e=$('#bdNH');if(e){e.hidden=!nh;e.textContent=nh}}
+  document.title='Kho vật tư – CSKVTT';
 }
 function render(){$('#main').innerHTML=thanhTren(cur)+V[cur]();badges();after[cur]&&after[cur]();bindSel();bindTren()}
 function refreshLists(){
@@ -1085,7 +1084,7 @@ function editPhieu(kind,id,opt={}){
     <label>Ngày<input type="date" name="ngay" value="${ymd(v.ngay)}" required></label>
     <label>Loại ${isN?'nhập':'xuất'}<select name="loai"${hoan?' disabled':''}>${opts(hoan?['Hoàn nhập']:isN?LOAI_NHAP.filter(x=>x!=='Hoàn nhập'):LOAI_XUAT,v.loai)}</select></label>${hoan?`<label>Phiếu xuất gốc<select name="pxGoc">${opts(S.px.filter(x=>x.loai==='Thi công').sort((a,b)=>Date.parse(b.ngay)-Date.parse(a.ngay)).map(x=>[x.soPhieu,`${x.soPhieu} – ${fmtD(x.ngay)} – ${x.maSC||''}`]),v.pxGoc||'','– không chọn –')}</select></label>`:''}
     <label>Kho<input name="kho" value="${esc(v.kho)}" list="dsKho" required></label>
-    <label>Mã sự cố / hạng mục<input name="maSC" value="${esc(v.maSC)}" list="dsMaSC" placeholder="${isN?'Khi hoàn nhập, thu hồi':'Bắt buộc với xuất thi công'}"></label>
+    <label>Mã công trình, sự cố<input name="maSC" value="${esc(v.maSC)}" list="dsMaSC" placeholder="Mã công trình, sự cố (nếu có)"></label>
     <label>${isN?'Người giao / Nhà cung cấp':'Người nhận / Tổ'}<input name="nguoi" value="${esc(v.nguoi)}"></label>
     <label class="full">Ghi chú<input name="ghiChu" value="${esc(v.ghiChu)}"></label>
   </div>
@@ -1121,11 +1120,10 @@ function editPhieu(kind,id,opt={}){
       lines.push({maVT:normMa(l.maVT),tenVT:(l.tenVT||'').trim(),dvt:normDVT(l.dvt),sl,donGia:isN?(num(l.donGia)||0):0,maSC:(l.maSC||'').trim()})}
     if(!lines.length){alert('Phiếu chưa có vật tư.');return}
     const np={...v,soPhieu:so,ngay:new Date(ngay.getFullYear(),ngay.getMonth(),ngay.getDate(),12).toISOString(),loai:hoan?'Hoàn nhập':d.loai,kho:d.kho.trim(),maSC:normMa(d.maSC),nguoi:d.nguoi.trim(),ghiChu:d.ghiChu.trim(),lines};
-    if(hoan){np.pxGoc=d.pxGoc||'';const sai=lines.filter(l=>!maHopLe(l.maSC||np.maSC));if(sai.length){alert('Nhập hoàn phải gắn mã sự cố hoặc mã hạng mục hợp lệ (ở phiếu hoặc từng dòng).');return}
+    if(hoan){np.pxGoc=d.pxGoc||'';
       const g=S.px.find(x=>x.soPhieu===np.pxGoc);if(g){const vuot=lines.filter(l=>{const xu=g.lines.filter(a=>a.maVT===l.maVT).reduce((s,a)=>s+a.sl,0);const da=S.pn.filter(q=>q.loai==='Hoàn nhập'&&q.id!==np.id&&q.pxGoc===g.soPhieu).reduce((s,q)=>s+q.lines.filter(a=>a.maVT===l.maVT).reduce((t,a)=>t+a.sl,0),0);return l.sl>xu-da});
         if(vuot.length&&!confirm('Số hoàn vượt số đã xuất ở phiếu gốc: '+vuot.map(l=>l.maVT).join(', ')+'. Vẫn lưu?'))return}}
     if(!isN&&np.loai==='Thi công'){
-      const sai=lines.filter(l=>!maHopLe(l.maSC||np.maSC));if(sai.length){alert('Xuất thi công phải gắn mã sự cố hoặc mã hạng mục hợp lệ (ở phiếu hoặc từng dòng). Dòng chưa hợp lệ: '+sai.map(l=>l.maVT).join(', '));return}
       const dong=[...new Set(lines.map(l=>l.maSC||np.maSC))].map(m=>S.suco.find(s=>s.ma===m)).filter(s=>s&&isClosed(s)&&s.tgXong&&Date.parse(np.ngay)>endOfDay(s.tgXong).getTime());
       if(dong.length&&!confirm('Xuất cho sự cố đã đóng: '+dong.map(s=>s.ma).join(', ')+'. Vẫn lưu?'))return}
     if(!isN){const vt=kiemTraVuotTon(np);if(vt.length&&!confirm('Xuất vượt tồn kho:\n'+vt.map(x=>`${x.vt}: xuất ${fmtN(x.sl)}, tồn ${fmtN(x.ton)}`).join('\n')+'\n\nVẫn lưu? (nên tạo phiếu nhập trước)'))return}
@@ -1330,7 +1328,8 @@ async function aiGoi(content,maxTokens=8000){
   const d=await res.json();return(d.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('')}
 async function docAI(t,file,kind){
   let block;
-  if(kind==='pdf'){if(file.size>30*1048576)throw new Error('PDF lớn hơn 30 MB, hãy tách nhỏ');block={type:'document',source:{type:'base64',media_type:'application/pdf',data:await toB64(file)}}}
+  if(kind==='txt'){block={type:'text',text:'NỘI DUNG FILE (văn bản trích từ file '+(file?file.name:'')+'):\n'+String(arguments[3]||'').slice(0,150000)}}
+  else if(kind==='pdf'){if(file.size>30*1048576)throw new Error('PDF lớn hơn 30 MB, hãy tách nhỏ');block={type:'document',source:{type:'base64',media_type:'application/pdf',data:await toB64(file)}}}
   else{const img=await nenAnh(file);block={type:'image',source:{type:'base64',media_type:/image\/(png|gif|webp)/.test(img.type)?img.type:'image/jpeg',data:await toB64(img)}}}
   const keys=allF(t).map(([k,l,ty])=>`- "${k}": ${l}${ty==='n'?' (số)':ty==='d'?' (ngày dd/mm/yyyy)':''}`).join('\n');
   let dm='';
@@ -1352,7 +1351,7 @@ Chỉ trả về JSON đúng dạng {"rows":[...],"canhBao":"..."}, không viế
   let js;try{js=JSON.parse(txt.slice(a,b+1))}catch(e){throw new Error('Không đọc được kết quả AI, thử lại hoặc chụp ảnh rõ hơn')}
   return{rows:Array.isArray(js.rows)?js.rows:[],note:js.canhBao?'AI lưu ý: '+js.canhBao:''};
 }
-async function docNguon(t,file,prog){
+async function docNguonCu(t,file,prog){
   const n=file.name.toLowerCase();
   if(/\.(xlsx|xls|csv)$/.test(n)){if(typeof XLSX==='undefined')throw new Error('Chưa tải được thư viện Excel, kiểm tra mạng');return docExcel(t,file)}
   if(/\.docx$/.test(n))return docWord(t,file);
@@ -1403,11 +1402,11 @@ function kiemDong(t,r,head){
     if(t.k==='kk'&&typeof v.sl==='number'&&v.sl<0)err.push('SL không được âm');
     if(v.maSC)v.maSC=normMa(v.maSC);
     if(t.k==='pn'){v.loai=matchOpt(v.loai,LOAI_NHAP,'Mua mới');if(v.loai==='Hoàn nhập')warn.push('Nên nhập ở mục Nhập hoàn');v.kho=v.kho||(v.loai==='Thu hồi'?'Kho thu hồi':'Kho chính')}
-    if(t.k==='px')v.loai=matchOpt(v.loai,LOAI_XUAT,v.maSC?'Thi công':'Khác');
+    if(t.k==='px')v.loai=matchOpt(v.loai,LOAI_XUAT,'Thi công');
     if(t.k==='cp')v.loai='Thi công';
     if(t.k==='nh')v.loai='Hoàn nhập';
     v.kho=v.kho||'Kho chính';
-    if((v.loai==='Thi công'||t.k==='nh')&&!maHopLe(v.maSC))err.push(v.maSC?`Mã SC/HM "${v.maSC}" không có`:'Thiếu mã sự cố/hạng mục');
+    
     if(v.soPhieu){v.soPhieu=normMa(v.soPhieu);const arr=(t.k==='px'||t.k==='cp')?S.px:S.pn;if(arr.some(p=>p.soPhieu===v.soPhieu))err.push('Số phiếu đã có')}
     if(t.k==='kk'&&v.maVT&&v.ngay instanceof Date){v.so=tonTai(v.maVT,v.kho,v.ngay);if(typeof v.sl==='number')v.chenh=v.sl-v.so}
   }
@@ -1429,8 +1428,8 @@ function drawCap(){
   const C=CAP,t=C.t,f=$('#dlgForm');const hd=[...(t.hf||[]),...t.f.filter(x=>t.head.includes(x[0]))];
   const chuaDoc=C.src.filter(s=>s.st==='cho').length;const val=C.rows.map(r=>kiemDong(t,r,C.head));const nOk=val.filter(v=>!v.err.length).length;
   f.innerHTML=`<h2 style="margin:0 0 4px">Nhập ${esc(t.ten.toLowerCase())} từ ảnh, file</h2>
-  <p class="muted" style="margin:0 0 10px">1. Thêm nguồn: chụp ảnh, ảnh có sẵn trên máy, file Excel, Word (.docx), PDF – tối đa ${MAX_ANH} nguồn. 2. Bấm "Đọc dữ liệu". 3. Kiểm tra, sửa, xóa dòng sai. 4. Ghi nhận. Ảnh và PDF scan đang đọc bằng: <b>${S.cfg.aiKey?'AI (Claude)':'OCR miễn phí, độ chính xác thấp'}</b>${S.cfg.aiKey?'':' – bật AI ở Cài đặt để đọc chính xác hơn'}.</p>
-  <div class="att" id="capDrop"><div class="att-h"><button class="b" type="button" id="capCam">Chụp ảnh</button><label class="b">Chọn ảnh, file<input type="file" id="capFi" multiple accept="image/*,.pdf,.xlsx,.xls,.csv,.docx" hidden></label><span class="muted">hoặc kéo thả, dán ảnh (Ctrl+V)</span><span class="pill ${C.src.length>=MAX_ANH?'pr':'pn'}">${C.src.length}/${MAX_ANH}</span></div>
+  <p class="muted" style="margin:0 0 10px">1. Thêm nguồn: chụp ảnh hoặc chọn bất kỳ file nào (ảnh, Excel, Word, PDF, ODS, văn bản, HTML, JSON…), không giới hạn số file. 2. Bấm "Đọc dữ liệu". 3. Kiểm tra, sửa, xóa dòng sai. 4. Ghi nhận. Ảnh và PDF scan đang đọc bằng: <b>${S.cfg.aiKey?'AI (Claude)':'OCR miễn phí, độ chính xác thấp'}</b>${S.cfg.aiKey?'':' – bật AI ở Cài đặt để đọc chính xác hơn'}.</p>
+  <div class="att" id="capDrop"><div class="att-h"><button class="b" type="button" id="capCam">Chụp ảnh</button><label class="b">Chọn ảnh, file<input type="file" id="capFi" multiple hidden></label><span class="muted">hoặc kéo thả, dán ảnh (Ctrl+V)</span><span class="pill pn">${C.src.length} nguồn</span></div>
     <div class="thumbs">${C.src.map((s,i)=>`<div class="thumb"><div class="im" data-cv="${i}">${s.url?`<img src="${s.url}" alt="">`:esc(s.file.name)}</div><div style="font-size:12px;padding:3px 6px" data-cs="${i}">${s.st==='cho'?'<span class="pill pn">Chưa đọc</span>':s.st==='dang'?`<span class="pill pa">Đang đọc ${s.pct||''}</span>`:s.st==='loi'?'<span class="pill pr">Lỗi</span>':`<span class="pill pg">${s.n} dòng</span>`}</div><button type="button" class="x" data-cx="${i}">Xóa nguồn</button></div>`).join('')}</div>
     ${C.src.filter(s=>s.st==='loi').map(s=>`<div class="msg r">${esc(s.file.name)}: ${esc(s.loi)}</div>`).join('')}</div>
   <div class="bar" style="margin-top:10px"><button class="b p" type="button" id="capDoc"${chuaDoc?'':' disabled'}>Đọc dữ liệu (${chuaDoc} nguồn)</button><button class="b" type="button" id="capAdd">Thêm dòng tay</button></div>
@@ -1447,8 +1446,7 @@ function drawCap(){
 }
 function capCount(){const n=CAP.rows.filter(r=>!kiemDong(CAP.t,r,CAP.head).err.length).length;const b=$('#capOK');b.disabled=!n;b.textContent=`Ghi nhận ${n} dòng hợp lệ`}
 function capThem(files){
-  const C=CAP;if(!C)return;files=[...(files||[])].filter(f=>f&&f.size);const room=MAX_ANH-C.src.length;
-  if(files.length>room)toast(`Tối đa ${MAX_ANH} nguồn mỗi lần nhập`,room>0?`Chỉ thêm ${room} file đầu.`:'Xóa bớt nguồn trước khi thêm.');
+  const C=CAP;if(!C)return;files=[...(files||[])].filter(f=>f&&f.size);const room=1e6;
   files.slice(0,Math.max(0,room)).forEach(f=>C.src.push({id:uid(),file:f,url:f.type.startsWith('image/')?keepURL(URL.createObjectURL(f)):'',st:'cho'}));drawCap()}
 function bindCap(){
   const C=CAP;
@@ -1681,7 +1679,7 @@ function hetPhien(){if(!SRV.on)return;SRV.on=false;SRV.token='';DB.set('srv_toke
 async function xoaCucBo(){for(const k of KEYS){S[k]=[];await DB.set(k,[]).catch(()=>{})}await DB.clearBlobs().catch(()=>{});SRV.shadow={};SRV.rev=0;await DB.set('srv_shadow',{});await DB.set('srv_rev',0)}
 function manDangNhap(msg){
   let o=$('#login');if(!o){o=document.createElement('div');o.id='login';document.body.appendChild(o)}
-  o.innerHTML=`<div class="lg"><div class="lgb"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect x=".5" y=".5" width="31" height="31" rx="7" fill="#0E5C54" stroke="rgba(255,255,255,.35)"/><path d="M10 26V11.5a6 5 0 0 1 11-2.8" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M18.5 8.3h8l-2.2 3h-3.8z" fill="#fff"/><circle cx="22.4" cy="11.8" r="1.3" fill="#F5B642"/><path d="M14.5 25.5l8-7" stroke="#F5B642" stroke-width="2.6" stroke-linecap="round"/><circle cx="24" cy="17.4" r="2.5" fill="none" stroke="#F5B642" stroke-width="2"/><circle cx="13.6" cy="26.3" r="2" fill="none" stroke="#F5B642" stroke-width="1.8"/></svg><span class="bt">QT Sửa chữa<small>CSKVTT – Chiếu sáng KV Trung tâm</small></span></div><h2 style="margin:0">Đăng nhập</h2>${msg?`<div class="msg a">${esc(msg)}</div>`:''}
+  o.innerHTML=`<div class="lg"><div class="lgb"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect x=".5" y=".5" width="31" height="31" rx="7" fill="#0E5C54" stroke="rgba(255,255,255,.35)"/><path d="M10 26V11.5a6 5 0 0 1 11-2.8" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M18.5 8.3h8l-2.2 3h-3.8z" fill="#fff"/><circle cx="22.4" cy="11.8" r="1.3" fill="#F5B642"/><path d="M14.5 25.5l8-7" stroke="#F5B642" stroke-width="2.6" stroke-linecap="round"/><circle cx="24" cy="17.4" r="2.5" fill="none" stroke="#F5B642" stroke-width="2"/><circle cx="13.6" cy="26.3" r="2" fill="none" stroke="#F5B642" stroke-width="1.8"/></svg><span class="bt">Kho vật tư<small>CSKVTT – Chiếu sáng KV Trung tâm</small></span></div><h2 style="margin:0">Đăng nhập</h2>${msg?`<div class="msg a">${esc(msg)}</div>`:''}
   <label>Tên đăng nhập<input id="lgU" autocomplete="username" autocapitalize="none"></label>
   <label>Mật khẩu<input id="lgP" type="password" autocomplete="current-password"></label>
   <button class="b p" id="lgOK" type="button">Đăng nhập</button><div id="lgMsg"></div>
@@ -1764,17 +1762,12 @@ function demChoDuyet(){return{p:S.pn.filter(p=>p.duyet===false).length+S.px.filt
 /* ---------- TÀI KHOẢN, NHẬT KÝ ---------- */
 let DSU=null,NK=null;
 const BANG_QUYEN=[
-  ['Xem các mục, xuất Excel','Tất cả','Tất cả (sự cố theo phạm vi quận nếu được giới hạn)','Tất cả (sự cố theo phạm vi quận nếu được giới hạn)'],
-  ['Ghi nhận sự cố mới, thêm ảnh, file','Có','Có','Không'],
-  ['Sửa, xóa sự cố','Mọi sự cố','Chỉ sự cố mình ghi nhận','Không'],
-  ['Đổi trạng thái sự cố, đóng phiếu 1022','Có','Không','Không'],
-  ['Lập phiếu nhập, xuất, nhập hoàn, cấp phát','Có','Có, ở trạng thái chờ duyệt','Không'],
+  ['Xem Tồn Động, phiếu, tìm kiếm, xuất Excel','Có','Có','Có'],
+  ['Lập phiếu Nhập Kho, Xuất Kho (phiếu lãnh), Nhập Hoàn; nhập từ ảnh, file','Có','Có, ở trạng thái chờ duyệt','Không'],
   ['Sửa, xóa phiếu','Mọi phiếu','Phiếu của mình khi chưa duyệt','Không'],
-  ['Ghi khối lượng thực hiện ngày','Có','Có, chờ xác nhận','Không'],
-  ['Duyệt phiếu, xác nhận khối lượng','Có','Không','Không'],
-  ['Kế hoạch tháng, quý, tổng gói, nhóm duy tu','Có','Chỉ xem','Chỉ xem'],
+  ['Quyết toán phiếu lãnh (số đã dùng)','Mọi phiếu','Phiếu của mình khi chưa duyệt; phiếu khác ghi kèm phiếu hoàn','Không'],
+  ['Duyệt phiếu','Có','Không','Không'],
   ['Kiểm kê, tồn tối thiểu, danh mục vật tư','Có','Chỉ xem','Chỉ xem'],
-  ['Nạp file Excel, nhập từ ảnh, file','Có','Có, trừ kế hoạch và tổng gói','Không'],
   ['Cài đặt chung, tài khoản, nhật ký thao tác','Có','Không','Không']];
 const bangQuyenHTML=()=>`<div class="tw"><table><thead><tr><th>Chức năng</th><th>Quản trị</th><th>Nhập liệu</th><th>Theo dõi</th></tr></thead><tbody>${BANG_QUYEN.map(r=>`<tr><td class="w">${r[0]}</td>${r.slice(1).map(c=>`<td class="w">${c==='Không'?'<span class="muted">Không</span>':esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 V.taikhoan=()=>{
@@ -1838,9 +1831,9 @@ const HELP={
   huongdan:{t:'Hướng dẫn',md:'Hướng dẫn chung, bảng phân quyền và cách cài máy chủ.',b:['Mỗi màn hình có nút "Hướng dẫn mục này" ở góc trên.','Bấm "In hướng dẫn" để in hoặc lưu PDF gửi cho tổ đội.'],q:{admin:'',nhaplieu:'',theodoi:''}}
 };
 const BAT_DAU={
-  admin:['Đăng nhập bằng tài khoản quản trị, đổi mật khẩu ở lần đầu.','Vào Tài khoản, phân quyền: tạo tài khoản cho từng người, gửi liên kết mời.','Vào Kế hoạch, khối lượng: nhập tổng gói, gán nhóm duy tu; nhập kế hoạch tháng, quý.','Hằng ngày: xem Tổng quan, duyệt phiếu và xác nhận khối lượng chờ duyệt, cập nhật trạng thái sự cố, đóng phiếu 1022.','Cuối tháng: xem So sánh, số còn lại và Đối chiếu vật tư, xuất Excel báo cáo.'],
-  nhaplieu:['Mở liên kết mời, đăng nhập bằng tài khoản được cấp, đổi mật khẩu.','Tại hiện trường: Danh sách sự cố → Thêm sự cố, chụp ảnh trước, sau.','Lãnh vật tư: Phiếu xuất → Tạo phiếu hoặc Nhập từ ảnh, file; ghi đúng mã sự cố.','Cuối ngày: Kế hoạch, khối lượng → KL thực hiện ngày, ghi khối lượng đã làm.','Vật tư thừa: Nhập hoàn → chọn phiếu xuất gốc.','Ghi sai: chọn dòng rồi xóa (chỉ khi quản trị chưa duyệt). Đã duyệt thì báo quản trị sửa.'],
-  theodoi:['Mở liên kết mời, đăng nhập, đổi mật khẩu.','Xem Tổng quan, Sự cố 1022, So sánh, số còn lại.','Xuất Excel ở từng mục khi cần báo cáo.']};
+  admin:['Đăng nhập, đổi mật khẩu ở lần đầu; tạo tài khoản cho thủ kho, tổ đội ở Hệ thống → Tài khoản.','Nhập tồn đầu kỳ: Nhập Kho → Nhập từ ảnh, file (loại Tồn đầu kỳ) hoặc Kiểm kê ở Tồn Động.','Hằng ngày: duyệt phiếu chờ duyệt, xem Tồn Động và các phiếu lãnh chưa hoàn tất ở Nhập Hoàn.','Cuối tháng: xuất Excel Tồn Động, Nhập Hoàn.'],
+  nhaplieu:['Mở link app, đăng nhập, đổi mật khẩu.','Vật tư về kho: Nhập Kho → Nhập từ ảnh, file (chụp phiếu hoặc chọn file bất kỳ).','Lãnh vật tư: Xuất Kho → chụp phiếu lãnh, phiếu đề nghị.','Thi công xong: Nhập Hoàn → Quyết toán, ghi số đã dùng, app tự lập phiếu hoàn phần còn lại.','Cần tìm gì: gõ hoặc bấm micro ở ô tìm kiếm trên cùng.'],
+  theodoi:['Mở link app, đăng nhập, đổi mật khẩu.','Xem Tồn Động, Nhập Hoàn; tìm phiếu, thiết bị bằng ô tìm kiếm (gõ hoặc nói).','Xuất Excel khi cần báo cáo.']};
 const CAI_MAY_CHU=['Mở drive.google.com bằng tài khoản Gmail của đơn vị, tạo Google Sheet mới, đặt tên "CSKVTT - Du lieu quy trinh".','Trong Sheet: menu Tiện ích mở rộng → Apps Script. Xóa hết nội dung mẫu, dán toàn bộ nội dung file quytrinh-maychu.gs, bấm Lưu.','Chọn hàm khoiTao ở thanh trên, bấm Chạy. Google hỏi quyền: chọn tài khoản → Nâng cao → Đi tới dự án → Cho phép.','Bấm Triển khai → Tùy chọn triển khai mới → biểu tượng bánh răng chọn Ứng dụng web. Thực thi với tư cách: Tôi. Người có quyền truy cập: Bất kỳ ai. Bấm Triển khai, sao chép URL kết thúc bằng /exec.','Mở app quytrinh.html, ở màn hình đăng nhập mở "Địa chỉ máy chủ", dán URL. Đăng nhập admin / Admin@123 và đổi mật khẩu ngay.','Sau này sửa file .gs: Triển khai → Quản lý triển khai → biểu tượng bút → Phiên bản mới → Triển khai (giữ nguyên URL).'];
 function moHelp(v){
   const h=HELP[v]||HELP.huongdan,R=ROLE();
@@ -1854,14 +1847,14 @@ V.huongdan=()=>{const R=ROLE();
   <div class="bar"><button class="b" id="inHD">In hướng dẫn, lưu PDF</button></div>
   <h2>Bắt đầu nhanh theo vai trò</h2><div class="hgrid">${['admin','nhaplieu','theodoi'].map(r=>`<div class="card"${r===R&&SRV.on?' style="border-color:var(--amber)"':''}><h3 style="margin-top:0">${ROLE_TEN[r]}${r===R&&SRV.on?' (bạn)':''}</h3><ol class="hl">${BAT_DAU[r].map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div>`).join('')}</div>
   <h2>Bảng phân quyền</h2>${bangQuyenHTML()}
-  <h2>Hướng dẫn từng mục</h2>${Object.entries(HELP).filter(([k])=>k!=='huongdan').map(([k,h])=>`<details class="card hd"><summary><b>${esc(h.t)}</b> – ${esc(h.md)}</summary><ol class="hl">${h.b.map(x=>`<li>${esc(x)}</li>`).join('')}</ol><p style="margin:6px 0 0"><b>Quản trị:</b> ${esc(h.q.admin)}<br><b>Nhập liệu:</b> ${esc(h.q.nhaplieu)}<br><b>Theo dõi:</b> ${esc(h.q.theodoi)}</p></details>`).join('')}
+  <h2>Hướng dẫn từng mục</h2>${Object.entries(HELP).filter(([k])=>['tondong','nhapkho','xuatkho','nhaphoan','import','taikhoan','caidat'].includes(k)).map(([k,h])=>`<details class="card hd"><summary><b>${esc(h.t)}</b> – ${esc(h.md)}</summary><ol class="hl">${h.b.map(x=>`<li>${esc(x)}</li>`).join('')}</ol><p style="margin:6px 0 0"><b>Quản trị:</b> ${esc(h.q.admin)}<br><b>Nhập liệu:</b> ${esc(h.q.nhaplieu)}<br><b>Theo dõi:</b> ${esc(h.q.theodoi)}</p></details>`).join('')}
   <h2>Cài máy chủ dữ liệu chung (quản trị làm một lần)</h2><div class="card"><p style="margin-top:0">Máy chủ là một Google Sheet kèm Apps Script của đơn vị, lưu dữ liệu chung, ảnh (trên Google Drive), tài khoản và nhật ký. Không có máy chủ, app chạy chế độ một máy: dữ liệu chỉ nằm trên máy đó và không phân quyền.</p><ol class="hl">${CAI_MAY_CHU.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div>`};
 after.huongdan=()=>{$('#inHD').onclick=()=>{document.querySelectorAll('details.hd').forEach(d=>d.open=true);window.print()}};
 function thanhTren(v){
   let s=thanhCon(v)+`<div class="hbar"><button class="b" type="button" data-help="${v}">? Hướng dẫn mục này</button></div>`;
-  if(v==='dash'&&SRV.on&&ROLE()==='admin'){const c=demChoDuyet();if(c.p||c.k)s+=`<div class="msg a" style="clear:none">Chờ duyệt: ${c.p} phiếu, ${c.k} dòng khối lượng ngày. <button class="b" type="button" data-go="pn">Phiếu nhập</button> <button class="b" type="button" data-go="px">Phiếu xuất</button> <button class="b" type="button" data-go="kehoach" data-khtab="kln">Khối lượng ngày</button></div>`}
-  if(v==='dash'&&!daCai()&&!anBanner)s+=`<div class="msg a">Cài app lên ${chamTay()?'màn hình chính điện thoại':'máy tính'} để mở như ứng dụng riêng, chạy cả khi mất mạng. <button class="b p" type="button" data-cai>Cài app</button> <button class="b" type="button" data-anbn>Để sau</button></div>`;
-  if(v==='tonkho'&&S.cfg.truKhoKhiDuyet){const n=S.pn.concat(S.px).filter(p=>p.duyet===false).length;if(n)s+=`<div class="msg a">Đang chỉ tính phiếu đã duyệt: ${n} phiếu chờ duyệt chưa được trừ, cộng vào tồn.</div>`}
+  if(v==='tondong'&&SRV.on&&ROLE()==='admin'){const c=demChoDuyet();if(c.p)s+=`<div class="msg a" style="clear:none">Chờ duyệt: ${c.p} phiếu. <button class="b" type="button" data-go="nhapkho">Nhập Kho</button> <button class="b" type="button" data-go="xuatkho">Xuất Kho</button> <button class="b" type="button" data-go="nhaphoan">Nhập Hoàn</button></div>`}
+  if(v==='tondong'&&!daCai()&&!anBanner)s+=`<div class="msg a">Cài app lên ${chamTay()?'màn hình chính điện thoại':'máy tính'} để mở như ứng dụng riêng, chạy cả khi mất mạng. <button class="b p" type="button" data-cai>Cài app</button> <button class="b" type="button" data-anbn>Để sau</button></div>`;
+  if(v==='tondong'&&S.cfg.truKhoKhiDuyet){const n=S.pn.concat(S.px).filter(p=>p.duyet===false).length;if(n)s+=`<div class="msg a">Đang chỉ tính phiếu đã duyệt: ${n} phiếu chờ duyệt chưa được trừ, cộng vào tồn.</div>`}
   if(v!=='huongdan'&&SRV.on&&ROLE()==='theodoi')s+='<div class="msg a">Tài khoản theo dõi: chỉ xem và xuất Excel.</div>';
   return s;
 }
@@ -2022,8 +2015,8 @@ after.phieusua=()=>{
 HELP.phieusua={t:'Phân tách, in phiếu sửa',md:'Đưa danh sách sự cố vào, app tự chia nhóm và in phiếu sửa theo mẫu.',b:['Bước 1: chọn file Export hoặc Excel bất kỳ có cột Tên tủ, Đường, Tháng, Nội dung; hoặc chụp ảnh danh sách; hoặc dán tin nhắn Zalo (mỗi dòng một sự cố); hoặc "Lấy sự cố đang mở".','App tự chia 4 nhóm: đèn tắt, chớp, mờ; hư chóa, thân đèn; hư rẽ nhánh, RCBO, hộp liên thông; tủ điều khiển. Tự tách số trụ (TS14, trụ số 1(9)…) và loại đèn (LED 20W ×2, MH 70W, HPS 150W).','Bước 2: bấm các nút nhóm để xem. Dòng viền vàng cần kiểm tra (chưa rõ tủ, tuyến hoặc số trụ). Sửa nhóm, số trụ, loại đèn ngay trên thẻ; bấm ✕ để xóa dòng sai.','Bước 3: điền tháng, nhóm sửa, ngày sửa (hoặc để trống để ghi tay), chọn phiếu cần in, bấm "In phiếu, lưu PDF" hoặc "Xuất Excel theo mẫu".','Có thể bấm "Ghi vào danh sách sự cố" để lưu các sự cố này vào app theo dõi tiếp. Mã sự cố được in vào cột Ghi chú để sau này đối chiếu tự động.','Sau khi tổ sửa xong: bấm "Nhập kết quả phiếu sửa đã ghi tay", chụp phiếu. App quy các cột Driver, Chống sét, Bóng, Ballast, Kích, Tụ, BCM, Đuôi đèn thành vật tư, rồi tạo khối lượng ngày, phiếu xuất bù phần chưa có phiếu, phiếu nhập thu hồi và chuyển sự cố sang Đã xử lý.','Danh sách đang làm được lưu trên máy, tắt app mở lại vẫn còn.'],q:{admin:'Toàn quyền.',nhaplieu:'Phân tách, in, xuất, ghi vào danh sách sự cố.',theodoi:'Phân tách, in, xuất; không ghi vào danh sách sự cố.'}};
 
 /* ================== NHÓM MỤC CHÍNH, MỤC CON ================== */
-const NHOM_MENU={suco:{t:'Sự cố',v:['suco','s1022','phieusua','import']},kho:{t:'Kho vật tư',v:['px','pn','nh','capphat','tonkho','vattu']},kehoach:{t:'Kế hoạch',v:['kehoach','sosanh']},hethong:{t:'Hệ thống',v:['taikhoan','caidat','huongdan']}};
-const TEN_NGAN={suco:'Danh sách',s1022:'1022',phieusua:'Phân tách, in',import:'Nhập dữ liệu',px:'Phiếu xuất',pn:'Phiếu nhập',nh:'Nhập hoàn',capphat:'Cấp phát',tonkho:'Tồn kho',vattu:'Đối chiếu',kehoach:'Kế hoạch, KL',sosanh:'Số còn lại',taikhoan:'Tài khoản',caidat:'Cài đặt',huongdan:'Hướng dẫn'};
+const NHOM_MENU={hethong:{t:'Hệ thống',v:['taikhoan','import','caidat','huongdan']}};
+const TEN_NGAN={import:'Lịch sử nạp',suco:'Danh sách',s1022:'1022',phieusua:'Phân tách, in',import:'Nhập dữ liệu',px:'Phiếu xuất',pn:'Phiếu nhập',nh:'Nhập hoàn',capphat:'Cấp phát',tonkho:'Tồn kho',vattu:'Đối chiếu',kehoach:'Kế hoạch, KL',sosanh:'Số còn lại',taikhoan:'Tài khoản',caidat:'Cài đặt',huongdan:'Hướng dẫn'};
 const nhomCua=v=>Object.keys(NHOM_MENU).find(g=>NHOM_MENU[g].v.includes(v))||'';
 const cuoiNhom={};
 function vaoNhom(g){const N=NHOM_MENU[g];if(!N)return go(g);const ok=v=>{const b=document.querySelector(`#nav button[data-v="${v}"]`);return b&&getComputedStyle(b).display!=='none'};go(cuoiNhom[g]&&ok(cuoiNhom[g])?cuoiNhom[g]:N.v.find(ok)||N.v[0])}
@@ -2160,6 +2153,183 @@ async function docKQNguon(){
     if(KQ===K)veKQ()}
 }
 
+/* ================== APP KHO: NHẬP KHO, XUẤT KHO, TỒN ĐỘNG, NHẬP HOÀN ================== */
+const laLanh=p=>p.loai==='Thi công';
+function daHoanPL(p,vt){return S.pn.filter(q=>q.loai==='Hoàn nhập'&&q.pxGoc===p.soPhieu).reduce((s,q)=>s+q.lines.filter(l=>l.maVT===vt).reduce((a,l)=>a+(+l.sl||0),0),0)}
+function daDungPL(p,vt){
+  const L=p.lines.filter(l=>l.maVT===vt);if(L.length&&L.every(l=>l.dd!=null&&l.dd!==''))return L.reduce((s,l)=>s+(+l.dd||0),0);
+  const h=S.pn.filter(q=>q.loai==='Hoàn nhập'&&q.pxGoc===p.soPhieu&&q.qtDung&&q.qtDung[vt]!=null).sort((a,b)=>Date.parse(b._at||b.ngay)-Date.parse(a._at||a.ngay))[0];
+  return h?+h.qtDung[vt]:null;
+}
+function treoPL(p){
+  const M=new Map();p.lines.forEach(l=>{const r=M.get(l.maVT)||{maVT:l.maVT,tenVT:l.tenVT||'',dvt:l.dvt||'',xuat:0};r.xuat+=+l.sl||0;M.set(l.maVT,r)});
+  const R=[...M.values()].map(r=>{r.hoan=daHoanPL(p,r.maVT);r.dung=daDungPL(p,r.maVT);r.qt=r.dung!=null;r.con=Math.max(0,r.xuat-(r.dung||0)-r.hoan);return r});
+  const qt=R.every(r=>r.qt),con=R.reduce((s,r)=>s+r.con,0);
+  return{rows:R,qt,con,tt:con<=0&&(qt||R.every(r=>r.hoan>=r.xuat))?'xong':!qt?'chua':'con'};
+}
+const TT_PL={xong:['Đã xong','pg'],con:['Còn phải hoàn','pa'],chua:['Chưa quyết toán','pn']};
+function treoTheoVT(){const T={};S.px.filter(laLanh).forEach(p=>{const t=treoPL(p);if(t.tt==='xong')return;t.rows.forEach(r=>{if(r.con>0)T[r.maVT]=(T[r.maVT]||0)+r.con})});return T}
+
+/* ---- Màn hình ---- */
+const doiTieuDe=(h,a,b)=>h.replace(/<h1>[^<]*<\/h1><p class="sub">[\s\S]*?<\/p>/,`<h1>${a}</h1><p class="sub">${b}</p>`);
+V.nhapkho=()=>doiTieuDe(vPhieu('pn'),'Nhập Kho','Vật tư vào kho: mua mới, cấp từ công ty, tồn đầu kỳ, thu hồi, điều chuyển đến. Bấm "Nhập từ ảnh, file" và chọn bất kỳ file nào (ảnh chụp phiếu, Excel, Word, PDF, văn bản, tin nhắn…), app tự đọc thành phiếu nhập; tồn kho cập nhật ngay. Chọn dòng rồi bấm xóa khi nhập sai.');
+after.nhapkho=()=>afterPhieu('pn');
+V.xuatkho=()=>doiTieuDe(vPhieu('px'),'Xuất Kho','Phiếu lãnh, phiếu đề nghị lãnh vật tư. Bấm "Nhập từ ảnh, file" và chọn bất kỳ file nào, app tự đọc thành phiếu lãnh, trừ tồn kho và đưa vào theo dõi Nhập Hoàn. App cảnh báo khi xuất vượt tồn. Chọn dòng rồi bấm xóa khi nhập sai.');
+after.xuatkho=()=>afterPhieu('px');
+V.tondong=()=>{
+  const R=tonKho('',new Date(2000,0,1),new Date()),T=treoTheoVT();const am=R.filter(r=>r.cuoi<0).length,thap=R.filter(r=>r.cuoi>=0&&r.tonMin>0&&r.cuoi<r.tonMin).length;
+  const PL=S.px.filter(laLanh).map(p=>treoPL(p));const nCon=PL.filter(t=>t.tt==='con').length,nChua=PL.filter(t=>t.tt==='chua').length;
+  const cards=`<div class="kpis"><div class="kpi"><b>${R.filter(r=>r.cuoi>0).length}</b><span>Mã vật tư còn trong kho</span></div><div class="kpi ${am?'r':''}"><b>${am}</b><span>Mã vật tư âm kho</span></div><div class="kpi ${thap?'a':''}"><b>${thap}</b><span>Dưới mức tối thiểu</span></div><div class="kpi a click" data-go="nhaphoan"><b>${nCon+nChua}</b><span>Phiếu lãnh chưa hoàn tất (${nCon} còn phải hoàn, ${nChua} chưa quyết toán)</span></div></div>`;
+  let h=doiTieuDe(V.tonkho(),'Tồn Động','Tự tổng hợp từ Nhập Kho, Xuất Kho và Nhập Hoàn: Tồn cuối = Tồn đầu kỳ + Nhập (gồm nhập hoàn) − Xuất. Cột "Đang ở tổ" là vật tư đã lãnh ra chưa dùng, chưa hoàn. Bấm một dòng để xem thẻ kho từng ngày.');
+  h=h.replace('<th class="n">Tồn tối thiểu</th>','<th class="n">Đang ở tổ</th><th class="n">Tồn tối thiểu</th>').replace(/(<td class="n"><b>[^<]*<\/b><\/td>)(<td class="n"><input class="mini"[^>]*data-min="([^"]*)")/g,(m,a,b,vt)=>{const v=T[vt.replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&#39;/g,"'")];return `${a}<td class="n">${v?fmtN(v):''}</td>${b}`});
+  return h.replace('</p>','</p>'+cards);
+};
+after.tondong=()=>after.tonkho();
+const NHV={loc:'mo',q:''};
+V.nhaphoan=()=>{
+  const all=S.px.filter(laLanh).map(p=>({p,t:treoPL(p)}));const q=norm(NHV.q);
+  let L=all.filter(x=>NHV.loc==='mo'?x.t.tt!=='xong':NHV.loc==='all'||x.t.tt===NHV.loc);
+  if(q)L=L.filter(({p})=>norm([p.soPhieu,p.maSC,p.nguoi,p.ghiChu,...p.lines.map(l=>l.maVT+' '+l.tenVT)].join(' ')).includes(q));
+  L.sort((a,b)=>Date.parse(b.p.ngay)-Date.parse(a.p.ngay));const n=k=>all.filter(x=>k==='mo'?x.t.tt!=='xong':k==='all'||x.t.tt===k).length;
+  const ds=L.slice(0,300).map(({p,t})=>`<div class="psr${t.tt==='con'?' vang':''}"><div class="psh"><b>${esc(p.soPhieu)}</b><span class="muted">${fmtD(p.ngay)} · ${esc(p.nguoi||'')} ${p.maSC?'· '+esc(p.maSC):''}</span><span class="pill ${TT_PL[t.tt][1]}">${TT_PL[t.tt][0]}${t.con?' '+fmtN(t.con):''}</span></div>
+    <div class="tw"><table class="mini"><thead><tr><th>Vật tư</th><th class="n">Lãnh</th><th class="n">Đã dùng</th><th class="n">Đã hoàn</th><th class="n">Còn phải hoàn</th></tr></thead><tbody>${t.rows.map(r=>`<tr><td>${esc(r.tenVT||r.maVT)} <span class="muted">${esc(r.maVT)}</span></td><td class="n">${fmtN(r.xuat)}</td><td class="n">${r.qt?fmtN(r.dung):'<span class="muted">?</span>'}</td><td class="n">${r.hoan?fmtN(r.hoan):''}</td><td class="n"><b>${r.qt?fmtN(r.con):'<span class="muted">tối đa '+fmtN(r.xuat-r.hoan)+'</span>'}</b></td></tr>`).join('')}</tbody></table></div>
+    ${t.tt!=='xong'?`<div class="bar qe" style="margin:6px 0 0"><button class="b p" type="button" data-qt="${p.id}">Quyết toán, nhập hoàn</button><button class="b" type="button" data-hethet="${p.id}">Dùng hết, không hoàn</button></div>`:''}</div>`).join('');
+  const hoan=vPhieu('pn','nh').replace(/<h1>[^<]*<\/h1><p class="sub">[\s\S]*?<\/p>/,'<h2>Phiếu nhập hoàn đã lập</h2>');
+  return`<h1>Nhập Hoàn</h1><p class="sub">Phần còn lại của vật tư đã lãnh: Còn phải hoàn = Lãnh − Đã dùng − Đã hoàn, app tự tính theo từng phiếu lãnh. Bấm "Quyết toán, nhập hoàn", ghi số đã dùng, app tự lập phiếu nhập hoàn phần còn lại và cộng lại vào Tồn Động.</p>
+  <div class="chips">${[['mo','Chưa hoàn tất'],['con','Còn phải hoàn'],['chua','Chưa quyết toán'],['xong','Đã xong'],['all','Tất cả']].map(([k,l])=>`<button class="b${NHV.loc===k?' p':''}" data-nhl="${k}">${l} ${n(k)}</button>`).join('')}</div>
+  <div class="bar"><input id="nhq" placeholder="Tìm số phiếu lãnh, người, vật tư…" value="${esc(NHV.q)}" style="min-width:220px"></div>
+  <div class="psl">${ds||'<p class="muted">Không có phiếu lãnh nào trong mục này.</p>'}</div>${hoan}`;
+};
+after.nhaphoan=()=>{
+  afterPhieu('pn','nh');
+  document.querySelectorAll('[data-nhl]').forEach(b=>b.onclick=()=>{NHV.loc=b.dataset.nhl;render()});
+  let tmr;$('#nhq').oninput=e=>{clearTimeout(tmr);tmr=setTimeout(()=>{NHV.q=e.target.value;render();const i=$('#nhq');i.focus();i.setSelectionRange(i.value.length,i.value.length)},250)};
+  document.querySelectorAll('[data-qt]').forEach(b=>b.onclick=()=>quyetToan(b.dataset.qt));
+  document.querySelectorAll('[data-hethet]').forEach(b=>b.onclick=async()=>{const p=S.px.find(x=>x.id===b.dataset.hethet);if(!p)return;if(!quyenSua('px',p)){toast('Không sửa được phiếu này','Phiếu đã duyệt hoặc do người khác lập. Dùng "Quyết toán, nhập hoàn".');return}
+    if(!confirm(`Phiếu ${p.soPhieu}: ghi nhận đã dùng hết số lãnh (trừ phần đã hoàn), không còn phải hoàn?`))return;
+    [...new Set(p.lines.map(l=>l.maVT))].forEach(vt=>{const L=p.lines.filter(l=>l.maVT===vt);let con=Math.max(0,L.reduce((s,l)=>s+(+l.sl||0),0)-daHoanPL(p,vt));L.forEach((l,j)=>{const x=j===L.length-1?con:Math.min(con,+l.sl||0);l.dd=x;con-=x})});await save('px');render()});
+};
+function quyetToan(pid){
+  const p=S.px.find(x=>x.id===pid);if(!p)return;const t=treoPL(p);const sua=quyenSua('px',p);
+  const D=t.rows.map(r=>({...r,in:r.qt?r.dung:''}));const f=$('#dlgForm');
+  const ve=()=>{f.innerHTML=`<h2 style="margin:0 0 4px">Quyết toán phiếu lãnh ${esc(p.soPhieu)}</h2><p class="muted" style="margin:0 0 10px">${fmtD(p.ngay)} · ${esc(p.nguoi||'')} ${p.maSC?'· '+esc(p.maSC):''} · ${esc(p.kho)}. Ghi số thực tế đã dùng, app tính phần còn lại phải nhập hoàn về kho.</p>
+    <div class="tw"><table class="ed"><thead><tr><th>Vật tư</th><th class="n">Lãnh</th><th class="n">Đã hoàn</th><th class="n">Đã dùng</th><th class="n">Còn phải hoàn</th></tr></thead><tbody>
+    ${D.map((r,i)=>`<tr><td>${esc(r.tenVT||r.maVT)}<br><span class="muted">${esc(r.maVT)} ${esc(r.dvt)}</span></td><td class="n">${fmtN(r.xuat)}</td><td class="n">${fmtN(r.hoan)}</td><td><input data-dd="${i}" value="${r.in}" inputmode="decimal" style="width:70px" placeholder="0"></td><td class="n"><b data-con="${i}">${fmtN(Math.max(0,r.xuat-(numLoose(r.in)||0)-r.hoan))}</b></td></tr>`).join('')}
+    </tbody></table></div>
+    <div class="bar" style="margin:8px 0 0"><button class="b" type="button" id="qtHet">Dùng hết</button><button class="b" type="button" id="qtKhong">Chưa dùng gì (hoàn hết)</button></div>
+    ${sua?'':'<div class="msg a">Phiếu đã duyệt hoặc do người khác lập: số đã dùng được lưu kèm phiếu nhập hoàn.</div>'}
+    <div id="dlgMsg"></div><div class="bar" style="margin:14px 0 0;justify-content:flex-end"><button class="b" value="cancel">Đóng</button>${sua?'<button class="b" type="button" id="qtLuu">Chỉ lưu số đã dùng</button>':''}<button class="b p" type="button" id="qtHoan">Lưu và nhập hoàn phần còn lại</button></div>`;
+    const tinh=()=>D.forEach((r,i)=>{r.in=f.querySelector(`[data-dd="${i}"]`).value;const c=Math.max(0,r.xuat-(numLoose(r.in)||0)-r.hoan);f.querySelector(`[data-con="${i}"]`).textContent=fmtN(c)});
+    f.querySelectorAll('[data-dd]').forEach(i=>i.oninput=tinh);
+    $('#qtHet').onclick=()=>{D.forEach(r=>r.in=Math.max(0,r.xuat-r.hoan));ve()};$('#qtKhong').onclick=()=>{D.forEach(r=>r.in=0);ve()};
+    const kt=()=>{tinh();for(const r of D){const v=numLoose(r.in);if(String(r.in).trim()===''){$('#dlgMsg').innerHTML='<div class="msg r">Ghi số đã dùng cho mọi dòng (0 nếu chưa dùng).</div>';return false}if(isNaN(v)||v<0||v>r.xuat-r.hoan+1e-9){$('#dlgMsg').innerHTML=`<div class="msg r">${esc(r.maVT)}: số đã dùng phải từ 0 đến ${fmtN(r.xuat-r.hoan)}.</div>`;return false}r.v=v}return true};
+    const ghiDD=()=>{D.forEach(r=>{const L=p.lines.filter(l=>l.maVT===r.maVT);let con=r.v;L.forEach((l,j)=>{const x=j===L.length-1?con:Math.min(con,+l.sl||0);l.dd=x;con-=x})})};
+    const lu=$('#qtLuu');if(lu)lu.onclick=async()=>{if(!kt())return;ghiDD();await save('px');$('#dlg').close();toast('Đã lưu quyết toán '+p.soPhieu,'','g');render()};
+    $('#qtHoan').onclick=async()=>{if(!kt())return;const lines=D.map(r=>({maVT:r.maVT,tenVT:r.tenVT,dvt:r.dvt,sl:Math.max(0,r.xuat-r.v-r.hoan),donGia:0,maSC:''})).filter(l=>l.sl>0);
+      if(sua)ghiDD();const qtDung=Object.fromEntries(D.map(r=>[r.maVT,r.v]));
+      if(lines.length){const now=new Date();const np={id:uid(),soPhieu:genSoPhieu('pn',now.toISOString(),'NH'),ngay:new Date(now.getFullYear(),now.getMonth(),now.getDate(),12).toISOString(),loai:'Hoàn nhập',kho:p.kho,maSC:p.maSC||'',nguoi:p.nguoi||'',ghiChu:'Hoàn phần còn lại của phiếu lãnh '+p.soPhieu,pxGoc:p.soPhieu,qtDung,lines};S.pn.push(np);capNhatDMVT(lines)}
+      else if(!sua){$('#dlgMsg').innerHTML='<div class="msg a">Không còn vật tư phải hoàn.</div>';return}
+      await save('px','pn','dmvt');$('#dlg').close();toast(lines.length?'Đã lập phiếu nhập hoàn':'Đã quyết toán',lines.length?`${p.soPhieu}: hoàn ${lines.length} vật tư về ${p.kho}. Tồn Động đã cộng lại.`:'Không còn phải hoàn.','g');render()};
+  };
+  moDialog();ve();
+}
+
+Object.assign(HELP,{
+  tondong:{t:'Tồn Động',md:'Tồn kho tự tổng hợp từ Nhập Kho, Xuất Kho, Nhập Hoàn.',b:['Không cần nhập gì ở đây: mọi phiếu nhập, phiếu lãnh, phiếu hoàn đều tự cộng, trừ vào tồn.','Cột "Đang ở tổ" là vật tư đã lãnh ra chưa dùng, chưa hoàn.','Chọn kho, khoảng ngày để xem tồn đầu kỳ, nhập, xuất, tồn cuối; bấm một dòng để xem thẻ kho.','Quản trị: đặt tồn tối thiểu để app cảnh báo; Kiểm kê từ ảnh, file để app tự lập phiếu điều chỉnh chênh lệch.'],q:{admin:'Toàn quyền, kiểm kê.',nhaplieu:'Xem.',theodoi:'Xem.'}},
+  nhapkho:{t:'Nhập Kho',md:'Ghi vật tư vào kho từ mọi loại chứng từ.',b:['Bấm "Nhập từ ảnh, file": chụp phiếu, hoặc chọn bất kỳ file nào (ảnh, Excel, Word, PDF, ODS, văn bản, tin nhắn xuất ra file…), không giới hạn số file.','Bấm "Đọc dữ liệu", kiểm tra bảng, xóa dòng sai, rồi "Ghi nhận". Tồn Động cập nhật ngay.','Có thể "Tạo phiếu" gõ tay.','Nhập sai: chọn phiếu rồi bấm xóa, hoặc xóa cả lần nạp ở Hệ thống → Lịch sử nhập.'],q:{admin:'Toàn quyền, duyệt.',nhaplieu:'Lập phiếu (chờ duyệt), sửa, xóa phiếu của mình khi chưa duyệt.',theodoi:'Chỉ xem.'}},
+  xuatkho:{t:'Xuất Kho',md:'Phiếu lãnh, phiếu đề nghị lãnh vật tư.',b:['Chụp phiếu lãnh hoặc chọn file bất kỳ, app tự đọc thành phiếu.','App cảnh báo khi xuất vượt tồn.','Mỗi phiếu lãnh tự đưa vào theo dõi ở Nhập Hoàn cho đến khi quyết toán xong.'],q:{admin:'Toàn quyền, duyệt.',nhaplieu:'Lập phiếu (chờ duyệt), sửa, xóa phiếu của mình khi chưa duyệt.',theodoi:'Chỉ xem.'}},
+  nhaphoan:{t:'Nhập Hoàn',md:'Phần còn lại của vật tư đã lãnh, trả về kho.',b:['Mỗi phiếu lãnh hiện số Lãnh, Đã dùng, Đã hoàn, Còn phải hoàn.','Bấm "Quyết toán, nhập hoàn", ghi số đã dùng; app tự lập phiếu nhập hoàn phần còn lại và cộng vào Tồn Động.','Dùng hết thì bấm "Dùng hết, không hoàn".','Phiếu chưa quyết toán vẫn tính là "Đang ở tổ" ở Tồn Động.'],q:{admin:'Toàn quyền.',nhaplieu:'Quyết toán phiếu của mình; phiếu khác vẫn nhập hoàn được.',theodoi:'Chỉ xem.'}},
+  import:{t:'Lịch sử nhập, nạp file',md:'Xem và xóa từng lần nhập từ ảnh, file.',b:['Mỗi lần "Ghi nhận" từ ảnh, file là một lần nạp.','Nạp sai: bấm "Xóa lần nạp" để xóa toàn bộ phiếu tạo ra lần đó.'],q:{admin:'Toàn quyền.',nhaplieu:'Xóa lần nạp của mình.',theodoi:'Chỉ xem.'}}});
+/* ---- Tìm kiếm chung: gõ hoặc nói ---- */
+const STOP=new Set('tim kiem cho toi xem giup minh voi hay di nhe a o la cua va nhung cac con lai bao nhieu trong kho ton khong co phieu lanh de nghi so nhap xuat hoan vat tu thiet bi may cai hien dang dau nao gi'.split(' '));
+function timKiem(q){
+  const n=nds(q).replace(/[^a-z0-9/\-. ]+/g,' ');let hint='';
+  if(/phieu lanh|de nghi|xuat/.test(n))hint='px';else if(/hoan/.test(n))hint='nh';else if(/phieu nhap|nhap kho/.test(n))hint='pn';
+  const vtHint=/con lai|bao nhieu|ton|trong kho|con khong|thiet bi|vat tu/.test(n);
+  const tk=n.split(/\s+/).filter(w=>w&&!STOP.has(w));
+  const khop=hay=>tk.every(w=>hay.includes(w)||hay.replace(/[-./\s]/g,'').includes(w.replace(/[-./]/g,'')));
+  const P=[];
+  const quet=(arr,kind)=>arr.forEach(p=>{const k=kind==='pn'&&p.loai==='Hoàn nhập'?'nh':kind;if(hint&&hint!==k&&!(hint==='px'&&k==='px'))return;
+    const hay=nds([p.soPhieu,fmtD(p.ngay),p.nguoi,p.maSC,p.ghiChu,p.pxGoc,p.loai,p.kho,...p.lines.map(l=>`${l.maVT} ${l.tenVT} ${l.maSC||''}`)].join(' '));
+    if(tk.length?khop(hay):hint)P.push({p,kind,k,sc:(tk.some(w=>nds(p.soPhieu).includes(w))?10:0)+Date.parse(p.ngay)/1e13})});
+  quet(S.px,'px');quet(S.pn,'pn');P.sort((a,b)=>b.sc-a.sc);
+  const VT=[];const T=treoTheoVT();const ks=khoList();
+  if(tk.length&&hint!=='pn'&&hint!=='nh'||vtHint&&!tk.length){const ma=new Set([...S.dmvt.map(d=>d.maVT),...S.pn.concat(S.px).flatMap(p=>p.lines.map(l=>l.maVT))]);
+    ma.forEach(m=>{const d=S.dmvt.find(x=>x.maVT===m)||{};const hay=nds(m+' '+(d.tenVT||''));if(tk.length&&!khop(hay))return;
+      const theoKho=ks.map(k=>[k,tonTai(m,k,new Date())]).filter(x=>x[1]);const tong=theoKho.reduce((s,x)=>s+x[1],0);if(!tk.length&&tong<=0)return;
+      VT.push({maVT:m,tenVT:d.tenVT||'',dvt:d.dvt||'',theoKho,tong,treo:T[m]||0})});VT.sort((a,b)=>b.tong-a.tong)}
+  return{P:P.slice(0,40),VT:VT.slice(0,40),hint,vtHint,tk};
+}
+const TEN_K={px:'Phiếu lãnh',pn:'Phiếu nhập',nh:'Nhập hoàn'};
+function veTim(q){
+  const box=$('#timKQ');if(!q.trim()){box.hidden=true;return}
+  const r=timKiem(q);const pHtml=r.P.map(({p,kind,k})=>{const t=k==='px'&&laLanh(p)?treoPL(p):null;return`<button type="button" class="tkr" data-tp="${kind}|${p.id}"><span class="pill ${k==='px'?'pa':k==='nh'?'pg':'pn'}">${TEN_K[k]}</span> <b>${esc(p.soPhieu)}</b> <span class="muted">${fmtD(p.ngay)} · ${esc(p.nguoi||'')} ${p.maSC?'· '+esc(p.maSC):''}</span>${t&&t.tt!=='xong'?` <span class="pill ${TT_PL[t.tt][1]}">${TT_PL[t.tt][0]}</span>`:''}<br><span class="muted">${esc(p.lines.slice(0,4).map(l=>`${l.tenVT||l.maVT} ×${fmtN(l.sl)}`).join('; '))}${p.lines.length>4?' …':''}</span></button>`}).join('');
+  const vHtml=r.VT.map(v=>`<button type="button" class="tkr" data-tv="${esc(v.maVT)}"><b>${esc(v.tenVT||v.maVT)}</b> <span class="muted">${esc(v.maVT)}</span><br>Còn trong kho: <b class="${v.tong>0?'ok':'no'}">${fmtN(v.tong)} ${esc(v.dvt)}</b>${v.theoKho.length>1||v.theoKho.length&&v.theoKho[0][0]!=='Kho chính'?' ('+v.theoKho.map(([k,s])=>`${esc(k)}: ${fmtN(s)}`).join(', ')+')':''}${v.treo?` · đang ở tổ ${fmtN(v.treo)}`:''}</button>`).join('');
+  const sec=(t,h,n)=>n?`<div class="tkh">${t} (${n})</div>${h}`:'';
+  const pFirst=r.hint||!(r.vtHint||!r.tk.some(w=>/\d/.test(w)));
+  box.innerHTML=(pFirst?sec('Phiếu',pHtml,r.P.length)+sec('Vật tư, thiết bị còn ở kho',vHtml,r.VT.length):sec('Vật tư, thiết bị còn ở kho',vHtml,r.VT.length)+sec('Phiếu',pHtml,r.P.length))||`<p class="muted" style="padding:10px">Không tìm thấy "${esc(q)}".</p>`;
+  box.hidden=false;
+  box.querySelectorAll('[data-tp]').forEach(b=>b.onclick=()=>{const [k,id]=b.dataset.tp.split('|');box.hidden=true;editPhieu(k,id)});
+  box.querySelectorAll('[data-tv]').forEach(b=>b.onclick=()=>{box.hidden=true;TK.kho='';moTheKho(b.dataset.tv)});
+}
+let ghiAm=null;
+function noiTim(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;const inp=$('#timQ'),btn=$('#timMic');
+  if(!SR){toast('Thiết bị chưa hỗ trợ nói trực tiếp','Bấm vào ô tìm kiếm rồi bấm biểu tượng micro trên bàn phím điện thoại để đọc. Trên máy tính dùng Chrome hoặc Edge.');inp.focus();return}
+  if(ghiAm){ghiAm.stop();return}
+  const r=new SR();r.lang='vi-VN';r.interimResults=true;r.maxAlternatives=1;ghiAm=r;btn.classList.add('on');inp.placeholder='Đang nghe… nói tên phiếu hoặc thiết bị';
+  r.onresult=e=>{const t=[...e.results].map(x=>x[0].transcript).join(' ');inp.value=t;veTim(t)};
+  r.onerror=e=>{if(e.error==='not-allowed')toast('Chưa cho phép dùng micro','Cho phép micro cho trang này trong cài đặt trình duyệt.')};
+  r.onend=()=>{ghiAm=null;btn.classList.remove('on');inp.placeholder=TIM_PH};
+  try{r.start()}catch(e){ghiAm=null;btn.classList.remove('on')}
+}
+const TIM_PH='Tìm phiếu lãnh, phiếu đề nghị, thiết bị còn ở kho…';
+function ganTim(){
+  const inp=$('#timQ');if(!inp)return;inp.placeholder=TIM_PH;let tmr;
+  inp.oninput=()=>{clearTimeout(tmr);tmr=setTimeout(()=>veTim(inp.value),180)};inp.onfocus=()=>{if(inp.value.trim())veTim(inp.value)};
+  inp.onkeydown=e=>{if(e.key==='Escape'){inp.value='';$('#timKQ').hidden=true;inp.blur()}if(e.key==='Enter'){const f=$('#timKQ .tkr');if(f)f.click()}};
+  $('#timMic').onclick=noiTim;$('#timX').onclick=()=>{inp.value='';$('#timKQ').hidden=true;inp.focus()};
+  document.addEventListener('click',e=>{if(!e.target.closest('#timBar'))$('#timKQ').hidden=true});
+  document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();inp.focus();inp.select()}});
+}
+
+/* ---- Đọc mọi định dạng file ---- */
+async function docVanBan(file){
+  const buf=new Uint8Array(await file.arrayBuffer());const n=file.name.toLowerCase();
+  if(/\.(odt|odp|ods|pptx|ppsx|potx|xlsx|epub)$/.test(n)||(buf[0]===0x50&&buf[1]===0x4b)){
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');const z=await JSZip.loadAsync(buf);const parts=[];
+    const names=Object.keys(z.files).filter(k=>/(content\.xml|slides\/slide\d+\.xml|word\/document\.xml|\.x?html?)$/.test(k)).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+    for(const k of names){const x=await z.file(k).async('string');parts.push(x.replace(/<\/(text:p|a:p|w:p|p|tr|div|li|table:table-row)>/g,'\n').replace(/<(text:tab|w:tab|table:table-cell|td|th)[^>]*\/?>/g,'\t').replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'"))}
+    if(parts.join('').trim())return parts.join('\n');
+  }
+  let s='';try{s=new TextDecoder('utf-8',{fatal:true}).decode(buf)}catch(e){s=''}
+  if(s&&/^\s*\{\\rtf/.test(s))return s.replace(/\\u(-?\d+)\??/g,(m,c)=>String.fromCharCode(+c<0?+c+65536:+c)).replace(/\\par[d]?/g,'\n').replace(/\\tab/g,'\t').replace(/\\'([0-9a-f]{2})/g,(m,h)=>String.fromCharCode(parseInt(h,16))).replace(/\\[a-z]+-?\d* ?/g,'').replace(/[{}]/g,'');
+  if(s&&(s.match(/[\x00-\x08\x0e-\x1f]/g)||[]).length<s.length*0.01)return s;
+  const u=new TextDecoder('utf-16le').decode(buf.length%2?buf.slice(0,-1):buf);const runs=u.match(/[\p{L}\p{N}\p{P}\p{Zs}\t]{4,}/gu)||[];
+  const v=runs.filter(r=>/\p{L}{2,}/u.test(r)&&!/[　-鿿가-힯]/.test(r)).join('\n');
+  if(v.replace(/\s/g,'').length>20)return v;
+  const a=(new TextDecoder('latin1').decode(buf).match(/[\x20-\x7eÀ-ɏ]{5,}/g)||[]).join('\n');
+  if(a.replace(/\s/g,'').length>20)return a;
+  throw new Error('Không tìm thấy chữ trong file này. Nếu là ảnh, video hay bản scan, hãy chụp hoặc xuất ra ảnh, PDF rồi chọn lại.');
+}
+async function docNguon(t,file,prog){
+  const n=file.name.toLowerCase(),ext=(n.match(/\.([a-z0-9]+)$/)||[])[1]||'',ty=file.type||'';
+  const needX=()=>{if(typeof XLSX==='undefined')throw new Error('Chưa tải được thư viện Excel, kiểm tra mạng')};
+  if(/^(xlsx|xlsm|xlsb|xls|xltx|xltm|xlt|ods|fods|csv|tsv|numbers|dbf|slk|sylk|prn|dif|et|ett|wk[1-4]|qpw)$/.test(ext)||/spreadsheet|excel|csv/.test(ty)){needX();try{return await docExcel(t,file)}catch(e){if(/^(csv|tsv|prn)$/.test(ext))return docTextRows(t,await file.text());throw e}}
+  if(/^(docx|docm|dotx|dotm)$/.test(ext)||/wordprocessingml/.test(ty))return docWord(t,file);
+  if(ext==='pdf'||ty==='application/pdf')return S.cfg.aiKey?docAI(t,file,'pdf'):docPDFText(t,file);
+  if(ty.startsWith('image/')||/^(jpe?g|png|gif|webp|bmp|tiff?|heic|heif|avif|jfif)$/.test(ext)){
+    try{return S.cfg.aiKey?await docAI(t,file,'img'):await docOCR(t,file,prog)}catch(e){if(/heic|heif/.test(ext+ty))throw new Error('Máy này không mở được ảnh HEIC. Trên iPhone vào Cài đặt → Camera → Định dạng → Tương thích nhất, hoặc chụp lại bằng nút "Chụp ảnh" trong app.');throw e}}
+  if(ty.startsWith('video/')||ty.startsWith('audio/'))throw new Error('File âm thanh, video không chứa bảng số liệu. Hãy chụp ảnh chứng từ hoặc chụp màn hình rồi chọn lại.');
+  if(/^(html?|xml|mht|mhtml)$/.test(ext)){needX();try{return await docExcel(t,file)}catch(e){}}
+  if(ext==='json'){try{const j=JSON.parse(await file.text());const arr=Array.isArray(j)?j:Object.values(j).find(Array.isArray)||[j];const keys=[...new Set(arr.flatMap(o=>Object.keys(o||{})))];const r=aoaToRows(t,[keys,...arr.map(o=>keys.map(k=>o[k]))]);if(r&&r.length)return{rows:r,note:''}}catch(e){}}
+  return docTextRows(t,await docVanBan(file));
+}
+async function docTextRows(t,text){
+  if(S.cfg.aiKey&&text.trim().length>10){try{return await docAI(t,null,'txt',text)}catch(e){}}
+  return textToRows(t,text);
+}
+
 /* ================== ĐIỆN THOẠI, CÀI ỨNG DỤNG ================== */
 const laDT=()=>matchMedia('(max-width:760px)').matches;
 const chamTay=()=>matchMedia('(pointer:coarse)').matches;
@@ -2168,8 +2338,8 @@ const laIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platfo
 const laZalo=()=>/zalo|FBAN|FBAV/i.test(navigator.userAgent);
 let hoiCai=null,anBanner=false,thamSoCho=null,swReg=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();hoiCai=e;document.querySelectorAll('.nut-cai').forEach(b=>b.classList.add('san'));if(['dash','caidat'].includes(cur)&&!$('#dlg').open)render()});
-window.addEventListener('appinstalled',()=>{hoiCai=null;capNhatNutCai();toast('Đã cài app','Mở "QT Sửa chữa" từ màn hình chính (điện thoại) hoặc menu Start (máy tính).','g');render()});
-const APP_VER='2026.09.28-e';
+window.addEventListener('appinstalled',()=>{hoiCai=null;capNhatNutCai();toast('Đã cài app','Mở "Kho vật tư" từ màn hình chính (điện thoại) hoặc menu Start (máy tính).','g');render()});
+const APP_VER='2026.10.15-kho';
 const APP_URL=()=>location.origin+location.pathname;
 function thietBi(){const u=navigator.userAgent;return{ios:laIOS(),android:/android/i.test(u),zalo:laZalo(),samsung:/SamsungBrowser/i.test(u),edge:/Edg\//i.test(u),firefox:/Firefox|FxiOS/i.test(u),chromeIOS:/CriOS/i.test(u),dt:chamTay()}}
 async function kiemTraCai(){
@@ -2186,8 +2356,8 @@ async function kiemTraCai(){
 function buocCai(){
   const t=thietBi();
   if(t.zalo)return`<div class="msg r">Bạn đang mở trong Zalo hoặc Facebook, nơi không cài được app. Bấm dấu ⋯ góc trên phải → <b>Mở bằng trình duyệt</b>, rồi bấm lại nút "Cài app".</div>`;
-  if(t.ios)return`<ol class="hl"><li>${t.chromeIOS?'Trên iPhone nên dùng <b>Safari</b>: sao chép link bên dưới, mở Safari, dán vào.':'Đang dùng Safari: tốt.'}</li><li>Bấm nút <b>Chia sẻ</b> (ô vuông có mũi tên lên) ở thanh dưới màn hình.</li><li>Kéo xuống, bấm <b>Thêm vào MH chính</b> → <b>Thêm</b>.</li><li>Mở app từ biểu tượng QT Sửa chữa trên màn hình chính, đăng nhập lại một lần.</li></ol><p class="muted">iPhone không tự hiện hộp hỏi cài, luôn làm theo các bước trên.</p>`;
-  if(t.android)return`<ol class="hl"><li>${t.samsung?'Samsung Internet: bấm biểu tượng ☰ góc dưới → <b>Thêm trang vào</b> → <b>Màn hình chờ</b>.':t.firefox?'Firefox: bấm ⋮ → <b>Cài đặt</b>.':t.edge?'Edge: bấm ⋯ ở thanh dưới → <b>Thêm vào điện thoại</b>.':'Chrome: bấm dấu <b>⋮</b> góc trên phải → <b>Cài đặt ứng dụng</b> (hoặc <b>Thêm vào màn hình chính</b> → <b>Cài đặt</b>).'}</li><li>Xác nhận Cài đặt, đợi vài giây.</li><li>Biểu tượng QT Sửa chữa xuất hiện trên màn hình chính và trong danh sách ứng dụng.</li></ol>`;
+  if(t.ios)return`<ol class="hl"><li>${t.chromeIOS?'Trên iPhone nên dùng <b>Safari</b>: sao chép link bên dưới, mở Safari, dán vào.':'Đang dùng Safari: tốt.'}</li><li>Bấm nút <b>Chia sẻ</b> (ô vuông có mũi tên lên) ở thanh dưới màn hình.</li><li>Kéo xuống, bấm <b>Thêm vào MH chính</b> → <b>Thêm</b>.</li><li>Mở app từ biểu tượng Kho vật tư trên màn hình chính, đăng nhập lại một lần.</li></ol><p class="muted">iPhone không tự hiện hộp hỏi cài, luôn làm theo các bước trên.</p>`;
+  if(t.android)return`<ol class="hl"><li>${t.samsung?'Samsung Internet: bấm biểu tượng ☰ góc dưới → <b>Thêm trang vào</b> → <b>Màn hình chờ</b>.':t.firefox?'Firefox: bấm ⋮ → <b>Cài đặt</b>.':t.edge?'Edge: bấm ⋯ ở thanh dưới → <b>Thêm vào điện thoại</b>.':'Chrome: bấm dấu <b>⋮</b> góc trên phải → <b>Cài đặt ứng dụng</b> (hoặc <b>Thêm vào màn hình chính</b> → <b>Cài đặt</b>).'}</li><li>Xác nhận Cài đặt, đợi vài giây.</li><li>Biểu tượng Kho vật tư xuất hiện trên màn hình chính và trong danh sách ứng dụng.</li></ol>`;
   return`<ol class="hl"><li><b>Máy tính:</b> bấm biểu tượng cài đặt (màn hình có mũi tên) ở cuối thanh địa chỉ, hoặc ⋯ → Ứng dụng → <b>Cài đặt trang web này dưới dạng ứng dụng</b> (Edge) / ⋮ → Truyền, lưu và chia sẻ → <b>Cài đặt trang</b> (Chrome).</li><li><b>Điện thoại:</b> quét mã QR bên dưới bằng camera điện thoại, mở link bằng Chrome (Android) hoặc Safari (iPhone), rồi bấm nút "Cài app lên điện thoại" trong app.</li></ol>`;
 }
 async function caiApp(){
@@ -2204,7 +2374,7 @@ async function caiApp(){
   moDialog();
   const cn=$('#caiNgay');if(cn)cn.onclick=async()=>{const e=hoiCai;hoiCai=null;e.prompt();try{const c=await e.userChoice;if(c.outcome==='accepted')$('#dlg').close()}catch(x){}};
   $('#caiCopy').onclick=async()=>{try{await navigator.clipboard.writeText(url);toast('Đã sao chép link app','','g')}catch(e){$('#caiUrl').select()}};
-  const sh=$('#caiShare');if(sh)sh.onclick=()=>navigator.share({title:'QT Sửa chữa – CSKVTT',text:'Mở link bằng Chrome (Android) hoặc Safari (iPhone) rồi bấm "Cài app lên điện thoại":',url}).catch(()=>{});
+  const sh=$('#caiShare');if(sh)sh.onclick=()=>navigator.share({title:'Kho vật tư – CSKVTT',text:'Mở link bằng Chrome (Android) hoặc Safari (iPhone) rồi bấm "Cài app lên điện thoại":',url}).catch(()=>{});
   loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js').then(()=>{const b=$('#qrBox');if(b&&window.QRCode){b.innerHTML='';new QRCode(b,{text:url,width:168,height:168,colorDark:'#0E3B37',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M})}}).catch(()=>{const b=$('#qrBox');if(b)b.textContent='Không tải được mã QR, dùng link bên cạnh.'});
   const kq=await kiemTraCai();const el=$('#caiKQ');if(!el)return;
   const loi=kq.filter(x=>!x[1]);
@@ -2212,16 +2382,16 @@ async function caiApp(){
 }
 function capNhatNutCai(){const an=daCai();document.querySelectorAll('.nut-cai').forEach(b=>b.hidden=an)}
 function moMenu(o){document.body.classList.toggle('menu-mo',!!o)}
-const TAB_NHOM={dash:'dash',suco:'suco',s1022:'suco',phieusua:'suco',import:'suco',pn:'kho',px:'kho',nh:'kho',tonkho:'kho',capphat:'kho',vattu:'kho',kehoach:'kehoach',sosanh:'kehoach'};
+const TAB_NHOM={tondong:'tondong',nhapkho:'nhapkho',xuatkho:'xuatkho',nhaphoan:'nhaphoan'};
 function capNhatDT(v){
   const b=document.querySelector(`#nav button[data-v="${v}"]`);const t=$('#mTitle');
-  if(t)t.innerHTML=v==='dash'?`${document.querySelector('.brand .logo').outerHTML}QT Sửa chữa`:esc((b&&b.firstChild&&b.firstChild.textContent.trim())||'QT Sửa chữa');
+  if(t)t.innerHTML=v==='tondong'?`${document.querySelector('.brand .logo').outerHTML}Kho vật tư`:esc((b&&b.firstChild&&b.firstChild.textContent.trim())||'Kho vật tư');
   document.querySelectorAll('#tabs [data-t]').forEach(x=>x.classList.toggle('on',x.dataset.t===TAB_NHOM[v]));capNhatNhomBadge();
-  const n=$('#bd1022');const tb=$('#tbd');if(tb&&n){tb.hidden=n.hidden;tb.textContent=n.textContent}
+  const n=$('#bdNH');const tb=$('#tbd');if(tb&&n){tb.hidden=n.hidden;tb.textContent=n.textContent}
 }
 function moNhanh(){
   const R=ROLE();if(R==='theodoi')return;
-  const L=[['sc','Ghi sự cố mới','Ghi nhận tại hiện trường, chụp ảnh trước, sau'],['px','Chụp phiếu xuất, phiếu lãnh','Đọc ảnh thành phiếu xuất thi công'],['cp','Chụp sổ cấp phát','Đọc thành cấp phát theo ngày'],['nh','Nhập hoàn vật tư','Trả vật tư thừa về kho'],['kln','Ghi khối lượng ngày','Chụp hoặc nhập khối lượng đã làm'],['ps','Phân tách, in phiếu sửa','Từ file Export, ảnh, tin nhắn → phiếu in'],['kqps','Nhập kết quả phiếu sửa','Chụp phiếu tổ đã ghi vật tư → kho, khối lượng'],['kq','Ghi kết quả sửa chữa','Chọn sự cố, ghi công việc, vật tư đã dùng'],['pn','Chụp phiếu nhập','Nhập kho mua mới, thu hồi'],...(R==='admin'?[['kk','Kiểm kê tồn kho','Đếm thực tế, app tự tính chênh lệch']]:[])];
+  const L=[['nk','Nhập Kho từ ảnh, file','Chụp phiếu hoặc chọn bất kỳ file nào'],['xk','Xuất Kho: phiếu lãnh, đề nghị','Chụp phiếu lãnh hoặc chọn file'],['hoan','Nhập Hoàn','Quyết toán phiếu lãnh, hoàn phần còn lại'],['tim','Tìm phiếu, thiết bị','Gõ hoặc nói'],...(R==='admin'?[['kk','Kiểm kê tồn kho','Đếm thực tế, app tự tính chênh lệch']]:[])];
   $('#dlgForm').innerHTML=`<h2 style="margin:0 0 10px">Thêm nhanh</h2><div class="nhanh">${L.map(([k,t,m])=>`<button type="button" class="b" data-nh="${k}"><b>${t}</b><span>${m}</span></button>`).join('')}</div><div class="bar" style="justify-content:flex-end;margin:14px 0 0"><button class="b" value="cancel">Đóng</button></div>`;
   const dlg=moDialog();
   document.querySelectorAll('[data-nh]').forEach(b=>b.onclick=()=>{const k=b.dataset.nh;dlg.close();setTimeout(()=>lamNhanh(k),60)});
@@ -2235,6 +2405,12 @@ function chonSCKQ(ma){
   ve('');$('#kqTim').oninput=e=>ve(e.target.value);
 }
 function lamNhanh(k,ma){
+  if(k==='nk'){go('nhapkho');openCapture('pn');return}
+  if(k==='xk'){go('xuatkho');openCapture('px');return}
+  if(k==='hoan'){go('nhaphoan');return}
+  if(k==='tim'){const i=$('#timQ');i.focus();if(ma){i.value=ma;veTim(ma)}return}
+  if(k==='noi'){noiTim();return}
+  if(k==='kk'){go('tondong');openCapture('kk');return}
   if(k==='ps'){go('phieusua');return}
   if(k==='kqps'){go('phieusua');nhapKQPS();return}
   if(k==='kq'){go('suco');chonSCKQ(ma);return}
@@ -2249,10 +2425,10 @@ async function nhanChiaSe(){
   if(!files.length)return;
   if(ROLE()==='theodoi'){toast('Tài khoản theo dõi không nhập được file','');return}
   const A=ROLE()==='admin';
-  const L=[['px','Đọc thành phiếu xuất'],['cp','Đọc thành cấp phát theo ngày'],['pn','Đọc thành phiếu nhập'],['nh','Đọc thành nhập hoàn'],['kln','Đọc thành khối lượng ngày'],...(A?[['kk','Đọc thành kiểm kê'],['kht','Đọc thành kế hoạch tháng'],['khq','Đọc thành kế hoạch quý'],['goi','Đọc thành tổng gói']]:[]),['att','Đính kèm vào sự cố, phiếu, hoặc nạp file Excel theo tên']];
+  const L=[['pn','Đọc thành phiếu Nhập Kho'],['px','Đọc thành phiếu lãnh (Xuất Kho)'],['nh','Đọc thành Nhập Hoàn'],...(A?[['kk','Đọc thành kiểm kê']]:[]),['att','Đính kèm vào sự cố, phiếu, hoặc nạp file Excel theo tên']];
   $('#dlgForm').innerHTML=`<h2 style="margin:0 0 4px">Đã nhận ${files.length} ảnh, file</h2><p class="muted" style="margin:0 0 10px">${esc(files.slice(0,4).map(x=>x.name).join(', '))}${files.length>4?'…':''}</p><div class="nhanh">${L.map(([k,t])=>`<button type="button" class="b" data-sh="${k}"><b>${t}</b></button>`).join('')}</div><div class="bar" style="justify-content:flex-end;margin:14px 0 0"><button class="b" value="cancel">Bỏ qua</button></div>`;
   const dlg=moDialog();
-  document.querySelectorAll('[data-sh]').forEach(b=>b.onclick=()=>{const k=b.dataset.sh;dlg.close();setTimeout(()=>{if(k==='att')themVaoNhapDL(files);else{openCapture(k);capThem(files.slice(0,MAX_ANH))}},60)});
+  document.querySelectorAll('[data-sh]').forEach(b=>b.onclick=()=>{const k=b.dataset.sh;dlg.close();setTimeout(()=>{if(k==='att')themVaoNhapDL(files);else{go(k==='pn'?'nhapkho':k==='px'?'xuatkho':k==='nh'?'nhaphoan':'tondong');openCapture(k);capThem(files)}},60)});
 }
 function chayThamSo(){
   const p=thamSoCho;thamSoCho=null;if(!p)return;
@@ -2299,7 +2475,7 @@ function ganDT(){
 document.querySelectorAll('#nav button[data-v]').forEach(b=>b.onclick=()=>go(b.dataset.v));
 const clock=()=>{$('#clock').textContent=fmtDT(new Date())};
 (async()=>{
-  await loadAll();clock();ganDT();dangKySW();
+  await loadAll();clock();ganDT();ganTim();dangKySW();
   if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
   anBanner=!!(await DB.get('anBannerCai'));PS.rows=(await DB.get('ps_rows'))||[];Object.assign(PSV.hdr,(await DB.get('ps_hdr'))||{});
   const qs=new URLSearchParams(location.search);const sv=qs.get('sv');
