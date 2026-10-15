@@ -80,6 +80,9 @@ input[type=search]{flex:1 1 200px;min-width:0}textarea{width:100%;font-family:"J
 details{margin-top:14px}summary{cursor:pointer;color:var(--mut);font-size:.86rem}
 .empty{color:var(--mut)}.tag{font-size:.72rem;font-weight:700;padding:1px 7px;border-radius:5px}.tag.warn{background:color-mix(in srgb,var(--acc) 22%,transparent);color:var(--fg)}
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;max-width:min(92vw,640px);font-size:.86rem;z-index:20;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+.kpis.sm{grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));margin:6px 0 4px}.kpis.sm .kpi{padding:10px 14px}.kpis.sm .n{font-size:1.35rem}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:7px;vertical-align:1px;box-shadow:0 0 0 3px color-mix(in srgb,var(--green) 25%,transparent)}.dot.off{background:var(--mut);box-shadow:none}.dot.wait{background:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 25%,transparent)}
+.wst{font-size:.86rem;margin:4px 0 0}.wst b{font-weight:600}.err{color:var(--red);font-size:.82rem}
 @media (max-width:600px){.brand h1{font-size:1.1rem}.card{padding:14px}.kpi .n{font-size:1.4rem}}
 </style>
 </head><body>
@@ -507,7 +510,7 @@ const HMG = [
   ['1. Bóng, chấn lưu, kích, tụ, driver', 'bóng|chấn lưu|kích|tụ điện|driver|chuyển mạch|đui|chống sét đèn|rơ le'],
 ];
 const HMK = HMG.flatMap(([g, ks]) => ks.split('|').filter(Boolean).map(k => [k, g]));
-const DEFAULT_SETTINGS = { gs: ['Phạm Quang Miền'], year: 2026, quarter: 4, month: 0, lsc: DEFAULT_LSC, per: 22 };
+const DEFAULT_SETTINGS = { gs: ['Phạm Quang Miền'], year: 2026, quarter: 4, month: 0, lsc: DEFAULT_LSC, per: 22, autoX: true };
 
 const S = (v) => (v == null ? '' : String(v)).trim();
 const low = (v) => S(v).toLowerCase();
@@ -946,7 +949,7 @@ function seedState() {
   };
 }
 const pack = (st) => ({ ...st, kl: st.kl.map(({ _tru, _hm, ...k }) => k) });
-async function save() { const ok = await DB.set('state', pack(ST)); $('#saveState').textContent = ok ? 'Đã lưu trên trình duyệt này' : 'Không lưu được (trình duyệt chặn bộ nhớ) – dữ liệu mất khi đóng trang'; }
+async function save() { const ok = await DB.set('state', pack(ST)); const el = $('#saveState'); if (el) el.textContent = ok ? 'Đã lưu trên trình duyệt này' : 'Không lưu được (trình duyệt chặn bộ nhớ) – dữ liệu mất khi đóng trang'; }
 function recompute() { R = compute(ST); }
 
 // ---------- tải file ----------
@@ -976,7 +979,7 @@ function render() {
 function renderStatus() {
   const n = R.rows.length, m = R.rows.filter(r => r.t).map(r => r.t), mk = ST.kl.map(k => k.d);
   const span = (a) => a.length ? `${fdate(Math.min(...a))} – ${fdate(Math.max(...a))}` : '—';
-  $('#status').innerHTML = `<span><b>${fmtN(n)}</b> sự cố <i>${span(m)}</i></span><span><b>${fmtN(ST.kl.length)}</b> phiếu KL <i>${span(mk)}</i></span><span><b>${fmtN(ST.kh.length)}</b> hạng mục KH <i>Q${ST.settings.quarter}/${ST.settings.year}</i></span>${ST.seed ? '<span class="tag warn">dữ liệu mẫu</span>' : ''}`;
+  $('#status').innerHTML = `<span><b>${fmtN(n)}</b> sự cố <i>${span(m)}</i></span><span><b>${fmtN(ST.kl.length)}</b> phiếu KL <i>${span(mk)}</i></span><span><b>${fmtN(ST.kh.length)}</b> hạng mục KH <i>Q${ST.settings.quarter}/${ST.settings.year}</i></span>${ST.seed ? '<span class="tag warn">dữ liệu mẫu</span>' : ''}${W.on ? `<span><span class="dot${W.busy ? ' wait' : ''}"></span>Theo dõi: ${h(W.h.name)}</span>` : ''}`;
 }
 document.addEventListener('click', (e) => {
   const t = e.target.closest('[data-tab]'); if (t) { UI.tab = t.dataset.tab; try { localStorage.setItem('dt-tab', UI.tab); } catch { } render(); window.scrollTo(0, 0); return; }
@@ -1036,9 +1039,9 @@ function vTQ() {
 // ---------- NẠP DỮ LIỆU ----------
 function vNap() {
   const qs = [...new Set([...QN, ...R.rows.map(r => r.quan)])].filter(Boolean);
-  return `<section class="card">
+  return vLast() + `<section class="card">
     <h3>Nạp dữ liệu – mọi định dạng</h3>
-    <p class="lead">Kéo thả nhiều file cùng lúc. Ứng dụng tự nhận loại dữ liệu theo tiêu đề cột, gộp với dữ liệu cũ và bỏ dòng trùng mã.</p>
+    <p class="lead">Kéo thả nhiều file cùng lúc. Ứng dụng tự nhận loại dữ liệu theo tiêu đề cột, gộp với dữ liệu cũ, <b>tự lọc bỏ dòng trùng</b> và xuất Excel chỉ phần số liệu mới.</p>
     <label class="drop" id="drop"><input type="file" id="fi" multiple hidden>
       <b>Chọn hoặc thả file vào đây</b><span>Excel .xlsx · .xlsm · .xls · OpenOffice .ods · .csv · .tsv · .txt · Word .docx · web .html · .json · PDF · ảnh chụp / scan (.jpg .png)</span></label>
     <ul class="kinds"><li><b>Sự cố</b> – có cột “Thời điểm ghi nhận”, “Nội dung”</li><li><b>Khối lượng duy tu</b> – có cột “Khối lượng thực hiện”</li><li><b>Kế hoạch</b> – theo mẫu kế hoạch của ứng dụng (Quận, Loại TX/KTX, Hạng mục, ĐVT, Đơn giá, T1, T2, T3)</li>
@@ -1065,20 +1068,166 @@ function bindNap() {
   d.ondrop = (e) => { e.preventDefault(); d.classList.remove('over'); importFiles([...e.dataTransfer.files]); };
   $('#paste').oninput = (e) => { UI.pasteText = e.target.value; };
 }
-function merge(kind, items, src) {
-  if (kind === 'kh') { const qs = new Set(items.map(x => x.quan)); const keep = ST.kh.filter(x => !qs.has(x.quan)); ST.kh = keep.concat(items); return `${src}: kế hoạch ${items.length} hạng mục (${[...qs].join(', ')}) – thay thế KH cũ của các quận này`; }
-  const arr = ST[kind], idx = new Map(arr.map((x, i) => [x.ma, i])); let nw = 0, up = 0;
-  for (const it of items) { if (idx.has(it.ma)) { arr[idx.get(it.ma)] = it; up++; } else { idx.set(it.ma, arr.length); arr.push(it); nw++; } }
-  return `${src}: ${kind === 'sc' ? 'sự cố' : 'khối lượng'} ${items.length} dòng → ${nw} mới, ${up} cập nhật (trùng mã)`;
+// ---------- lọc trùng & ghi nhận số liệu mới ----------
+const FIELDS = {
+  sc: [['t', 'Thời điểm'], ['quan', 'Quận'], ['tu', 'Tủ'], ['duong', 'Đường'], ['phuong', 'Phường'], ['nd', 'Nội dung'], ['tt1', 'Trạng thái'], ['tt2', 'Trạng thái 2'], ['xl', 'Nội dung xử lý'], ['gs', 'Ý kiến GS']],
+  kl: [['d', 'Ngày HC'], ['quan', 'Quận'], ['tu', 'Tủ'], ['tru', 'Trụ'], ['hm', 'Hạng mục'], ['dvt', 'ĐVT'], ['kl', 'KL'], ['msc', 'Mã SC'], ['mt', 'Mô tả']],
+};
+const SIG = {
+  sc: (x) => [x.quan, nmk(x.tu), nmh(x.nd), x.t].join('|'),
+  kl: (x) => [x.quan, nmk(x.tu), nmk(x.tru), nmh(x.hm), x.kl, x.d, low(cleanName(x.nt)), x.msc].join('|'),
+};
+const fv = (f, v) => (f === 't' || f === 'd') ? (v ? fdt(v) : '') : S(v);
+function diff(kind, a, b) { return FIELDS[kind].filter(([f]) => S(a[f]) !== S(b[f])).map(([f, t]) => `${t}: ${fv(f, a[f]) || '(trống)'} → ${fv(f, b[f]) || '(trống)'}`).join('; '); }
+function newBatch(auto) { return { at: Date.now(), auto: !!auto, out: auto ? 'dir' : 'download', files: [], sc: [], scUp: [], kl: [], klUp: [], dups: [], prev: new Map(R.rows.map(r => [r.ma, r.fin])) }; }
+function merge(kind, items, src, B) {
+  if (kind === 'kh') {
+    const qs = new Set(items.map(x => x.quan)); const keep = ST.kh.filter(x => !qs.has(x.quan)); ST.kh = keep.concat(items);
+    if (B) B.files.push({ src, kind, n: items.length, nw: items.length, up: 0, same: 0, dup: 0 });
+    return `${src}: kế hoạch ${items.length} hạng mục (${[...qs].join(', ')}) – thay thế KH cũ của các quận này`;
+  }
+  const arr = ST[kind], idx = new Map(arr.map((x, i) => [x.ma, i])), sigs = new Map(arr.map(x => [SIG[kind](x), x.ma])), inFile = new Set();
+  let nw = 0, up = 0, same = 0, dup = 0;
+  for (const it of items) {
+    if (inFile.has(it.ma)) { dup++; if (B) B.dups.push({ kind, it, why: 'Lặp mã trong cùng file', src }); continue; }
+    inFile.add(it.ma);
+    if (idx.has(it.ma)) {
+      const i = idx.get(it.ma), old = arr[i];
+      const nx = Object.assign({}, old, Object.fromEntries(Object.entries(it).filter(([, v]) => S(v) !== ''))); // ô trống trong file mới không xóa dữ liệu cũ
+      delete nx._tru; delete nx._hm; const d = diff(kind, old, nx);
+      if (!d) { same++; continue; }                       // đã có, không đổi → bỏ qua
+      arr[i] = nx; up++; if (B) B[kind + 'Up'].push({ ma: it.ma, chg: d }); continue;
+    }
+    const sg = SIG[kind](it);
+    if (sigs.has(sg)) { dup++; if (B) B.dups.push({ kind, it, why: `Trùng nội dung với mã ${sigs.get(sg)}`, src }); continue; }
+    idx.set(it.ma, arr.length); sigs.set(sg, it.ma); arr.push(it); nw++; if (B) B[kind].push(it.ma);
+  }
+  if (B) B.files.push({ src, kind, n: items.length, nw, up, same, dup });
+  return `${src}: ${kind === 'sc' ? 'sự cố' : 'khối lượng'} ${items.length} dòng → ${nw} mới, ${up} cập nhật, ${same} đã có (bỏ qua)${dup ? `, ${dup} trùng (bỏ)` : ''}`;
+}
+function endBatch(B) {
+  const now = new Map(R.rows.map(r => [r.ma, r])), isNew = new Set(B.sc), upMap = new Map(B.scUp.map(x => [x.ma, x.chg]));
+  const ch = new Set(upMap.keys());
+  for (const [ma, f0] of B.prev) { const r = now.get(ma); if (r && r.fin !== f0) ch.add(ma); }
+  const L = { at: B.at, auto: B.auto, files: B.files, sc: B.sc, kl: B.kl, klUp: B.klUp,
+    scCh: [...ch].filter(ma => !isNew.has(ma)).map(ma => ({ ma, f0: B.prev.get(ma) || '', chg: upMap.get(ma) || '' })), dups: B.dups.slice(0, 3000) };
+  ST.last = L; return L;
+}
+const hasNew = (L) => !!L && (L.sc.length + L.kl.length + L.klUp.length + L.scCh.length) > 0;
+const tot = (L, k) => L.files.reduce((a, f) => a + (f[k] || 0), 0);
+function buildNew(L) {
+  const now = new Map(R.rows.map(r => [r.ma, r])), klm = new Map(ST.kl.map(k => [k.ma, k]));
+  const lab = `Lần nạp ${fdt(L.at)}${L.auto ? ' (tự động từ thư mục)' : ''}`;
+  const K = { sc: 'Sự cố', kl: 'Khối lượng', kh: 'Kế hoạch' };
+  const sheets = [tableSheet('Tong hop', 'SỐ LIỆU MỚI SAU KHI LỌC TRÙNG', `${lab}. Chỉ gồm dòng mới, dòng thay đổi và sự cố đổi trạng thái; dòng đã có không đổi được bỏ qua.`,
+    ['Nguồn', 'Loại dữ liệu', 'Số dòng đọc', 'Mới', 'Cập nhật', 'Đã có (bỏ qua)', 'Trùng (bỏ)'], [42, 14, 12, 9, 10, 15, 11],
+    [...L.files.map(f => [f.src, K[f.kind], f.n, f.nw, f.up, f.same, f.dup]), [C('Tổng', 11), C('', 11), ...['n', 'nw', 'up', 'same', 'dup'].map(k => C(tot(L, k), 11))]],
+    { styles: { 2: 9, 3: 9, 4: 9, 5: 9, 6: 9 } })];
+  sheets[0].rows.push([], [C('Sự cố đổi trạng thái / được cập nhật', 1), C(L.scCh.length, 9)], [C('Phiếu khối lượng được cập nhật', 1), C(L.klUp.length, 9)]);
+  const scr = (r) => [r.ma, new Date(r.t), r.quan, r.tu, r.duong, r.phuong, r.tru, r.nd, r.loai, CATMAP[r.cat].t, lampText(r), r.nb, r.pt, r.fin, r.kl ? r.kl + ': ' + r.ev : '', r.dup];
+  const SN = L.sc.map(m => now.get(m)).filter(Boolean).sort((a, b) => a.quan.localeCompare(b.quan) || b.t - a.t);
+  if (SN.length) sheets.push(tableSheet('Su co moi', 'SỰ CỐ MỚI', `${lab} – ${SN.length} sự cố`,
+    ['Mã', 'Ghi nhận', 'Quận', 'Tên tủ', 'Đường', 'Phường', 'Số trụ', 'Nội dung', 'Loại sự cố', 'Nhóm', 'Loại đèn / thiết bị', 'Người báo', 'Phụ trách', 'Trạng thái', 'Đối chiếu KL', 'Ghi chú'],
+    [9, 15, 14, 24, 18, 12, 10, 48, 26, 14, 20, 18, 18, 16, 40, 18], SN.map(scr), { styles: { 1: 5, 7: 10, 14: 10 } }));
+  const SC = L.scCh.map(x => ({ x, r: now.get(x.ma) })).filter(o => o.r);
+  if (SC.length) sheets.push(tableSheet('SC thay doi', 'SỰ CỐ ĐỔI TRẠNG THÁI / ĐƯỢC CẬP NHẬT', `${lab} – ${SC.length} sự cố (do file sự cố mới hoặc phiếu khối lượng mới)`,
+    ['Mã', 'Ghi nhận', 'Quận', 'Tên tủ', 'Nội dung', 'Trạng thái trước', 'Trạng thái sau', 'Đối chiếu KL', 'Phụ trách', 'Thay đổi dữ liệu'], [9, 15, 14, 24, 46, 18, 18, 40, 18, 50],
+    SC.map(({ x, r }) => [r.ma, new Date(r.t), r.quan, r.tu, r.nd, x.f0, r.fin, r.kl ? r.kl + ': ' + r.ev : '', r.pt, x.chg]), { styles: { 1: 5, 4: 10, 7: 10, 9: 10 } }));
+  const klr = (k) => [k.ma, new Date(k.d), k.quan, k.tu, k.tru, k.hm, k.dvt, k.kl, k.msc, k.nt, k.mt];
+  const KH = ['Mã', 'Ngày HC', 'Quận', 'Tên tủ', 'Tên trụ', 'Hạng mục công việc', 'ĐVT', 'KL thực hiện', 'Mã sự cố', 'Người tạo', 'Mô tả'], KW = [11, 12, 14, 24, 24, 50, 8, 10, 10, 18, 30];
+  const KN = L.kl.map(m => klm.get(m)).filter(Boolean).sort((a, b) => a.quan.localeCompare(b.quan) || a.d - b.d);
+  if (KN.length) sheets.push(tableSheet('KL moi', 'PHIẾU KHỐI LƯỢNG MỚI', `${lab} – ${KN.length} dòng`, KH, KW, KN.map(klr), { styles: { 1: 5, 5: 10, 7: 6, 10: 10 } }));
+  const KU = L.klUp.map(x => ({ x, k: klm.get(x.ma) })).filter(o => o.k);
+  if (KU.length) sheets.push(tableSheet('KL cap nhat', 'PHIẾU KHỐI LƯỢNG ĐƯỢC CẬP NHẬT', `${lab} – ${KU.length} dòng`, [...KH, 'Thay đổi dữ liệu'], [...KW, 50], KU.map(({ x, k }) => [...klr(k), x.chg]), { styles: { 1: 5, 5: 10, 7: 6, 10: 10, 11: 10 } }));
+  if (L.dups.length) sheets.push(tableSheet('Trung da bo', 'DÒNG TRÙNG ĐÃ LOẠI BỎ', `${lab} – ${L.dups.length} dòng không được nạp`,
+    ['Loại', 'Mã', 'Ngày', 'Quận', 'Tủ / trụ', 'Nội dung / hạng mục', 'Lý do', 'Nguồn'], [11, 11, 15, 14, 28, 50, 26, 30],
+    L.dups.map(({ kind, it, why, src }) => kind === 'sc' ? ['Sự cố', it.ma, it.t ? new Date(it.t) : '', it.quan, it.tu, it.nd, why, src] : ['Khối lượng', it.ma, it.d ? new Date(it.d) : '', it.quan, [it.tu, it.tru].filter(Boolean).join(' / '), `${it.hm} – ${it.kl} ${it.dvt}`, why, src]),
+    { styles: { 2: 5, 5: 10 } }));
+  const d = new Date(L.at);
+  return { name: `So_lieu_moi_${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()}_${pad(d.getHours())}h${pad(d.getMinutes())}.xlsx`, blob: XL.write(sheets) };
+}
+function exportNew(L) { if (!hasNew(L)) return toast('Lần nạp này không có số liệu mới'); const { name, blob } = buildNew(L); saveFile(name, blob); }
+
+// ---------- tự động theo dõi thư mục (Chrome / Edge trên máy tính) ----------
+const W = { h: null, on: false, busy: false, timer: 0, last: 0, err: '', need: false, n: 0 };
+const canWatch = () => typeof window.showDirectoryPicker === 'function';
+const OKEXT = /\.(xlsx|xlsm|xls|ods|csv|tsv|txt|docx|html?|json|pdf|jpe?g|png|webp)$/i;
+async function watchPick() {
+  try { const hd = await window.showDirectoryPicker({ id: 'duytu-in', mode: 'readwrite' }); W.h = hd; await DB.set('dir', hd); await watchStart(true); }
+  catch (e) { if (!e || e.name !== 'AbortError') toast('Không mở được thư mục: ' + (e && e.message)); }
+}
+async function watchStart(gesture) {
+  if (!W.h) return;
+  let p = 'denied'; try { p = await W.h.queryPermission({ mode: 'readwrite' }); if (p !== 'granted' && gesture) p = await W.h.requestPermission({ mode: 'readwrite' }); } catch { }
+  clearInterval(W.timer);
+  if (p !== 'granted') { W.need = true; W.on = false; renderWatch(); return; }
+  W.need = false; W.on = true; W.err = ''; W.timer = setInterval(watchScan, 30000); renderWatch(); watchScan();
+}
+function watchStop() { W.on = false; clearInterval(W.timer); renderWatch(); }
+async function watchScan() {
+  if (!W.on || W.busy || !W.h) return; W.busy = true; renderWatch();
+  try {
+    ST.seen = ST.seen || {};
+    const files = [];
+    for await (const e of W.h.values()) {
+      if (e.kind !== 'file' || !OKEXT.test(e.name) || /^(~\$|\.)/.test(e.name)) continue;
+      const f = await e.getFile(); if (Date.now() - f.lastModified < 5000) continue; // file đang chép dở
+      const key = `${f.name}|${f.size}|${f.lastModified}`; if (!ST.seen[key]) files.push([key, f]);
+    }
+    W.last = Date.now(); W.err = '';
+    if (files.length) {
+      await importFiles(files.map(x => x[1]), newBatch(true));
+      for (const [k] of files) ST.seen[k] = Date.now();
+      const ks = Object.keys(ST.seen); if (ks.length > 800) for (const k of ks.sort((a, b) => ST.seen[a] - ST.seen[b]).slice(0, ks.length - 800)) delete ST.seen[k];
+      W.n += files.length;
+      const L = ST.last;
+      if (ST.settings.autoX !== false && hasNew(L)) { const { name, blob } = buildNew(L); await writeOut(name, blob); }
+      else if (!hasNew(L)) toast(`Tự động: ${files.length} file – không có số liệu mới (toàn bộ đã có)`);
+      save();
+    }
+  } catch (e) { W.err = (e && e.message) || String(e); if (e && e.name === 'NotAllowedError') { W.on = false; W.need = true; clearInterval(W.timer); } }
+  W.busy = false; renderWatch();
+}
+async function writeOut(name, blob) {
+  try {
+    const d = await W.h.getDirectoryHandle('Ket qua', { create: true }), fh = await d.getFileHandle(name, { create: true }), w = await fh.createWritable();
+    await w.write(blob); await w.close();
+    ST.log.push({ at: Date.now(), msg: `Đã ghi file số liệu mới vào thư mục Ket qua: ${name}` }); toast('Đã ghi ' + name + ' vào thư mục “Ket qua”');
+    if (UI.tab === 'nap') render();
+  } catch { await saveFile(name, blob); }
+}
+function watchHTML() {
+  if (!canWatch()) return `<p class="note">Trình duyệt này không hỗ trợ theo dõi thư mục. Hãy mở app bằng <b>Chrome</b> hoặc <b>Edge</b> trên máy tính. Trên điện thoại vẫn dùng được: chọn file ở trên, app tự lọc trùng và tự xuất Excel số liệu mới.</p>`;
+  const nm = W.h ? h(W.h.name) : '';
+  const st = W.on ? `<p class="wst"><span class="dot${W.busy ? ' wait' : ''}"></span>${W.busy ? 'Đang quét' : 'Đang theo dõi'} thư mục <b>${nm}</b> · quét mỗi 30 giây${W.last ? ` · lần cuối ${fdt(W.last).slice(11)}` : ''}${W.n ? ` · đã nạp ${W.n} file` : ''}</p>`
+    : W.need ? `<p class="wst"><span class="dot wait"></span>Thư mục <b>${nm}</b> cần cấp quyền lại sau khi mở app.</p>`
+    : `<p class="wst"><span class="dot off"></span>${W.h ? `Đã dừng theo dõi <b>${nm}</b>.` : 'Chưa chọn thư mục.'}</p>`;
+  const bt = W.on ? `<button class="btn ghost" data-act="wscan">Quét ngay</button><button class="btn ghost" data-act="wstop">Dừng</button><button class="btn ghost" data-act="wpick">Đổi thư mục</button>`
+    : W.need || W.h ? `<button class="btn" data-act="wgo">${W.need ? 'Cấp quyền & tiếp tục theo dõi' : 'Tiếp tục theo dõi'}</button><button class="btn ghost" data-act="wpick">Chọn thư mục khác</button>`
+    : `<button class="btn" data-act="wpick">Chọn thư mục để theo dõi</button>`;
+  return st + (W.err ? `<p class="err">Lỗi: ${h(W.err)}</p>` : '') + `<div class="row">${bt}</div>`;
+}
+function renderWatch() { const el = $('#watch'); if (el) el.innerHTML = watchHTML(); renderStatus(); }
+function vLast() {
+  const L = ST.last, k = (n, t, cls = '') => `<div class="kpi ${cls}"><div class="n">${fmtN(n)}</div><div class="t">${t}</div></div>`;
+  const body = L ? `<p class="lead">${fdt(L.at)}${L.auto ? ' · tự động từ thư mục' : ''} · ${h(L.files.map(f => f.src).join(', ').slice(0, 200))}</p>
+    <div class="kpis sm">${k(L.sc.length, 'Sự cố mới', 'hot')}${k(L.scCh.length, 'Sự cố đổi trạng thái', 'warn')}${k(L.kl.length + L.klUp.length, 'Phiếu KL mới / sửa', 'ok')}${k(tot(L, 'same'), 'Đã có – bỏ qua')}${k(tot(L, 'dup'), 'Trùng – loại bỏ')}</div>`
+    : `<p class="lead">Chưa có lần nạp nào kể từ khi bật tính năng lọc trùng.</p>`;
+  return `<section class="card"><div class="cardhead"><h3>Số liệu mới – lần nạp gần nhất</h3><button class="btn" data-act="newx"${hasNew(L) ? '' : ' disabled'}>Xuất Excel số liệu mới</button></div>${body}
+    <label class="chk"><input type="checkbox" data-chg="autoX"${ST.settings.autoX !== false ? ' checked' : ''}> Tự động xuất Excel số liệu mới ngay sau mỗi lần nạp</label>
+    <p class="note">Mỗi lần nạp: dòng trùng mã đã có và không đổi được bỏ qua; dòng lặp trong file hoặc trùng nội dung (cùng tủ, nội dung, thời điểm / cùng phiếu KL) bị loại; file Excel chỉ gồm sự cố mới, sự cố đổi trạng thái, phiếu KL mới và danh sách dòng trùng đã loại.</p></section>
+  <section class="card"><h3>Tự động nạp từ thư mục</h3><p class="lead">Chọn một thư mục trên máy tính (ví dụ thư mục tải file từ email/Zalo). Mỗi khi có file mới được thả vào, app tự nạp, lọc trùng và ghi file Excel số liệu mới vào thư mục con <b>Ket qua</b>. Chỉ chạy khi app đang mở.</p>
+    <div id="watch">${watchHTML()}</div></section>`;
 }
 const FAILRE = /không tìm thấy|không nhận ra|không có dòng/;
-async function importTable(rows, src) {
+async function importTable(rows, src, B) {
   const t = tableFromRows(rows); if (!t) return `${src}: không tìm thấy dòng tiêu đề (cần cột “Tên tủ”, “Nội dung” hoặc “Hạng mục…”)`;
   const kind = detectKind(t); if (!kind) return `${src}: không nhận ra loại dữ liệu`;
   const items = mapRows(t, kind); if (!items.length) return `${src}: không có dòng hợp lệ`;
-  return merge(kind, items, src);
+  return merge(kind, items, src, B);
 }
-async function importFiles(files) {
+async function importFiles(files, B) {
+  B = B || newBatch(false);
   const msgs = [], toBox = []; const pg = $('#prog');
   for (const f of files) {
     try {
@@ -1086,7 +1235,7 @@ async function importFiles(files) {
       const sheets = await FMT.read(f, (st, p) => { if (pg) pg.textContent = `${f.name}: ${st} ${Math.round(p * 100)}%`; });
       let ok = 0;
       for (const sh of sheets) {
-        const m = sh.text ? 'text' : await importTable(sh.rows, f.name + (sheets.length > 1 ? ` [${sh.name}]` : ''));
+        const m = sh.text ? 'text' : await importTable(sh.rows, f.name + (sheets.length > 1 ? ` [${sh.name}]` : ''), B);
         if (m !== 'text' && !FAILRE.test(m)) { msgs.push(m); ok++; }
         else toBox.push({ name: f.name + (sheets.length > 1 ? ` [${sh.name}]` : ''), rows: sh.rows });
       }
@@ -1095,12 +1244,14 @@ async function importFiles(files) {
   }
   if (toBox.length) UI.pasteText = toBox.map(b => b.rows.map(r => (r || []).map(v => v instanceof Date ? fdt(v.getTime()) : S(v)).join('\t').replace(/\t+$/, '')).filter(Boolean).join('\n')).join('\n');
   if (pg) pg.textContent = '';
-  finishImport(msgs);
+  finishImport(msgs, B);
 }
-function finishImport(msgs) {
+function finishImport(msgs, B) {
   if (msgs.some(m => !/lỗi|không/.test(m))) ST.seed = false;
-  for (const m of msgs) ST.log.push({ at: Date.now(), msg: m }); ST.log = ST.log.slice(-200);
-  recompute(); render(); save(); toast(msgs.join(' · ').slice(0, 220));
+  for (const m of msgs) ST.log.push({ at: Date.now(), msg: (B && B.auto ? 'Tự động – ' : '') + m }); ST.log = ST.log.slice(-200);
+  recompute(); const L = B && B.files.length ? endBatch(B) : null;
+  render(); save(); toast(msgs.join(' · ').slice(0, 220));
+  if (L && B.out === 'download' && ST.settings.autoX !== false && hasNew(L)) setTimeout(() => exportNew(L), 600);
 }
 function freeImport() {
   const raw = $('#paste').value; if (!raw.trim()) return toast('Chưa có nội dung');
@@ -1114,14 +1265,15 @@ function freeImport() {
   recs = recs.filter(x => x.nd && x.nd.length > 3 && !/^(stt|nội dung|danh sách)/i.test(x.nd));
   if (!recs.length) return toast('Không có dòng sự cố hợp lệ');
   const items = recs.map((x, i) => ({ ma: 'N' + String(now).slice(-7) + '-' + (i + 1), t: x.t || now, quan: x.quan || q0, tu: x.tu || tu0 || tuOf(x.nd), duong: x.duong || '', phuong: x.phuong || '', nd: x.nd, nb: cleanName(x.nb) || nb0, tt1: 'Chưa xử lý', tt2: '', xl: '', gs: '' }));
-  UI.pasteText = ''; finishImport([merge('sc', items, `Nhập tay (${q0})`)]);
+  const B = newBatch(false); UI.pasteText = ''; finishImport([merge('sc', items, `Nhập tay (${q0})`, B)], B);
 }
 const ACT = {
-  paste() { const v = $('#paste').value; if (!v.trim()) return toast('Chưa có dữ liệu dán'); importTable(parseTSV(v), 'Dữ liệu dán').then(m => { if (!FAILRE.test(m)) UI.pasteText = ''; finishImport([m]); }); },
+  paste() { const v = $('#paste').value; if (!v.trim()) return toast('Chưa có dữ liệu dán'); const B = newBatch(false); importTable(parseTSV(v), 'Dữ liệu dán', B).then(m => { if (!FAILRE.test(m)) UI.pasteText = ''; finishImport([m], B); }); },
   freeImp() { freeImport(); },
   clr(a) { const k = a.dataset.k; if (a.dataset.ok !== '1') { a.dataset.ok = '1'; a.textContent = 'Bấm lần nữa để xóa'; return; } ST[k] = []; finishImport([`Đã xóa toàn bộ ${k === 'sc' ? 'sự cố' : 'khối lượng'}`]); },
   reset(a) { if (a.dataset.ok !== '1') { a.dataset.ok = '1'; a.textContent = 'Bấm lần nữa để khôi phục'; return; } const s = ST.settings; ST = seedState(); ST.settings = s; recompute(); render(); save(); },
   tplKH() { exportKHTemplate(); },
+  newx() { exportNew(ST.last); }, wpick() { watchPick(); }, wgo() { watchStart(true); }, wstop() { watchStop(); }, wscan() { watchScan(); },
   scx() { exportSC(); }, dcx() { exportDC(); }, phx() { exportPhieu(); }, khx() { exportKH(); }, pcx() { exportPC(); },
   pq(a) { const q = a.dataset.v; UI.pq.has(q) ? UI.pq.delete(q) : UI.pq.add(q); render(); },
   pc(a) { const c = a.dataset.v; UI.pc.has(c) ? UI.pc.delete(c) : UI.pc.add(c); render(); },
@@ -1133,6 +1285,7 @@ const CHG = {
   pkt(a) { UI.pkt = a.checked; render(); },
   kh(a) { UI[a.dataset.k] = a.value; render(); },
   pday(a) { UI.pday = a.value; },
+  autoX(a) { ST.settings.autoX = a.checked; save(); toast(a.checked ? 'Đã bật tự xuất Excel số liệu mới' : 'Đã tắt tự xuất – bấm nút để xuất khi cần'); },
   dpm(a) { UI.dp.mode = a.value; UI.dp.v = defPeriod(a.value); render(); },
   dpv(a) { UI.dp.v = a.value; render(); },
 };
@@ -1328,6 +1481,7 @@ function saveSettings() {
   if (st && st.sc && st.kl && st.kh) { st.settings = Object.assign(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), st.settings || {}); ST = st; }
   else ST = seedState();
   recompute(); render();
+  if (canWatch()) { try { const hd = await DB.get('dir'); if (hd && hd.queryPermission) { W.h = hd; await watchStart(false); } } catch { } }
 })();
 
 </script>
