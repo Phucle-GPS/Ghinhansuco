@@ -1,23 +1,118 @@
 {
- "name": "Duy tu chiếu sáng CSKV Trung tâm",
- "short_name": "Duy tu CS",
- "start_url": "./index.html",
- "scope": "./",
- "display": "standalone",
- "background_color": "#0f131b",
- "theme_color": "#0f131b",
- "lang": "vi",
- "icons": [
-  {
-   "src": "icon-192.png",
-   "sizes": "192x192",
-   "type": "image/png"
+  "id": "./",
+  "name": "Duy tu chiếu sáng CSKV Trung tâm",
+  "short_name": "Duy tu CS",
+  "description": "Sự cố, khối lượng, kế hoạch, phân công và băng rôn – chiếu sáng CSKV Trung tâm",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "any",
+  "background_color": "#0f131b",
+  "theme_color": "#0f131b",
+  "lang": "vi",
+  "dir": "ltr",
+  "categories": [
+    "productivity",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Băng rôn",
+      "short_name": "Băng rôn",
+      "url": "./index.html?tab=br",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Nạp dữ liệu",
+      "short_name": "Nạp",
+      "url": "./index.html?tab=nap",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Phân công",
+      "short_name": "Phân công",
+      "url": "./index.html?tab=pc",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "share_target": {
+    "action": "./index.html",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    },
+    "enctype": "application/x-www-form-urlencoded"
   },
-  {
-   "src": "icon-512.png",
-   "sizes": "512x512",
-   "type": "image/png",
-   "purpose": "any maskable"
-  }
- ]
+  "file_handlers": [
+    {
+      "action": "./index.html",
+      "accept": {
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [
+          ".xlsx"
+        ],
+        "application/vnd.ms-excel": [
+          ".xls"
+        ],
+        "text/csv": [
+          ".csv"
+        ],
+        "application/pdf": [
+          ".pdf"
+        ],
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [
+          ".docx"
+        ],
+        "application/msword": [
+          ".doc"
+        ]
+      }
+    }
+  ]
 }
