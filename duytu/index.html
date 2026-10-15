@@ -90,7 +90,7 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--mut);font-size:.86rem
 .cvl{list-style:none;margin:10px 0 0;padding:0}.cvl li{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line);font-size:.86rem}
 .kq{font-size:.82rem;max-width:300px}.kq .ev{color:var(--mut);font-size:.76rem;margin-top:2px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .qres{margin-top:12px;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surf2)}.qres h4{margin:0 0 4px;font-size:1rem}
-.qres.red h4{color:var(--red)}.qres.green h4{color:var(--green)}.qres.amber h4{color:var(--amber)}
+.qres .msg{line-height:1.55;font-size:.88rem;overflow-wrap:anywhere}.qres.red{border-left:4px solid var(--red)}.qres.green{border-left:4px solid var(--green)}.qres.amber{border-left:4px solid var(--amber)}.qres.red h4{color:var(--red)}.qres.green h4{color:var(--green)}.qres.amber h4{color:var(--amber)}
 @media (max-width:600px){.brand h1{font-size:1.1rem}.card{padding:14px}.kpi .n{font-size:1.4rem}}
 </style>
 </head><body>
@@ -518,7 +518,7 @@ const HMG = [
   ['1. Bóng, chấn lưu, kích, tụ, driver', 'bóng|chấn lưu|kích|tụ điện|driver|chuyển mạch|đui|chống sét đèn|rơ le'],
 ];
 const HMK = HMG.flatMap(([g, ks]) => ks.split('|').filter(Boolean).map(k => [k, g]));
-const DEFAULT_SETTINGS = { gs: ['Phạm Quang Miền'], year: 2026, quarter: 4, month: 0, lsc: DEFAULT_LSC, per: 22, autoX: true, tg: { token: '', chat: '', thread: '', hour: 7, warn: 3, auto: true, only: true, cvAuto: true } };
+const DEFAULT_SETTINGS = { gs: ['Phạm Quang Miền'], year: 2026, quarter: 4, month: 0, lsc: DEFAULT_LSC, per: 22, autoX: true, tg: { token: '', chat: '', thread: '', hour: 7, warn: 3, auto: true, only: true, cvAuto: true, listen: true }, cvDays: 90 };
 
 const S = (v) => (v == null ? '' : String(v)).trim();
 const low = (v) => S(v).toLowerCase();
@@ -938,12 +938,13 @@ const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const h = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 let ST = null, R = null; // state & computed
-const UI = { tab: 'tq', f: { q: '', c: '', s: 'Cần sửa', p: '', x: '' }, pq: new Set(QN), pc: new Set(['LED', 'HPS']), pqSeen: new Set(QN), dp: { mode: 'month', v: '' }, pasteText: '', freeQ: '', pkt: true, khq: '', khg: '', khs: 'ton', pday: '', br: { s: '', q: '', x: '', k: '' }, brText: '', tgFound: [], cvq: { nd: '', vt: '', r: null } };
+const UI = { tab: 'tq', f: { q: '', c: '', s: 'Cần sửa', p: '', x: '' }, pq: new Set(QN), pc: new Set(['LED', 'HPS']), pqSeen: new Set(QN), dp: { mode: 'month', v: '' }, pasteText: '', freeQ: '', pkt: true, khq: '', khg: '', khs: 'ton', pday: '', br: { s: '', q: '', x: '', k: '' }, brText: '', tgFound: [], cvq: { nd: '', vt: '', r: null }, in: { text: '', vt: '' }, inRes: [] };
 
 // ---------- lưu trữ ----------
 const DB = {
   open() { return new Promise((res, rej) => { try { const r = indexedDB.open('duytu-cs', 1); r.onupgradeneeded = () => r.result.createObjectStore('kv'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); } catch (e) { rej(e); } }); },
   async get(k) { try { const db = await this.open(); return await new Promise((res) => { const q = db.transaction('kv').objectStore('kv').get(k); q.onsuccess = () => res(q.result); q.onerror = () => res(null); }); } catch { return null; } },
+  async del(k) { try { const db = await this.open(); await new Promise((res) => { const tx = db.transaction('kv', 'readwrite'); tx.objectStore('kv').delete(k); tx.oncomplete = res; tx.onerror = res; }); } catch { } },
   async set(k, v) { try { const db = await this.open(); await new Promise((res) => { const tx = db.transaction('kv', 'readwrite'); tx.objectStore('kv').put(v, k); tx.oncomplete = res; tx.onerror = res; }); return true; } catch { return false; } },
 };
 function seedState() {
@@ -1300,9 +1301,9 @@ const ACT = {
   tgtopic() { tgSaveForm(); tgTopic(); },
   tgpick(a) { const g = ST.settings.tg; g.chat = a.dataset.id; g.thread = a.dataset.th || ''; UI.tgFound = []; save(); render(); toast('Đã chọn nơi nhận: ' + a.dataset.n); },
   brk(a) { UI.br.s = UI.br.s === a.dataset.k ? '' : a.dataset.k; render(); const t = $('#brList'); if (t) t.scrollIntoView({ behavior: 'smooth' }); },
-  cvdel(a) { if (a.dataset.ok !== '1') { a.dataset.ok = '1'; a.textContent = 'Xóa?'; return; } ST.cv = ST.cv.filter(c => c.id !== a.dataset.id); cvVer++; save(); render(); },
+  cvdel(a) { if (a.dataset.ok !== '1') { a.dataset.ok = '1'; a.textContent = 'Xóa?'; return; } const c0 = ST.cv.find(c => c.id === a.dataset.id); ST.cv = ST.cv.filter(c => c.id !== a.dataset.id); DB.del('cvf:' + a.dataset.id); CVX.delete(a.dataset.id); cvVer++; ST.log.push({ at: Date.now(), msg: 'Kho công văn – hủy thủ công ' + (c0 ? c0.so || c0.file : '') }); const ch = recheck(); save(); render(); if (ch.length) cvAutoSend(ch.map(b => b.ma), 'Kết quả thay đổi sau khi hủy công văn'); },
   cvsend() { tgSaveForm(); cvSendAll(false); },
-  cvq() { cvQuick(); }, cvqsend() { cvQuickSend(); }, cvqadd() { cvQuickAdd(); },
+  inrun() { intakeRun(); }, inclr() { UI.inRes = []; render(); }, cvview(a) { cvView(a.dataset.id); },
   brk2(a) { UI.br.k = UI.br.k === a.dataset.k ? '' : a.dataset.k; UI.br.s = ''; render(); const t = $('#brList'); if (t) t.scrollIntoView({ behavior: 'smooth' }); },
   scx() { exportSC(); }, dcx() { exportDC(); }, phx() { exportPhieu(); }, khx() { exportKH(); }, pcx() { exportPC(); },
   pq(a) { const q = a.dataset.v; UI.pq.has(q) ? UI.pq.delete(q) : UI.pq.add(q); render(); },
@@ -1316,6 +1317,9 @@ const CHG = {
   kh(a) { UI[a.dataset.k] = a.value; render(); },
   pday(a) { UI.pday = a.value; },
   brf(a) { UI.br[a.dataset.k] = a.value; render(); },
+  cvdays(a) { ST.settings.cvDays = Math.max(1, Math.min(365, +a.value || 90)); cvVer++; save(); render(); cvPurge(); },
+  cvitems(a) { const c = ST.cv.find(x => x.id === a.dataset.id); if (!c) return; c.items = a.value.split('\n').map(t => t.trim()).filter(t => t.length >= 4).map(t => ({ t, how: 'sửa tay' })); CVX.delete(c.id); cvVer++; ST.log.push({ at: Date.now(), msg: `Kho công văn – sửa danh sách nội dung ${c.so || c.file} (${c.items.length})` }); const ch = recheck(); save(); render(); toast('Đã cập nhật nội dung được phép'); if (ch.length) cvAutoSend(ch.map(b => b.ma), 'Kết quả thay đổi sau khi sửa nội dung công văn'); },
+  cvhet(a) { const c = ST.cv.find(x => x.id === a.dataset.id); if (!c || !a.value) return; const [y, m, d] = a.value.split('-').map(Number); c.het = new Date(y, m - 1, d).getTime(); cvVer++; save(); render(); cvPurge(); toast('Hạn hủy: ' + fdate(c.het)); },
   cvm(a) { const x = ST.br.find(b => b.ma === a.dataset.ma); if (!x) return; x.cvm = a.value; ST.log.push({ at: Date.now(), msg: `Băng rôn ${x.ma}: ${a.value ? 'xác nhận thủ công ' + (a.value === 'phep' ? 'có phép' : 'không phép') : 'đối chiếu tự động'}` }); save(); render(); },
   brext(a) { const x = ST.br.find(b => b.ma === a.dataset.ma); const v = a.value; if (!x || !v) return; const [y, m, d] = v.split('-').map(Number); x.b = new Date(y, m - 1, d).getTime(); x.thao = 0; ST.log.push({ at: Date.now(), msg: `Băng rôn ${x.ma}: gia hạn đến ${fdate(x.b)}` }); save(); render(); toast('Đã gia hạn đến ' + fdate(x.b)); },
   autoX(a) { ST.settings.autoX = a.checked; save(); toast(a.checked ? 'Đã bật tự xuất Excel số liệu mới' : 'Đã tắt tự xuất – bấm nút để xuất khi cần'); },
@@ -1610,18 +1614,14 @@ function brFreeImport() {
   const B = newBatch(false); UI.brText = ''; finishImport([brMerge(items, 'Băng rôn (nhập từng dòng)', B)], B);
 }
 function bindBR() {
-  const cd = $('#cvdrop'), cf = $('#cvfi');
-  cf.onchange = () => cvImport([...cf.files]);
-  cd.ondragover = (e) => { e.preventDefault(); cd.classList.add('over'); }; cd.ondragleave = () => cd.classList.remove('over');
-  cd.ondrop = (e) => { e.preventDefault(); cd.classList.remove('over'); cvImport([...e.dataTransfer.files]); };
-  const qf = $('#cvqf'); qf.onchange = () => cvQuickFile(qf.files[0]);
-  $('#cvqnd').oninput = (e) => { UI.cvq.nd = e.target.value; }; $('#cvqvt').oninput = (e) => { UI.cvq.vt = e.target.value; };
-  const d = $('#brdrop'), fi = $('#brfi'), go = (fs) => importFiles(fs, Object.assign(newBatch(false), { forceBr: true }));
-  fi.onchange = () => go([...fi.files]);
-  d.ondragover = (e) => { e.preventDefault(); d.classList.add('over'); };
-  d.ondragleave = () => d.classList.remove('over');
-  d.ondrop = (e) => { e.preventDefault(); d.classList.remove('over'); go([...e.dataTransfer.files]); };
-  $('#brpaste').oninput = (e) => { UI.brText = e.target.value; };
+  const d = $('#indrop'), fi = $('#infi'), cam = $('#incam'), tx = $('#intext');
+  fi.onchange = () => { const fs = [...fi.files]; fi.value = ''; intakeRun(fs); };
+  cam.onchange = () => { const fs = [...cam.files]; cam.value = ''; intakeRun(fs); };
+  d.ondragover = (e) => { e.preventDefault(); d.classList.add('over'); }; d.ondragleave = () => d.classList.remove('over');
+  d.ondrop = (e) => { e.preventDefault(); d.classList.remove('over'); intakeRun([...e.dataTransfer.files]); };
+  tx.oninput = (e) => { UI.in.text = e.target.value; };
+  tx.onpaste = () => setTimeout(() => { UI.in.text = tx.value; if (UI.in.text.trim()) intakeRun(); }, 400);
+  $('#invt').oninput = (e) => { UI.in.vt = e.target.value; };
 }
 
 // ---------- Telegram ----------
@@ -1644,7 +1644,7 @@ function tgSaveForm() {
   if (!$('#tgTok')) return;
   g.token = v('tgTok'); g.chat = v('tgChat'); g.thread = v('tgThr').replace(/\D/g, '');
   g.hour = Math.max(0, Math.min(23, parseInt(v('tgHour')) || 0)); g.warn = Math.max(0, Math.min(60, parseInt(v('tgWarn')) || 0));
-  g.auto = $('#tgAuto').checked; g.only = $('#tgOnly').checked; g.cvAuto = $('#tgCv').checked; save();
+  g.auto = $('#tgAuto').checked; g.only = $('#tgOnly').checked; g.cvAuto = $('#tgCv').checked; g.listen = $('#tgListen').checked; save(); tgPoll();
 }
 async function tgFind() {
   try {
@@ -1696,6 +1696,7 @@ async function brSend(auto) {
   finally { tgBusy = false; }
 }
 function tgTick() {
+  cvPurge();
   const g = ST && ST.settings.tg; if (!g || !g.auto || !g.token || !g.chat || !(ST.br || []).length) return;
   const now = new Date(), today = locDay(now);
   if (ST.tgLast === today || now.getHours() < g.hour || Date.now() - tgFail < 30 * 60000) return;
@@ -1703,153 +1704,353 @@ function tgTick() {
 }
 
 
-// ========== CÔNG VĂN – ĐỐI CHIẾU NỘI DUNG BĂNG RÔN ==========
+// ========== CÔNG VĂN – KHO TẠM THỜI (TỰ HỦY KHI HẾT HẠN) & ĐỐI CHIẾU CHÍNH XÁC ==========
 const fold = (v) => S(v).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/[^a-z0-9]+/g, ' ').trim();
-const STOPW = new Set(['va', 'cua', 'cac', 'la', 'cho', 'voi', 'tai', 'trong', 'nhung', 'de', 'mot', 'nay', 'tu', 'den', 'o', 've', 'theo', 'bang', 'ron', 'nhan']);
-const toks = (v) => fold(v).split(' ').filter(w => w.length > 1 && !STOPW.has(w));
-const bigr = (w) => { const o = []; for (let i = 0; i + 1 < w.length; i++) o.push(w[i] + ' ' + w[i + 1]); return o; };
+const nz = (t) => /^\d+$/.test(t) ? String(+t) : t;
+const normV = (v) => S(v).normalize('NFC').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+const tokV = (v) => normV(v).split(' ').filter(Boolean).map(nz);
+const tokF = (v) => fold(v).split(' ').filter(Boolean).map(nz);
+const isNumT = (t) => /\d/.test(t) || /^(ii|iii|iv|vi|vii|viii|ix|xi|xii|xiii|xiv|xv|xvi|xvii|xviii|xix|xx|xxi)$/.test(t);
 const KQ = { khong: ['BÁO THÁO – không có công văn', 'red'], hh: ['BÁO THÁO – hết hạn', 'red'], ktra: ['Cần kiểm tra', 'amber'], phep: ['KHÔNG THÁO – đúng công văn', 'green'] };
+const RANK = { phep: 3, ktra: 2, hh: 1, khong: 0 };
 let cvVer = 1; const CVX = new Map(), MC = new Map();
+const OFFM = [/cộng hòa xã hội chủ nghĩa|cộng hoà xã hội chủ nghĩa/i, /độc lập\s*[-–]\s*tự do/i, /(^|\n)\s*số\s*[:.]\s*\d/i, /(^|\n)\s*(v\/v|về việc)\b/i, /kính gửi/i, /nơi nhận/i, /cho phép treo|chấp thuận|đồng ý cho|thỏa thuận/i, /(ủy|uỷ) ban nhân dân|sở |phòng văn hóa|ban tuyên giáo/i];
+const offScore = (t) => OFFM.filter(r => r.test(t)).length;
 function cvMeta(raw) {
   const head = raw.split('\n').slice(0, 40).join('\n'), f = fold(raw), m = {};
   let r = head.match(/S[ốo]\s*(?:hiệu)?\s*[:.]?\s*(\d{1,6}\s*\/\s*[\wĐđÀ-ỹ\-\/.]+)/i); if (r) m.so = r[1].replace(/\s+/g, '').replace(/[.,]$/, '');
   r = raw.match(/ngày\s+(\d{1,2})\s+tháng\s+(\d{1,2})\s+năm\s+(\d{4})/i); if (r) m.ngay = new Date(+r[3], +r[2] - 1, +r[1]).getTime();
   r = raw.match(/(?:^|\n)\s*(?:V\/v|Về việc)\s*[:.]?\s*([^\n]{5,200})/i); if (r) m.vv = r[1].replace(/\s+/g, ' ').trim().slice(0, 200);
   let het = 0;
-  for (const x of f.matchAll(/den (?:het )?(?:ngay )?(\d{1,2})(?: thang | )(\d{1,2})(?: nam | )(\d{4})/g)) { const t = new Date(+x[3], +x[2] - 1, +x[1]).getTime(); if (+x[2] <= 12 && t > het) het = t; }
+  for (const x of f.matchAll(/den (?:het )?(?:ngay )?(\d{1,2})(?: thang | )(\d{1,2})(?: nam | )(\d{4})/g)) { const t = new Date(+x[3], +x[2] - 1, +x[1]).getTime(); if (+x[2] <= 12 && +x[1] <= 31 && t > het) het = t; }
   if (het) m.het = het;
   return m;
 }
+// tách các nội dung băng rôn được phép trong công văn
+function cvItems(raw, tables) {
+  const out = [], seen = new Set();
+  const add = (t, how) => {
+    t = S(t).replace(/\s+/g, ' ').replace(/^\s*(?:[-–+•*]|\d{1,2}[.)]|[a-zđ][.)])\s*/i, '').replace(/^[“"«„]|[”"»“]$/g, '').replace(/[;,]+$/, '').trim();
+    const k = tokV(t).join(' ');
+    const wd = tokV(t).filter(w => !isNumT(w) && !/^(từ|đến|ngày|tháng|năm|hết|số|lúc)$/.test(w));
+    if (wd.length >= 2 && t.length >= 6 && t.length <= 500 && !seen.has(k)) { seen.add(k); out.push({ t, how }); }
+  };
+  for (const m of raw.matchAll(/[“"«„]([^”"»\n]{6,500})[”"»“]/g)) add(m[1], 'trích dẫn');
+  for (const tb of tables || []) {
+    const HD = /^(nội dung|khẩu hiệu)[^:]{0,30}$/i, rows = tb.rows || [], hr = rows.findIndex(r => (r || []).filter(c => S(c)).length >= 2 && (r || []).some(c => HD.test(S(c)))); if (hr < 0) continue;
+    const ci = rows[hr].findIndex(c => HD.test(S(c)));
+    for (const r of rows.slice(hr + 1)) if (r && S(r[ci])) add(r[ci], 'bảng');
+  }
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(/^[-–+•*\d.)\s]*nội dung(?: băng rôn| tuyên truyền| khẩu hiệu| treo)?\s*[:：]\s*(.{6,})$/i); if (m) add(m[1], 'nội dung');
+    if (/nội dung|khẩu hiệu/i.test(lines[i]) && /[:：]\s*$/.test(lines[i])) {
+      for (let j = i + 1; j < Math.min(lines.length, i + 40); j++) {
+        const l = lines[j]; if (/^[-–+•*\d.)\s]*(vị trí|địa điểm|thời gian|số lượng|kích thước|đơn vị|nơi nhận|tuyến đường|quy cách|hình thức)/i.test(l)) break;
+        if (/^([-–+•*]|\d{1,2}[.)]|[a-zđ][.)])\s*/i.test(l)) add(l, 'liệt kê');
+      }
+    }
+  }
+  return out;
+}
+const DAY = 864e5;
+const effHet = (cv) => cv.het || (dayStart(cv.ngay || cv.at) + (+ST.settings.cvDays || 90) * DAY);
 function cvIdx(cv) {
   let x = CVX.get(cv.id); if (x) return x;
-  const lines = cv.text.split('\n').map(l => l.trim()).filter(l => l.length > 3);
-  const blocks = lines.map((l, i) => l + ' ' + (lines[i + 1] || '')), w = toks(cv.text);
-  x = { n: ' ' + fold(cv.text) + ' ', bi: new Set(bigr(w)), uni: new Set(w), lines, bt: blocks.map(b => new Set(toks(b))) };
+  const mk = (t) => ({ t, v: tokV(t), f: tokF(t) });
+  const sents = cv.text.replace(/\s*\n\s*/g, ' ').split(/(?<=[.;!?:])\s+|\s(?=[-–•+]\s)/).map(s => s.trim()).filter(s => s.length >= 6 && s.length <= 800).map(mk);
+  x = { it: (cv.items || []).map(o => mk(o.t)), sents, nv: ' ' + tokV(cv.text).join(' ') + ' ', hasLoc: /vị trí|địa điểm|tuyến đường/i.test(cv.text) };
   CVX.set(cv.id, x); return x;
 }
+function lcs(a, b) { const m = b.length; if (!a.length || !m) return 0; let p = new Array(m + 1).fill(0); for (let i = 1; i <= a.length; i++) { const c = new Array(m + 1).fill(0); for (let j = 1; j <= m; j++) c[j] = a[i - 1] === b[j - 1] ? p[j - 1] + 1 : Math.max(p[j], c[j - 1]); p = c; } return p[m]; }
+const dice = (a, b) => (a.length && b.length) ? 2 * lcs(a, b) / (a.length + b.length) : 0;
+const inSeq = (hay, nd) => nd.length > 0 && (' ' + hay.join(' ') + ' ').includes(' ' + nd.join(' ') + ' ');
 function cvMatch1(cv, b) {
-  const X = cvIdx(cv), w = toks(b.nd), fn = fold(b.nd);
-  if (!w.length) return { score: 0 };
-  let score;
-  if (fn.length > 8 && X.n.includes(' ' + fn + ' ')) score = 1;
-  else { const bg = bigr(w), bi = bg.length ? bg.filter(g => X.bi.has(g)).length / bg.length : 0, un = w.filter(t => X.uni.has(t)).length / w.length; score = bg.length ? bi * 0.75 + un * 0.25 : un * 0.8; }
-  if (b.ma && !/^BR-/.test(b.ma) && fold(b.ma).length > 2 && (fold(cv.so).includes(fold(b.ma)) || X.n.includes(' ' + fold(b.ma) + ' '))) score = Math.max(score, 0.9);
-  let bi = -1, bs = 0; const ws = new Set(w);
-  X.bt.forEach((st, i) => { let c = 0; for (const t of ws) if (st.has(t)) c++; if (c > bs) { bs = c; bi = i; } });
-  const line = bi >= 0 ? (X.lines[bi] + ' ' + (X.lines[bi + 1] || '')).replace(/\s+/g, ' ').slice(0, 220) : '';
-  const vt = toks(S(b.vt).replace(/(quận|q\.?)\s*\d+/gi, ' ').replace(/(trụ|số nhà|số|sn)\s*\d+\w*/gi, ' ').replace(/\b\d+\b/g, ' ')), loc = vt.length ? vt.filter(t => X.uni.has(t)).length / vt.length >= 0.6 : null;
-  return { score, line, loc };
-}
-function cvMatch(b) {
-  const key = cvVer + '|' + [b.ma, b.nd, b.vt].join('|'); if (MC.has(key)) return MC.get(key);
-  let best = { score: 0, cv: null, line: '', loc: null };
-  for (const cv of ST.cv || []) { const m = cvMatch1(cv, b); if (m.score > best.score) best = Object.assign(m, { cv }); }
-  if (MC.size > 5000) MC.clear(); MC.set(key, best); return best;
+  const X = cvIdx(cv), K = b.ocr ? 'f' : 'v', bv = b.ocr ? tokF(b.nd) : tokV(b.nd);
+  if (!bv.length) return { v: 'khong', score: 0 };
+  let it = { score: 0, t: '' };
+  for (const o of X.it) { const s = dice(bv, o[K]); if (s > it.score) it = { score: s, t: o.t, k: o[K] }; }
+  let st = null; for (const o of X.sents) if (inSeq(o[K], bv)) { st = o.t; break; }
+  let ss = { score: 0, t: '' }; if (!st) for (const o of X.sents) { const s = dice(bv, o[K]); if (s > ss.score) ss = { score: s, t: o.t }; }
+  const numMiss = it.k ? bv.filter(isNumT).filter(t => !it.k.includes(t)) : [];
+  let v, why = '', score = it.score, line = it.t;
+  if (it.score >= 0.9 && !numMiss.length) v = 'phep';
+  else if (!X.it.length && st && bv.length >= 4) { v = 'phep'; score = 1; line = st; why = 'nguyên văn trong công văn'; }
+  else if (it.score >= 0.6) { v = 'ktra'; why = `gần giống nội dung công văn (khớp ${Math.round(it.score * 100)}%)` + (numMiss.length ? `, khác số liệu: ${numMiss.join(', ')}` : ''); }
+  else if (st) { v = 'ktra'; score = Math.max(score, 0.6); line = st; why = 'có đoạn trùng trong công văn nhưng chưa xác định đúng là nội dung băng rôn được phép'; }
+  else if (!X.it.length && ss.score >= 0.75) { v = 'ktra'; score = ss.score; line = ss.t; why = `gần giống một câu trong công văn (${Math.round(ss.score * 100)}%)`; }
+  else { v = 'khong'; score = Math.max(it.score, ss.score); line = it.t || ss.t; }
+  // giấy phép số khớp số công văn
+  if (v !== 'phep' && b.ma && !/^BR-/.test(b.ma) && cv.so && fold(cv.so) && fold(cv.so).includes(fold(b.ma)) && it.score >= 0.6) { v = 'phep'; why = 'đúng số giấy phép và nội dung'; }
+  // vị trí
+  let loc = null;
+  const vt = tokV(S(b.vt).replace(/(quận|q\.?)\s*\d+/gi, ' ').replace(/(trụ|số nhà|số|sn)\s*\d+\w*/gi, ' ').replace(/\b\d+\b/g, ' ').replace(/[-–,]/g, ' ')).filter(t => !isNumT(t));
+  if (vt.length && X.hasLoc) { loc = X.nv.includes(' ' + vt.join(' ') + ' '); if (v === 'phep' && !loc) { v = 'ktra'; why = `nội dung đúng công văn nhưng vị trí “${S(b.vt)}” không có trong công văn`; } }
+  return { v, why, score, line, loc, cv };
 }
 function cvKQ(b) {
   if (b.thao || !(ST.cv || []).length) return null;
-  const m = cvMatch(b), today = dayStart(Date.now());
-  let v = b.cvm || (m.score >= 0.6 ? 'phep' : m.score >= 0.35 ? 'ktra' : 'khong'), why = '';
-  if (v === 'phep' && m.cv && m.cv.het && m.cv.het < today && !b.cvm) { v = 'hh'; why = `công văn ${m.cv.so || ''} hết hạn ${fdate(m.cv.het)}`.replace('  ', ' '); }
-  else if (v === 'phep' && b.b && dayStart(b.b) < today) { v = 'hh'; why = `quá hạn treo ${fdate(b.b)}`; }
-  return { v, why, score: m.score, cv: m.cv, line: m.line, loc: m.loc, auto: !b.cvm };
+  const key = [cvVer, b.ma, b.nd, b.vt, b.ocr ? 1 : 0, b.cvm || '', b.b || ''].join('|'); if (MC.has(key)) return MC.get(key);
+  let best = { v: 'khong', score: -1, cv: null, line: '', why: '' };
+  for (const cv of ST.cv) { const m = cvMatch1(cv, b); if (RANK[m.v] > RANK[best.v] || (m.v === best.v && m.score > best.score)) best = m; }
+  const r = Object.assign({ auto: !b.cvm }, best);
+  if (b.cvm) { r.v = b.cvm; r.why = 'xác nhận thủ công'; }
+  if (r.v === 'phep' && b.b && dayStart(b.b) < dayStart(Date.now())) { r.v = 'hh'; r.why = `quá hạn treo ${fdate(b.b)}`; }
+  if (MC.size > 5000) MC.clear(); MC.set(key, r); return r;
 }
 function kqCell(b) {
-  if (!(ST.cv || []).length) return '<span class="mut">Chưa có công văn</span>';
+  if (!(ST.cv || []).length) return '<span class="mut">Kho công văn trống</span>';
   const k = cvKQ(b); if (!k) return '<span class="mut">—</span>';
   const c = KQ[k.v][1];
-  return `<div class="kq"><span class="st ${c}">${KQ[k.v][0]}</span>${k.why ? `<div class="days ${c}">${h(k.why)}</div>` : ''}
-    <div class="mut">${k.auto ? `Khớp ${Math.round(k.score * 100)}%` : 'Xác nhận thủ công'}${k.cv ? ` · ${h(k.cv.so || k.cv.file)}` : ''}${k.loc === false ? ' · vị trí chưa thấy trong CV' : k.loc ? ' · đúng vị trí' : ''}</div>
-    ${k.line && k.v !== 'khong' ? `<div class="ev" title="${h(k.line)}">“${h(k.line)}”</div>` : ''}</div>`;
+  return `<div class="kq"><span class="st ${c}">${KQ[k.v][0]}</span>${k.why ? `<div class="days ${c}" style="font-weight:600">${h(k.why)}</div>` : ''}
+    <div class="mut">${k.auto ? `Khớp ${Math.round(Math.max(0, k.score) * 100)}%` : 'Thủ công'}${k.cv ? ` · CV ${h(k.cv.so || k.cv.file)}` : ''}${b.ocr ? ' · đọc từ ảnh' : ''}</div>
+    ${k.line && k.v !== 'khong' ? `<div class="ev" title="${h(k.line)}">CV: “${h(k.line)}”</div>` : ''}</div>`;
 }
-async function cvText(f, onProg) {
-  const n = f.name.toLowerCase();
-  if (/\.docx$/.test(n)) {
-    const z = await XL.unzip(await f.arrayBuffer()), t = await z.text('word/document.xml');
-    if (t) { const d = new DOMParser().parseFromString(t, 'application/xml'); return [...d.getElementsByTagNameNS('*', 'p')].map(p => [...p.getElementsByTagNameNS('*', 't')].map(x => x.textContent).join('')).filter(x => x.trim()).join('\n'); }
-  }
-  const sh = await FMT.read(f, onProg);
-  return sh.map(x => x.rows.map(r => (r || []).map(v => v instanceof Date ? fdate(v.getTime()) : S(v)).filter(Boolean).join(' ')).filter(Boolean).join('\n')).join('\n');
+// ---------- đọc mọi định dạng ----------
+const isImg = (f) => /^image\//.test(f.type || '') || /\.(png|jpe?g|webp|bmp|gif|tiff?|jfif)$/i.test(f.name);
+const loadJs = (src) => new Promise((res, rej) => { if ([...document.scripts].some(s => s.src === src)) return res(); const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('cần Internet để tải bộ đọc')); document.head.appendChild(s); });
+async function ocrBlob(blob, prog) {
+  await loadJs('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js');
+  const w = await Tesseract.createWorker('vie', 1, { logger: m => prog && m.progress != null && prog('Nhận dạng chữ', m.progress) });
+  try { return (await w.recognize(blob)).data.text; } finally { await w.terminate(); }
 }
-async function cvImport(files) {
-  ST.cv = ST.cv || []; const pg = $('#cvprog'), msgs = [], added = [];
-  for (const f of files) {
-    try {
-      if (pg) pg.textContent = `Đang đọc ${f.name}…`;
-      const raw = await cvText(f, (st, p) => { if (pg) pg.textContent = `${f.name}: ${st} ${Math.round(p * 100)}%`; });
-      if (raw.replace(/\s/g, '').length < 30) { msgs.push(`${f.name}: không đọc được chữ`); continue; }
-      const id = 'CV-' + hash36(fold(raw).slice(0, 8000));
-      if (ST.cv.some(c => c.id === id)) { msgs.push(`${f.name}: công văn đã có (bỏ qua)`); continue; }
-      const cv = Object.assign({ id, file: f.name, at: Date.now(), text: raw.slice(0, 400000) }, cvMeta(raw));
-      ST.cv.push(cv); added.push(cv); msgs.push(`${f.name}: thêm công văn ${cv.so || ''}${cv.het ? ' (hạn đến ' + fdate(cv.het) + ')' : ''}`);
-    } catch (e) { msgs.push(`${f.name}: lỗi – ${e.message}`); }
+async function ocrPdf(buf, prog) {
+  await loadJs('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+  const lib = window.pdfjsLib; lib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const pdf = await lib.getDocument({ data: new Uint8Array(buf) }).promise, out = [];
+  for (let p = 1; p <= Math.min(pdf.numPages, 12); p++) {
+    const pg = await pdf.getPage(p), vp = pg.getViewport({ scale: 2 }), cv = document.createElement('canvas'); cv.width = vp.width; cv.height = vp.height;
+    await pg.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
+    const bl = await new Promise(r => cv.toBlob(r, 'image/png'));
+    out.push(await ocrBlob(bl, (s, x) => prog && prog(`Trang ${p}/${pdf.numPages}`, x)));
   }
-  if (pg) pg.textContent = '';
-  cvVer++; for (const m of msgs) ST.log.push({ at: Date.now(), msg: 'Công văn – ' + m }); save(); render(); toast(msgs.join(' · ').slice(0, 220));
-  if (added.length) cvAutoSend(null, 'Công văn mới: ' + added.map(c => c.so || c.file).join(', '));
+  return out.join('\n');
+}
+function docBinText(buf) { // Word .doc cũ: lấy các đoạn chữ UTF-16 / 8-bit
+  const u = new Uint8Array(buf), seg = []; let cur = '';
+  for (let i = 0; i + 1 < u.length; i += 2) { const c = u[i] | (u[i + 1] << 8); if ((c >= 32 && c < 0xD800 && c !== 0xFFFF) || c === 13 || c === 9) cur += c === 13 ? '\n' : String.fromCharCode(c); else { if (cur.replace(/\s/g, '').length >= 4) seg.push(cur); cur = ''; } }
+  if (cur.replace(/\s/g, '').length >= 4) seg.push(cur);
+  const t = seg.filter(s => /[a-zA-ZÀ-ỹ]{2}/.test(s) && (s.match(/[a-zA-ZÀ-ỹ\s.,:;0-9\/()\-–"“”]/g) || []).length / s.length > 0.85).join('\n');
+  return t.length > 50 ? t : new TextDecoder('windows-1258').decode(u).replace(/[^\x20-\x7EÀ-ỹ\n]+/g, ' ');
+}
+const rtfText = (s) => s.replace(/\\u(-?\d+)\??/g, (m, n) => String.fromCharCode(n < 0 ? +n + 65536 : +n)).replace(/\\'([0-9a-f]{2})/gi, (m, x) => String.fromCharCode(parseInt(x, 16))).replace(/\\par[d]?/g, '\n').replace(/\{\\\*[^{}]*\}|\\[a-z]+-?\d* ?|[{}]/gi, '');
+function sheetsText(sh) { return (sh || []).map(x => (x.rows || []).map(r => (r || []).map(v => v instanceof Date ? fdate(v.getTime()) : S(v)).filter(Boolean).join(' ')).filter(Boolean).join('\n')).join('\n'); }
+async function readAny(f, prog) {
+  const ext = f.name.toLowerCase().split('.').pop();
+  if (isImg(f)) return { raw: await ocrBlob(f, prog), sheets: [], img: true };
+  const buf = await f.arrayBuffer(), u = new Uint8Array(buf.slice(0, 8));
+  if (ext === 'docx' || ext === 'pptx' || ext === 'odt') {
+    const z = await XL.unzip(buf); const ps = [];
+    const grab = (x, tag) => { if (!x) return; const d = new DOMParser().parseFromString(x, 'application/xml'); for (const p of d.getElementsByTagNameNS('*', tag)) { const t = [...p.getElementsByTagNameNS('*', ext === 'odt' ? 'span' : 't')].map(e => e.textContent).join('') || p.textContent; if (t.trim()) ps.push(t); } };
+    if (ext === 'docx') grab(await z.text('word/document.xml'), 'p');
+    if (ext === 'odt') grab(await z.text('content.xml'), 'p');
+    if (ext === 'pptx') for (let i = 1; i < 300 && z.has(`ppt/slides/slide${i}.xml`); i++) grab(await z.text(`ppt/slides/slide${i}.xml`), 'p');
+    const sheets = ext === 'docx' ? await FMT.read(f).catch(() => []) : [];
+    return { raw: ps.join('\n'), sheets };
+  }
+  if (ext === 'doc' && u[0] === 0xD0) return { raw: docBinText(buf), sheets: [] };
+  if (ext === 'rtf') return { raw: rtfText(new TextDecoder('windows-1252').decode(buf)), sheets: [] };
+  let sheets;
+  try { sheets = await FMT.read(f, prog); }
+  catch (e) { if (u[0] === 0x25 && u[1] === 0x50) return { raw: await ocrPdf(buf, prog), sheets: [], img: true }; throw e; }
+  const raw = sheetsText(sheets);
+  if (raw.length > 40 && (raw.match(/[\x00-\x08�]/g) || []).length / raw.length > 0.05) throw new Error('định dạng file không đọc được');
+  return { raw, sheets, img: false };
+}
+// ---------- kho công văn ----------
+async function cvAdd(name, raw, sheets, blob) {
+  ST.cv = ST.cv || [];
+  const id = 'CV-' + hash36(fold(raw).slice(0, 8000)), ex = ST.cv.find(c => c.id === id);
+  if (ex) return `ℹ️ Công văn <b>${h(ex.so || ex.file)}</b> đã có trong kho (không lưu lại).`;
+  const meta = cvMeta(raw);
+  if (meta.het && meta.het < dayStart(Date.now())) return `⛔ Công văn <b>${h(meta.so || name)}</b> đã hết hạn ngày ${fdate(meta.het)} – không lưu vào kho.`;
+  const cv = Object.assign({ id, file: name, at: Date.now(), text: raw.slice(0, 400000), items: cvItems(raw, (sheets || []).filter(s => !s.text)) }, meta);
+  if (blob) { cv.hasFile = await DB.set('cvf:' + id, blob); }
+  ST.cv.push(cv); cvVer++; ST.log.push({ at: Date.now(), msg: `Kho công văn – lưu ${cv.so || name}, hiệu lực đến ${fdate(effHet(cv))}` });
+  return cvCard(cv, '📥 <b>BĂNG RÔN – ĐÃ LƯU CÔNG VĂN VÀO KHO</b>');
+}
+function cvCard(cv, title) {
+  const it = cv.items || [];
+  return [title, `Số: <b>${h(cv.so || 'không rõ')}</b>${cv.ngay ? ` · ngày ${fdate(cv.ngay)}` : ''}${cv.vv ? `\nV/v: ${h(cv.vv)}` : ''}`,
+    `Hiệu lực đến: <b>${fdate(effHet(cv))}</b>${cv.het ? '' : ` (công văn không ghi hạn – tạm tính ${ST.settings.cvDays || 90} ngày)`} → tự hủy khỏi kho sau ngày này.`,
+    it.length ? `Nội dung băng rôn được phép (${it.length}):\n` + it.slice(0, 30).map((o, i) => `${i + 1}. “${h(o.t)}”`).join('\n') + (it.length > 30 ? `\n… và ${it.length - 30} nội dung khác` : '')
+      : '⚠️ Không tách được danh sách nội dung băng rôn trong công văn → chỉ băng rôn có câu <b>nguyên văn</b> trong công văn mới được KHÔNG THÁO, còn lại báo CẦN KIỂM TRA. Có thể sửa danh sách nội dung trong app.'].join('\n');
+}
+async function cvPurge() {
+  const today = dayStart(Date.now()), exp = (ST.cv || []).filter(c => effHet(c) < today); if (!exp.length) return;
+  ST.cv = ST.cv.filter(c => !exp.includes(c)); for (const c of exp) { DB.del('cvf:' + c.id); CVX.delete(c.id); }
+  cvVer++; ST.log.push({ at: Date.now(), msg: `Kho công văn – tự hủy ${exp.length} công văn hết hạn: ${exp.map(c => c.so || c.file).join(', ')}` });
+  const ch = recheck(); save(); if (UI.tab === 'br') render();
+  const g = ST.settings.tg; if (g.token && g.chat && g.cvAuto !== false)
+    tgSend(`🗑 <b>BĂNG RÔN – HỦY CÔNG VĂN HẾT HẠN</b>\n${exp.map((c, i) => `${i + 1}. ${h(c.so || c.file)} – hết hạn ${fdate(effHet(c))}`).join('\n')}` + (ch.length ? '\n\n' + cvMsg(ch, 'Kết quả đối chiếu thay đổi do công văn hết hạn') : '')).catch(() => { });
+}
+function recheck() { // trả về băng rôn có kết quả thay đổi
+  const ch = []; for (const b of ST.br || []) { if (b.thao) continue; const k = cvKQ(b), v = k ? k.v : ''; if (b.kq !== v) { if (b.kq !== undefined && v) ch.push(b); b.kq = v; } } return ch;
+}
+// ---------- tin nhắn ----------
+function detailMsg(b, k) {
+  const out = ['🎌 <b>BĂNG RÔN – KẾT QUẢ DÒ</b>'];
+  if (b.vt || b.quan) out.push(`📍 ${h([QS[b.quan] || b.quan, b.vt].filter(Boolean).join(' · '))}`);
+  out.push(`📝 “${h(S(b.nd).slice(0, 400))}”${b.ocr ? ' <i>(chữ đọc từ ảnh – có thể sai chính tả)</i>' : ''}`);
+  if (!k) { out.push('⚪ Kho công văn đang trống – chưa thể đối chiếu.'); return out.join('\n'); }
+  const cvs = k.cv ? `CV số <b>${h(k.cv.so || k.cv.file)}</b>${k.cv.ngay ? ` ngày ${fdate(k.cv.ngay)}` : ''} (hiệu lực đến ${fdate(effHet(k.cv))})` : '';
+  if (k.v === 'phep') out.push(`✅ <b>KHÔNG THÁO</b> – đúng ${cvs}.`, `Nội dung trong CV: “${h(k.line)}”${k.auto ? ` (khớp ${Math.round(k.score * 100)}%)` : ''}`);
+  else if (k.v === 'hh') out.push(`🔴 <b>BÁO THÁO</b> – ${h(k.why)}${cvs ? ' (' + cvs + ')' : ''}.`);
+  else if (k.v === 'ktra') out.push(`🟡 <b>CẦN KIỂM TRA</b> – ${h(k.why)}.`, k.line ? `Gần nhất: ${cvs}: “${h(k.line)}”` : '');
+  else out.push(`🔴 <b>BÁO THÁO</b> – không có trong công văn nào đang còn hiệu lực (${ST.cv.length} công văn trong kho).`);
+  return out.filter(Boolean).join('\n');
 }
 function cvMsg(list, title) {
   const rows = list.filter(b => !b.thao).map(b => [b, cvKQ(b)]).filter(([, k]) => k);
-  const ln = (b, k, i) => `${i + 1}. <b>${h(QS[b.quan] || b.quan || '—')}</b> · ${h(b.vt || '—')}: ${h(S(b.nd).slice(0, 140))}` +
-    (k.v === 'khong' ? (k.auto ? ` <i>(khớp ${Math.round(k.score * 100)}%)</i>` : '') : ` — ${h(k.cv ? 'CV ' + (k.cv.so || k.cv.file) : 'xác nhận thủ công')}${k.auto ? ` (${Math.round(k.score * 100)}%)` : ''}${k.why ? ', ' + h(k.why) : ''}`);
-  const grp = (v, ic) => { const g = rows.filter(([, k]) => k.v === v); return g.length ? ['', `${ic} <b>${KQ[v][0].toUpperCase()}: ${g.length}</b>`, ...g.map(([b, k], i) => ln(b, k, i))] : []; };
-  const out = [`🎌 <b>BĂNG RÔN</b> · Đối chiếu công văn · ${fdt(Date.now())}`, title ? `<i>${h(title)}</i>` : '',
-    ...grp('khong', '🔴'), ...grp('hh', '🔴'), ...grp('ktra', '🟡'), ...grp('phep', '✅')];
+  const ln = (b, k, i) => `${i + 1}. <b>${h(QS[b.quan] || b.quan || '—')}</b> · ${h(b.vt || '—')}: “${h(S(b.nd).slice(0, 140))}”` +
+    (k.v === 'khong' ? '' : ` — ${k.cv ? 'CV ' + h(k.cv.so || k.cv.file) : ''}${k.auto && k.v === 'phep' ? ` (${Math.round(k.score * 100)}%)` : ''}${k.why ? (k.cv ? ', ' : '') + h(k.why) : ''}`);
+  const grp = (v, ic, t) => { const g = rows.filter(([, k]) => k.v === v); return g.length ? ['', `${ic} <b>${t}: ${g.length}</b>`, ...g.map(([b, k], i) => ln(b, k, i))] : []; };
+  const out = [`🎌 <b>BĂNG RÔN</b> · Đối chiếu công văn · ${fdt(Date.now())}`]; if (title) out.push(`<i>${h(title)}</i>`);
+  out.push(...grp('khong', '🔴', 'BÁO THÁO – không có công văn'), ...grp('hh', '🔴', 'BÁO THÁO – hết hạn'), ...grp('ktra', '🟡', 'CẦN KIỂM TRA'), ...grp('phep', '✅', 'KHÔNG THÁO – đúng công văn'));
   if (!rows.length) out.push('', 'Không có băng rôn nào cần đối chiếu.');
-  return out.filter((x, i) => x !== '' || i > 1).join('\n');
+  return out.join('\n');
 }
 async function cvSendAll(auto, list, title) {
-  const g = ST.settings.tg; if (!(ST.cv || []).length) return toast('Chưa có công văn để đối chiếu');
+  const g = ST.settings.tg; if (!(ST.cv || []).length) return toast('Kho công văn đang trống');
   if (!g.token || !g.chat) return toast('Chưa cài Telegram (Bot token, Chat ID)');
   const L = (list || ST.br || []).filter(b => !b.thao); if (!L.length) return toast('Không có băng rôn đang treo để đối chiếu');
-  try { await tgSend(cvMsg(L, title)); ST.log.push({ at: Date.now(), msg: `Telegram – đã gửi đối chiếu công văn ${L.length} băng rôn${auto ? ' (tự động)' : ''}` }); save(); toast('Đã gửi kết quả đối chiếu lên Telegram'); }
+  try { await tgSend(cvMsg(L, title)); ST.log.push({ at: Date.now(), msg: `Telegram – đã gửi đối chiếu công văn ${L.length} băng rôn${auto ? ' (tự động)' : ''}` }); save(); if (!auto) toast('Đã gửi kết quả đối chiếu lên Telegram'); }
   catch (e) { ST.log.push({ at: Date.now(), msg: 'Telegram lỗi: ' + e.message }); save(); toast('Lỗi gửi Telegram: ' + e.message); }
 }
 function cvAutoSend(mas, title) {
   const g = ST.settings.tg; if (g.cvAuto === false || !g.token || !g.chat || !(ST.cv || []).length) return;
-  const L = mas ? ST.br.filter(b => mas.includes(b.ma)) : ST.br; if (L.filter(b => !b.thao).length) cvSendAll(true, L, title);
+  const L = (mas ? ST.br.filter(b => mas.includes(b.ma)) : ST.br).filter(b => !b.thao); recheck(); if (L.length) cvSendAll(true, L, title);
 }
-// dò nhanh 1 băng rôn (gõ hoặc chụp ảnh)
-async function cvQuickFile(f) {
-  if (!f) return; const pg = $('#cvqprog');
-  try { if (pg) pg.textContent = 'Đang nhận dạng chữ…'; const t = await cvText(f, (st, p) => { if (pg) pg.textContent = `Nhận dạng: ${Math.round(p * 100)}%`; });
-    UI.cvq.nd = t.replace(/\s*\n\s*/g, ' ').trim(); UI.cvq.r = null; render(); cvQuick(); }
-  catch (e) { toast('Không đọc được ảnh: ' + e.message); if (pg) pg.textContent = ''; }
+// ---------- hộp dò: nhận mọi thông tin, tự phân loại ----------
+function txtBanners(raw, vt0) {
+  const blocks = S(raw).replace(/\r/g, '').split(/\n\s*\n/).map(b => b.split('\n').map(l => l.trim()).filter(Boolean)).filter(b => b.length);
+  const out = [];
+  for (const bl of blocks) {
+    const sep = bl.length > 3 || bl.every(l => /^([-–+•*]|\d{1,3}[.)])\s*/.test(l) || /^[^:]{2,70}:\s*\S/.test(l));
+    for (const l0 of sep ? bl : [bl.join(' ')]) {
+      let l = l0.replace(/^\s*(?:[-–+•*]|\d{1,3}[.)])\s*/, ''), vt = vt0 || '';
+      const ds = brDates(l); l = l.replace(/(từ|đến|ngày|hết hạn|thời gian treo)?\s*:?\s*\d{1,2}\s*[\/.\-]\s*\d{1,2}\s*[\/.\-]\s*\d{2,4}/gi, ' ').replace(/\s{2,}/g, ' ').trim();
+      const ci = l.indexOf(':'); if (!vt && ci > 0 && ci < 70 && !/nội dung/i.test(l.slice(0, ci))) { vt = l.slice(0, ci).trim(); l = l.slice(ci + 1).trim(); }
+      else if (ci > 0 && /^nội dung/i.test(l.slice(0, ci))) l = l.slice(ci + 1).trim();
+      l = l.replace(/^[“"«„]|[”"»“]$/g, '').trim();
+      if (tokV(l).length >= 2) out.push(brMk({ nd: l, vt, quan: quanOf(vt) || quanOf(l0), b: ds.length ? ds[ds.length - 1] : null, a: ds.length > 1 ? ds[0] : null, gc: 'Dò ' + fdt(Date.now()) }));
+    }
+  }
+  return out;
 }
-function cvQuick() {
-  const nd = UI.cvq.nd.trim(); if (!nd) return toast('Nhập hoặc chụp nội dung băng rôn');
-  if (!(ST.cv || []).length) return toast('Chưa nạp công văn nào');
-  UI.cvq.r = cvKQ({ ma: '', nd, vt: UI.cvq.vt }); render();
+function bannerReport(items, src, ocr) {
+  if (ocr) for (const b of items) b.ocr = 1;
+  const B = newBatch(false); brMerge(items, src, B);
+  const live = items.map(b => ST.br.find(x => x.ma === b.ma) || b); if (ocr) for (const b of live) b.ocr = 1;
+  for (const b of live) { const k = cvKQ(b); b.kq = k ? k.v : ''; }
+  return live.length <= 3 ? live.map(b => detailMsg(b, cvKQ(b))).join('\n\n') : cvMsg(live, `${src} – ${live.length} băng rôn`);
 }
-function cvQuickSend() {
-  const b = { ma: '', nd: UI.cvq.nd.trim(), vt: UI.cvq.vt.trim(), quan: quanOf(UI.cvq.vt) || quanOf(UI.cvq.nd) };
-  cvSendAll(false, [b], 'Dò nhanh tại hiện trường');
+async function intakeFile(f, o = {}) {
+  const { raw, sheets, img } = await readAny(f, o.prog);
+  if (!S(raw).trim()) throw new Error('không đọc được chữ trong file');
+  if (o.forceCv || offScore(raw) >= (img ? 3 : 2)) return cvAdd(f.name, raw, sheets, f);
+  for (const sh of sheets || []) if (!sh.text && sh.rows && sh.rows.length > 1) {
+    const t = brTable(sh.rows, true); if (t) { const items = brRows(t); if (items.length) return bannerReport(items, f.name, false); }
+  }
+  const items = img ? [brMk({ nd: raw.replace(/\s+/g, ' ').trim(), vt: o.vt || '', quan: quanOf(o.vt), gc: 'Dò ảnh ' + fdt(Date.now()) })] : txtBanners(raw, o.vt);
+  if (!items.length || !items[0].nd) throw new Error('không thấy nội dung băng rôn');
+  return bannerReport(items, img ? 'Ảnh ' + f.name : f.name, img);
 }
-function cvQuickAdd() {
-  const b = brMk({ nd: UI.cvq.nd.trim(), vt: UI.cvq.vt.trim(), gc: 'Dò nhanh ' + fdt(Date.now()) }); if (!b.nd) return;
-  const B = newBatch(false); UI.cvq = { nd: '', vt: '', r: null }; finishImport([brMerge([b], 'Dò nhanh', B)], B);
+async function intakeText(text, o = {}) {
+  text = S(text); if (!text) return '';
+  if (o.forceCv || (offScore(text) >= 2 && text.length > 150)) return cvAdd('Văn bản dán ' + fdt(Date.now()), text, [], null);
+  if (text.includes('\t')) { const t = brTable(parseTSV(text), true); if (t) { const items = brRows(t); if (items.length) return bannerReport(items, 'Bảng dán', false); } }
+  const items = txtBanners(text, o.vt); if (!items.length) return '⚠️ Không thấy nội dung băng rôn (cần ít nhất 2 chữ).';
+  return bannerReport(items, 'Nội dung gửi vào', false);
 }
+async function intakeRun(files) {
+  const pg = $('#inprog'), set = (t) => { const e = $('#inprog'); if (e) e.textContent = t; };
+  const text = files ? '' : S(UI.in.text), vt = S(UI.in.vt);
+  if (!files && !text) return toast('Thả file hoặc dán nội dung vào hộp dò');
+  const out = [], before = new Map((ST.br || []).map(b => [b.ma, b.kq]));
+  try {
+    if (files) for (const f of files) { set(`Đang đọc ${f.name}…`); try { out.push(await intakeFile(f, { vt, prog: (s, p) => set(`${f.name}: ${s} ${Math.round(p * 100)}%`) })); } catch (e) { out.push(`⚠️ ${h(f.name)}: ${h(e.message)}`); } }
+    else out.push(await intakeText(text, { vt }));
+  } finally { set(''); }
+  const addedCv = out.some(m => m.includes('ĐÃ LƯU CÔNG VĂN'));
+  if (addedCv) { const ch = recheck().filter(b => before.has(b.ma)); if (ch.length) out.push(cvMsg(ch, 'Kết quả thay đổi sau khi có công văn mới')); }
+  if (!files) { UI.in.text = ''; }
+  UI.inRes = out.filter(Boolean).map(m => ({ m, at: Date.now(), sent: '' }));
+  recompute(); save(); render();
+  const g = ST.settings.tg;
+  if (g.token && g.chat && g.cvAuto !== false) for (const r of UI.inRes) { try { await tgSend(r.m); r.sent = 'Đã gửi Telegram'; } catch (e) { r.sent = 'Lỗi Telegram: ' + e.message; } }
+  else for (const r of UI.inRes) r.sent = 'Chưa gửi (chưa cài Telegram)';
+  ST.log.push({ at: Date.now(), msg: `Hộp dò – ${UI.inRes.length} kết quả${g.token && g.chat ? ', đã gửi Telegram' : ''}` }); save(); if (UI.tab === 'br') render();
+}
+// ---------- nhận tin từ Telegram: tự dò & trả lời ----------
+let tgPollBusy = false, tgPollErr = '', tgPollAt = 0;
+async function tgFile(id, name) {
+  const f = await tgCall('getFile', { file_id: id });
+  let r; try { r = await fetch(`https://api.telegram.org/file/bot${encodeURIComponent(ST.settings.tg.token.trim())}/${f.file_path}`); } catch { throw new Error('không tải được file từ Telegram'); }
+  if (!r.ok) throw new Error('không tải được file từ Telegram (HTTP ' + r.status + ')');
+  const bl = await r.blob(); return new File([bl], name || f.file_path.split('/').pop(), { type: bl.type });
+}
+const TG_HELP = '🎌 <b>BĂNG RÔN – HƯỚNG DẪN</b>\n• Gửi <b>nội dung băng rôn</b> (chữ), hoặc <b>ảnh chụp băng rôn</b> (chú thích ảnh = vị trí) → bot trả lời KHÔNG THÁO / BÁO THÁO.\n• Gửi <b>file công văn</b> (PDF, Word, ảnh scan…) → lưu vào kho, tự hủy khi hết hạn. Muốn chắc chắn là công văn: ghi chú thích “công văn”.\n• Gửi file <b>danh sách băng rôn</b> (Excel…) → dò toàn bộ.\n• /kho – xem kho công văn còn hiệu lực.';
+async function tgHandle(m) {
+  const g = ST.settings.tg;
+  const reply = async (text) => { const parts = []; let cur = ''; for (const l of text.split('\n')) { if ((cur + l).length > 3800) { parts.push(cur); cur = ''; } cur += (cur ? '\n' : '') + l; } if (cur) parts.push(cur);
+    for (const t of parts) await tgCall('sendMessage', { chat_id: m.chat.id, message_thread_id: m.message_thread_id || '', reply_to_message_id: m.message_id, allow_sending_without_reply: 'true', text: t, parse_mode: 'HTML', disable_web_page_preview: 'true' }); };
+  const text = S(m.text || m.caption), cvHint = /c[oô]ng\s*v[aă]n|^cv\b|giấy phép/i.test(text);
+  try {
+    if (/^\/(start|help|huongdan)/i.test(text) && !m.photo && !m.document) return reply(TG_HELP);
+    if (/^\/kho/i.test(text)) { const L = (ST.cv || []); return reply(L.length ? `🗂 <b>KHO CÔNG VĂN (${L.length})</b>\n` + L.map((c, i) => `${i + 1}. ${h(c.so || c.file)}${c.vv ? ' – ' + h(c.vv.slice(0, 80)) : ''} · hiệu lực đến ${fdate(effHet(c))} · ${(c.items || []).length} nội dung`).join('\n') : '🗂 Kho công văn đang trống.'); }
+    const before = new Map((ST.br || []).map(b => [b.ma, b.kq])); let msg;
+    if (m.photo || m.document) {
+      const f = m.photo ? await tgFile(m.photo[m.photo.length - 1].file_id, 'anh_' + m.message_id + '.jpg') : await tgFile(m.document.file_id, m.document.file_name);
+      msg = await intakeFile(f, { vt: cvHint ? '' : text.replace(/^\/\w+\s*/, ''), forceCv: cvHint && !!m.document });
+    } else if (text && !text.startsWith('/')) msg = await intakeText(text, {});
+    else if (/^\/(do|kiemtra)\s+/i.test(text)) msg = await intakeText(text.replace(/^\/\w+\s+/, ''), {});
+    else return;
+    if (msg.includes('ĐÃ LƯU CÔNG VĂN')) { const ch = recheck().filter(b => before.has(b.ma)); if (ch.length) msg += '\n\n' + cvMsg(ch, 'Kết quả thay đổi sau khi có công văn mới'); }
+    ST.log.push({ at: Date.now(), msg: `Telegram – nhận tin từ ${S(m.from && (m.from.first_name || m.from.username)) || 'người dùng'}, đã tự dò và trả lời` });
+    recompute(); save(); if (UI.tab === 'br') render();
+    await reply(msg);
+  } catch (e) { await reply('⚠️ Không xử lý được: ' + h(e.message) + (/tải được file/.test(e.message) ? '\nHãy gửi nội dung bằng chữ, hoặc thả file vào app.' : '')).catch(() => { }); }
+}
+async function tgPoll() {
+  const g = ST && ST.settings.tg; if (!g || !g.listen || !g.token || !g.chat || tgPollBusy) return; tgPollBusy = true;
+  try {
+    if (!ST.tgListenAt) { ST.tgListenAt = Math.floor(Date.now() / 1000); save(); }
+    const ups = await tgCall('getUpdates', { offset: ST.tgOff ? ST.tgOff + 1 : '', timeout: 0, allowed_updates: JSON.stringify(['message', 'channel_post']) });
+    for (const u of ups) {
+      ST.tgOff = Math.max(ST.tgOff || 0, u.update_id); save();
+      const m = u.message || u.channel_post; if (!m || !m.chat || (m.from && m.from.is_bot) || m.date < ST.tgListenAt) continue;
+      if (String(m.chat.id) !== S(g.chat)) continue;
+      if (g.thread && String(m.message_thread_id || '') !== S(g.thread)) continue;
+      await tgHandle(m);
+    }
+    tgPollErr = ''; tgPollAt = Date.now();
+  } catch (e) { tgPollErr = e.message; }
+  finally { tgPollBusy = false; const el = $('#tgListenSt'); if (el) el.innerHTML = tgListenSt(); }
+}
+const tgListenSt = () => { const g = ST.settings.tg; if (!g.listen) return '<span class="dot off"></span>Đang tắt nhận tin.'; if (!g.token || !g.chat) return '<span class="dot off"></span>Cần Bot token và Chat ID.';
+  return tgPollErr ? `<span class="dot wait"></span><span class="err">Lỗi nhận tin: ${h(tgPollErr)}</span>` : `<span class="dot"></span>Đang nghe tin nhắn trong ${g.thread ? 'mục Băng rôn' : 'cuộc trò chuyện'}${tgPollAt ? ` · kiểm tra lúc ${fdt(tgPollAt).slice(11)}` : ''} (15 giây/lần, khi app đang mở)`; };
+async function cvView(id) { const f = await DB.get('cvf:' + id); if (!f) return toast('Không còn file gốc'); const u = URL.createObjectURL(f); const a = document.createElement('a'); a.href = u; a.target = '_blank'; a.download = /\.(pdf|png|jpe?g|txt|html?)$/i.test(f.name || '') ? '' : (f.name || 'cong_van'); document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(u); a.remove(); }, 60000); }
 function vCV() {
-  const cvs = ST.cv || [], live = (ST.br || []).filter(b => !b.thao), r = UI.cvq.r;
+  const cvs = (ST.cv || []).slice().sort((a, b) => effHet(a) - effHet(b)), live = (ST.br || []).filter(b => !b.thao), today = dayStart(Date.now());
   const cnt = (v) => live.filter(b => (cvKQ(b) || {}).v === v).length;
-  const used = new Map(); for (const b of live) { const k = cvKQ(b); if (k && k.cv && k.v !== 'khong') used.set(k.cv.id, (used.get(k.cv.id) || 0) + 1); }
-  return `<section class="card"><div class="cardhead"><h3>Đối chiếu nội dung băng rôn với công văn</h3><button class="btn" data-act="cvsend"${cvs.length && live.length ? '' : ' disabled'}>Đối chiếu & gửi Telegram</button></div>
-    <p class="lead">Nạp các công văn cho phép treo băng rôn (PDF, Word, ảnh chụp, Excel…). App so nội dung từng băng rôn với nội dung công văn: <b>trùng</b> → <b>KHÔNG THÁO</b>; <b>không có trong công văn</b> → <b>BÁO THÁO</b>; công văn hoặc hạn treo đã hết → BÁO THÁO (hết hạn); gần giống → Cần kiểm tra (chọn “CV: có phép / không phép” ở từng dòng để xác nhận).</p>
+  return `<section class="card" id="inbox"><h3>Hộp dò băng rôn – thả mọi thông tin vào đây</h3>
+    <p class="lead">Thả hoặc dán <b>bất cứ thứ gì</b>, app tự nhận dạng và tự trả kết quả về Telegram: <b>công văn</b> (PDF, PDF scan, Word .doc/.docx, ảnh chụp…) → lưu vào kho tạm, tự hủy khi hết hạn · <b>danh sách băng rôn</b> (Excel, CSV…) → dò từng băng rôn · <b>ảnh chụp hoặc nội dung băng rôn</b> → dò ngay: <b>KHÔNG THÁO</b> nếu đúng nguyên văn nội dung công văn còn hiệu lực, <b>BÁO THÁO</b> nếu không có.</p>
+    <label class="drop" id="indrop"><input type="file" id="infi" multiple hidden><b>Chọn hoặc thả file vào đây</b><span>PDF · Word · Excel · ảnh · .txt · .html · .rtf · .pptx · .odt · .csv · .json …</span></label>
+    <textarea id="intext" rows="4" placeholder="Dán nội dung băng rôn (mỗi dòng một băng rôn, có thể ghi “Vị trí: nội dung”), bảng copy từ Excel, hoặc toàn văn công văn – app tự dò ngay khi dán">${h(UI.in.text)}</textarea>
+    <div class="row"><input id="invt" placeholder="Vị trí (khi dò 1 băng rôn / ảnh)" value="${h(UI.in.vt)}" style="flex:1 1 200px">
+      <label class="btn ghost" style="cursor:pointer">📷 Chụp ảnh băng rôn<input type="file" id="incam" accept="image/*" capture="environment" hidden></label>
+      <button class="btn" data-act="inrun">Dò</button></div><p class="note" id="inprog"></p>
+    ${UI.inRes.length ? UI.inRes.map(r => { const c = /BÁO THÁO|⛔/.test(r.m) && !/KHÔNG THÁO/.test(r.m) ? 'red' : /KHÔNG THÁO/.test(r.m) && !/BÁO THÁO|CẦN KIỂM TRA/.test(r.m) ? 'green' : /CẦN KIỂM TRA|⚠️/.test(r.m) ? 'amber' : ''; return `<div class="qres ${c}"><div class="msg">${r.m.replace(/\n/g, '<br>')}</div><div class="note">${h(r.sent || 'Đang gửi…')}</div></div>`; }).join('') + `<div class="row"><button class="btn ghost sm" data-act="inclr">Xóa kết quả</button></div>` : ''}
+  </section>
+  <section class="card"><div class="cardhead"><h3>Kho công văn tạm thời <span class="cnt">${cvs.length}</span></h3><button class="btn ghost" data-act="cvsend"${cvs.length && live.length ? '' : ' disabled'}>Đối chiếu lại tất cả & gửi Telegram</button></div>
+    <p class="lead">Công văn được lưu tạm trên máy này và <b>tự hủy sau ngày hết hạn</b> (lấy từ cụm “đến ngày …” trong công văn). Công văn không ghi hạn: tự hủy sau <input id="cvDays" type="number" min="1" max="365" value="${ST.settings.cvDays || 90}" data-chg="cvdays" style="width:70px"> ngày kể từ ngày ban hành. Kiểm tra lại danh sách “nội dung được phép” app tách ra – đây là căn cứ để dò.</p>
     ${cvs.length && live.length ? `<div class="kpis sm">${['khong', 'hh', 'ktra', 'phep'].map(v => `<button class="kpi ${KQ[v][1] === 'red' ? 'hot' : KQ[v][1] === 'green' ? 'ok' : 'warn'}" data-act="brk2" data-k="${v}" style="text-align:left;cursor:pointer;font:inherit;color:inherit"><div class="n">${cnt(v)}</div><div class="t">${KQ[v][0]}</div></button>`).join('')}</div>` : ''}
-    <label class="drop" id="cvdrop"><input type="file" id="cvfi" multiple hidden><b>Chọn hoặc thả công văn vào đây</b><span>PDF · Word .docx · ảnh chụp / scan · Excel · .txt · .html</span></label>
-    <p class="note" id="cvprog"></p>
-    ${cvs.length ? `<ul class="cvl">${cvs.slice().sort((a, b) => (b.ngay || b.at) - (a.ngay || a.at)).map(c => `<li><div><b>${h(c.so || 'Không rõ số')}</b>${c.ngay ? ` · ngày ${fdate(c.ngay)}` : ''}${c.het ? ` · <span class="${c.het < dayStart(Date.now()) ? 'dup' : ''}">hạn đến ${fdate(c.het)}</span>` : ''}
-      ${c.vv ? `<div class="mut">V/v: ${h(c.vv)}</div>` : ''}<div class="mut">${h(c.file)} · ${fmtN(c.text.length)} ký tự · khớp ${used.get(c.id) || 0} băng rôn</div></div>
-      <button class="btn ghost sm danger" data-act="cvdel" data-id="${h(c.id)}">Xóa</button></li>`).join('')}</ul>` : '<p class="empty">Chưa có công văn.</p>'}
-    <h3 style="margin-top:18px">Dò nhanh một băng rôn</h3>
-    <p class="lead">Gõ nội dung băng rôn đang thấy ngoài đường, hoặc chụp ảnh băng rôn để app đọc chữ, rồi đối chiếu ngay.</p>
-    <textarea id="cvqnd" rows="3" placeholder="Nội dung trên băng rôn…">${h(UI.cvq.nd)}</textarea>
-    <div class="row"><input id="cvqvt" placeholder="Vị trí (vd Q1 – Lê Lợi trụ 12)" value="${h(UI.cvq.vt)}" style="flex:1 1 220px">
-      <label class="btn ghost" style="cursor:pointer">📷 Chụp / chọn ảnh<input type="file" id="cvqf" accept="image/*" capture="environment" hidden></label>
-      <button class="btn" data-act="cvq">Đối chiếu</button></div><p class="note" id="cvqprog"></p>
-    ${r ? `<div class="qres ${KQ[r.v][1]}"><h4>${KQ[r.v][0]}</h4><div class="mut">${r.auto ? `Mức khớp ${Math.round(r.score * 100)}%` : ''}${r.cv ? ` · ${h(r.cv.so || r.cv.file)}` : ''}${r.why ? ' · ' + h(r.why) : ''}</div>
-      ${r.line && r.v !== 'khong' ? `<div class="ev">“${h(r.line)}”</div>` : ''}
-      <div class="row"><button class="btn ghost sm" data-act="cvqsend"${ST.settings.tg.token && ST.settings.tg.chat ? '' : ' disabled'}>Gửi kết quả Telegram</button><button class="btn ghost sm" data-act="cvqadd">Thêm vào danh sách băng rôn</button></div></div>` : ''}
+    ${cvs.length ? `<ul class="cvl">${cvs.map(c => { const e = effHet(c), dl = Math.round((e - today) / DAY); return `<li><div style="min-width:0;flex:1"><b>${h(c.so || 'Không rõ số')}</b>${c.ngay ? ` · ngày ${fdate(c.ngay)}` : ''} · <span class="${dl <= 3 ? 'dup' : ''}">hiệu lực đến ${fdate(e)}${c.het ? '' : ' (tạm tính)'} – ${dl === 0 ? 'hủy sau hôm nay' : 'còn ' + dl + ' ngày'}</span>
+      ${c.vv ? `<div class="mut">V/v: ${h(c.vv)}</div>` : ''}<div class="mut">${h(c.file)} · ${(c.items || []).length} nội dung được phép</div>
+      <details><summary>Nội dung được phép (${(c.items || []).length}) – sửa nếu app tách sai, mỗi dòng một nội dung</summary><textarea rows="${Math.min(10, (c.items || []).length + 2)}" data-chg="cvitems" data-id="${h(c.id)}">${h((c.items || []).map(o => o.t).join('\n'))}</textarea>
+      <label class="chk">Hạn hủy: <input type="date" data-chg="cvhet" data-id="${h(c.id)}" value="${new Date(e - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10)}"></label></details></div>
+      <div class="br-act">${c.hasFile ? `<button class="btn ghost sm" data-act="cvview" data-id="${h(c.id)}">Xem gốc</button>` : ''}<button class="btn ghost sm danger" data-act="cvdel" data-id="${h(c.id)}">Hủy</button></div></li>`; }).join('')}</ul>` : '<p class="empty">Kho trống – thả công văn vào hộp dò ở trên.</p>'}
   </section>`;
 }
 
@@ -1860,8 +2061,8 @@ function vBR() {
   const kp = (k, cls) => `<button class="kpi ${cls}" data-act="brk" data-k="${k}" style="text-align:left;cursor:pointer;font:inherit;color:inherit"><div class="n">${cnt(k)}</div><div class="t">${BRS[k][0]}</div></button>`;
   const qs = [...new Set(all.map(b => b.quan).filter(Boolean))].sort();
   const tgOk = g.token && g.chat;
-  return `<section class="kpis sm">${kp('het', 'hot')}${kp('sap', 'warn')}${kp('con', 'ok')}${kp('chua', '')}${kp('thao', '')}</section>
-  <section class="card" id="brList"><div class="cardhead"><h3>Theo dõi hạn treo băng rôn</h3><button class="btn" data-act="brx"${L.length ? '' : ' disabled'}>Xuất Excel (${L.length})</button></div>
+  return `${vCV()}<section class="kpis sm">${kp('het', 'hot')}${kp('sap', 'warn')}${kp('con', 'ok')}${kp('chua', '')}${kp('thao', '')}</section>
+  <section class="card" id="brList"><div class="cardhead"><h3>Danh sách băng rôn – hạn treo & kết quả dò</h3><div class="row" style="margin:0"><button class="btn" data-act="brx"${L.length ? '' : ' disabled'}>Xuất Excel (${L.length})</button><button class="btn ghost danger" data-act="brclr"${all.length ? '' : ' disabled'}>Xóa toàn bộ</button></div></div>
     <div class="filters">
       <select data-chg="brf" data-k="s">${opt('', f.s, 'Mọi trạng thái')}${BRO.map(k => opt(k, f.s, BRS[k][0])).join('')}</select>
       <select data-chg="brf" data-k="q">${opt('', f.q, 'Tất cả quận')}${qs.map(q => opt(q, f.q)).join('')}</select>
@@ -1876,17 +2077,7 @@ function vBR() {
       <td>${kqCell(b)}</td>
       <td><div class="br-act"><button class="btn ghost sm" data-act="brthao" data-ma="${h(b.ma)}">${b.thao ? 'Bỏ đã tháo' : 'Đã tháo'}</button>
         <input type="date" title="Gia hạn đến ngày" data-chg="brext" data-ma="${h(b.ma)}">${(ST.cv || []).length ? `<select data-chg="cvm" data-ma="${h(b.ma)}" title="Xác nhận thủ công" style="padding:3px 6px;font-size:.78rem">${opt('', b.cvm || '', 'CV: tự động')}${opt('phep', b.cvm || '', 'CV: có phép')}${opt('khong', b.cvm || '', 'CV: không phép')}</select>` : ''}<button class="btn ghost sm danger" data-act="brdel" data-ma="${h(b.ma)}">Xóa</button></div></td></tr>`; }).join('')}
-    </tbody></table></div>` : '<p class="empty">Chưa có dữ liệu băng rôn – nạp file ở bên dưới.</p>'}</section>
-  ${vCV()}
-  <section class="card"><h3>Nạp dữ liệu băng rôn – mọi định dạng</h3>
-    <p class="lead">Kéo thả file danh sách băng rôn. App tự nhận cột <b>Nội dung</b>, <b>Đơn vị</b>, <b>Quận</b>, <b>Vị trí</b>, <b>Số lượng</b>, <b>Từ ngày</b>, <b>Đến ngày / Ngày hết hạn</b> (hoặc một cột “Thời gian treo: 01/10 – 15/10/2026”), <b>Trạng thái</b>, <b>Ghi chú</b>; tự lọc trùng và cập nhật khi gia hạn. Danh sách dò thực địa không có ngày vẫn nạp được để đối chiếu công văn. File băng rôn thả ở tab Nạp dữ liệu hoặc thư mục theo dõi cũng được nhận.</p>
-    <label class="drop" id="brdrop"><input type="file" id="brfi" multiple hidden><b>Chọn hoặc thả file băng rôn vào đây</b><span>Excel · .xls · .ods · .csv · .txt · Word · .html · .json · PDF · ảnh chụp / scan</span></label>
-    <label class="wide">Dán dữ liệu (copy từ Excel kèm dòng tiêu đề, hoặc mỗi dòng một băng rôn có ngày, ví dụ: “Q1 – Lê Lợi: Chào mừng Đại hội… từ 01/10 đến 20/10/2026”)
-    <textarea id="brpaste" rows="6" placeholder="Dán dữ liệu băng rôn…">${h(UI.brText || '')}</textarea></label>
-    <div class="row"><button class="btn" data-act="brpaste">Nạp như bảng</button><span class="sep"></span>
-      <select id="brQ">${opt('', '', 'Quận (nếu dòng không ghi)')}${QN.map(q => opt(q, '')).join('')}</select>
-      <button class="btn ghost" data-act="brfree">Nhập từng dòng</button><span class="sep"></span>
-      <button class="btn ghost danger" data-act="brclr"${all.length ? '' : ' disabled'}>Xóa toàn bộ băng rôn</button></div></section>
+    </tbody></table></div>` : '<p class="empty">Chưa có băng rôn – thả danh sách, ảnh hoặc nội dung vào hộp dò ở trên.</p>'}</section>
   <section class="card"><div class="cardhead"><h3>Thông báo tự động qua Telegram – mục “Băng rôn”</h3>${tgOk ? `<span class="mut">${ST.tgLast ? 'Gửi gần nhất: ' + ST.tgLast.split('-').reverse().join('/') : 'Chưa gửi lần nào'}</span>` : ''}</div>
     <p class="lead">Mỗi ngày đến giờ đã đặt, app gửi danh sách băng rôn <b>hết hạn cần tháo</b> và <b>sắp hết hạn</b> vào Telegram, tin nhắn có tiêu đề <b>🎌 BĂNG RÔN</b>. Gửi vào tin nhắn riêng với bot, hoặc vào mục (chủ đề) “Băng rôn” trong nhóm.</p>
     <div class="form">
@@ -1896,7 +2087,9 @@ function vBR() {
       <label>Giờ gửi hằng ngày (0–23)<input id="tgHour" type="number" min="0" max="23" value="${g.hour}"></label>
       <label>Báo “sắp hết hạn” trước (ngày)<input id="tgWarn" type="number" min="0" max="60" value="${g.warn}"></label></div>
     <label class="chk"><input type="checkbox" id="tgAuto"${g.auto ? ' checked' : ''}> Tự động gửi mỗi ngày</label>
-    <label class="chk"><input type="checkbox" id="tgCv"${g.cvAuto !== false ? ' checked' : ''}> Tự gửi kết quả đối chiếu công văn (BÁO THÁO / KHÔNG THÁO) khi nạp băng rôn hoặc công văn mới</label>
+    <label class="chk"><input type="checkbox" id="tgListen"${g.listen !== false ? ' checked' : ''}> Nhận tin từ Telegram: ai gửi chữ, ảnh băng rôn hoặc file công văn vào ${'mục Băng rôn'} → app tự dò và <b>trả lời ngay tin nhắn đó</b></label>
+    <p class="wst" id="tgListenSt">${tgListenSt()}</p>
+    <label class="chk"><input type="checkbox" id="tgCv"${g.cvAuto !== false ? ' checked' : ''}> Tự gửi kết quả dò (BÁO THÁO / KHÔNG THÁO) khi thả thông tin vào app, khi công văn mới đến hoặc hết hạn</label>
     <label class="chk"><input type="checkbox" id="tgOnly"${g.only ? ' checked' : ''}> Chỉ gửi khi có băng rôn hết hạn hoặc sắp hết hạn</label>
     <div class="row"><button class="btn" data-act="tgsave">Lưu</button><button class="btn ghost" data-act="tgfind"${g.token ? '' : ' disabled'}>Tìm Chat ID / mục</button><button class="btn ghost" data-act="tgtopic"${tgOk ? '' : ' disabled'}>Tạo mục “Băng rôn” trong nhóm</button><button class="btn ghost" data-act="tgtest"${tgOk ? '' : ' disabled'}>Gửi tin thử</button><button class="btn ghost" data-act="tgnow"${tgOk && all.length ? '' : ' disabled'}>Gửi thông báo ngay</button></div>
     ${UI.tgFound.length ? `<ul class="tgl">${UI.tgFound.map(c => `<li><span>${h(c.n)} <span class="mut mono">${h(c.id)}${c.th ? ' / mục ' + h(c.th) : ''}</span></span><button class="btn ghost sm" data-act="tgpick" data-id="${h(c.id)}" data-th="${h(c.th)}" data-n="${h(c.n)}">Chọn</button></li>`).join('')}</ul>` : ''}
@@ -1904,6 +2097,7 @@ function vBR() {
       <li>Trong Telegram, mở <b>@BotFather</b> → gửi <code>/newbot</code> → đặt tên → nhận <b>Bot token</b>, dán vào ô trên rồi bấm Lưu.</li>
       <li><b>Tin nhắn riêng:</b> mở bot vừa tạo, bấm Start và nhắn “Băng rôn”. Bấm <b>Tìm Chat ID / mục</b> → Chọn.</li>
       <li><b>Nhóm có mục “Băng rôn”:</b> bật <i>Chủ đề (Topics)</i> trong cài đặt nhóm, thêm bot làm <i>quản trị viên</i> (quyền quản lý chủ đề), nhắn một tin trong nhóm → Tìm Chat ID / mục → Chọn nhóm → bấm <b>Tạo mục “Băng rôn”</b>. Nếu mục đã có sẵn: nhắn một tin trong mục đó rồi Tìm lại và chọn dòng “› mục Băng rôn”.</li>
+      <li><b>Để bot đọc được mọi tin trong nhóm:</b> bot phải là quản trị viên, hoặc vào @BotFather → <code>/setprivacy</code> → chọn bot → <b>Disable</b>. Nhắn <code>/help</code> trong mục Băng rôn để xem hướng dẫn cho anh em.</li>
       <li>Bấm <b>Gửi tin thử</b>. Từ đó app tự gửi mỗi ngày đúng giờ khi app đang mở (nên bật trên <b>một</b> máy để không bị gửi trùng).</li></ol></details></section>`;
 }
 
@@ -1936,7 +2130,7 @@ function saveSettings() {
   if (st && st.sc && st.kl && st.kh) { const tg = Object.assign({}, DEFAULT_SETTINGS.tg, (st.settings || {}).tg || {}); st.settings = Object.assign(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), st.settings || {}); st.settings.tg = tg; st.br = st.br || []; st.cv = st.cv || []; ST = st; }
   else ST = seedState();
   recompute(); render();
-  setTimeout(tgTick, 3000); setInterval(tgTick, 5 * 60000);
+  setTimeout(tgTick, 3000); setInterval(tgTick, 5 * 60000); setTimeout(tgPoll, 4000); setInterval(tgPoll, 15000);
   if (canWatch()) { try { const hd = await DB.get('dir'); if (hd && hd.queryPermission) { W.h = hd; await watchStart(false); } } catch { } }
 })();
 
