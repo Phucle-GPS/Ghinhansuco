@@ -83,6 +83,10 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--mut);font-size:.86rem
 .kpis.sm{grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));margin:6px 0 4px}.kpis.sm .kpi{padding:10px 14px}.kpis.sm .n{font-size:1.35rem}
 .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:7px;vertical-align:1px;box-shadow:0 0 0 3px color-mix(in srgb,var(--green) 25%,transparent)}.dot.off{background:var(--mut);box-shadow:none}.dot.wait{background:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 25%,transparent)}
 .wst{font-size:.86rem;margin:4px 0 0}.wst b{font-weight:600}.err{color:var(--red);font-size:.82rem}
+.st.amber{color:var(--amber)}.br-act{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.br-act input[type=date]{padding:3px 6px;font-size:.78rem}
+.btn.sm{padding:4px 10px;font-size:.78rem}.days{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}.days.red{color:var(--red)}.days.amber{color:var(--amber)}.days.green{color:var(--green)}
+.tgl{list-style:none;margin:8px 0 0;padding:0}.tgl li{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:7px 0;border-top:1px solid var(--line);font-size:.86rem}
+.tag.red{background:color-mix(in srgb,var(--red) 18%,transparent);color:var(--red)}
 @media (max-width:600px){.brand h1{font-size:1.1rem}.card{padding:14px}.kpi .n{font-size:1.4rem}}
 </style>
 </head><body>
@@ -510,7 +514,7 @@ const HMG = [
   ['1. Bóng, chấn lưu, kích, tụ, driver', 'bóng|chấn lưu|kích|tụ điện|driver|chuyển mạch|đui|chống sét đèn|rơ le'],
 ];
 const HMK = HMG.flatMap(([g, ks]) => ks.split('|').filter(Boolean).map(k => [k, g]));
-const DEFAULT_SETTINGS = { gs: ['Phạm Quang Miền'], year: 2026, quarter: 4, month: 0, lsc: DEFAULT_LSC, per: 22, autoX: true };
+const DEFAULT_SETTINGS = { gs: ['Phạm Quang Miền'], year: 2026, quarter: 4, month: 0, lsc: DEFAULT_LSC, per: 22, autoX: true, tg: { token: '', chat: '', thread: '', hour: 7, warn: 3, auto: true, only: true } };
 
 const S = (v) => (v == null ? '' : String(v)).trim();
 const low = (v) => S(v).toLowerCase();
@@ -930,7 +934,7 @@ const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const h = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 let ST = null, R = null; // state & computed
-const UI = { tab: 'tq', f: { q: '', c: '', s: 'Cần sửa', p: '', x: '' }, pq: new Set(QN), pc: new Set(['LED', 'HPS']), pqSeen: new Set(QN), dp: { mode: 'month', v: '' }, pasteText: '', freeQ: '', pkt: true, khq: '', khg: '', khs: 'ton', pday: '' };
+const UI = { tab: 'tq', f: { q: '', c: '', s: 'Cần sửa', p: '', x: '' }, pq: new Set(QN), pc: new Set(['LED', 'HPS']), pqSeen: new Set(QN), dp: { mode: 'month', v: '' }, pasteText: '', freeQ: '', pkt: true, khq: '', khg: '', khs: 'ton', pday: '', br: { s: '', q: '', x: '' }, brText: '', tgFound: [] };
 
 // ---------- lưu trữ ----------
 const DB = {
@@ -945,7 +949,7 @@ function seedState() {
     sc: sd.sc.map(r => ({ ma: r[0], t: new Date(r[1]).getTime(), quan: r[2], tu: r[3], duong: r[4], phuong: r[5], nd: r[6], nb: titleName(r[7]), tt1: r[8], tt2: r[9], xl: r[10], gs: r[11] })),
     kl: sd.kl.map(r => ({ ma: String(r[0]).replace(/\.0$/, ''), d: new Date(+r[1].slice(0, 4), +r[1].slice(5, 7) - 1, +r[1].slice(8, 10)).getTime(), quan: r[2], tu: r[3], tru: r[4], hm: r[5], dvt: r[6], kl: r[7], msc: String(r[8]).replace(/\.0$/, ''), nt: titleName(r[9]), mt: r[10] })),
     kh: sd.kh.map(r => ({ quan: r[0], sec: r[1], stt: r[2], hm: r[3], dvt: r[4], dg: r[5], m: [r[6], r[7], r[8]] })),
-    log: [{ at: Date.now(), msg: 'Nạp dữ liệu mẫu: sự cố & khối lượng đến 13/10/2026, kế hoạch Q4/2026 (4 quận).' }], seed: true,
+    br: [], log: [{ at: Date.now(), msg: 'Nạp dữ liệu mẫu: sự cố & khối lượng đến 13/10/2026, kế hoạch Q4/2026 (4 quận).' }], seed: true,
   };
 }
 const pack = (st) => ({ ...st, kl: st.kl.map(({ _tru, _hm, ...k }) => k) });
@@ -966,20 +970,21 @@ function toast(m) { const t = $('#toast'); t.textContent = m; t.hidden = false; 
 const stamp = () => { const d = new Date(); return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()}`; };
 
 // ---------- khung ----------
-const TABS = [['tq', 'Tổng quan'], ['nap', 'Nạp dữ liệu'], ['sc', 'Sự cố'], ['dc', 'Đối chiếu KL'], ['phieu', 'Phiếu sửa đèn'], ['kh', 'Kế hoạch còn lại'], ['pc', 'Phân công'], ['cd', 'Cài đặt']];
+const TABS = [['tq', 'Tổng quan'], ['nap', 'Nạp dữ liệu'], ['sc', 'Sự cố'], ['dc', 'Đối chiếu KL'], ['phieu', 'Phiếu sửa đèn'], ['kh', 'Kế hoạch còn lại'], ['pc', 'Phân công'], ['br', 'Băng rôn'], ['cd', 'Cài đặt']];
 function renderNav() {
   $('#nav').innerHTML = TABS.map(([k, t]) => `<button class="tab${UI.tab === k ? ' on' : ''}" data-tab="${k}">${t}</button>`).join('');
 }
 function render() {
   renderNav(); renderStatus();
   const v = $('#view');
-  v.innerHTML = ({ tq: vTQ, nap: vNap, sc: vSC, dc: vDC, phieu: vPhieu, kh: vKH, pc: vPC, cd: vCD })[UI.tab]();
+  v.innerHTML = ({ tq: vTQ, nap: vNap, sc: vSC, dc: vDC, phieu: vPhieu, kh: vKH, pc: vPC, br: vBR, cd: vCD })[UI.tab]();
   if (UI.tab === 'nap') bindNap();
+  if (UI.tab === 'br') bindBR();
 }
 function renderStatus() {
   const n = R.rows.length, m = R.rows.filter(r => r.t).map(r => r.t), mk = ST.kl.map(k => k.d);
   const span = (a) => a.length ? `${fdate(Math.min(...a))} – ${fdate(Math.max(...a))}` : '—';
-  $('#status').innerHTML = `<span><b>${fmtN(n)}</b> sự cố <i>${span(m)}</i></span><span><b>${fmtN(ST.kl.length)}</b> phiếu KL <i>${span(mk)}</i></span><span><b>${fmtN(ST.kh.length)}</b> hạng mục KH <i>Q${ST.settings.quarter}/${ST.settings.year}</i></span>${ST.seed ? '<span class="tag warn">dữ liệu mẫu</span>' : ''}${W.on ? `<span><span class="dot${W.busy ? ' wait' : ''}"></span>Theo dõi: ${h(W.h.name)}</span>` : ''}`;
+  $('#status').innerHTML = `<span><b>${fmtN(n)}</b> sự cố <i>${span(m)}</i></span><span><b>${fmtN(ST.kl.length)}</b> phiếu KL <i>${span(mk)}</i></span><span><b>${fmtN(ST.kh.length)}</b> hạng mục KH <i>Q${ST.settings.quarter}/${ST.settings.year}</i></span>${ST.seed ? '<span class="tag warn">dữ liệu mẫu</span>' : ''}${brHet() ? `<span class="tag red" data-tab="br" style="cursor:pointer">${brHet()} băng rôn hết hạn</span>` : ''}${W.on ? `<span><span class="dot${W.busy ? ' wait' : ''}"></span>Theo dõi: ${h(W.h.name)}</span>` : ''}`;
 }
 document.addEventListener('click', (e) => {
   const t = e.target.closest('[data-tab]'); if (t) { UI.tab = t.dataset.tab; try { localStorage.setItem('dt-tab', UI.tab); } catch { } render(); window.scrollTo(0, 0); return; }
@@ -1079,7 +1084,7 @@ const SIG = {
 };
 const fv = (f, v) => (f === 't' || f === 'd') ? (v ? fdt(v) : '') : S(v);
 function diff(kind, a, b) { return FIELDS[kind].filter(([f]) => S(a[f]) !== S(b[f])).map(([f, t]) => `${t}: ${fv(f, a[f]) || '(trống)'} → ${fv(f, b[f]) || '(trống)'}`).join('; '); }
-function newBatch(auto) { return { at: Date.now(), auto: !!auto, out: auto ? 'dir' : 'download', files: [], sc: [], scUp: [], kl: [], klUp: [], dups: [], prev: new Map(R.rows.map(r => [r.ma, r.fin])) }; }
+function newBatch(auto) { return { at: Date.now(), auto: !!auto, out: auto ? 'dir' : 'download', files: [], sc: [], scUp: [], kl: [], klUp: [], br: [], dups: [], prev: new Map(R.rows.map(r => [r.ma, r.fin])) }; }
 function merge(kind, items, src, B) {
   if (kind === 'kh') {
     const qs = new Set(items.map(x => x.quan)); const keep = ST.kh.filter(x => !qs.has(x.quan)); ST.kh = keep.concat(items);
@@ -1109,16 +1114,16 @@ function endBatch(B) {
   const now = new Map(R.rows.map(r => [r.ma, r])), isNew = new Set(B.sc), upMap = new Map(B.scUp.map(x => [x.ma, x.chg]));
   const ch = new Set(upMap.keys());
   for (const [ma, f0] of B.prev) { const r = now.get(ma); if (r && r.fin !== f0) ch.add(ma); }
-  const L = { at: B.at, auto: B.auto, files: B.files, sc: B.sc, kl: B.kl, klUp: B.klUp,
+  const L = { at: B.at, auto: B.auto, files: B.files, sc: B.sc, kl: B.kl, klUp: B.klUp, br: B.br || [],
     scCh: [...ch].filter(ma => !isNew.has(ma)).map(ma => ({ ma, f0: B.prev.get(ma) || '', chg: upMap.get(ma) || '' })), dups: B.dups.slice(0, 3000) };
   ST.last = L; return L;
 }
-const hasNew = (L) => !!L && (L.sc.length + L.kl.length + L.klUp.length + L.scCh.length) > 0;
+const hasNew = (L) => !!L && (L.sc.length + L.kl.length + L.klUp.length + L.scCh.length + (L.br || []).length) > 0;
 const tot = (L, k) => L.files.reduce((a, f) => a + (f[k] || 0), 0);
 function buildNew(L) {
   const now = new Map(R.rows.map(r => [r.ma, r])), klm = new Map(ST.kl.map(k => [k.ma, k]));
   const lab = `Lần nạp ${fdt(L.at)}${L.auto ? ' (tự động từ thư mục)' : ''}`;
-  const K = { sc: 'Sự cố', kl: 'Khối lượng', kh: 'Kế hoạch' };
+  const K = { sc: 'Sự cố', kl: 'Khối lượng', kh: 'Kế hoạch', br: 'Băng rôn' };
   const sheets = [tableSheet('Tong hop', 'SỐ LIỆU MỚI SAU KHI LỌC TRÙNG', `${lab}. Chỉ gồm dòng mới, dòng thay đổi và sự cố đổi trạng thái; dòng đã có không đổi được bỏ qua.`,
     ['Nguồn', 'Loại dữ liệu', 'Số dòng đọc', 'Mới', 'Cập nhật', 'Đã có (bỏ qua)', 'Trùng (bỏ)'], [42, 14, 12, 9, 10, 15, 11],
     [...L.files.map(f => [f.src, K[f.kind], f.n, f.nw, f.up, f.same, f.dup]), [C('Tổng', 11), C('', 11), ...['n', 'nw', 'up', 'same', 'dup'].map(k => C(tot(L, k), 11))]],
@@ -1139,9 +1144,11 @@ function buildNew(L) {
   if (KN.length) sheets.push(tableSheet('KL moi', 'PHIẾU KHỐI LƯỢNG MỚI', `${lab} – ${KN.length} dòng`, KH, KW, KN.map(klr), { styles: { 1: 5, 5: 10, 7: 6, 10: 10 } }));
   const KU = L.klUp.map(x => ({ x, k: klm.get(x.ma) })).filter(o => o.k);
   if (KU.length) sheets.push(tableSheet('KL cap nhat', 'PHIẾU KHỐI LƯỢNG ĐƯỢC CẬP NHẬT', `${lab} – ${KU.length} dòng`, [...KH, 'Thay đổi dữ liệu'], [...KW, 50], KU.map(({ x, k }) => [...klr(k), x.chg]), { styles: { 1: 5, 5: 10, 7: 6, 10: 10, 11: 10 } }));
+  const BN = (L.br || []).map(m => ST.br.find(x => x.ma === m)).filter(Boolean);
+  if (BN.length) sheets.push(brSheet('Bang ron moi', 'BĂNG RÔN MỚI / CẬP NHẬT', `${lab} – ${BN.length} băng rôn`, BN));
   if (L.dups.length) sheets.push(tableSheet('Trung da bo', 'DÒNG TRÙNG ĐÃ LOẠI BỎ', `${lab} – ${L.dups.length} dòng không được nạp`,
     ['Loại', 'Mã', 'Ngày', 'Quận', 'Tủ / trụ', 'Nội dung / hạng mục', 'Lý do', 'Nguồn'], [11, 11, 15, 14, 28, 50, 26, 30],
-    L.dups.map(({ kind, it, why, src }) => kind === 'sc' ? ['Sự cố', it.ma, it.t ? new Date(it.t) : '', it.quan, it.tu, it.nd, why, src] : ['Khối lượng', it.ma, it.d ? new Date(it.d) : '', it.quan, [it.tu, it.tru].filter(Boolean).join(' / '), `${it.hm} – ${it.kl} ${it.dvt}`, why, src]),
+    L.dups.map(({ kind, it, why, src }) => kind === 'br' ? ['Băng rôn', it.ma, it.b ? new Date(it.b) : '', it.quan, it.vt, it.nd, why, src] : kind === 'sc' ? ['Sự cố', it.ma, it.t ? new Date(it.t) : '', it.quan, it.tu, it.nd, why, src] : ['Khối lượng', it.ma, it.d ? new Date(it.d) : '', it.quan, [it.tu, it.tru].filter(Boolean).join(' / '), `${it.hm} – ${it.kl} ${it.dvt}`, why, src]),
     { styles: { 2: 5, 5: 10 } }));
   const d = new Date(L.at);
   return { name: `So_lieu_moi_${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()}_${pad(d.getHours())}h${pad(d.getMinutes())}.xlsx`, blob: XL.write(sheets) };
@@ -1221,6 +1228,9 @@ function vLast() {
 }
 const FAILRE = /không tìm thấy|không nhận ra|không có dòng/;
 async function importTable(rows, src, B) {
+  const bt = brTable(rows, B && B.forceBr);
+  if (bt) { const items = brRows(bt); return items.length ? brMerge(items, src, B) : `${src}: không có dòng băng rôn hợp lệ (cần nội dung/vị trí và ngày hết hạn)`; }
+  if (B && B.forceBr) return `${src}: không tìm thấy dòng tiêu đề băng rôn (cần cột “Nội dung”/“Vị trí” và “Đến ngày”/“Ngày hết hạn”)`;
   const t = tableFromRows(rows); if (!t) return `${src}: không tìm thấy dòng tiêu đề (cần cột “Tên tủ”, “Nội dung” hoặc “Hạng mục…”)`;
   const kind = detectKind(t); if (!kind) return `${src}: không nhận ra loại dữ liệu`;
   const items = mapRows(t, kind); if (!items.length) return `${src}: không có dòng hợp lệ`;
@@ -1239,10 +1249,10 @@ async function importFiles(files, B) {
         if (m !== 'text' && !FAILRE.test(m)) { msgs.push(m); ok++; }
         else toBox.push({ name: f.name + (sheets.length > 1 ? ` [${sh.name}]` : ''), rows: sh.rows });
       }
-      if (!ok) msgs.push(`${f.name}: không thấy bảng sự cố/khối lượng/kế hoạch – nội dung đã đưa xuống ô “Dán / sửa dữ liệu” để xem lại`);
+      if (!ok) msgs.push(`${f.name}: không thấy bảng ${B.forceBr ? 'băng rôn' : 'sự cố/khối lượng/kế hoạch/băng rôn'} – nội dung đã đưa xuống ô “${B.forceBr ? 'Dán dữ liệu băng rôn' : 'Dán / sửa dữ liệu'}” để xem lại`);
     } catch (e) { msgs.push(`${f.name}: lỗi – ${e.message}`); }
   }
-  if (toBox.length) UI.pasteText = toBox.map(b => b.rows.map(r => (r || []).map(v => v instanceof Date ? fdt(v.getTime()) : S(v)).join('\t').replace(/\t+$/, '')).filter(Boolean).join('\n')).join('\n');
+  if (toBox.length) UI[B.forceBr ? 'brText' : 'pasteText'] = toBox.map(b => b.rows.map(r => (r || []).map(v => v instanceof Date ? fdt(v.getTime()) : S(v)).join('\t').replace(/\t+$/, '')).filter(Boolean).join('\n')).join('\n');
   if (pg) pg.textContent = '';
   finishImport(msgs, B);
 }
@@ -1271,25 +1281,38 @@ const ACT = {
   paste() { const v = $('#paste').value; if (!v.trim()) return toast('Chưa có dữ liệu dán'); const B = newBatch(false); importTable(parseTSV(v), 'Dữ liệu dán', B).then(m => { if (!FAILRE.test(m)) UI.pasteText = ''; finishImport([m], B); }); },
   freeImp() { freeImport(); },
   clr(a) { const k = a.dataset.k; if (a.dataset.ok !== '1') { a.dataset.ok = '1'; a.textContent = 'Bấm lần nữa để xóa'; return; } ST[k] = []; finishImport([`Đã xóa toàn bộ ${k === 'sc' ? 'sự cố' : 'khối lượng'}`]); },
-  reset(a) { if (a.dataset.ok !== '1') { a.dataset.ok = '1'; a.textContent = 'Bấm lần nữa để khôi phục'; return; } const s = ST.settings; ST = seedState(); ST.settings = s; recompute(); render(); save(); },
+  reset(a) { if (a.dataset.ok !== '1') { a.dataset.ok = '1'; a.textContent = 'Bấm lần nữa để khôi phục'; return; } const s = ST.settings, br = ST.br, tl = ST.tgLast; ST = seedState(); ST.settings = s; ST.br = br || []; ST.tgLast = tl; recompute(); render(); save(); },
   tplKH() { exportKHTemplate(); },
   newx() { exportNew(ST.last); }, wpick() { watchPick(); }, wgo() { watchStart(true); }, wstop() { watchStop(); }, wscan() { watchScan(); },
+  brx() { exportBR(); }, brpaste() { brPasteImport(); }, brfree() { brFreeImport(); },
+  brthao(a) { const x = ST.br.find(b => b.ma === a.dataset.ma); if (!x) return; x.thao = x.thao ? 0 : Date.now(); ST.log.push({ at: Date.now(), msg: `Băng rôn ${x.ma}: ${x.thao ? 'đánh dấu đã tháo' : 'bỏ đánh dấu đã tháo'}` }); save(); render(); },
+  brdel(a) { if (a.dataset.ok !== '1') { a.dataset.ok = '1'; a.textContent = 'Xóa?'; return; } ST.br = ST.br.filter(b => b.ma !== a.dataset.ma); save(); render(); },
+  brclr(a) { if (a.dataset.ok !== '1') { a.dataset.ok = '1'; a.textContent = 'Bấm lần nữa để xóa hết'; return; } ST.br = []; ST.log.push({ at: Date.now(), msg: 'Đã xóa toàn bộ băng rôn' }); save(); render(); },
+  tgsave() { tgSaveForm(); toast('Đã lưu cài đặt Telegram'); render(); },
+  tgtest() { tgSaveForm(); tgSend(`🎌 <b>BĂNG RÔN</b>\nKết nối thành công từ app Duy tu chiếu sáng (${h(fdt(Date.now()))}).`).then(() => toast('Đã gửi tin thử – kiểm tra Telegram'), e => toast('Lỗi Telegram: ' + e.message)); },
+  tgnow() { tgSaveForm(); brSend(false); },
+  tgfind() { tgSaveForm(); tgFind(); },
+  tgtopic() { tgSaveForm(); tgTopic(); },
+  tgpick(a) { const g = ST.settings.tg; g.chat = a.dataset.id; g.thread = a.dataset.th || ''; UI.tgFound = []; save(); render(); toast('Đã chọn nơi nhận: ' + a.dataset.n); },
+  brk(a) { UI.br.s = UI.br.s === a.dataset.k ? '' : a.dataset.k; render(); const t = $('#brList'); if (t) t.scrollIntoView({ behavior: 'smooth' }); },
   scx() { exportSC(); }, dcx() { exportDC(); }, phx() { exportPhieu(); }, khx() { exportKH(); }, pcx() { exportPC(); },
   pq(a) { const q = a.dataset.v; UI.pq.has(q) ? UI.pq.delete(q) : UI.pq.add(q); render(); },
   pc(a) { const c = a.dataset.v; UI.pc.has(c) ? UI.pc.delete(c) : UI.pc.add(c); render(); },
   scc(a) { UI.f.c = a.dataset.c || ''; UI.f.q = a.dataset.q || ''; render(); const t = $('#scList'); if (t) t.scrollIntoView({ behavior: 'smooth' }); },
-  saveCD() { saveSettings(); }, resetCD() { ST.settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS)); recompute(); render(); save(); toast('Đã khôi phục cài đặt mặc định'); },
+  saveCD() { saveSettings(); }, resetCD() { const tg = ST.settings.tg; ST.settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS)); ST.settings.tg = tg; recompute(); render(); save(); toast('Đã khôi phục cài đặt mặc định'); },
 };
 const CHG = {
   f(a) { UI.f[a.dataset.k] = a.value; render(); },
   pkt(a) { UI.pkt = a.checked; render(); },
   kh(a) { UI[a.dataset.k] = a.value; render(); },
   pday(a) { UI.pday = a.value; },
+  brf(a) { UI.br[a.dataset.k] = a.value; render(); },
+  brext(a) { const x = ST.br.find(b => b.ma === a.dataset.ma); const v = a.value; if (!x || !v) return; const [y, m, d] = v.split('-').map(Number); x.b = new Date(y, m - 1, d).getTime(); x.thao = 0; ST.log.push({ at: Date.now(), msg: `Băng rôn ${x.ma}: gia hạn đến ${fdate(x.b)}` }); save(); render(); toast('Đã gia hạn đến ' + fdate(x.b)); },
   autoX(a) { ST.settings.autoX = a.checked; save(); toast(a.checked ? 'Đã bật tự xuất Excel số liệu mới' : 'Đã tắt tự xuất – bấm nút để xuất khi cần'); },
   dpm(a) { UI.dp.mode = a.value; UI.dp.v = defPeriod(a.value); render(); },
   dpv(a) { UI.dp.v = a.value; render(); },
 };
-const INP = { x(a) { UI.f.x = a.value; const pos = a.selectionStart; render(); const n = $('#fx'); n.focus(); n.setSelectionRange(pos, pos); } };
+const INP = { brq(a) { UI.br.x = a.value; const pos = a.selectionStart; render(); const n = $('#brq'); n.focus(); n.setSelectionRange(pos, pos); }, x(a) { UI.f.x = a.value; const pos = a.selectionStart; render(); const n = $('#fx'); n.focus(); n.setSelectionRange(pos, pos); } };
 
 // ---------- SỰ CỐ ----------
 const quans = () => { const s = new Set(R.rows.map(r => r.quan).filter(Boolean)); return [...QN.filter(q => s.has(q)), ...[...s].filter(q => !QN.includes(q)).sort()]; };
@@ -1452,6 +1475,261 @@ function vPC() {
   ${backlog.slice(0, 25).map(x => `<tr><td><span class="q">${QS[x.quan]}</span></td><td class="nd">${h(x.hm)}</td><td>${h(x.dvt)}</td><td class="r b">${fmtN(x.ton, 2)}</td><td class="r">${fmtTr(x.vton)}</td></tr>`).join('')}</tbody></table></div></section>`;
 }
 
+
+// ========== BĂNG RÔN ==========
+const BRF = [['nd', 'Nội dung'], ['dv', 'Đơn vị'], ['quan', 'Quận'], ['vt', 'Vị trí'], ['sl', 'Số lượng'], ['a', 'Từ ngày'], ['b', 'Đến ngày'], ['gc', 'Ghi chú']];
+const BRA = { // tiêu đề cột nhận dạng: [khớp đúng], [chứa cụm]
+  ma: [['mã', 'mã br', 'mã băng rôn', 'số giấy phép', 'số gp', 'giấy phép', 'số văn bản', 'số công văn', 'số cv', 'số phép', 'số hồ sơ'], ['giấy phép', 'số gp', 'công văn']],
+  nd: [['nội dung', 'nội dung băng rôn', 'nội dung tuyên truyền', 'nội dung quảng cáo', 'tên băng rôn', 'chủ đề', 'băng rôn', 'khẩu hiệu'], ['nội dung', 'khẩu hiệu', 'chủ đề']],
+  dv: [['đơn vị', 'đơn vị đăng ký', 'đơn vị treo', 'đơn vị thực hiện', 'tổ chức', 'đơn vị xin phép', 'cơ quan', 'chủ quản', 'khách hàng'], ['đơn vị', 'cơ quan', 'tổ chức', 'khách hàng']],
+  quan: [['quận', 'quận/huyện', 'quận / huyện', 'quận huyện', 'địa bàn'], ['quận']],
+  vt: [['vị trí', 'vị trí treo', 'địa điểm', 'tuyến đường', 'đường', 'địa chỉ', 'khu vực', 'trụ', 'vị trí lắp đặt', 'tuyến'], ['vị trí', 'địa điểm', 'tuyến đường', 'địa chỉ']],
+  sl: [['số lượng', 'sl', 'số băng rôn', 'số lượng băng rôn', 'số cái'], ['số lượng']],
+  a: [['từ ngày', 'ngày bắt đầu', 'ngày treo', 'bắt đầu', 'ngày bắt đầu treo', 'ngày lắp', 'ngày lắp đặt'], ['từ ngày', 'bắt đầu', 'ngày treo']],
+  b: [['đến ngày', 'ngày hết hạn', 'hết hạn', 'ngày kết thúc', 'hạn treo', 'ngày tháo', 'ngày hết hạn treo', 'thời hạn', 'hạn'], ['đến ngày', 'hết hạn', 'kết thúc', 'ngày tháo', 'hạn treo']],
+  rg: [['thời gian treo', 'thời gian', 'thời hạn treo', 'thời gian thực hiện', 'thời gian tuyên truyền'], ['thời gian']],
+  tt: [['trạng thái', 'tình trạng'], ['trạng thái', 'tình trạng']],
+  gc: [['ghi chú'], ['ghi chú']],
+};
+function brTable(rows, force) {
+  let best = null;
+  for (let i = 0; i < Math.min(15, rows.length); i++) {
+    const hr = (rows[i] || []).map(x => low(x).replace(/\s+/g, ' ').replace(/[:*]$/, ''));
+    const idx = {};
+    for (const [f, [ex]] of Object.entries(BRA)) { const c = hr.findIndex((x, j) => x && ex.includes(x) && !Object.values(idx).includes(j)); if (c >= 0) idx[f] = c; }
+    for (const [f, [, inc]] of Object.entries(BRA)) if (idx[f] == null) { const c = hr.findIndex((x, j) => x && x.length < 40 && inc.some(k => x.includes(k)) && !Object.values(idx).includes(j)); if (c >= 0) idx[f] = c; }
+    const hasEnd = idx.b != null || (idx.rg != null && (force || /treo|tuyên truyền/.test(hr[idx.rg])));
+    const hasWhat = idx.nd != null || idx.vt != null;
+    const score = Object.keys(idx).length + (hr.some(x => /băng rôn|bang ron/.test(x)) ? 2 : 0);
+    if (hasEnd && hasWhat && (force || score >= 3 || idx.b != null) && (!best || score > best.score)) best = { h: i, idx, score };
+  }
+  return best ? { idx: best.idx, data: rows.slice(best.h + 1).filter(r => r && r.some(v => S(v) !== '')) } : null;
+}
+function brDates(t) {
+  const out = [], s = S(t);
+  for (const m of s.matchAll(/(\d{1,2})\s*[\/.\-]\s*(\d{1,2})(?:\s*[\/.\-]\s*(\d{2,4}))?/g)) {
+    const d = +m[1], mo = +m[2]; if (d < 1 || d > 31 || mo < 1 || mo > 12) continue;
+    let y = m[3] ? +m[3] : null; if (y != null && y < 100) y += 2000; out.push({ d, mo, y });
+  }
+  const yr = (out.find(o => o.y) || {}).y || new Date().getFullYear();
+  return out.map((o, i) => { let y = o.y; if (y == null) { y = yr; const nx = out.slice(i + 1).find(z => z.y); if (nx && o.mo > nx.mo) y = nx.y - 1; } return new Date(y, o.mo - 1, o.d).getTime(); });
+}
+function brDate(v) { if (v instanceof Date || typeof v === 'number') return v === '' ? null : dayStart(parseDT(v)); const s = S(v); if (!s) return null; const d = brDates(s)[0]; return d || (parseDT(s) ? dayStart(parseDT(s)) : null); }
+const hash36 = (s) => { let h1 = 5381; for (let i = 0; i < s.length; i++) h1 = ((h1 << 5) + h1 + s.charCodeAt(i)) >>> 0; return h1.toString(36).toUpperCase(); };
+const brSig = (x) => [low(x.quan), nmh(x.vt), nmh(x.nd), nmh(x.dv)].join('|');
+const quanOf = (t) => { const m = S(t).match(/(?:quận|q\.?)\s*(\d{1,2}|bình thạnh|phú nhuận|gò vấp|tân bình|tân phú|bình tân|thủ đức)/i); return m ? 'Quận ' + titleName(m[1]) : ''; };
+function brMk(o) {
+  const x = { ma: '', nd: S(o.nd), dv: S(o.dv), quan: S(o.quan) || quanOf(o.vt) || quanOf(o.nd), vt: S(o.vt), sl: parseNum(o.sl) || '', a: o.a || null, b: o.b || null, gc: S(o.gc) };
+  if (/đã tháo|đã thu|đã gỡ|thu hồi|đã hạ/.test(low(o.tt) + ' ' + low(o.gc))) x.thao = x.b || Date.now();
+  if (x.quan && /^\d+$/.test(x.quan)) x.quan = 'Quận ' + x.quan;
+  x.ma = S(o.ma).replace(/\.0$/, '') || 'BR-' + hash36(brSig(x));
+  return x;
+}
+function brRows(t) {
+  const g = (r, f) => t.idx[f] == null ? '' : r[t.idx[f]];
+  return t.data.map(r => {
+    let a = brDate(g(r, 'a')), b = brDate(g(r, 'b'));
+    if (t.idx.rg != null && (!a || !b)) { const ds = brDates(g(r, 'rg')); if (ds.length) { if (!b) b = ds[ds.length - 1]; if (!a && ds.length > 1) a = ds[0]; } }
+    return brMk({ ma: g(r, 'ma'), nd: g(r, 'nd'), dv: g(r, 'dv'), quan: g(r, 'quan'), vt: g(r, 'vt'), sl: g(r, 'sl'), a, b, tt: g(r, 'tt'), gc: g(r, 'gc') });
+  }).filter(x => (x.nd || x.vt) && (x.b || x.a) && !/^(stt|tổng|cộng)/i.test(x.nd));
+}
+function brMerge(items, src, B) {
+  ST.br = ST.br || [];
+  const arr = ST.br, idx = new Map(arr.map((x, i) => [x.ma, i])), sigs = new Map(arr.map(x => [brSig(x), x.ma])), inFile = new Set();
+  let nw = 0, up = 0, same = 0, dup = 0;
+  for (const it of items) {
+    if (inFile.has(it.ma)) { dup++; if (B) B.dups.push({ kind: 'br', it, why: 'Lặp trong cùng file', src }); continue; }
+    inFile.add(it.ma);
+    let key = idx.has(it.ma) ? it.ma : (sigs.get(brSig(it)) || null);
+    if (key != null) {
+      const i = idx.get(key), old = arr[i];
+      const nx = Object.assign({}, old, Object.fromEntries(Object.entries(it).filter(([k, v]) => k !== 'ma' && S(v) !== '' && v != null)));
+      const d = BRF.filter(([f]) => S(old[f]) !== S(nx[f])).length + (!!old.thao !== !!nx.thao);
+      if (!d) { same++; continue; }
+      if (nx.b !== old.b && !it.thao) nx.thao = 0; // gia hạn → treo lại
+      arr[i] = nx; up++; if (B) B.br.push(nx.ma); continue;
+    }
+    idx.set(it.ma, arr.length); sigs.set(brSig(it), it.ma); arr.push(it); nw++; if (B) B.br.push(it.ma);
+  }
+  if (B) B.files.push({ src, kind: 'br', n: items.length, nw, up, same, dup });
+  return `${src}: băng rôn ${items.length} dòng → ${nw} mới, ${up} cập nhật, ${same} đã có (bỏ qua)${dup ? `, ${dup} trùng (bỏ)` : ''}`;
+}
+const BRS = { het: ['Hết hạn – cần tháo', 'red'], sap: ['Sắp hết hạn', 'amber'], con: ['Còn hạn', 'green'], chua: ['Chưa đến ngày treo', 'blue'], thieu: ['Thiếu ngày hết hạn', 'grey'], thao: ['Đã tháo', 'grey'] };
+const BRO = ['het', 'sap', 'con', 'chua', 'thieu', 'thao'];
+const brLeft = (x) => x.b ? Math.round((dayStart(x.b) - dayStart(Date.now())) / 864e5) : null;
+function brSt(x) {
+  if (x.thao) return 'thao'; if (!x.b) return 'thieu';
+  if (x.a && dayStart(x.a) > dayStart(Date.now())) return 'chua';
+  const d = brLeft(x), w = +((ST.settings.tg || {}).warn ?? 3);
+  return d < 0 ? 'het' : d <= w ? 'sap' : 'con';
+}
+const brHet = () => (ST && ST.br ? ST.br.filter(x => brSt(x) === 'het').length : 0);
+const brDays = (x) => { const d = brLeft(x), k = brSt(x); if (d == null || k === 'thao') return ''; if (k === 'chua') return `treo từ ${fdate(x.a)}`; return d < 0 ? `quá ${-d} ngày` : d === 0 ? 'hết hạn hôm nay' : `còn ${d} ngày`; };
+const brSort = (a, b) => BRO.indexOf(brSt(a)) - BRO.indexOf(brSt(b)) || (a.b || 9e15) - (b.b || 9e15) || a.quan.localeCompare(b.quan);
+function brList() {
+  const f = UI.br, x = low(f.x);
+  return (ST.br || []).filter(b => (!f.s || brSt(b) === f.s) && (!f.q || b.quan === f.q) && (!x || low([b.ma, b.nd, b.dv, b.vt, b.quan, b.gc].join(' ')).includes(x))).sort(brSort);
+}
+function brSheet(name, title, sub, list) {
+  return tableSheet(name, title, sub, ['STT', 'Trạng thái', 'Còn / quá hạn', 'Mã / Số GP', 'Nội dung', 'Đơn vị', 'Quận', 'Vị trí', 'SL', 'Từ ngày', 'Đến ngày', 'Ghi chú'], [5, 18, 15, 14, 46, 24, 13, 34, 6, 11, 11, 22],
+    list.map((b, i) => [i + 1, BRS[brSt(b)][0], brDays(b), b.ma, b.nd, b.dv, b.quan, b.vt, b.sl, b.a ? new Date(b.a) : '', b.b ? new Date(b.b) : '', b.gc]), { styles: { 0: 9, 4: 10, 7: 10, 8: 9, 9: 5, 10: 5 } });
+}
+function exportBR() {
+  const L = brList(); if (!L.length) return toast('Không có băng rôn để xuất');
+  const cnt = BRO.map(k => [BRS[k][0], L.filter(b => brSt(b) === k).length]).filter(x => x[1]);
+  const sum = tableSheet('Tong hop', 'THEO DÕI HẠN TREO BĂNG RÔN', `Xuất ${fdt(Date.now())} – báo “sắp hết hạn” trước ${ST.settings.tg.warn} ngày`, ['Trạng thái', 'Số băng rôn'], [26, 14], cnt.map(([a, n]) => [a, n]), { styles: { 1: 9 } });
+  const sheets = [sum, brSheet('Bang ron', 'DANH SÁCH BĂNG RÔN', `${L.length} băng rôn theo bộ lọc hiện tại`, L)];
+  const het = L.filter(b => brSt(b) === 'het'); if (het.length) sheets.push(brSheet('Can thao', 'BĂNG RÔN HẾT HẠN – CẦN THÁO', `${het.length} băng rôn`, het));
+  saveFile(`Bang_ron_${stamp()}.xlsx`, XL.write(sheets));
+}
+function brPasteImport() {
+  const v = UI.brText || ''; if (!v.trim()) return toast('Chưa có dữ liệu dán');
+  const B = Object.assign(newBatch(false), { forceBr: true });
+  importTable(parseTSV(v), 'Băng rôn (dán)', B).then(m => { if (!FAILRE.test(m)) UI.brText = ''; finishImport([m], B); });
+}
+function brFreeImport() {
+  const v = UI.brText || '', q0 = ($('#brQ') || {}).value || '';
+  const items = v.split('\n').map(l => l.replace(/\t+/g, ' ').trim()).filter(l => l.length > 5 && !/^(stt|nội dung|danh sách)/i.test(l)).map(l => {
+    const ds = brDates(l); if (!ds.length) return null;
+    const nd = l.replace(/(từ|đến|ngày|hết hạn|thời gian treo)?\s*:?\s*\d{1,2}\s*[\/.\-]\s*\d{1,2}(\s*[\/.\-]\s*\d{2,4})?/gi, ' ').replace(/^\s*\d{1,3}[.)\s]\s*/, '').replace(/[\s,;–\-]+$/, '').replace(/\s{2,}/g, ' ').trim();
+    const ci = nd.indexOf(':'); let vt = '', nd2 = nd;
+    if (ci > 0 && ci < 70) { vt = nd.slice(0, ci).replace(/^(quận|q\.?)\s*\d+\s*[–\-,]?\s*/i, '').trim(); nd2 = nd.slice(ci + 1).trim(); }
+    return brMk({ nd: nd2, vt, quan: quanOf(l) || q0, b: ds[ds.length - 1], a: ds.length > 1 ? ds[0] : null });
+  }).filter(Boolean);
+  if (!items.length) return toast('Không thấy dòng nào có ngày (dd/mm/yyyy)');
+  const B = newBatch(false); UI.brText = ''; finishImport([brMerge(items, 'Băng rôn (nhập từng dòng)', B)], B);
+}
+function bindBR() {
+  const d = $('#brdrop'), fi = $('#brfi'), go = (fs) => importFiles(fs, Object.assign(newBatch(false), { forceBr: true }));
+  fi.onchange = () => go([...fi.files]);
+  d.ondragover = (e) => { e.preventDefault(); d.classList.add('over'); };
+  d.ondragleave = () => d.classList.remove('over');
+  d.ondrop = (e) => { e.preventDefault(); d.classList.remove('over'); go([...e.dataTransfer.files]); };
+  $('#brpaste').oninput = (e) => { UI.brText = e.target.value; };
+}
+
+// ---------- Telegram ----------
+async function tgCall(method, params) {
+  const g = ST.settings.tg; if (!g.token) throw new Error('chưa nhập Bot token');
+  const body = new URLSearchParams(); for (const [k, v] of Object.entries(params || {})) if (v !== '' && v != null) body.append(k, v);
+  let r; try { r = await fetch(`https://api.telegram.org/bot${encodeURIComponent(g.token.trim())}/${method}`, { method: 'POST', body }); }
+  catch { throw new Error('không kết nối được Telegram (kiểm tra Internet)'); }
+  const j = await r.json().catch(() => ({})); if (!j.ok) throw new Error(j.description || 'HTTP ' + r.status); return j.result;
+}
+async function tgSend(text) {
+  const g = ST.settings.tg; if (!g.chat) throw new Error('chưa có Chat ID');
+  const parts = []; let cur = '';
+  for (const line of text.split('\n')) { if ((cur + line).length > 3800) { parts.push(cur); cur = ''; } cur += (cur ? '\n' : '') + line; }
+  if (cur) parts.push(cur);
+  for (const t of parts) await tgCall('sendMessage', { chat_id: g.chat.trim(), message_thread_id: S(g.thread), text: t, parse_mode: 'HTML', disable_web_page_preview: 'true' });
+}
+function tgSaveForm() {
+  const g = ST.settings.tg, v = (id) => { const e = $('#' + id); return e ? e.value.trim() : null; };
+  if (!$('#tgTok')) return;
+  g.token = v('tgTok'); g.chat = v('tgChat'); g.thread = v('tgThr').replace(/\D/g, '');
+  g.hour = Math.max(0, Math.min(23, parseInt(v('tgHour')) || 0)); g.warn = Math.max(0, Math.min(60, parseInt(v('tgWarn')) || 0));
+  g.auto = $('#tgAuto').checked; g.only = $('#tgOnly').checked; save();
+}
+async function tgFind() {
+  try {
+    const up = await tgCall('getUpdates', { limit: 100 }), m = new Map();
+    for (const u of up) {
+      const msg = u.message || u.channel_post || u.my_chat_member || u.edited_message; if (!msg || !msg.chat) continue;
+      const c = msg.chat, nm = c.title || [c.first_name, c.last_name].filter(Boolean).join(' ') || c.username || c.id;
+      m.set(String(c.id), { id: String(c.id), n: `${nm} (${c.type === 'private' ? 'tin nhắn riêng' : c.is_forum ? 'nhóm có chủ đề' : c.type})`, th: '' });
+      const tn = msg.forum_topic_created ? msg.forum_topic_created.name : (msg.reply_to_message && msg.reply_to_message.forum_topic_created ? msg.reply_to_message.forum_topic_created.name : '');
+      if (msg.message_thread_id && tn) m.set(c.id + '|' + msg.message_thread_id, { id: String(c.id), th: String(msg.message_thread_id), n: `${nm} › mục “${tn}”` });
+    }
+    UI.tgFound = [...m.values()].sort((a, b) => (/băng rôn/i.test(b.n) - /băng rôn/i.test(a.n)));
+    render(); toast(UI.tgFound.length ? `Tìm thấy ${UI.tgFound.length} nơi nhận – bấm “Chọn”` : 'Chưa thấy tin nhắn nào: hãy nhắn cho bot (hoặc nhắn trong nhóm/mục Băng rôn) rồi bấm lại');
+  } catch (e) { toast('Lỗi Telegram: ' + e.message); }
+}
+async function tgTopic() {
+  const g = ST.settings.tg;
+  try { const r = await tgCall('createForumTopic', { chat_id: g.chat, name: 'Băng rôn', icon_color: 16478047 }); g.thread = String(r.message_thread_id); save(); render(); toast('Đã tạo mục “Băng rôn” trong nhóm');
+    await tgSend('🎌 <b>BĂNG RÔN</b>\nMục này sẽ nhận thông báo hạn treo băng rôn hằng ngày.'); }
+  catch (e) { toast('Không tạo được mục: ' + e.message + ' – nhóm phải bật Chủ đề (Topics) và bot là quản trị viên có quyền quản lý chủ đề'); }
+}
+function brDigest() {
+  const L = (ST.br || []).slice().sort(brSort), by = (k) => L.filter(b => brSt(b) === k), het = by('het'), sap = by('sap');
+  const line = (b, i) => `${i + 1}. <b>${h(QS[b.quan] || b.quan || '—')}</b> · ${h(b.vt || '—')}: ${h((b.nd || '').slice(0, 120))}${b.dv ? ` · <i>${h(b.dv)}</i>` : ''} — hết ${b.b ? fdm(b.b) : '?'} (<b>${h(brDays(b))}</b>)`;
+  const out = [`🎌 <b>BĂNG RÔN</b> · ${fdate(Date.now())}`];
+  if (het.length) out.push('', `⛔ <b>Hết hạn – cần tháo: ${het.length}</b>`, ...het.map(line));
+  if (sap.length) out.push('', `⚠️ <b>Sắp hết hạn (≤ ${ST.settings.tg.warn} ngày): ${sap.length}</b>`, ...sap.map(line));
+  if (!het.length && !sap.length) out.push('', '✅ Không có băng rôn hết hạn hoặc sắp hết hạn.');
+  out.push('', `Còn hạn: ${by('con').length} · Chưa treo: ${by('chua').length} · Đã tháo: ${by('thao').length}${by('thieu').length ? ` · Thiếu ngày hạn: ${by('thieu').length}` : ''}`);
+  return { text: out.join('\n'), alert: het.length + sap.length };
+}
+let tgBusy = false, tgFail = 0;
+const locDay = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+async function brSend(auto) {
+  if (tgBusy) return; tgBusy = true;
+  const today = locDay(new Date()), d = brDigest();
+  try {
+    if (auto && ST.settings.tg.only && !d.alert) { ST.tgLast = today; save(); return; }
+    await tgSend(d.text); ST.tgLast = today; tgFail = 0;
+    ST.log.push({ at: Date.now(), msg: `Telegram – đã gửi thông báo Băng rôn${auto ? ' tự động' : ''} (${d.alert} cần chú ý)` }); save();
+    toast('Đã gửi thông báo Băng rôn lên Telegram'); if (UI.tab === 'br') render();
+  } catch (e) { tgFail = Date.now(); ST.log.push({ at: Date.now(), msg: 'Telegram lỗi: ' + e.message }); save(); toast('Lỗi gửi Telegram: ' + e.message); }
+  finally { tgBusy = false; }
+}
+function tgTick() {
+  const g = ST && ST.settings.tg; if (!g || !g.auto || !g.token || !g.chat || !(ST.br || []).length) return;
+  const now = new Date(), today = locDay(now);
+  if (ST.tgLast === today || now.getHours() < g.hour || Date.now() - tgFail < 30 * 60000) return;
+  brSend(true);
+}
+
+// ---------- giao diện Băng rôn ----------
+function vBR() {
+  const all = ST.br || [], L = brList(), shown = L.slice(0, 500), f = UI.br, g = ST.settings.tg;
+  const cnt = (k) => all.filter(b => brSt(b) === k).length;
+  const kp = (k, cls) => `<button class="kpi ${cls}" data-act="brk" data-k="${k}" style="text-align:left;cursor:pointer;font:inherit;color:inherit"><div class="n">${cnt(k)}</div><div class="t">${BRS[k][0]}</div></button>`;
+  const qs = [...new Set(all.map(b => b.quan).filter(Boolean))].sort();
+  const tgOk = g.token && g.chat;
+  return `<section class="kpis sm">${kp('het', 'hot')}${kp('sap', 'warn')}${kp('con', 'ok')}${kp('chua', '')}${kp('thao', '')}</section>
+  <section class="card" id="brList"><div class="cardhead"><h3>Theo dõi hạn treo băng rôn</h3><button class="btn" data-act="brx"${L.length ? '' : ' disabled'}>Xuất Excel (${L.length})</button></div>
+    <div class="filters">
+      <select data-chg="brf" data-k="s">${opt('', f.s, 'Mọi trạng thái')}${BRO.map(k => opt(k, f.s, BRS[k][0])).join('')}</select>
+      <select data-chg="brf" data-k="q">${opt('', f.q, 'Tất cả quận')}${qs.map(q => opt(q, f.q)).join('')}</select>
+      <input id="brq" type="search" placeholder="Tìm nội dung, vị trí, đơn vị…" value="${h(f.x)}" data-inp="brq"></div>
+    ${all.length ? `<p class="note">${L.length} băng rôn${L.length > shown.length ? ` – hiển thị ${shown.length}` : ''}. “Sắp hết hạn” = còn ≤ ${g.warn} ngày. Gia hạn: chọn ngày mới ở cột thao tác.</p>
+    <div class="tw"><table class="t"><thead><tr><th>Trạng thái</th><th>Nội dung</th><th>Quận · Vị trí</th><th class="r">SL</th><th>Thời gian treo</th><th>Thao tác</th></tr></thead><tbody>
+    ${shown.map(b => { const k = brSt(b), c = BRS[k][1]; return `<tr><td><span class="st ${c}">${BRS[k][0]}</span><div class="days ${c}">${h(brDays(b))}</div></td>
+      <td class="nd">${h(b.nd || '—')}${b.dv ? `<div class="mut">${h(b.dv)}</div>` : ''}${b.gc ? `<div class="mut">↳ ${h(b.gc)}</div>` : ''}<div class="mut mono">${h(b.ma)}</div></td>
+      <td>${b.quan ? `<span class="q">${h(QS[b.quan] || b.quan)}</span> ` : ''}${h(b.vt)}</td><td class="r">${h(b.sl)}</td>
+      <td class="nw">${b.a ? fdate(b.a) : '…'} → <b>${b.b ? fdate(b.b) : '?'}</b></td>
+      <td><div class="br-act"><button class="btn ghost sm" data-act="brthao" data-ma="${h(b.ma)}">${b.thao ? 'Bỏ đã tháo' : 'Đã tháo'}</button>
+        <input type="date" title="Gia hạn đến ngày" data-chg="brext" data-ma="${h(b.ma)}"><button class="btn ghost sm danger" data-act="brdel" data-ma="${h(b.ma)}">Xóa</button></div></td></tr>`; }).join('')}
+    </tbody></table></div>` : '<p class="empty">Chưa có dữ liệu băng rôn – nạp file ở bên dưới.</p>'}</section>
+  <section class="card"><h3>Nạp dữ liệu băng rôn – mọi định dạng</h3>
+    <p class="lead">Kéo thả file danh sách băng rôn. App tự nhận cột <b>Nội dung</b>, <b>Đơn vị</b>, <b>Quận</b>, <b>Vị trí</b>, <b>Số lượng</b>, <b>Từ ngày</b>, <b>Đến ngày / Ngày hết hạn</b> (hoặc một cột “Thời gian treo: 01/10 – 15/10/2026”), <b>Trạng thái</b>, <b>Ghi chú</b>; tự lọc trùng và cập nhật khi gia hạn. File băng rôn thả ở tab Nạp dữ liệu hoặc thư mục theo dõi cũng được nhận.</p>
+    <label class="drop" id="brdrop"><input type="file" id="brfi" multiple hidden><b>Chọn hoặc thả file băng rôn vào đây</b><span>Excel · .xls · .ods · .csv · .txt · Word · .html · .json · PDF · ảnh chụp / scan</span></label>
+    <label class="wide">Dán dữ liệu (copy từ Excel kèm dòng tiêu đề, hoặc mỗi dòng một băng rôn có ngày, ví dụ: “Q1 – Lê Lợi: Chào mừng Đại hội… từ 01/10 đến 20/10/2026”)
+    <textarea id="brpaste" rows="6" placeholder="Dán dữ liệu băng rôn…">${h(UI.brText || '')}</textarea></label>
+    <div class="row"><button class="btn" data-act="brpaste">Nạp như bảng</button><span class="sep"></span>
+      <select id="brQ">${opt('', '', 'Quận (nếu dòng không ghi)')}${QN.map(q => opt(q, '')).join('')}</select>
+      <button class="btn ghost" data-act="brfree">Nhập từng dòng</button><span class="sep"></span>
+      <button class="btn ghost danger" data-act="brclr"${all.length ? '' : ' disabled'}>Xóa toàn bộ băng rôn</button></div></section>
+  <section class="card"><div class="cardhead"><h3>Thông báo tự động qua Telegram – mục “Băng rôn”</h3>${tgOk ? `<span class="mut">${ST.tgLast ? 'Gửi gần nhất: ' + ST.tgLast.split('-').reverse().join('/') : 'Chưa gửi lần nào'}</span>` : ''}</div>
+    <p class="lead">Mỗi ngày đến giờ đã đặt, app gửi danh sách băng rôn <b>hết hạn cần tháo</b> và <b>sắp hết hạn</b> vào Telegram, tin nhắn có tiêu đề <b>🎌 BĂNG RÔN</b>. Gửi vào tin nhắn riêng với bot, hoặc vào mục (chủ đề) “Băng rôn” trong nhóm.</p>
+    <div class="form">
+      <label>Bot token (lấy từ @BotFather)<input id="tgTok" type="password" autocomplete="off" value="${h(g.token)}" placeholder="123456789:AA…"></label>
+      <label>Chat ID (người / nhóm nhận)<input id="tgChat" value="${h(g.chat)}" placeholder="vd 123456789 hoặc -100…"></label>
+      <label>ID mục “Băng rôn” trong nhóm (để trống nếu gửi tin riêng)<input id="tgThr" value="${h(g.thread)}" placeholder="vd 25"></label>
+      <label>Giờ gửi hằng ngày (0–23)<input id="tgHour" type="number" min="0" max="23" value="${g.hour}"></label>
+      <label>Báo “sắp hết hạn” trước (ngày)<input id="tgWarn" type="number" min="0" max="60" value="${g.warn}"></label></div>
+    <label class="chk"><input type="checkbox" id="tgAuto"${g.auto ? ' checked' : ''}> Tự động gửi mỗi ngày</label>
+    <label class="chk"><input type="checkbox" id="tgOnly"${g.only ? ' checked' : ''}> Chỉ gửi khi có băng rôn hết hạn hoặc sắp hết hạn</label>
+    <div class="row"><button class="btn" data-act="tgsave">Lưu</button><button class="btn ghost" data-act="tgfind"${g.token ? '' : ' disabled'}>Tìm Chat ID / mục</button><button class="btn ghost" data-act="tgtopic"${tgOk ? '' : ' disabled'}>Tạo mục “Băng rôn” trong nhóm</button><button class="btn ghost" data-act="tgtest"${tgOk ? '' : ' disabled'}>Gửi tin thử</button><button class="btn ghost" data-act="tgnow"${tgOk && all.length ? '' : ' disabled'}>Gửi thông báo ngay</button></div>
+    ${UI.tgFound.length ? `<ul class="tgl">${UI.tgFound.map(c => `<li><span>${h(c.n)} <span class="mut mono">${h(c.id)}${c.th ? ' / mục ' + h(c.th) : ''}</span></span><button class="btn ghost sm" data-act="tgpick" data-id="${h(c.id)}" data-th="${h(c.th)}" data-n="${h(c.n)}">Chọn</button></li>`).join('')}</ul>` : ''}
+    <details><summary>Hướng dẫn cài đặt Telegram (5 phút)</summary><ol class="tasks">
+      <li>Trong Telegram, mở <b>@BotFather</b> → gửi <code>/newbot</code> → đặt tên → nhận <b>Bot token</b>, dán vào ô trên rồi bấm Lưu.</li>
+      <li><b>Tin nhắn riêng:</b> mở bot vừa tạo, bấm Start và nhắn “Băng rôn”. Bấm <b>Tìm Chat ID / mục</b> → Chọn.</li>
+      <li><b>Nhóm có mục “Băng rôn”:</b> bật <i>Chủ đề (Topics)</i> trong cài đặt nhóm, thêm bot làm <i>quản trị viên</i> (quyền quản lý chủ đề), nhắn một tin trong nhóm → Tìm Chat ID / mục → Chọn nhóm → bấm <b>Tạo mục “Băng rôn”</b>. Nếu mục đã có sẵn: nhắn một tin trong mục đó rồi Tìm lại và chọn dòng “› mục Băng rôn”.</li>
+      <li>Bấm <b>Gửi tin thử</b>. Từ đó app tự gửi mỗi ngày đúng giờ khi app đang mở (nên bật trên <b>một</b> máy để không bị gửi trùng).</li></ol></details></section>`;
+}
+
 // ---------- CÀI ĐẶT ----------
 function vCD() {
   const s = ST.settings;
@@ -1478,9 +1756,10 @@ function saveSettings() {
   try { const t = localStorage.getItem('dt-tab'); if (t && TABS.some(x => x[0] === t)) UI.tab = t; } catch { }
   let st = null;
   try { st = await DB.get('state'); } catch { }
-  if (st && st.sc && st.kl && st.kh) { st.settings = Object.assign(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), st.settings || {}); ST = st; }
+  if (st && st.sc && st.kl && st.kh) { const tg = Object.assign({}, DEFAULT_SETTINGS.tg, (st.settings || {}).tg || {}); st.settings = Object.assign(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), st.settings || {}); st.settings.tg = tg; st.br = st.br || []; ST = st; }
   else ST = seedState();
   recompute(); render();
+  setTimeout(tgTick, 3000); setInterval(tgTick, 5 * 60000);
   if (canWatch()) { try { const hd = await DB.get('dir'); if (hd && hd.queryPermission) { W.h = hd; await watchStart(false); } } catch { } }
 })();
 
