@@ -202,6 +202,9 @@ tr.kqtru td{background:var(--amber-soft)}
 .sp-the{border:1px solid var(--line,#d8d2c4);border-radius:12px;padding:10px;margin:0 0 10px;background:var(--card,#fff)}.sp-dau{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}.sp-dau .sp-mo{margin-left:auto;padding:4px 10px;font-size:13px}
 table.mini{width:100%;border-collapse:collapse;font-size:13px}table.mini th,table.mini td{border-bottom:1px solid var(--line,#e5e0d4);padding:4px 6px;text-align:left}table.mini .n{text-align:right}
 .sp-the{overflow-x:auto}#printArea .sp-the{break-inside:avoid;border:1px solid #888}
+.nk-ly{font-size:13px;margin-top:4px;padding:4px 8px;border-radius:8px}.nk-ly.pr{background:#fde8e6;color:#9b1c12}.nk-ly.pa{background:#fff3d6;color:#7a5200}.nk-ly.pg{background:#e3f4ea;color:#1d6b3a}
+.nk-tac{font-size:14px;margin:2px 0}.nk-moi{outline:3px solid #f2b705;box-shadow:0 0 0 6px rgba(242,183,5,.18)}.nk-am{border-left:5px solid #c0392b}
+.nk-link{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;margin:0 0 10px;padding:12px 14px}.nk-link .no{color:#c0392b;font-weight:700}
 .tkh{font-size:12px;font-weight:700;text-transform:uppercase;color:var(--muted);padding:8px 10px 4px}
 .tkr{all:unset;display:block;box-sizing:border-box;width:100%;cursor:pointer;padding:8px 10px;border-radius:8px;line-height:1.45}.tkr:hover,.tkr:focus{background:var(--amber-soft)}.tkr b.ok{color:var(--green)}.tkr b.no{color:var(--red)}
 table.mini{font-size:13px}table.mini td,table.mini th{padding:4px 8px}.kpi.click{cursor:pointer}
@@ -309,6 +312,7 @@ td input.mini{width:80px;padding:3px 6px}
     <button data-v="nhaphoan">Nhập Hoàn <span class="bd" id="bdNH" hidden></span></button>
     <button data-v="tralai">Vật tư trả lại</button>
     <button data-v="goithau">Gói thầu</button>
+    <button data-v="nhatky">Dữ liệu đã nhập</button>
     <div hidden id="navAn"><button data-v="dash">Tổng quan</button><button data-v="suco">Danh sách sự cố <span class="bd" id="bdSuco" hidden></span></button><button data-v="s1022">Sự cố 1022 <span class="bd" id="bd1022" hidden></span></button><button data-v="phieusua">Phân tách, in phiếu sửa</button><button data-v="import">Nhập dữ liệu, ảnh, file</button><button data-v="px">Phiếu xuất</button><button data-v="pn">Phiếu nhập</button><button data-v="nh">Nhập hoàn</button><button data-v="capphat">Cấp phát theo ngày</button><button data-v="tonkho">Tồn kho <span class="bd" id="bdTKcu" hidden></span></button><button data-v="vattu">Đối chiếu vật tư thi công <span class="bd" id="bdVT" hidden></span></button><button data-v="kehoach">Kế hoạch, khối lượng</button><button data-v="sosanh">So sánh, số còn lại</button></div>
     <div class="ng" data-g="hethong"><button type="button" class="nh" data-g="hethong" aria-expanded="false"><span>Hệ thống</span><span class="bd" data-gbd hidden></span><i class="mui" aria-hidden="true"></i></button><div class="nsub">
       <button data-v="taikhoan" class="qa">Tài khoản, phân quyền</button>
@@ -2325,9 +2329,10 @@ V.tondong=()=>{
   const PL=S.px.filter(laLanh).filter(p=>!GOI.loc||p.lines.some(l=>goiKhop(l))).map(p=>treoPL(p));const nCon=PL.filter(t=>t.tt==='con').length,nChua=PL.filter(t=>t.tt==='chua').length;
   const cards=`<div class="kpis"><div class="kpi"><b>${R.filter(r=>r.cuoi>0).length}</b><span>Mã vật tư còn trong kho</span></div><div class="kpi ${am?'r':''}"><b>${am}</b><span>Mã vật tư âm kho</span></div><div class="kpi ${thap?'a':''}"><b>${thap}</b><span>Dưới mức tối thiểu</span></div><div class="kpi a click" data-go="nhaphoan"><b>${nCon+nChua}</b><span>Phiếu lãnh chưa hoàn tất (${nCon} còn phải hoàn, ${nChua} chưa quyết toán)</span></div></div>`;
   window._TREO=treoTheoVTG();let h;try{h=doiTieuDe(V.tonkho(),'Tồn Động','Tự tổng hợp từ Nhập Kho, Xuất Kho, Nhập Hoàn và Vật tư trả lại, tách theo gói thầu: Tồn cuối = Tồn đầu kỳ + Nhập − Xuất. Cột "Đang ở tổ" là vật tư đã lãnh chưa dùng, chưa hoàn. Bấm một dòng để xem thẻ kho của đúng gói đó.')}finally{window._TREO=null}
-  return h.replace('</p>','</p>'+cards+kho3D());
+  const amK=amKho().length,nP=S.pn.length+S.px.length;const nk=`<button type="button" class="card nk-link" data-go="nhatky"><b>📋 Dữ liệu đã nhập: ${nP} phiếu</b>${amK?` · <span class="no">${amK} mã âm kho (có phiếu xuất nhưng chưa có phiếu nhập)</span>`:''}<span class="muted"> · bấm để xem phiếu đã vào kho nào, đã lên máy chủ chưa</span></button>`;
+  return h.replace('</p>','</p>'+nk+cards+kho3D());
 };
-after.tondong=()=>{after.tonkho();gan3D();nutXuatBC($('#xuatTK'),'tonghop')};
+after.tondong=()=>{after.tonkho();document.querySelectorAll('.nk-link').forEach(b=>b.onclick=()=>go('nhatky'));gan3D();nutXuatBC($('#xuatTK'),'tonghop')};
 const NHV={loc:'mo',q:''};
 V.nhaphoan=()=>{
   const all=S.px.filter(laLanh).map(p=>({p,t:treoPL(p)}));const q=norm(NHV.q);
@@ -2523,6 +2528,49 @@ function inSoPhieuGoi(g){
   pa.innerHTML=`<section class="pg"><div class="pgh"><div class="dv"><div>CÔNG TY CỔ PHẦN</div><div>CHIẾU SÁNG CÔNG CỘNG TP.HCM</div><div class="u">CHIẾU SÁNG KHU VỰC TRUNG TÂM</div></div><h1>SỔ PHIẾU ${esc(tenGoi(g).toUpperCase())}</h1></div>${soPhieuHTML(g).replace(/<button[^>]*>[^<]*<\/button>/g,'')}</section>`;
   document.body.classList.add('dang-in');setTimeout(()=>{try{window.print()}catch(e){}},150);
 }
+
+/* ================== DỮ LIỆU ĐÃ NHẬP: ĐI ĐÂU, TÍNH VÀO KHO CHƯA ================== */
+const NKY={moi:null};
+function dongBoCua(kind,p){if(!SRV.on)return['Chỉ lưu trên máy này (chưa kết nối máy chủ)','pa'];const j=SRV.shadow[kind+'|'+p.id];return j===JSON.stringify(p)?['Đã lên máy chủ','pg']:['Chờ gửi lên máy chủ','pa']}
+function chanDoanPhieu(kind,p){
+  const ly=[];const now=Date.now();
+  if(!p.lines.length)ly.push(['Phiếu không có dòng vật tư nào','pr']);
+  if(Date.parse(p.ngay)>endOfDay(new Date()).getTime())ly.push([`Ngày phiếu ${fmtD(p.ngay)} ở tương lai: chưa tính vào tồn hôm nay. Sửa lại ngày.`,'pr']);
+  if(!tinhKho(p))ly.push(['Đang chờ quản trị duyệt: chưa trừ/cộng vào kho','pa']);
+  if(p.lines.some(l=>!(+l.sl>0)))ly.push(['Có dòng số lượng bằng 0 hoặc trống','pr']);
+  if(kind==='px'){const v=kiemTraVuotTon(p);if(v.length)ly.push([`Xuất nhiều hơn số đang có trong kho (${v.slice(0,3).map(x=>`${x.vt}: xuất ${fmtN(x.sl)}, tồn trước đó ${fmtN(x.ton)}`).join('; ')}). Kho chưa có phiếu nhập tương ứng nên Tồn Động bị âm, không hiện ở "còn trong kho".`,'pr'])}
+  if(GOI.loc&&!p.lines.some(l=>goiKhop(l)))ly.push([`Đang lọc ${GOI.loc==='_'?'"Chưa phân gói"':tenGoi(GOI.loc)}: phiếu này thuộc gói khác nên bị ẩn ở Tồn Động. Bấm "Tất cả" ở thanh Gói thầu.`,'pa']);
+  return ly;
+}
+function tatCaPhieu(){return[...S.pn.map(p=>({k:'pn',p})),...S.px.map(p=>({k:'px',p}))].map(x=>{const lg=S.log.find(l=>l.id===x.p._b);x.t=lg?Date.parse(lg.ngay):Date.parse(x.p.ngay);return x}).sort((a,b)=>b.t-a.t)}
+function amKho(){return tonKho('',new Date(2000,0,1),new Date(),'tach').filter(r=>r.cuoi<0)}
+V.nhatky=()=>{
+  const L=tatCaPhieu();const am=amKho();const cho=L.filter(x=>dongBoCua(x.k,x.p)[1]!=='pg').length;
+  const hang=L.slice(0,150).map(({k,p,t})=>{const cd=chanDoanPhieu(k,p),db=dongBoCua(k,p);const tong=p.lines.reduce((s,l)=>s+(+l.sl||0),0);const moi=NKY.moi&&NKY.moi.includes(p.id);
+    return`<div class="sp-the${moi?' nk-moi':''}"><div class="sp-dau"><span class="pill ${k==='px'?'pa':'pn'}">${esc(loaiPhieu(k,p))}</span> <b>${esc(p.soPhieu)}</b> ${pillGoiPhieu(p)} <span class="muted">${fmtD(p.ngay)} · ${esc(p.kho)} · ${esc(p.nguoi||'')}</span><span class="pill ${db[1]}">${db[0]}</span><button type="button" class="b sp-mo" data-nkmo="${k}|${p.id}">Mở, sửa</button></div>
+    <div class="nk-tac">${k==='px'?'Trừ khỏi':'Cộng vào'} <b>${esc(p.kho)}</b>: ${p.lines.length} dòng, tổng ${fmtN(tong)} · ${p.lines.slice(0,3).map(l=>`${esc(l.tenVT||l.maVT)} <b>${k==='px'?'−':'+'}${fmtN(l.sl)}</b> ${esc(l.dvt||'')}`).join('; ')}${p.lines.length>3?' …':''}</div>
+    ${cd.length?cd.map(([t,c])=>`<div class="nk-ly ${c}">⚠ ${esc(t)}</div>`).join(''):'<div class="nk-ly pg">✓ Đã tính vào Tồn Động</div>'}</div>`}).join('');
+  return`<h1>Dữ liệu đã nhập</h1><p class="sub">Mọi phiếu đã lưu (mới nhất trên cùng): phiếu cộng hay trừ vào kho nào, đã lên máy chủ chưa, và vì sao có phiếu chưa thấy trong Tồn Động.</p>
+  <div class="kpis"><div class="kpi"><b>${S.pn.length}</b><span>Phiếu nhập (gồm nhập hoàn, trả lại)</span></div><div class="kpi"><b>${S.px.length}</b><span>Phiếu xuất</span></div><div class="kpi ${am.length?'r':''}"><b>${am.length}</b><span>Mã vật tư âm kho (xuất mà chưa có nhập)</span></div><div class="kpi ${cho?'a':''}"><b>${cho}</b><span>Phiếu chưa lên máy chủ</span></div></div>
+  ${am.length?`<div class="card nk-am"><b>Vì sao Tồn Động chưa có vật tư?</b><p>Có ${am.length} mã vật tư mới chỉ có <b>phiếu xuất</b> mà chưa có <b>phiếu nhập</b> trước đó, nên tồn bị âm: ${am.slice(0,6).map(r=>`${esc(ganGoiTen(r.tenVT||r.maVT,r.goi))} (${fmtN(r.cuoi)} ${esc(r.dvt)})`).join(', ')}${am.length>6?'…':''}. Ảnh phiếu XUẤT kho làm giảm tồn; muốn thấy vật tư trong kho cần nhập phiếu NHẬP (hoặc tồn đầu kỳ) của vật tư đó.</p>
+  <div class="bar">${ROLE()!=='theodoi'?`<button class="b p" type="button" id="nkBu">Lập phiếu tồn đầu kỳ bù phần âm</button>`:''}<button class="b" type="button" data-go="nhapkho">Nhập phiếu nhập kho</button></div></div>`:''}
+  ${SRV.on&&cho?`<div class="bar"><button class="b p" type="button" id="nkGui">Gửi ngay ${cho} phiếu lên máy chủ</button></div>`:''}
+  ${hang||`<div class="card"><b>Chưa có phiếu nào được lưu trên máy này.</b><p class="muted">Nếu anh đã chụp ảnh mà không thấy ở đây: lần đó app chưa đọc ra dòng vật tư nào nên chưa lưu, hoặc phiếu được nhập ở máy khác mà máy này chưa đăng nhập máy chủ để tải về (xem Hệ thống → Cài đặt → Đồng bộ).</p></div>`}`;
+};
+after.nhatky=()=>{
+  document.querySelectorAll('[data-nkmo]').forEach(b=>b.onclick=()=>{const [k,id]=b.dataset.nkmo.split('|');editPhieu(k,id)});
+  document.querySelectorAll('#view [data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+  const g=$('#nkGui');if(g)g.onclick=async()=>{g.disabled=true;try{await dongBo()}catch(e){}render()};
+  const bu=$('#nkBu');if(bu)bu.onclick=async()=>{
+    const am=amKho();if(!am.length)return;
+    const dau=x=>{const ds=S.px.filter(p=>p.lines.some(l=>l.maVT===x.maVT)).map(p=>Date.parse(p.ngay));return Math.min(...ds,Date.now())};
+    if(!confirm(`Lập 1 phiếu nhập "Tồn đầu kỳ" cho ${am.length} mã vật tư đang âm, số lượng bằng đúng phần âm, để Tồn Động về 0? Sau đó anh nhập tiếp số thực tế còn trong kho (nếu có).`))return;
+    const ng=new Date(Math.min(...am.map(dau))-864e5);const byKho=new Map();
+    for(const kho of khoList()){const R=tonKho(kho,new Date(2000,0,1),new Date(),'tach').filter(r=>r.cuoi<0);if(R.length)byKho.set(kho,R)}
+    for(const [kho,R] of byKho){const p={id:uid(),soPhieu:genSoPhieu('pn',ng,'TDK'),ngay:new Date(ng.getFullYear(),ng.getMonth(),ng.getDate(),12).toISOString(),loai:'Tồn đầu kỳ',kho,maSC:'',nguoi:SRV.user?(SRV.user.hoTen||SRV.user.u):'',ghiChu:'Bù phần âm kho do có phiếu xuất trước khi nhập',lines:R.map(r=>({goi:r.goi||'',maVT:r.maVT,tenVT:r.tenVT,dvt:r.dvt,sl:-r.cuoi,donGia:0,maSC:''})),_b:''};S.pn.push(p)}
+    await save('pn');hen();toast('Đã lập phiếu tồn đầu kỳ','Tồn Động đã về 0 cho các mã bị âm.','g');render()};
+};
+HELP.nhatky={t:'Dữ liệu đã nhập',md:'Kiểm tra phiếu vừa nhập đã vào kho nào, đã lên máy chủ chưa.',b:['Mỗi phiếu ghi rõ: cộng hay trừ vào kho nào, bao nhiêu.','Dòng ⚠ cho biết vì sao phiếu chưa thấy trong Tồn Động: xuất khi kho chưa có nhập (âm kho), chờ duyệt, ngày ở tương lai, đang lọc gói khác.','Phiếu xuất chỉ trừ kho. Muốn thấy vật tư trong kho cần có phiếu nhập hoặc tồn đầu kỳ.'],q:{admin:'Toàn quyền.',nhaplieu:'Xem, sửa phiếu của mình.',theodoi:'Chỉ xem.'}};
 
 let ghiAm=null;
 function noiTim(){
@@ -3123,7 +3171,8 @@ async function luuQN(){
   CAP={tk:K.tk==='tl'?'pn':K.tk,t:K.t,src:K.anh.map(a=>({id:a.id,file:a.file,st:'xong'})),rows,head:{...K.head,loai:K.head.loai||undefined},notes:[]};
   if(K.tk==='tl'){CAP.head.loai='Thu hồi';CAP.head.kho=K.head.kho||'Kho thu hồi'}
   const loi=rows.map(r=>kiemDong(CAP.t,r,CAP.head)).filter(v=>v.err.length);if(loi.length){CAP=null;toast('Còn dòng cần sửa',loi[0].err.join(', '));veQN();return}
-  await capGhi();
+  const b0=S.log.length;await capGhi();
+  if(S.log.length>b0&&!$('#dlg').open){const b=S.log[S.log.length-1].id;NKY.moi=[...S.pn,...S.px].filter(p=>p._b===b).map(p=>p.id);go('nhatky');window.scrollTo(0,0)}
 }
 
 function nutNhanh(tk){const b=$('#capP');if(!b)return;b.innerHTML='📷 Chụp phiếu, nhập nhanh';b.onclick=()=>nhapNhanh(tk);
@@ -3138,7 +3187,7 @@ const laZalo=()=>/zalo|FBAN|FBAV/i.test(navigator.userAgent);
 let hoiCai=null,anBanner=false,thamSoCho=null,swReg=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();hoiCai=e;document.querySelectorAll('.nut-cai').forEach(b=>b.classList.add('san'));if(['dash','caidat'].includes(cur)&&!$('#dlg').open)render()});
 window.addEventListener('appinstalled',()=>{hoiCai=null;capNhatNutCai();toast('Đã cài app','Mở "Kho vật tư" từ màn hình chính (điện thoại) hoặc menu Start (máy tính).','g');render()});
-const APP_VER='2026.10.20-sogoi';
+const APP_VER='2026.10.21-nhatky';
 const APP_URL=()=>location.origin+location.pathname;
 function thietBi(){const u=navigator.userAgent;return{ios:laIOS(),android:/android/i.test(u),zalo:laZalo(),samsung:/SamsungBrowser/i.test(u),edge:/Edg\//i.test(u),firefox:/Firefox|FxiOS/i.test(u),chromeIOS:/CriOS/i.test(u),dt:chamTay()}}
 async function kiemTraCai(){
