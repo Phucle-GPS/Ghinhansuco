@@ -204,7 +204,16 @@ table.mini{width:100%;border-collapse:collapse;font-size:13px}table.mini th,tabl
 .sp-the{overflow-x:auto}#printArea .sp-the{break-inside:avoid;border:1px solid #888}
 .nk-ly{font-size:13px;margin-top:4px;padding:4px 8px;border-radius:8px}.nk-ly.pr{background:#fde8e6;color:#9b1c12}.nk-ly.pa{background:#fff3d6;color:#7a5200}.nk-ly.pg{background:#e3f4ea;color:#1d6b3a}
 .nk-tac{font-size:14px;margin:2px 0}.nk-moi{outline:3px solid #f2b705;box-shadow:0 0 0 6px rgba(242,183,5,.18)}.nk-am{border-left:5px solid #c0392b}
-.nk-link{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;margin:0 0 10px;padding:12px 14px}.nk-link .no{color:#c0392b;font-weight:700}
+.nk-link{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;margin:0 0 10px;padding:12px 14px;background:var(--card,#fff);border:1px solid var(--line,#d8d2c4);border-radius:12px}.nk-link .no{color:#c0392b;font-weight:700}
+.xl-wrap{padding:12px}.xl-dau{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}.xl-dau b{font-size:16px}.xl-chk{display:flex;gap:6px;align-items:center;font-size:14px;margin-left:auto}.xl-hd{font-size:13px;margin:6px 0 8px}
+.xl{overflow:auto;max-height:70vh;border:1px solid var(--line,#c9c3b5);border-radius:8px}.xl table{border-collapse:collapse;width:100%;font-size:14px;min-width:860px}
+.xl th{position:sticky;top:0;z-index:1;background:#0e5c54;color:#fff;font-weight:700;padding:7px 8px;border:1px solid rgba(255,255,255,.25);white-space:nowrap}
+.xl td{border:1px solid var(--line,#d6d0c2);padding:4px 8px;vertical-align:middle}.xl tbody tr:nth-child(even) td{background:rgba(127,127,127,.06)}.xl tbody tr:hover td{background:rgba(242,183,5,.12)}
+.xl .xl-n{width:36px;text-align:center;color:var(--muted)}.xl td.n,.xl th.n{text-align:right}.xl td.no{color:#c0392b}
+.xl td.xl-in{padding:0;background:rgba(255,224,138,.16)!important}.xl td.xl-in input{all:unset;box-sizing:border-box;width:100%;min-width:90px;padding:7px 8px;text-align:right;font:inherit}.xl td.xl-in input[data-dcgc]{text-align:left;min-width:160px}
+.xl td.xl-in input:focus{outline:2px solid #f2b705;background:var(--card,#fff)}.xl td.xl-in input.sai{outline:2px solid #c0392b}
+.xl .xl-du{color:#1d6b3a;font-weight:700}.xl .xl-thieu{color:#c0392b;font-weight:700}.xl tfoot td{background:rgba(14,92,84,.12);font-weight:700;position:sticky;bottom:0}
+.xl-x{all:unset;cursor:pointer;color:#c0392b;padding:2px 8px;border-radius:6px}.xl-x:hover{background:#fde8e6}
 .tkh{font-size:12px;font-weight:700;text-transform:uppercase;color:var(--muted);padding:8px 10px 4px}
 .tkr{all:unset;display:block;box-sizing:border-box;width:100%;cursor:pointer;padding:8px 10px;border-radius:8px;line-height:1.45}.tkr:hover,.tkr:focus{background:var(--amber-soft)}.tkr b.ok{color:var(--green)}.tkr b.no{color:var(--red)}
 table.mini{font-size:13px}table.mini td,table.mini th{padding:4px 8px}.kpi.click{cursor:pointer}
@@ -2330,9 +2339,9 @@ V.tondong=()=>{
   const cards=`<div class="kpis"><div class="kpi"><b>${R.filter(r=>r.cuoi>0).length}</b><span>Mã vật tư còn trong kho</span></div><div class="kpi ${am?'r':''}"><b>${am}</b><span>Mã vật tư âm kho</span></div><div class="kpi ${thap?'a':''}"><b>${thap}</b><span>Dưới mức tối thiểu</span></div><div class="kpi a click" data-go="nhaphoan"><b>${nCon+nChua}</b><span>Phiếu lãnh chưa hoàn tất (${nCon} còn phải hoàn, ${nChua} chưa quyết toán)</span></div></div>`;
   window._TREO=treoTheoVTG();let h;try{h=doiTieuDe(V.tonkho(),'Tồn Động','Tự tổng hợp từ Nhập Kho, Xuất Kho, Nhập Hoàn và Vật tư trả lại, tách theo gói thầu: Tồn cuối = Tồn đầu kỳ + Nhập − Xuất. Cột "Đang ở tổ" là vật tư đã lãnh chưa dùng, chưa hoàn. Bấm một dòng để xem thẻ kho của đúng gói đó.')}finally{window._TREO=null}
   const amK=amKho().length,nP=S.pn.length+S.px.length;const nk=`<button type="button" class="card nk-link" data-go="nhatky"><b>📋 Dữ liệu đã nhập: ${nP} phiếu</b>${amK?` · <span class="no">${amK} mã âm kho (có phiếu xuất nhưng chưa có phiếu nhập)</span>`:''}<span class="muted"> · bấm để xem phiếu đã vào kho nào, đã lên máy chủ chưa</span></button>`;
-  return h.replace('</p>','</p>'+nk+cards+kho3D());
+  return h.replace('</p>','</p>'+nk+cards+bangDC()+kho3D());
 };
-after.tondong=()=>{after.tonkho();document.querySelectorAll('.nk-link').forEach(b=>b.onclick=()=>go('nhatky'));gan3D();nutXuatBC($('#xuatTK'),'tonghop')};
+after.tondong=()=>{after.tonkho();if(!DC){napDC().then(()=>{if(cur==='tondong')render()})}else ganDC();document.querySelectorAll('.nk-link').forEach(b=>b.onclick=()=>go('nhatky'));gan3D();nutXuatBC($('#xuatTK'),'tonghop')};
 const NHV={loc:'mo',q:''};
 V.nhaphoan=()=>{
   const all=S.px.filter(laLanh).map(p=>({p,t:treoPL(p)}));const q=norm(NHV.q);
@@ -2571,6 +2580,75 @@ after.nhatky=()=>{
     await save('pn');hen();toast('Đã lập phiếu tồn đầu kỳ','Tồn Động đã về 0 cho các mã bị âm.','g');render()};
 };
 HELP.nhatky={t:'Dữ liệu đã nhập',md:'Kiểm tra phiếu vừa nhập đã vào kho nào, đã lên máy chủ chưa.',b:['Mỗi phiếu ghi rõ: cộng hay trừ vào kho nào, bao nhiêu.','Dòng ⚠ cho biết vì sao phiếu chưa thấy trong Tồn Động: xuất khi kho chưa có nhập (âm kho), chờ duyệt, ngày ở tương lai, đang lọc gói khác.','Phiếu xuất chỉ trừ kho. Muốn thấy vật tư trong kho cần có phiếu nhập hoặc tồn đầu kỳ.'],q:{admin:'Toàn quyền.',nhaplieu:'Xem, sửa phiếu của mình.',theodoi:'Chỉ xem.'}};
+
+/* ================== BẢNG TỒN DẠNG EXCEL + ĐỐI CHIẾU THỦ CÔNG ================== */
+let DC=null;const DCV={an0:true};
+async function napDC(){if(DC)return;try{DC=(await DB.get('doichieu'))||{}}catch(e){DC={}}}
+const luuDC=()=>DB.set('doichieu',DC).catch(()=>{});
+function dongDC(){
+  const q=nds(TK.q||'');const T=window._TREO||treoTheoVTG();
+  return tonKho(TK.kho,new Date(2000,0,1),new Date(),GOI.loc||'tach').filter(r=>(!DCV.an0||r.cuoi!==0||(DC&&DC[r.maVT+'|'+(r.goi||'')]))&&(!q||nds(r.maVT+' '+r.tenVT).includes(q)))
+    .sort((a,b)=>String(a.goi||'').localeCompare(String(b.goi||''))||String(a.tenVT||a.maVT).localeCompare(String(b.tenVT||b.maVT),'vi'))
+    .map(r=>{const k=r.maVT+'|'+(r.goi||'');const d=(DC||{})[k]||{};const tt=d.tt===''||d.tt==null?null:+d.tt;return{...r,k,treo:T[k]||0,tt,lech:tt==null?null:tt-r.cuoi,gc:d.gc||''}});
+}
+function bangDC(){
+  if(!DC)return'<div class="card muted">Đang tải bảng đối chiếu…</div>';
+  const R=dongDC();const nhap=R.filter(r=>r.tt!=null).length,lech=R.filter(r=>r.lech).length;const ad=ROLE()==='admin';
+  return`<div class="card xl-wrap"><div class="xl-dau"><b>Bảng tồn kho dạng Excel${TK.kho?' · '+esc(TK.kho):' · tất cả kho'}</b><span class="muted" id="dcDem">${R.length} dòng · đã đếm ${nhap} · lệch ${lech}</span>
+    <label class="xl-chk"><input type="checkbox" id="dcAn0"${DCV.an0?' checked':''}> Ẩn mã hết hàng</label>
+    <button class="b p" type="button" id="dcXuat">⬇ Xuất Excel đối chiếu</button>${nhap?`<button class="b" type="button" id="dcXoa">Xóa số đã đếm</button>`:''}</div>
+  <p class="muted xl-hd">Gõ số đếm thực tế vào cột <b>Thực tế</b>, app tự tính <b>Chênh lệch</b>. Enter để xuống dòng dưới. Số đã gõ được giữ trên máy này cho đến khi bấm "Xóa số đã đếm".</p>
+  <div class="xl"><table><thead><tr><th class="xl-n">#</th><th>Mã vật tư</th><th>Tên vật tư</th><th>Gói</th><th>ĐVT</th><th class="n">Còn lại (app)</th><th class="n">Đang ở tổ</th><th class="n xl-in">Thực tế</th><th class="n">Chênh lệch</th><th class="xl-in">Ghi chú</th>${ad?'<th></th>':''}</tr></thead>
+  <tbody>${R.map((r,i)=>`<tr data-dck="${esc(r.k)}"><td class="xl-n">${i+1}</td><td>${esc(r.maVT)}</td><td class="w">${esc(r.tenVT||'')}</td><td>${r.goi?pillGoi(r.goi):''}</td><td>${esc(r.dvt||'')}</td><td class="n ${r.cuoi<0?'no':''}"><b>${fmtN(r.cuoi)}</b></td><td class="n">${r.treo?fmtN(r.treo):''}</td>
+    <td class="xl-in"><input inputmode="decimal" data-dctt="${esc(r.k)}" value="${r.tt==null?'':esc(String(r.tt).replace('.',','))}" aria-label="Thực tế ${esc(r.tenVT||r.maVT)}"></td><td class="n ${r.lech>0?'xl-du':r.lech<0?'xl-thieu':''}">${r.lech==null?'':(r.lech>0?'+':'')+fmtN(r.lech)}</td>
+    <td class="xl-in"><input data-dcgc="${esc(r.k)}" value="${esc(r.gc)}" aria-label="Ghi chú"></td>${ad?`<td><button type="button" class="xl-x" data-dcxoa="${esc(r.maVT)}" title="Xóa vật tư nhập sai (xóa các dòng của mã này trong mọi phiếu)">✕</button></td>`:''}</tr>`).join('')||`<tr><td colspan="11" class="muted">Không có vật tư.</td></tr>`}</tbody>
+  ${R.length?`<tfoot><tr><td></td><td colspan="4"><b>Cộng</b></td><td class="n"><b>${fmtN(R.reduce((s,r)=>s+r.cuoi,0))}</b></td><td class="n">${fmtN(R.reduce((s,r)=>s+r.treo,0))}</td><td class="n">${nhap?fmtN(R.reduce((s,r)=>s+(r.tt||0),0)):''}</td><td class="n">${nhap?fmtN(R.reduce((s,r)=>s+(r.lech||0),0)):''}</td><td colspan="2"></td></tr></tfoot>`:''}</table></div></div>`;
+}
+function ganDC(){
+  const box=$('.xl-wrap');if(!box)return;
+  const capNhat=k=>{const tr=box.querySelector(`tr[data-dck="${CSS.escape(k)}"]`);const r=dongDC().find(x=>x.k===k);if(!tr||!r)return;const c=tr.children[8];c.className='n '+(r.lech>0?'xl-du':r.lech<0?'xl-thieu':'');c.textContent=r.lech==null?'':(r.lech>0?'+':'')+fmtN(r.lech);const R=dongDC(),e=$('#dcDem');if(e)e.textContent=`${R.length} dòng · đã đếm ${R.filter(x=>x.tt!=null).length} · lệch ${R.filter(x=>x.lech).length}`};
+  box.querySelectorAll('[data-dctt]').forEach((inp,i,all)=>{inp.onchange=()=>{const k=inp.dataset.dctt,v=inp.value.trim();const d=DC[k]||(DC[k]={});d.tt=v===''?'':num(v);if(v!==''&&isNaN(d.tt)){inp.classList.add('sai');return}inp.classList.remove('sai');d.ngay=new Date().toISOString();if(d.tt===''&&!d.gc)delete DC[k];luuDC();capNhat(k)};
+    inp.onkeydown=e=>{if(e.key==='Enter'||e.key==='ArrowDown'){e.preventDefault();inp.dispatchEvent(new Event('change'));const n=all[i+1];if(n){n.focus();n.select()}}else if(e.key==='ArrowUp'){e.preventDefault();const n=all[i-1];if(n){n.focus();n.select()}}}});
+  box.querySelectorAll('[data-dcgc]').forEach(inp=>inp.onchange=()=>{const k=inp.dataset.dcgc;const d=DC[k]||(DC[k]={});d.gc=inp.value.trim();luuDC()});
+  $('#dcAn0').onchange=e=>{DCV.an0=e.target.checked;render()};
+  const xo=$('#dcXoa');if(xo)xo.onclick=()=>{if(!confirm('Xóa toàn bộ số thực tế và ghi chú đã gõ?'))return;DC={};luuDC();render()};
+  $('#dcXuat').onclick=async()=>{const b=$('#dcXuat');b.disabled=true;try{await xuatDC()}catch(e){toast('Không xuất được Excel',e.message)}finally{b.disabled=false}};
+  box.querySelectorAll('[data-dcxoa]').forEach(b=>b.onclick=async()=>{const m=b.dataset.dcxoa;const ds=[...S.pn.map(p=>['pn',p]),...S.px.map(p=>['px',p])].filter(([k,p])=>p.lines.some(l=>l.maVT===m));
+    if(!confirm(`Xóa vật tư "${m}" khỏi ${ds.length} phiếu? Dùng khi app đọc nhầm (ví dụ dòng địa chỉ, ngày tháng). Phiếu không còn dòng nào sẽ bị xóa luôn.`))return;
+    for(const [k,p] of ds){p.lines=p.lines.filter(l=>l.maVT!==m);if(!p.lines.length)S[k]=S[k].filter(x=>x!==p)}
+    S.dmvt=S.dmvt.filter(d=>d.maVT!==m||S.pn.concat(S.px).some(p=>p.lines.some(l=>l.maVT===m)));Object.keys(DC).forEach(k=>{if(k.startsWith(m+'|'))delete DC[k]});luuDC();
+    await save('pn','px','dmvt');hen();toast('Đã xóa vật tư nhập sai',m,'g');render()});
+}
+async function xuatDC(){
+  const R=dongDC();const name=`${stamp()}_DOI_CHIEU_TON_KHO${TK.kho?'_'+norm(TK.kho).toUpperCase():''}.xlsx`;const gT=g=>g?tenGoi(g):'';
+  let EX=null;try{await loadScript('https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js');EX=window.ExcelJS}catch(e){}
+  if(!EX){xuat([{ten:'DoiChieu',rows:R.map((r,i)=>({'STT':i+1,'Mã vật tư':r.maVT,'Tên vật tư':ganGoiTen(r.tenVT,r.goi),'Gói':gT(r.goi),'ĐVT':r.dvt,'Còn lại (app)':r.cuoi,'Đang ở tổ':r.treo||'','Thực tế':r.tt??'','Chênh lệch':r.lech??'','Ghi chú':r.gc}))}],name);return}
+  const wb=new EX.Workbook();const ws=wb.addWorksheet('Đối chiếu tồn kho',{properties:{tabColor:{argb:'FF0E5C54'}},pageSetup:{paperSize:9,orientation:'landscape',fitToPage:true,fitToWidth:1,fitToHeight:0}});
+  const F={name:'Times New Roman',size:12},B={top:{style:'thin'},left:{style:'thin'},bottom:{style:'thin'},right:{style:'thin'}},NF='#,##0.###;[Red]-#,##0.###;""',fill=a=>({type:'pattern',pattern:'solid',fgColor:{argb:a}});
+  ws.columns=[{width:6},{width:22},{width:46},{width:10},{width:8},{width:14},{width:12},{width:14},{width:14},{width:30}];
+  const t=(r,v,o={})=>{ws.mergeCells(`A${r}:J${r}`);const c=ws.getCell(`A${r}`);c.value=v;c.font={...F,...o};c.alignment={horizontal:o.left?'left':'center',vertical:'middle',wrapText:true}};
+  t(1,'CÔNG TY CỔ PHẦN CHIẾU SÁNG CÔNG CỘNG TP.HCM – CHIẾU SÁNG KHU VỰC TRUNG TÂM',{bold:true,size:11,left:1});
+  t(2,'BIÊN BẢN ĐỐI CHIẾU TỒN KHO VẬT TƯ',{bold:true,size:16,color:{argb:'FF0E5C54'}});
+  t(3,`Kho: ${TK.kho||'Tất cả kho'}${GOI.loc&&GOI.loc!=='_'?' · '+tenGoi(GOI.loc):''} · Số liệu app đến ngày ${fmtD(new Date())} · Lập lúc ${fmtDT(new Date())}`,{italic:true,size:11});
+  ws.addRow([]);const h=ws.addRow(['STT','Mã vật tư','Tên vật tư, thiết bị (gói thầu)','Gói thầu','ĐVT','Còn lại theo app','Đang ở tổ (đã lãnh)','Thực tế kiểm đếm','Chênh lệch (thực tế − app)','Ghi chú']);h.height=34;
+  h.eachCell(c=>{c.font={...F,bold:true,color:{argb:'FFFFFFFF'}};c.fill=fill('FF0E5C54');c.border=B;c.alignment={horizontal:'center',vertical:'middle',wrapText:true}});
+  ws.views=[{state:'frozen',ySplit:5}];const r0=6;
+  R.forEach((r,i)=>{const n=r0+i;const x=ws.addRow([i+1,r.maVT,ganGoiTen(r.tenVT,r.goi),gT(r.goi),r.dvt,r.cuoi,r.treo||null,r.tt,{formula:`IF(H${n}="","",H${n}-F${n})`,result:r.lech??''},r.gc||null]);
+    x.eachCell({includeEmpty:true},c=>{c.font=F;c.border=B;c.alignment={vertical:'middle',wrapText:true}});[1,4,5].forEach(j=>x.getCell(j).alignment={horizontal:'center',vertical:'middle'});[6,7,8,9].forEach(j=>x.getCell(j).numFmt=NF);
+    x.getCell(6).font={...F,bold:true};x.getCell(8).fill=fill('FFFFF8E1');x.getCell(10).fill=fill('FFFFF8E1');if(r.lech)x.getCell(9).font={...F,bold:true,color:{argb:r.lech<0?'FFC0392B':'FF1D6B3A'}}});
+  const e=r0+R.length-1,tr=ws.addRow(['','TỔNG CỘNG','','','',{formula:`SUM(F${r0}:F${e})`},{formula:`SUM(G${r0}:G${e})`},{formula:`SUM(H${r0}:H${e})`},{formula:`SUM(I${r0}:I${e})`},'']);
+  tr.eachCell({includeEmpty:true},c=>{c.font={...F,bold:true};c.border=B;c.fill=fill('FFEAF1F8')});[6,7,8,9].forEach(j=>tr.getCell(j).numFmt=NF);
+  if(R.length)ws.addConditionalFormatting&&ws.addConditionalFormatting({ref:`I${r0}:I${e}`,rules:[{type:'cellIs',operator:'lessThan',formulae:['0'],style:{fill:fill('FFFDE8E6')}},{type:'cellIs',operator:'greaterThan',formulae:['0'],style:{fill:fill('FFE3F4EA')}}]});
+  ws.addRow([]);const k=ws.addRow(['','Thủ kho','','Người kiểm đếm','','','Kế toán','','Trưởng bộ phận']);k.eachCell(c=>{c.font={...F,bold:true};c.alignment={horizontal:'center'}});
+  ws.mergeCells(`B${k.number}:C${k.number}`);ws.mergeCells(`D${k.number}:F${k.number}`);ws.mergeCells(`G${k.number}:H${k.number}`);ws.mergeCells(`I${k.number}:J${k.number}`);
+  const k2=ws.addRow(['','(Ký, ghi rõ họ tên)','','(Ký, ghi rõ họ tên)','','','(Ký, ghi rõ họ tên)','','(Ký, ghi rõ họ tên)']);k2.eachCell(c=>{c.font={...F,italic:true,size:10};c.alignment={horizontal:'center'}});
+  ws.mergeCells(`B${k2.number}:C${k2.number}`);ws.mergeCells(`D${k2.number}:F${k2.number}`);ws.mergeCells(`G${k2.number}:H${k2.number}`);ws.mergeCells(`I${k2.number}:J${k2.number}`);
+  const buf=await wb.xlsx.writeBuffer();luuBlob(new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),name);
+  toast('Đã xuất Excel đối chiếu',`${R.length} vật tư, ${R.filter(r=>r.tt!=null).length} dòng đã có số thực tế`,'g');
+}
+/* Bỏ dòng rác OCR: ngày tháng, địa chỉ, tên đơn vị */
+const RAC_TEN=/^(ngay|thang|nam)\b|ngay\s*\d*\s*thang|thang\s*\d*\s*nam|dia (chi|diem)|\btp\.?\s*h(o )?c(hi )?m\b|thanh pho|\bphuong\b|\bp\.\s*\S|\bquan\s*\d|dien thoai|ma so thue|cong ty|chi nhanh|\bkhu vuc\b|\bso\s*:\s*|nguoi (nhan|giao|lap)|bo phan|ly do/;
+const laRac=t=>RAC_TEN.test(nds(t||''));
 
 let ghiAm=null;
 function noiTim(){
@@ -3057,7 +3135,7 @@ async function docAnhPhieu(t,file,prog,ghi){
   if(SRV.on&&S.cfg.ocrMayChu!==false&&ROLE()!=='theodoi'){ghi('Đang gửi ảnh cho Google đọc…');try{text=await docOCRMayChu(file,ghi);nguon='Google'}catch(e){if(/Drive API/.test(e.message))S._ocrChuaBat=1;ghi('Máy chủ chưa đọc được ảnh, chuyển sang đọc trong máy…')}}
   if(!text.trim()){ghi('Đang đọc chữ trong ảnh (lần đầu tải bộ đọc khoảng 10 MB)…');text=await docOCRMienPhi(file,prog,ghi);nguon='OCR trong máy'}
   TXT_ALL=text;TXT_GOI+=' '+text.slice(0,1500);
-  let r=textToRows(t,text);const fb=tachThoPhieu(text);if(coSL(fb)>coSL(r.rows))r={rows:fb,note:''};r.nguon=nguon;r.text=text;return r;
+  let r=textToRows(t,text);const fb=tachThoPhieu(text);if(coSL(fb)>coSL(r.rows))r={rows:fb,note:''};r.rows=(r.rows||[]).filter(o=>!laRac(o.tenVT));r.nguon=nguon;r.text=text;return r;
 }
 /* Lấy thông tin chung trên phiếu: ngày, số phiếu, người giao/nhận, kho */
 function layDauPhieu(text){
@@ -3148,7 +3226,7 @@ async function themAnhQN(files){
       if(dau.khoGhi&&!dau.kho&&!K.ghiChu.some(x=>x.includes(dau.khoGhi)))K.ghiChu.push(`Phiếu ghi xuất/nhập tại "${dau.khoGhi}": app giữ ${K.head.kho||'Kho chính'}. Đổi kho ở ô Kho nếu cần.`);
       const fg=goiTuChu(a.file.name+' '+TXT_GOI+' '+(dau.lyDo||''));if(fg&&!K.head.goi)K.head.goi=tenGoi(fg);
       const rows=(r.rows||[]).map(o=>{const x={_a:a.id};for(const k of ['maVT','tenVT','dvt','sl','donGia','goi','maSC'])if(o[k]!=null&&String(o[k]).trim()!=='')x[k]=k==='goi'?tenGoi(normGoi(o[k])||'')||o[k]:k==='sl'?numLoose(o[k]):String(o[k]).trim();
-        if(x.maVT&&!x.tenVT){const d=S.dmvt.find(z=>z.maVT===normMa(x.maVT));if(d)x.tenVT=d.tenVT}return x}).filter(x=>x.tenVT||x.maVT);
+        if(x.maVT&&!x.tenVT){const d=S.dmvt.find(z=>z.maVT===normMa(x.maVT));if(d)x.tenVT=d.tenVT}return x}).filter(x=>(x.tenVT||x.maVT)&&!laRac(x.tenVT));
       a.text=r.text||TXT_ALL||'';a.nguon=r.nguon||'';K.rows=K.rows.filter(r=>r.tenVT||r.maVT||r.sl);K.rows.push(...rows);a.n=rows.length;a.st=rows.length?'xong':'loi';
       K.msg=rows.length?`Đã đọc ${rows.length} dòng${r.nguon?' ('+r.nguon+')':''}. Kiểm tra tên, số lượng rồi bấm Lưu phiếu.`:'';
       if(!rows.length){K.ghiChu.push(`${a.file.name}: chưa đọc được dòng vật tư nào. Ảnh vẫn được lưu kèm phiếu; gõ nhanh các dòng bên dưới.`);if(!K.rows.length)K.rows.push({},{})}
@@ -3187,7 +3265,7 @@ const laZalo=()=>/zalo|FBAN|FBAV/i.test(navigator.userAgent);
 let hoiCai=null,anBanner=false,thamSoCho=null,swReg=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();hoiCai=e;document.querySelectorAll('.nut-cai').forEach(b=>b.classList.add('san'));if(['dash','caidat'].includes(cur)&&!$('#dlg').open)render()});
 window.addEventListener('appinstalled',()=>{hoiCai=null;capNhatNutCai();toast('Đã cài app','Mở "Kho vật tư" từ màn hình chính (điện thoại) hoặc menu Start (máy tính).','g');render()});
-const APP_VER='2026.10.21-nhatky';
+const APP_VER='2026.10.21-doichieu';
 const APP_URL=()=>location.origin+location.pathname;
 function thietBi(){const u=navigator.userAgent;return{ios:laIOS(),android:/android/i.test(u),zalo:laZalo(),samsung:/SamsungBrowser/i.test(u),edge:/Edg\//i.test(u),firefox:/Firefox|FxiOS/i.test(u),chromeIOS:/CriOS/i.test(u),dt:chamTay()}}
 async function kiemTraCai(){
