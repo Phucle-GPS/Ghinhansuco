@@ -4351,7 +4351,7 @@ function vbImport(D){
 /* ---------- THEO DÕI LED & BẢO HÀNH ---------- */
 /* ---------- TÌM KIẾM TỔNG HỢP TRONG MỤC LED ---------- */
 let ledGQ="", ledGMore={};
-const LG_CATS=[["route","💡 Tuyến LED"],["vb","📄 Văn bản / biên bản"],["file","📎 File gốc đã lưu"],["dx","📑 Đề xuất theo công văn"],["hist","⚠️ Đèn tắt còn bảo hành 2020"],["drvrec","🔧 Hồ sơ sửa chữa Driver"],["drv","🔌 Driver thay thế (Phụ lục 2)"],["task","✅ Việc cần xử lý"],["law","⚖️ Căn cứ pháp lý"]];
+const LG_CATS=[["route","💡 Tuyến LED"],["vb","📄 Văn bản / biên bản"],["file","📎 File gốc đã lưu"],["dx","📑 Đề xuất theo công văn"],["hist","⚠️ Đèn LED tắt còn bảo hành"],["drvrec","🔧 Hồ sơ sửa chữa Driver"],["drv","🔌 Driver thay thế (Phụ lục 2)"],["task","✅ Việc cần xử lý"],["law","⚖️ Căn cứ pháp lý"]];
 function lgTokens(q){ return vnNorm(q).trim().split(/\s+/).filter(Boolean).map(t=>t.replace(/^(\d+)w$/,"$1w")); }
 function lgIndex(D){
   const I=[], inQ=q=>activeQuan==="Tất cả"||!q||q===activeQuan;
@@ -4413,6 +4413,7 @@ function ledYears(){ return Number(localStorage.getItem("led_bh")||5); }
 function ledInstall(r){ const s=String(r.ngayNT||r.nam||""); let m;
   if((m=s.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/))) return new Date(+m[3],+m[2]-1,+m[1]);
   if((m=s.match(/quý\s*(\d)\s*\/\s*(\d{4})/i))) return new Date(+m[2], (+m[1])*3, 0);
+  if((m=s.match(/(?:^|tháng|\D)\s*(\d{1,2})\s*[\/\-.]\s*(\d{4})/i)) && +m[1]>=1 && +m[1]<=12) return new Date(+m[2], +m[1], 0);
   const ys=s.match(/\d{4}/g); if(ys) return new Date(Math.max(...ys.map(Number)),11,31); return null; }
 function ledKey(s){ return vnNorm(String(s||"").replace(/\(.*?\)/g," ").replace(/^(đường|duong)\s+/i,"")).replace(/\s+/g," ").trim(); }
 function ledMatchVB(r, vbs){
@@ -4442,7 +4443,8 @@ function ledData(){
     else if(r._exp<today) r._st="exp";
     else if((r._exp-today)/86400000<=183) r._st="soon"; else r._st="ok";
     r._days = r._exp ? Math.round((r._exp-today)/86400000) : null;
-    const rk=ledKey(r.tuyen); r._hist=(typeof LED_HIST!=="undefined"?LED_HIST:[]).filter(x=>ledKey(x.tuyen)===rk && (!x.quan||!r.quan||x.quan===r.quan));
+    const rk=ledKey(r.tuyen); const rTus=String(r.tu||"").split(/\s*[,;]\s*/).map(vnNorm).filter(Boolean);
+    r._hist=(typeof LED_HIST!=="undefined"?LED_HIST:[]).filter(x=>(!x.quan||!r.quan||x.quan===r.quan) && (ledKey(x.tuyen)===rk || (x.tu && rTus.includes(vnNorm(x.tu)) && (!x.w||!r.wLed||Math.abs(x.w-r.wLed)<=15))));
   });
   const tasks=LED_TASKS.map(t=>{ const o=ov(t.id); return Object.assign({},t,o?o.data.fields||{}:{},{_ov:o,_seed:true}); })
     .concat(ledOv.filter(o=>o.data.type==="task"&&!o.data.refId).map(o=>Object.assign({id:o.id,_ov:o},o.data.fields)));
@@ -4508,15 +4510,15 @@ function ledTuyen(el,D){
   const box=$("#ledList");
   list.sort((a,b)=>(a._days??99999)-(b._days??99999)).forEach(r=>{ const c=document.createElement("div"); c.className="tk-card"; const s=LED_ST[r._st];
     c.innerHTML=`<div class="tk-top"><div><div class="name">${escHtml(r.tuyen)}</div><div class="who">${escHtml(r.quan||"")}${r.tu?" · Tủ: "+escHtml(r.tu):""}</div></div><span class="badge ${s[1]}">${escHtml(s[0])}</span></div>
-      <div class="tk-mini"><span>💡 ${r.soDen||"?"} đèn${r.wLed?" · "+r.wLed+"W":""}</span><span>🏭 ${escHtml(r.hang||"–")}</span><span>📅 ${escHtml(r.ngayNT||r.nam||"–")}</span>${r._exp?`<span>⏰ hết BH ${r._exp.toLocaleDateString("vi-VN")}</span>`:""}${r._vbs.length?`<span>📄 ${r._vbs.length} văn bản</span>`:""}${r._hist&&r._hist.length?`<span style="color:var(--high)">⚠️ ${r._hist.reduce((s,x)=>s+x.so,0)} đèn tắt BH 2020</span>`:""}${r._ov&&r._ov.files&&r._ov.files.length?`<span>📎 ${r._ov.files.length}</span>`:""}</div>`;
+      <div class="tk-mini"><span>💡 ${r.soDen||"?"} đèn${r.wLed?" · "+r.wLed+"W":""}</span><span>🏭 ${escHtml(r.hang||"–")}</span><span>📅 ${escHtml(r.ngayNT||r.nam||"–")}</span>${r._exp?`<span>⏰ hết BH ${r._exp.toLocaleDateString("vi-VN")}</span>`:""}${r._vbs.length?`<span>📄 ${r._vbs.length} văn bản</span>`:""}${r._hist&&r._hist.length?`<span style="color:var(--high)">⚠️ ${r._hist.reduce((s,x)=>s+x.so,0)} đèn tắt còn BH</span>`:""}${r._ov&&r._ov.files&&r._ov.files.length?`<span>📎 ${r._ov.files.length}</span>`:""}</div>`;
     c.onclick=()=>ledOpenRoute(r); box.appendChild(c); });
   const ar=$("#ledAddR"); if(ar) ar.onclick=()=>ledOpenRoute(null);
   $("#ledXls").onclick=()=>{ if(typeof XLSX==="undefined") return;
     const aoa=[["STT","Tuyến","Quận","Tủ điều khiển","Số đèn","Công suất LED (W)","Công suất HPS cũ (W)","Hãng","Loại đèn","Năm lắp đặt / nghiệm thu","Thời hạn BH (năm)","Ngày hết BH","Còn/quá (ngày)","Tình trạng bảo hành","Văn bản liên quan","Đơn vị thi công","Nguồn vốn","Chủ đầu tư","Tỷ lệ hư hỏng (%)","BH nhà thầu","Tình trạng hư hỏng","Nguồn dữ liệu","Ghi chú","Số đèn tắt BH 2020","Đối chiếu 09/04/2020"],
       ...list.map((r,i)=>[i+1,r.tuyen,r.quan,r.tu,r.soDen,r.wLed,r.wHps||r.hpsTxt,r.hang,r.loai,r.ngayNT||r.nam,r._y,r._exp?r._exp.toLocaleDateString("vi-VN"):"",r._days,LED_ST[r._st][0],r._vbs.map(v=>(v.loai||"")+" "+(v.ngay||"")).join("; "),r.donVi,r.nguonVon,r.chuDauTu,r.tyLeHH,r.bhDat,r.huHong,r.nguon,r.ghiChu,(r._hist||[]).reduce((s,x)=>s+x.so,0)||"",r.doiChieu2020||""])];
-    if(typeof LED_HIST!=="undefined"){ const hs=XLSX.utils.aoa_to_sheet([["STT","Quận","Tuyến","Tủ ĐK","Mã PE","Trụ số","Số đèn","Nhà cung cấp","Lần đầu","Lần cuối","Số kỳ","Tình trạng"],...LED_HIST.map((x,i)=>[i+1,x.quan,x.tuyen,x.tu,x.pe,x.tru,x.so,x.ncc,x.first,x.last,x.ky,x.tt])]); setTimeout(()=>{},0); window.__ledHist=hs; }
+    if(typeof LED_HIST!=="undefined"){ const hs=XLSX.utils.aoa_to_sheet([["STT","Quận","Tuyến","Tủ ĐK","Mã PE","Trụ số","Số đèn","Công suất (W)","Nhà cung cấp","Đơn vị thi công","Năm lắp","Lần đầu","Lần cuối","Số kỳ","Tình trạng","Người báo","Nguồn"],...LED_HIST.map((x,i)=>[i+1,x.quan,x.tuyen,x.tu,x.pe,x.tru,x.so,x.w||"",x.ncc,x.donVi||"",x.namLap||"",x.first,x.last,x.ky,x.tt,x.nguoiBao||"",x.nguon||"Báo cáo thứ 2 hàng tuần 2020"])]); setTimeout(()=>{},0); window.__ledHist=hs; }
     const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(aoa); ws["!cols"]=aoa[0].map((h,i)=>({wch:i===1?30:i===8?40:14})); XLSX.utils.book_append_sheet(wb,ws,"Theo doi LED");
-    if(window.__ledHist) XLSX.utils.book_append_sheet(wb,window.__ledHist,"Den tat BH 2020");
+    if(window.__ledHist) XLSX.utils.book_append_sheet(wb,window.__ledHist,"Den tat con BH");
     const v2=XLSX.utils.aoa_to_sheet([["STT","Loại văn bản","Ngày","Quận","Công trình","Tuyến / địa điểm","Bên A","Bên B","Số hợp đồng","Tình trạng","Ghi chú","Số file đính kèm"],...D.vbs.map((v,i)=>[i+1,v.loai,v.ngay,v.quan,v.congTrinh,v.tuyen,v.benA,v.benB,v.soHD,v.tinhTrang,v.ghiChu,v._ov?(v._ov.files||[]).length:0])]); XLSX.utils.book_append_sheet(wb,v2,"Van ban");
     xlsSave(wb,"Theo_doi_LED_bao_hanh_"+todayISO()+".xlsx"); };
 }
@@ -4574,11 +4576,12 @@ function ledOpenRoute(r){
     ${F("nam","Năm lắp đặt",r.nam,"VD: Quý 4/2019")}${F("ngayNT","Ngày nghiệm thu / bàn giao (nếu có)",r.ngayNT,"dd/mm/yyyy – ưu tiên hơn năm lắp đặt")}${F("bhNam","Thời hạn BH theo hợp đồng (năm)",r.bhNam,"để trống = mặc định "+ledYears()+" năm")}
     ${F("donVi","Đơn vị thi công / lắp đặt",r.donVi)}${F("nguonVon","Nguồn vốn / hợp đồng",r.nguonVon)}${F("huHong","Tình trạng hư hỏng, sửa chữa",r.huHong)}${F("ghiChu","Ghi chú",r.ghiChu)}
     <div class="ks-f"><label>Tình trạng BH (chỉnh tay – để trống = tự tính)</label><select data-k="trangThaiTay" ${canEdit?"":"disabled"}><option value="">Tự động theo ngày & văn bản</option>${Object.entries(LED_ST).map(([k,v])=>`<option value="${k}" ${k===r.trangThaiTay?"selected":""}>${v[0]}</option>`).join("")}</select></div></div>`+
+   (!isNew&&(r.nguon||r.phuong||r.capNhat||r.dau)?`<div class="who" style="margin-top:6px">${[r.phuong?"Phường: "+escHtml(r.phuong):"",r.dau?"Từ "+escHtml(r.dau)+" đến "+escHtml(r.cuoi||""):"",r.nguon?"Nguồn: "+escHtml(r.nguon):"",r.capNhat?"🆕 "+escHtml(r.capNhat):""].filter(Boolean).join(" · ")}</div>`:"")+
    (cabs.length?`<div class="ks-g">Tủ điều khiển (đồng bộ dữ liệu tủ)</div><div class="bv-cabs">${cabs.map(c=>`<button class="bv-cab" data-pe="${escHtml(c.pe)}">🗄️ ${escHtml(c.n)} · ${escHtml(c.q)}${c.pm?" · P. "+escHtml(c.pm):""}</button>`).join("")}</div>`:"")+
    `<div class="ks-g">Văn bản liên quan (${r._vbs.length})</div>`+(r._vbs.length?r._vbs.map(v=>`<div class="ks-rec" style="cursor:default;margin-top:6px"><b>${escHtml(v.loai||"")}</b> – ${v.ngay?new Date(v.ngay).toLocaleDateString("vi-VN"):"chưa ghi ngày"}<div class="who">${escHtml(v.benB||"")} · HĐ ${escHtml(v.soHD||"–")} · ${escHtml(v.tinhTrang||"")}</div></div>`).join(""):'<div class="who">Chưa tìm thấy biên bản xác nhận cho tuyến này.</div>')+
    (r._dx&&r._dx.length?`<div class="ks-g">📑 Theo công văn đề xuất đèn LED (${r._dx.length})</div>`+r._dx.map(x=>`<div class="ks-rec" style="cursor:default;margin-top:6px"><b>${escHtml(x.ky)}</b> · ${escHtml(((typeof LED_DOCS!=="undefined"&&LED_DOCS.find(d=>d.id===x.doc))||{}).so||x.doc)}<div class="who">${x.so||"?"} bộ · ${x.w}W · ${escHtml(x.loai)}${x.tdk?" · TĐK: "+escHtml(x.tdk):""}${x.ghiChu?" · "+escHtml(x.ghiChu):""}</div></div>`).join(""):"")+
    (r.doiChieu2020?`<div class="led-alert" style="margin-top:10px;border-left-color:#E8A20A">🔎 Đối chiếu dữ liệu cập nhật 09/04/2020: ${escHtml(r.doiChieu2020)}</div>`:"")+
-   (r._hist&&r._hist.length?`<div class="ks-g">Lịch sử đèn tắt còn bảo hành 2020 (${r._hist.length} vị trí · ${r._hist.reduce((s,x)=>s+x.so,0)} đèn)</div><div class="ks-table-wrap"><table class="ks-table"><thead><tr><th>Tủ ĐK</th><th>Trụ</th><th>Đèn</th><th>Nhà cung cấp</th><th>Lần đầu</th><th>Lần cuối</th><th>Số kỳ</th><th>Tình trạng</th></tr></thead><tbody>${r._hist.map(x=>`<tr><td style="text-align:left">${escHtml(x.tu)}</td><td>${escHtml(x.tru)}</td><td>${x.so}</td><td>${escHtml(x.ncc)}</td><td>${x.first.split("-").reverse().join("/")}</td><td>${x.last.split("-").reverse().join("/")}</td><td>${x.ky}</td><td style="text-align:left">${escHtml(x.tt)}</td></tr>`).join("")}</tbody></table></div>`:"")+
+   (r._hist&&r._hist.length?`<div class="ks-g">Lịch sử đèn tắt còn bảo hành (${r._hist.length} vị trí · ${r._hist.reduce((s,x)=>s+x.so,0)} đèn)</div><div class="ks-table-wrap"><table class="ks-table"><thead><tr><th>Tủ ĐK</th><th>Trụ</th><th>Đèn</th><th>Nhà cung cấp</th><th>Lần đầu</th><th>Lần cuối</th><th>Số kỳ</th><th>Tình trạng</th></tr></thead><tbody>${r._hist.map(x=>`<tr title="${escHtml(x.nguon||"Báo cáo thứ 2 hàng tuần 2020")}"><td style="text-align:left">${escHtml(x.tu)}</td><td>${escHtml(x.tru)}</td><td>${x.so}${x.w?" · "+x.w+"W":""}</td><td>${escHtml(x.ncc)}</td><td>${x.first.split("-").reverse().join("/")}</td><td>${x.last.split("-").reverse().join("/")}</td><td>${x.ky}</td><td style="text-align:left">${escHtml(x.tt)}</td></tr>`).join("")}</tbody></table></div>`:"")+
    (r._st==="exp"?`<div class="led-alert" style="margin-top:10px">⚠️ Đã hết bảo hành nhưng chưa có biên bản. Căn cứ Điều 28 khoản 6 và Điều 29 Nghị định 06/2021/NĐ-CP, đề nghị lập thư mời kiểm tra hiện trường hết hạn bảo hành với <b>${escHtml(r.donVi||r.hang||"nhà thầu")}</b> để xác nhận và đưa vào duy tu.</div>`:"")+
    `<div id="ledFiles"></div>${canEdit?`<button class="submit-btn" id="ledSaveR" style="margin-top:12px">💾 Lưu</button>`:""}<div class="gps-result" id="ledMsg"></div>`;
   el.querySelectorAll(".bv-cab[data-pe]").forEach(b=>b.onclick=async()=>{ $("#ledScrim").classList.remove("show"); showView("tk"); await tkRender(); const row=TK_BY_PE[b.dataset.pe]; if(row) tkOpen(row); });
@@ -4903,7 +4906,7 @@ async function xlsSave(wb, fname, opt){
   const filt=[opt.filter, (typeof activeQuan!=="undefined"&&activeQuan!=="Tất cả")?activeQuan:""].filter(Boolean).join(" · ");
   names.forEach((nm,si)=>{ let P=xrExpand(xrParse(wb.Sheets[nm]));
     let title=(P.titles[0]||"").replace(/\s*[–-]\s*\d{1,2}[:/].*$/,"").trim(); const extra=P.titles.slice(1).filter(t=>!/^xuất ngày|^\(ngày|^ngày xuất/i.test(t));
-    const VN={"Den tat BH 2020":"Đèn tắt còn bảo hành 2020","Van ban":"Văn bản, biên bản","Phu luc 2":"Phụ lục 2 – Driver thay thế","Chi tiet tru":"Chi tiết trụ – cần – đèn","Tong hop":"Tổng hợp","Huong dan":"Hướng dẫn"};
+    const VN={"Den tat con BH":"Đèn LED tắt còn bảo hành","Van ban":"Văn bản, biên bản","Phu luc 2":"Phụ lục 2 – Driver thay thế","Chi tiet tru":"Chi tiết trụ – cần – đèn","Tong hop":"Tổng hợp","Huong dan":"Hướng dẫn"};
     if(!title) title = names.length>1 && si>0 ? base+" – "+(VN[nm]||nm) : base;
     title=title.toUpperCase();
     const sub=["(Ngày "+ds+(filt?" · "+filt:"")+")",...extra];
