@@ -196,6 +196,12 @@ tr.kqtru td{background:var(--amber-soft)}
 #timX,#timMic{all:unset;cursor:pointer;width:38px;height:38px;display:grid;place-items:center;border-radius:50%;color:var(--muted)}#timMic{background:var(--amber);color:#14222E}#timMic svg{width:20px;height:20px}#timMic.on{background:#B42A25;color:#fff;animation:nhap 1s infinite}
 @keyframes nhap{50%{box-shadow:0 0 0 8px rgba(180,42,37,.25)}}
 #timKQ{position:absolute;left:0;right:0;max-width:760px;max-height:70vh;overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.2);margin-top:6px;padding:4px}
+.tkr mark,.tk-goiy mark{background:#ffe08a;color:inherit;border-radius:3px;padding:0 1px}
+.tk-goiy{display:flex;gap:6px;overflow-x:auto;padding:8px 10px 4px;scrollbar-width:none}.tk-goiy button{all:unset;cursor:pointer;white-space:nowrap;font-size:13px;padding:5px 10px;border-radius:999px;background:var(--amber-soft);border:1px solid var(--line,#d8d2c4)}
+.seg{display:inline-flex;border:1px solid var(--line,#d8d2c4);border-radius:10px;overflow:hidden}.seg button{all:unset;cursor:pointer;padding:7px 14px;font-size:14px}.seg button.on{background:var(--teal,#0e5c54);color:#fff;font-weight:700}
+.sp-the{border:1px solid var(--line,#d8d2c4);border-radius:12px;padding:10px;margin:0 0 10px;background:var(--card,#fff)}.sp-dau{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}.sp-dau .sp-mo{margin-left:auto;padding:4px 10px;font-size:13px}
+table.mini{width:100%;border-collapse:collapse;font-size:13px}table.mini th,table.mini td{border-bottom:1px solid var(--line,#e5e0d4);padding:4px 6px;text-align:left}table.mini .n{text-align:right}
+.sp-the{overflow-x:auto}#printArea .sp-the{break-inside:avoid;border:1px solid #888}
 .tkh{font-size:12px;font-weight:700;text-transform:uppercase;color:var(--muted);padding:8px 10px 4px}
 .tkr{all:unset;display:block;box-sizing:border-box;width:100%;cursor:pointer;padding:8px 10px;border-radius:8px;line-height:1.45}.tkr:hover,.tkr:focus{background:var(--amber-soft)}.tkr b.ok{color:var(--green)}.tkr b.no{color:var(--red)}
 table.mini{font-size:13px}table.mini td,table.mini th{padding:4px 8px}.kpi.click{cursor:pointer}
@@ -353,7 +359,7 @@ function parseDate(v){
   m=s.match(/^(\d{1,2})[\/\-.](\d{1,2})$/);if(m)return new Date(new Date().getFullYear(),m[2]-1,+m[1]);
   return null;
 }
-function num(v){if(typeof v==='number')return v;let s=String(v??'').trim().replace(/\s/g,'');if(!s)return NaN;if(s.includes(',')&&s.includes('.'))s=s.replace(/\./g,'').replace(',','.');else s=s.replace(',','.');return Number(s)}
+function num(v){if(typeof v==='number')return v;let s=String(v??'').trim().replace(/\s/g,'');if(!s)return NaN;if(s.includes(',')&&s.includes('.'))s=s.lastIndexOf(',')>s.lastIndexOf('.')?s.replace(/\./g,'').replace(',','.'):s.replace(/,/g,'');else if(/^\d{1,3}(\.\d{3}){2,}$/.test(s))s=s.replace(/\./g,'');else s=s.replace(',','.');return Number(s)}
 const dayDiff=(a,b)=>Math.round((startOfDay(b)-startOfDay(a))/864e5);
 function numLoose(v){if(typeof v==='number')return v;const m=String(v??'').replace(/\s/g,'').match(/-?\d[\d.,]*/);return m?num(m[0]):NaN}
 const normMa=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toUpperCase().trim().replace(/\s+/g,'-').replace(/[^A-Z0-9\-_.\/]/g,'');
@@ -1609,7 +1615,7 @@ async function capGhi(){
   else{
     const kind=(t.k==='px'||t.k==='cp')?'px':'pn';const G=new Map();
     ok.forEach(v=>{const key=v.soPhieu||[ymd(v.ngay),v.loai,v.kho,v.nguoi,t.k==='cp'?v.maSC:''].join('|');let p=G.get(key);
-      if(!p){p={id:uid(),soPhieu:v.soPhieu||'',ngay:nISO(v.ngay),loai:v.loai,kho:v.kho,maSC:t.k==='pn'?'':(v.maSC||''),nguoi:v.nguoi||'',ghiChu:'Nhập từ ảnh/file',lines:[],_b:b};G.set(key,p)}
+      if(!p){p={id:uid(),soPhieu:v.soPhieu||'',ngay:nISO(v.ngay),loai:v.loai,kho:v.kho,maSC:t.k==='pn'?'':(v.maSC||''),nguoi:v.nguoi||'',ghiChu:(C.head&&C.head.ghiChu)||'Nhập từ ảnh/file',lines:[],_b:b};G.set(key,p)}
       p.lines.push({goi:v.goi||'',maVT:v.maVT,tenVT:v.tenVT||'',dvt:v.dvt||'',sl:v.sl,donGia:v.donGia||0,maSC:v.maSC&&v.maSC!==p.maSC?v.maSC:''})});
     const canh=[];
     for(const p of G.values()){if(!p.soPhieu)p.soPhieu=genSoPhieu(kind,p.ngay,t.k==='nh'?'NH':'');S[kind].push(p);capNhatDMVT(p.lines);tao.push({kind,id:p.id});if(kind==='px')kiemTraVuotTon(p).forEach(x=>canh.push(`${p.soPhieu}: ${x.vt} xuất ${fmtN(x.sl)}, tồn ${fmtN(x.ton)}`))}
@@ -2379,38 +2385,145 @@ Object.assign(HELP,{
   import:{t:'Lịch sử nhập, nạp file',md:'Xem và xóa từng lần nhập từ ảnh, file.',b:['Mỗi lần "Ghi nhận" từ ảnh, file là một lần nạp.','Nạp sai: bấm "Xóa lần nạp" để xóa toàn bộ phiếu tạo ra lần đó.'],q:{admin:'Toàn quyền.',nhaplieu:'Xóa lần nạp của mình.',theodoi:'Chỉ xem.'}}});
 /* ---- Tìm kiếm chung: gõ hoặc nói ---- */
 const STOP=new Set('tim kiem cho toi xem giup minh voi hay di nhe a o la cua va nhung cac con lai bao nhieu trong kho ton khong co phieu lanh de nghi so nhap xuat hoan vat tu thiet bi may cai hien dang dau nao gi'.split(' '));
+const TEN_K={px:'Phiếu lãnh',pn:'Phiếu nhập',nh:'Nhập hoàn',tl:'Trả lại'};
+/* ================== TỰ XOAY ẢNH, CHẤM ĐIỂM CHỮ ĐỌC ĐƯỢC ================== */
+function xoayCanvas(src,g){if(!g)return src;const c=document.createElement('canvas');const d=g===90||g===270;c.width=d?src.height:src.width;c.height=d?src.width:src.height;const x=c.getContext('2d');x.translate(c.width/2,c.height/2);x.rotate(g*Math.PI/180);x.drawImage(src,-src.width/2,-src.height/2);return c}
+function huongChu(cv){
+  const k=Math.min(1,700/Math.max(cv.width,cv.height)),w=Math.max(1,Math.round(cv.width*k)),h=Math.max(1,Math.round(cv.height*k));
+  const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(cv,0,0,w,h);const d=x.getImageData(0,0,w,h).data;
+  const R=new Float64Array(h),C=new Float64Array(w);for(let y=0;y<h;y++)for(let i=0;i<w;i++){const p=(y*w+i)*4;if(d[p]<140){R[y]++;C[i]++}}
+  const nhip=a=>{let s=0,t=0;for(let i=1;i<a.length;i++){s+=Math.abs(a[i]-a[i-1]);t+=a[i]}return t?s/t:0};
+  return nhip(C)>nhip(R)*1.15?'doc':'ngang';
+}
+const TU_PHIEU=new Set('phieu xuat nhap kho ngay thang nam so ten vat tu luong don gia cong ty co phan nguoi nhan hang giao thanh tien ly do bo chieu sang cau thuc ma dvt stt ky ho giam doc phong tong cai m mau dia diem tai moi day ong den cap bong driver led tram tru tu dien cb hop day hoan quy cach pham chat hoa cua trang thu khvt lap kem theo tai chinh truong'.split(' '));
+function diemChu(t){return tachTu(t).filter(w=>w.length>=2&&TU_PHIEU.has(w)).length}
+async function docDaHuong(file,docCv,ghi){
+  let base;try{base=await anhSach(file)}catch(e){return docCv(null)}
+  const h=huongChu(base);const thu=h==='doc'?[270,90,0,180]:[0,180,270,90];let best={t:'',d:-1,g:0};
+  for(const g of thu){ghi(g?`Ảnh bị xoay, đang thử đọc theo hướng ${g}°…`:'Đang đọc chữ trong ảnh…');const t=await docCv(xoayCanvas(base,g),g);const d=diemChu(t);if(d>best.d)best={t,d,g};if(d>=10)break}
+  return best.t;
+}
+async function docOCRMienPhi(file,prog,ghi=()=>{}){
+  await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js');
+  const wk=await Tesseract.createWorker('vie+eng',1,{logger:m=>{if(m.status==='recognizing text'&&prog)prog(Math.round(m.progress*100))}});
+  try{await wk.setParameters({tessedit_pageseg_mode:'4',preserve_interword_spaces:'1'});
+    return await docDaHuong(file,async cv=>{const r=await wk.recognize(cv||await nenAnh(file));return r.data.text||''},ghi)}finally{wk.terminate()}
+}
+async function docOCRMayChu(file,ghi=()=>{}){
+  const gui=async cv=>{let b;if(cv){b=await new Promise(r=>cv.toBlob(r,'image/jpeg',.88))}else b=await nenAnh(file);const r=await goiSV('ocr',{b64:await toB64(b),type:'image/jpeg'});return r.text||''};
+  return docDaHuong(file,gui,ghi);
+}
+
+/* ================== TÌM KIẾM THÔNG MINH ================== */
+function tachTu(s){return nds(s).replace(/[^a-z0-9]+/g,' ').trim().split(' ').filter(Boolean)}
+function osa(a,b,max){if(Math.abs(a.length-b.length)>max)return max+1;const m=a.length,n=b.length;let p2=null,p=Array.from({length:n+1},(_,j)=>j);
+  for(let i=1;i<=m;i++){const c=[i];let lo=i;for(let j=1;j<=n;j++){let v=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1])v=Math.min(v,p2[j-2]+1);c[j]=v;if(v<lo)lo=v}if(lo>max)return max+1;p2=p;p=c}return p[n]}
+const hayCache=new Map();
+function hay(s){let h=hayCache.get(s);if(!h){const w=tachTu(s);h={w,c:w.join('')};if(hayCache.size>4000)hayCache.clear();hayCache.set(s,h)}return h}
+function diemKhop(qt,H){
+  if(!qt.length)return 0;let tong=0,thieu=0;
+  for(const q of qt){let b=0;
+    for(const w of H.w){if(w===q){b=3;break}if(w.startsWith(q))b=Math.max(b,q.length>=2?2.3:1.2);else if(q.length>=3&&w.includes(q))b=Math.max(b,1.6)}
+    if(!b&&q.length>=2&&H.c.includes(q))b=1.8;
+    if(!b&&q.length>=4&&!/^\d+$/.test(q)){const mx=q.length>=7?2:1;for(const w of H.w){if(w.length>=3&&!/^\d+$/.test(w)&&osa(q,w.length>q.length+1?w.slice(0,q.length+1):w,mx)<=mx){b=1.1;break}}}
+    if(!b)thieu++;tong+=b}
+  if(thieu&&(qt.length<3||thieu>1))return 0;
+  return tong/qt.length;
+}
+function toSang(text,qt){
+  const s=String(text??'');if(!qt||!qt.length||!s)return esc(s);
+  const map=[];let n='';for(let i=0;i<s.length;i++){const c=nds(s[i]).toLowerCase();for(const ch of c){n+=ch;map.push(i)}}
+  const mark=new Array(s.length).fill(false);
+  for(const q of qt){if(q.length<2&&!/\d/.test(q))continue;let k=n.indexOf(q);while(k>=0){for(let j=k;j<k+q.length;j++)mark[map[j]]=true;k=n.indexOf(q,k+q.length)}}
+  let out='',on=false;for(let i=0;i<s.length;i++){if(mark[i]&&!on){out+='<mark>';on=true}if(!mark[i]&&on){out+='</mark>';on=false}out+=esc(s[i])}if(on)out+='</mark>';return out;
+}
 function timKiem(q){
-  const gq=goiTuChu(q);let n=nds(q).replace(/[^a-z0-9/\-. ]+/g,' ');if(gq)n=n.replace(/goi\s*(thau)?\s*(so)?\s*0*\d+|\bg0*\d+\b/g,' ');let hint='';
-  if(/phieu lanh|de nghi|xuat/.test(n))hint='px';else if(/hoan/.test(n))hint='nh';else if(/phieu nhap|nhap kho/.test(n))hint='pn';
+  const gq=goiTuChu(q);let n=nds(q).replace(/[^a-z0-9/\-., ]+/g,' ');if(gq)n=n.replace(/goi\s*(thau)?\s*(so)?\s*0*\d+|\bg0*\d+\b/g,' ');let hint='';
+  if(/phieu lanh|de nghi|phieu xuat|\bxuat\b/.test(n))hint='px';else if(/hoan/.test(n))hint='nh';else if(/phieu nhap|nhap kho/.test(n))hint='pn';
   const vtHint=/con lai|bao nhieu|ton|trong kho|con khong|thiet bi|vat tu/.test(n);
-  const tk=n.split(/\s+/).filter(w=>w&&!STOP.has(w));
-  const khop=hay=>tk.every(w=>hay.includes(w)||hay.replace(/[-./\s]/g,'').includes(w.replace(/[-./]/g,'')));
+  const tk=tachTu(n).filter(w=>!STOP.has(w));
   const P=[];
-  const quet=(arr,kind)=>arr.forEach(p=>{const k=kind==='pn'&&p.loai==='Hoàn nhập'?'nh':kind==='pn'&&p.loai==='Thu hồi'?'tl':kind;if(hint&&hint!==k&&!(hint==='px'&&k==='px'))return;
-    const hay=nds([p.soPhieu,fmtD(p.ngay),p.nguoi,p.maSC,p.ghiChu,p.pxGoc,p.loai,p.kho,...p.lines.map(l=>`${l.maVT} ${l.tenVT} ${l.maSC||''}`)].join(' '));
-    if(gq&&!p.lines.some(l=>l.goi===gq))return;
-    if(tk.length?khop(hay):hint||gq)P.push({p,kind,k,sc:(tk.some(w=>nds(p.soPhieu).includes(w))?10:0)+Date.parse(p.ngay)/1e13})});
+  const quet=(arr,kind)=>arr.forEach(p=>{const k=kind==='pn'&&p.loai==='Hoàn nhập'?'nh':kind==='pn'&&p.loai==='Thu hồi'?'tl':kind;if(hint&&hint!==k)return;if(gq&&!p.lines.some(l=>l.goi===gq))return;
+    let d=0;if(tk.length){const so=diemKhop(tk,hay(p.soPhieu));d=Math.max(so*1.6,diemKhop(tk,hay([p.soPhieu,fmtD(p.ngay),p.nguoi,p.maSC,p.ghiChu,p.pxGoc,p.kho,...p.lines.map(l=>`${l.maVT} ${l.tenVT}`)].join(' '))));if(!d)return}else if(!hint&&!gq)return;
+    P.push({p,kind,k,sc:d*10+Date.parse(p.ngay)/1e13})});
   quet(S.px,'px');quet(S.pn,'pn');P.sort((a,b)=>b.sc-a.sc);
-  const VT=[];const T=treoTheoVT();const ks=khoList();
-  if(tk.length&&hint!=='pn'&&hint!=='nh'||(vtHint||gq)&&!tk.length){const ma=new Set([...S.dmvt.map(d=>d.maVT),...S.pn.concat(S.px).flatMap(p=>p.lines.map(l=>l.maVT))]);
-    ma.forEach(m=>{const d=S.dmvt.find(x=>x.maVT===m)||{};const hay=nds(m+' '+(d.tenVT||''));if(tk.length&&!khop(hay))return;
+  const VT=[],GY=[];const T=treoTheoVT();const ks=khoList();
+  if(hint!=='pn'&&hint!=='nh'&&(tk.length||vtHint||gq)){const ma=new Set([...S.dmvt.map(d=>d.maVT),...S.pn.concat(S.px).flatMap(p=>p.lines.map(l=>l.maVT))]);
+    ma.forEach(m=>{const d=S.dmvt.find(x=>x.maVT===m)||{};const ten=d.tenVT||(S.pn.concat(S.px).flatMap(p=>p.lines).find(l=>l.maVT===m)||{}).tenVT||'';
+      const dk=tk.length?Math.max(diemKhop(tk,hay(ten)),diemKhop(tk,hay(m))*0.95,diemKhop(tk,hay(ten+' '+m))*0.9):1;if(!dk)return;
       const goiTon=[...dsGoi().map(g=>g.ma),''].map(g=>[g,ks.reduce((s,k)=>s+tonTai(m,k,new Date(),undefined,g),0)]).filter(x=>x[1]);
       const theoKho=ks.map(k=>[k,tonTai(m,k,new Date(),undefined,gq||undefined)]).filter(x=>x[1]);const tong=theoKho.reduce((s,x)=>s+x[1],0);if(!tk.length&&tong<=0)return;
-      VT.push({maVT:m,tenVT:d.tenVT||'',dvt:d.dvt||'',theoKho,tong,goiTon,treo:T[m]||0})});VT.sort((a,b)=>b.tong-a.tong)}
-  return{P:P.slice(0,40),VT:VT.slice(0,40),hint,vtHint,tk};
+      VT.push({maVT:m,tenVT:ten,dvt:d.dvt||'',theoKho,tong,goiTon,treo:T[m]||0,dk})});
+    VT.sort((a,b)=>b.dk-a.dk||b.tong-a.tong)}
+  if(tk.length&&!VT.length&&!P.length){const all=S.dmvt.map(d=>{const H=hay(d.tenVT+' '+d.maVT);let s=0;for(const q of tk){let b=0;for(const w of H.w){if(w.startsWith(q.slice(0,3)))b=Math.max(b,1);if(q.length>=3&&osa(q,w,2)<=2)b=Math.max(b,.8)}s+=b}return{d,s}}).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,5);GY.push(...all.map(x=>x.d))}
+  return{P:P.slice(0,40),VT:VT.slice(0,40),GY,hint,vtHint,tk};
 }
-const TEN_K={px:'Phiếu lãnh',pn:'Phiếu nhập',nh:'Nhập hoàn',tl:'Trả lại'};
 function veTim(q,tatCa){
   const box=$('#timKQ');if(!q.trim()&&!tatCa){box.hidden=true;return}
-  const r=timKiem(q.trim()?q:'còn lại');const pHtml=r.P.map(({p,kind,k})=>{const t=k==='px'&&laLanh(p)?treoPL(p):null;return`<button type="button" class="tkr" data-tp="${kind}|${p.id}"><span class="pill ${k==='px'?'pa':k==='nh'?'pg':'pn'}">${TEN_K[k]}</span> <b>${esc(p.soPhieu)}</b> ${pillGoiPhieu(p)} <span class="muted">${fmtD(p.ngay)} · ${esc(p.nguoi||'')} ${p.maSC?'· '+esc(p.maSC):''}</span>${t&&t.tt!=='xong'?` <span class="pill ${TT_PL[t.tt][1]}">${TT_PL[t.tt][0]}</span>`:''}<br><span class="muted">${esc(p.lines.slice(0,4).map(l=>`${l.tenVT||l.maVT} ×${fmtN(l.sl)}`).join('; '))}${p.lines.length>4?' …':''}</span></button>`}).join('');
-  const vHtml=r.VT.map(v=>`<button type="button" class="tkr" data-tv="${esc(v.maVT)}"><b>${esc(v.tenVT||v.maVT)}</b> <span class="muted">${esc(v.maVT)}</span><br>Còn trong kho: <b class="${v.tong>0?'ok':'no'}">${fmtN(v.tong)} ${esc(v.dvt)}</b>${v.theoKho.length>1||v.theoKho.length&&v.theoKho[0][0]!=='Kho chính'?' ('+v.theoKho.map(([k,s])=>`${esc(k)}: ${fmtN(s)}`).join(', ')+')':''}${v.treo?` · đang ở tổ ${fmtN(v.treo)}`:''}${v.goiTon.length?`<br><span class="muted">${v.goiTon.map(([g,x])=>`${esc(tenGoi(g))}: ${fmtN(x)}`).join(' · ')}</span>`:''}</button>`).join('');
-  const sec=(t,h,n)=>n?`<div class="tkh">${t} (${n})</div>${h}`:'';if(!q.trim()){box.innerHTML=`<div class="tkh">Vật tư còn trong kho (${r.VT.length}) · gõ hoặc nói để lọc</div>`+vHtml||'<p class="muted" style="padding:10px">Kho đang trống.</p>';box.hidden=false;box.querySelectorAll('[data-tv]').forEach(b=>b.onclick=()=>{box.hidden=true;TK.kho='';moTheKho(b.dataset.tv)});return}
+  const r=timKiem(q.trim()?q:'còn lại');const tk=q.trim()?r.tk:[];
+  const pHtml=r.P.map(({p,kind,k})=>{const t=k==='px'&&laLanh(p)?treoPL(p):null;return`<button type="button" class="tkr" data-tp="${kind}|${p.id}"><span class="pill ${k==='px'?'pa':k==='nh'?'pg':'pn'}">${TEN_K[k]}</span> <b>${toSang(p.soPhieu,tk)}</b> ${pillGoiPhieu(p)} <span class="muted">${fmtD(p.ngay)} · ${toSang(p.nguoi||'',tk)} ${p.maSC?'· '+esc(p.maSC):''}</span>${t&&t.tt!=='xong'?` <span class="pill ${TT_PL[t.tt][1]}">${TT_PL[t.tt][0]}</span>`:''}<br><span class="muted">${p.lines.slice(0,4).map(l=>`${toSang(l.tenVT||l.maVT,tk)} ×${fmtN(l.sl)}`).join('; ')}${p.lines.length>4?' …':''}</span></button>`}).join('');
+  const vHtml=r.VT.map(v=>`<button type="button" class="tkr" data-tv="${esc(v.maVT)}"><b>${toSang(v.tenVT||v.maVT,tk)}</b> <span class="muted">${toSang(v.maVT,tk)}</span><br>Còn trong kho: <b class="${v.tong>0?'ok':'no'}">${fmtN(v.tong)} ${esc(v.dvt)}</b>${v.theoKho.length>1||v.theoKho.length&&v.theoKho[0][0]!=='Kho chính'?' ('+v.theoKho.map(([k,s])=>`${esc(k)}: ${fmtN(s)}`).join(', ')+')':''}${v.treo?` · đang ở tổ ${fmtN(v.treo)}`:''}${v.goiTon.length?`<br><span class="muted">${v.goiTon.map(([g,x])=>`${esc(tenGoi(g))}: ${fmtN(x)}`).join(' · ')}</span>`:''}</button>`).join('');
+  const sec=(t,h,n)=>n?`<div class="tkh">${t} (${n})</div>${h}`:'';
+  const goiY=q.trim()&&r.VT.length?`<div class="tk-goiy">${r.VT.slice(0,6).map(v=>`<button type="button" data-gy="${esc(v.tenVT||v.maVT)}">${toSang(v.tenVT||v.maVT,tk)}</button>`).join('')}</div>`:'';
+  if(!q.trim()){box.innerHTML=`<div class="tkh">Vật tư còn trong kho (${r.VT.length}) · gõ hoặc nói để lọc</div>`+vHtml||'<p class="muted" style="padding:10px">Kho đang trống.</p>';box.hidden=false;box.querySelectorAll('[data-tv]').forEach(b=>b.onclick=()=>{box.hidden=true;TK.kho='';moTheKho(b.dataset.tv)});return}
   const pFirst=r.hint||!(r.vtHint||!r.tk.some(w=>/\d/.test(w)));
-  box.innerHTML=(pFirst?sec('Phiếu',pHtml,r.P.length)+sec('Vật tư, thiết bị còn ở kho',vHtml,r.VT.length):sec('Vật tư, thiết bị còn ở kho',vHtml,r.VT.length)+sec('Phiếu',pHtml,r.P.length))||`<p class="muted" style="padding:10px">Không tìm thấy "${esc(q)}".</p>`;
+  const gyKhong=r.GY.length?`<div class="tkh">Không thấy "${esc(q)}". Có phải bạn tìm:</div><div class="tk-goiy">${r.GY.map(d=>`<button type="button" data-gy="${esc(d.tenVT||d.maVT)}">${esc(d.tenVT||d.maVT)}</button>`).join('')}</div>`:'';
+  box.innerHTML=goiY+((pFirst?sec('Phiếu',pHtml,r.P.length)+sec('Vật tư, thiết bị còn ở kho',vHtml,r.VT.length):sec('Vật tư, thiết bị còn ở kho',vHtml,r.VT.length)+sec('Phiếu',pHtml,r.P.length))||gyKhong||`<p class="muted" style="padding:10px">Không tìm thấy "${esc(q)}".</p>`);
   box.hidden=false;
+  box.querySelectorAll('[data-gy]').forEach(b=>b.onclick=e=>{e.stopPropagation();const i=$('#timQ');i.value=b.dataset.gy;veTim(i.value,true);i.focus()});
   box.querySelectorAll('[data-tp]').forEach(b=>b.onclick=()=>{const [k,id]=b.dataset.tp.split('|');box.hidden=true;editPhieu(k,id)});
   box.querySelectorAll('[data-tv]').forEach(b=>b.onclick=()=>{box.hidden=true;TK.kho='';moTheKho(b.dataset.tv)});
 }
+
+/* ================== SỔ PHIẾU THEO GÓI ================== */
+const loaiPhieu=(kind,p)=>kind==='px'?(laLanh(p)?'Phiếu xuất (lãnh)':'Xuất: '+p.loai):p.loai==='Hoàn nhập'?'Nhập hoàn':p.loai==='Thu hồi'?'Vật tư trả lại':'Phiếu nhập: '+p.loai;
+function phieuCuaGoi(g){
+  const L=[];['pn','px'].forEach(k=>S[k].forEach(p=>{const ls=p.lines.filter(l=>(l.goi||'')===g);if(ls.length)L.push({k,p,ls})}));
+  return L.sort((a,b)=>Date.parse(a.p.ngay)-Date.parse(b.p.ngay)||String(a.p.soPhieu).localeCompare(String(b.p.soPhieu)));
+}
+function soPhieuHTML(g){
+  const L=phieuCuaGoi(g);if(!L.length)return'<p class="muted">Chưa có phiếu nào thuộc gói này.</p>';
+  return L.map(({k,p,ls})=>`<div class="sp-the"><div class="sp-dau"><span class="pill ${k==='px'?'pa':p.loai==='Hoàn nhập'?'pg':'pn'}">${esc(loaiPhieu(k,p))}</span> <b>${esc(p.soPhieu)}</b> <span class="muted">${fmtD(p.ngay)} · ${esc(p.nguoi||'')} · ${esc(p.kho)}${p.maSC?' · '+esc(p.maSC):''}${p.pxGoc?' · lãnh gốc '+esc(p.pxGoc):''}</span> <button type="button" class="b sp-mo" data-spmo="${k}|${p.id}">Mở phiếu</button></div>
+    <table class="mini"><thead><tr><th>Mã VT</th><th>Tên vật tư</th><th>ĐVT</th><th class="n">${k==='px'?'Xuất':'Nhập'}</th></tr></thead><tbody>${ls.map(l=>`<tr><td>${esc(l.maVT)}</td><td>${esc(ganGoiTen(l.tenVT||(S.dmvt.find(d=>d.maVT===l.maVT)||{}).tenVT||'',g))}</td><td>${esc(l.dvt||(S.dmvt.find(d=>d.maVT===l.maVT)||{}).dvt||'')}</td><td class="n">${fmtN(l.sl)}</td></tr>`).join('')}</tbody></table>${p.ghiChu&&!/^Nhập từ ảnh/.test(p.ghiChu)?`<div class="muted" style="font-size:12px">${esc(p.ghiChu)}</div>`:''}</div>`).join('');
+}
+async function xuatSoPhieuGoi(gs){
+  gs=gs&&gs.length?gs:dsGoi().map(g=>g.ma);const name=`${stamp()}_SO_PHIEU_THEO_GOI${gs.length===1?'_'+tenGoi(gs[0]).replace(/\W+/g,''):''}.xlsx`;
+  const dv=l=>l.dvt||(S.dmvt.find(d=>d.maVT===l.maVT)||{}).dvt||'',tv=l=>l.tenVT||(S.dmvt.find(d=>d.maVT===l.maVT)||{}).tenVT||'';
+  let EX=null;try{await loadScript('https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js');EX=window.ExcelJS}catch(e){}
+  if(!EX){xuat(gs.map(g=>({ten:('Phieu '+tenGoi(g)).slice(0,31),rows:phieuCuaGoi(g).flatMap(({k,p,ls})=>ls.map(l=>({'Ngày':fmtD(p.ngay),'Số phiếu':p.soPhieu,'Loại':loaiPhieu(k,p),'Người giao/nhận':p.nguoi||'','Kho':p.kho,'Mã VT':l.maVT,'Tên vật tư':ganGoiTen(tv(l),g),'ĐVT':dv(l),'Nhập':k==='pn'?+l.sl:'','Xuất':k==='px'?+l.sl:''})))})),name);return}
+  const wb=new EX.Workbook();const F={name:'Times New Roman',size:11},B={top:{style:'thin',color:{argb:'FF8A9BA6'}},left:{style:'thin',color:{argb:'FF8A9BA6'}},bottom:{style:'thin',color:{argb:'FF8A9BA6'}},right:{style:'thin',color:{argb:'FF8A9BA6'}}},NF='#,##0.###;[Red]-#,##0.###;""';
+  const MAU={G1:'FF1565C0',G2:'FF7B3FA0'};const fill=a=>({type:'pattern',pattern:'solid',fgColor:{argb:a}});
+  const th=wb.addWorksheet('Tổng hợp các gói',{properties:{tabColor:{argb:'FF0E5C54'}}});th.columns=[{width:16},{width:12},{width:12},{width:12},{width:14},{width:14},{width:14}];
+  th.mergeCells('A1:G1');th.getCell('A1').value='SỔ PHIẾU NHẬP – XUẤT THEO GÓI THẦU';th.getCell('A1').font={...F,size:16,bold:true,color:{argb:'FF0E5C54'}};th.getCell('A1').alignment={horizontal:'center'};
+  th.mergeCells('A2:G2');th.getCell('A2').value=`Lập lúc ${fmtDT(new Date())}${SRV.user?' · '+(SRV.user.hoTen||SRV.user.u):''}`;th.getCell('A2').font={...F,italic:true,size:10};th.getCell('A2').alignment={horizontal:'center'};
+  th.addRow([]);const hh=th.addRow(['Gói thầu','Số phiếu nhập','Số phiếu xuất','Nhập hoàn, trả lại','Tổng SL nhập','Tổng SL xuất','Số mã vật tư']);hh.eachCell(c=>{c.font={...F,bold:true,color:{argb:'FFFFFFFF'}};c.fill=fill('FF0E5C54');c.border=B;c.alignment={horizontal:'center',vertical:'middle',wrapText:true}});
+  for(const g of gs){
+    const L=phieuCuaGoi(g),mau=MAU[g]||'FF0E5C54';
+    const r=th.addRow([tenGoi(g),L.filter(x=>x.k==='pn'&&!/Hoàn|Thu hồi/.test(x.p.loai)).length,L.filter(x=>x.k==='px').length,L.filter(x=>x.k==='pn'&&/Hoàn|Thu hồi/.test(x.p.loai)).length,L.filter(x=>x.k==='pn').reduce((s,x)=>s+x.ls.reduce((a,l)=>a+(+l.sl||0),0),0),L.filter(x=>x.k==='px').reduce((s,x)=>s+x.ls.reduce((a,l)=>a+(+l.sl||0),0),0),new Set(L.flatMap(x=>x.ls.map(l=>l.maVT))).size]);r.eachCell(c=>{c.font=F;c.border=B});r.getCell(1).font={...F,bold:true,color:{argb:mau}};[5,6].forEach(i=>r.getCell(i).numFmt=NF);
+    const ws=wb.addWorksheet(('Phiếu '+tenGoi(g)).slice(0,31),{properties:{tabColor:{argb:mau}},pageSetup:{paperSize:9,orientation:'landscape',fitToPage:true,fitToWidth:1,fitToHeight:0}});
+    ws.columns=[{width:6},{width:11},{width:18},{width:20},{width:22},{width:20},{width:44},{width:8},{width:11},{width:11}];
+    ws.mergeCells('A1:J1');ws.getCell('A1').value=`SỔ PHIẾU ${tenGoi(g).toUpperCase()}`;ws.getCell('A1').font={...F,size:16,bold:true,color:{argb:mau}};ws.getCell('A1').alignment={horizontal:'center'};
+    ws.mergeCells('A2:J2');ws.getCell('A2').value=`${L.length} phiếu · lập lúc ${fmtDT(new Date())}`;ws.getCell('A2').font={...F,italic:true,size:10};ws.getCell('A2').alignment={horizontal:'center'};
+    const H=ws.addRow(['STT','Ngày','Số phiếu','Loại phiếu','Người giao / nhận','Mã vật tư','Tên vật tư (gói thầu)','ĐVT','Nhập','Xuất']);H.height=28;H.eachCell(c=>{c.font={...F,bold:true,color:{argb:'FFFFFFFF'}};c.fill=fill(mau);c.border=B;c.alignment={horizontal:'center',vertical:'middle',wrapText:true}});
+    ws.views=[{state:'frozen',ySplit:3}];let stt=0;const tong={};
+    for(const {k,p,ls} of L){
+      const gr=ws.addRow([`${loaiPhieu(k,p).toUpperCase()} – Số ${p.soPhieu} – ngày ${fmtD(p.ngay)} – ${k==='px'?'người nhận':'người giao'}: ${p.nguoi||'…'} – ${p.kho}${p.maSC?' – '+p.maSC:''}${p.ghiChu&&!/^Nhập từ ảnh/.test(p.ghiChu)?' – '+p.ghiChu:''}`]);ws.mergeCells(`A${gr.number}:J${gr.number}`);gr.getCell(1).font={...F,bold:true};gr.getCell(1).fill=fill('FFEAF1F8');gr.getCell(1).alignment={wrapText:true,vertical:'middle'};gr.height=20;
+      for(const l of ls){stt++;const nn=k==='pn'?+l.sl||0:'',xx=k==='px'?+l.sl||0:'';const x=ws.addRow([stt,(d=>new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())))(new Date(p.ngay)),p.soPhieu,loaiPhieu(k,p),p.nguoi||'',l.maVT,ganGoiTen(tv(l),g),dv(l),nn,xx]);
+        x.eachCell({includeEmpty:true},c=>{c.font=F;c.border=B;c.alignment={vertical:'middle',wrapText:true}});x.getCell(2).numFmt='dd/mm/yyyy';[9,10].forEach(i=>{x.getCell(i).numFmt=NF;x.getCell(i).alignment={horizontal:'right'}});
+        const t=tong[l.maVT]||(tong[l.maVT]={ten:tv(l),dvt:dv(l),n:0,x:0});if(k==='pn')t.n+=+l.sl||0;else t.x+=+l.sl||0}}
+    ws.addRow([]);const t0=ws.addRow(['','','','','','TỔNG THEO VẬT TƯ']);t0.getCell(6).font={...F,bold:true,color:{argb:mau}};
+    const th2=ws.addRow(['','','','','','Mã vật tư','Tên vật tư (gói thầu)','ĐVT','Tổng nhập','Tổng xuất']);for(let i=6;i<=10;i++){const c=th2.getCell(i);c.font={...F,bold:true};c.fill=fill('FFFBEFD6');c.border=B}
+    Object.entries(tong).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([m,t])=>{const r2=ws.addRow(['','','','','',m,ganGoiTen(t.ten,g),t.dvt,t.n,t.x]);for(let i=6;i<=10;i++){const c=r2.getCell(i);c.font=F;c.border=B}[9,10].forEach(i=>r2.getCell(i).numFmt=NF)});
+  }
+  const buf=await wb.xlsx.writeBuffer();luuBlob(new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),name);
+  toast('Đã xuất sổ phiếu theo gói',gs.map(tenGoi).join(', '),'g');
+}
+function inSoPhieuGoi(g){
+  let pa=$('#printArea');if(!pa){pa=document.createElement('div');pa.id='printArea';document.body.appendChild(pa)}
+  pa.innerHTML=`<section class="pg"><div class="pgh"><div class="dv"><div>CÔNG TY CỔ PHẦN</div><div>CHIẾU SÁNG CÔNG CỘNG TP.HCM</div><div class="u">CHIẾU SÁNG KHU VỰC TRUNG TÂM</div></div><h1>SỔ PHIẾU ${esc(tenGoi(g).toUpperCase())}</h1></div>${soPhieuHTML(g).replace(/<button[^>]*>[^<]*<\/button>/g,'')}</section>`;
+  document.body.classList.add('dang-in');setTimeout(()=>{try{window.print()}catch(e){}},150);
+}
+
 let ghiAm=null;
 function noiTim(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;const inp=$('#timQ'),btn=$('#timMic');
@@ -2536,7 +2649,7 @@ async function xuatBaoCaoKho(dau){
       const d=ws.getCell(R-1,n);d.value=`Ngày ${pad(new Date().getDate())} tháng ${pad(new Date().getMonth()+1)} năm ${new Date().getFullYear()}`;d.font={...F,italic:true};d.alignment={horizontal:'center'}}
     return ws;
   }
-  const ngay=p=>{const d=new Date(p.ngay);return new Date(d.getFullYear(),d.getMonth(),d.getDate())};
+  const ngay=p=>{const d=new Date(p.ngay);return new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()))};
   const order=[];
   const danhGia=d=>d.cuoi<0?'Âm kho – kiểm tra phiếu':d.tonMin>0&&d.cuoi<d.tonMin?'Dưới mức tối thiểu':d.cuoi===0?'Hết hàng':'Đủ';
   const toDG=(d,c)=>c.h==='Đánh giá'?(/Âm|Vượt/.test(c.v?c.v(d):'')?'FFF8E1E0':/Dưới|Hết|Ngoài/.test(c.v?c.v(d):'')?'FFFBEFD6':null):c.h==='Gói thầu'&&!d.goi?'FFF8E1E0':null;
@@ -2805,13 +2918,18 @@ V.goithau=()=>{
     <div class="bar" style="margin:8px 0 0"><button class="b" type="button" id="gThem">+ Thêm gói</button><button class="b p" type="button" id="gLuu">Lưu cấu hình</button></div></details>`;
   return`<h1>Gói thầu</h1><p class="sub">Mỗi dòng vật tư thuộc một gói. App tự xác định gói theo thứ tự: chứng từ ghi gói (cột Gói, tiêu đề, tên sheet, tên file, từ khóa) → phiếu lãnh gốc → danh mục hợp đồng của gói → gói đang còn tồn khi xuất → lịch sử vật tư. Tồn Động, Nhập Hoàn và báo cáo Excel đều tách theo gói.</p>
   <div class="kpis">${the}</div>
-  <div class="bar"><button class="b p qa" type="button" id="gDM">Nhập danh mục hợp đồng ${esc(tenGoi(tab))} từ ảnh, file</button><button class="b qe" type="button" id="gQuet">Tự quét, phân gói lại</button><button class="b" type="button" id="gXuat">Xuất Excel theo gói</button></div>
-  <h2>${esc(tenGoi(tab))}: vật tư, hợp đồng, tồn kho</h2>${bang}${dsChua}${cauHinh}`;
+  <div class="bar"><button class="b p qa" type="button" id="gDM">Nhập danh mục hợp đồng ${esc(tenGoi(tab))} từ ảnh, file</button><button class="b qe" type="button" id="gQuet">Tự quét, phân gói lại</button><button class="b" type="button" id="gXuat">Xuất Excel theo gói</button><button class="b p" type="button" id="gSo">📑 Sổ phiếu ${esc(tenGoi(tab))} (Excel)</button><button class="b" type="button" id="gSoAll">Sổ phiếu tất cả các gói</button><button class="b" type="button" id="gIn">In sổ phiếu</button></div>
+  <div class="seg" role="tablist" style="margin:6px 0 10px"><button type="button" class="gview${GTV.xem!=='phieu'?' on':''}" data-gxem="vt">Theo vật tư</button><button type="button" class="gview${GTV.xem==='phieu'?' on':''}" data-gxem="phieu">Theo phiếu (${phieuCuaGoi(tab).length})</button></div>
+  ${GTV.xem==='phieu'?`<h2>${esc(tenGoi(tab))}: nội dung từng phiếu</h2><div class="sp-ds">${soPhieuHTML(tab)}</div>`:`<h2>${esc(tenGoi(tab))}: vật tư, hợp đồng, tồn kho</h2>${bang}`}${dsChua}${cauHinh}`;
 };
 after.goithau=()=>{
   document.querySelectorAll('[data-gtab]').forEach(b=>b.onclick=()=>{if(b.dataset.gtab==='_chua'){const e=$('#gChua');if(e)e.scrollIntoView({behavior:'smooth'});return}GTV.tab=b.dataset.gtab;render()});
   $('#gDM').onclick=()=>{openCapture('dmg');CAP.head.goi=tenGoi(GTV.tab);drawCap()};
   $('#gQuet').onclick=async()=>{const r=await quetPhanGoi();toast(r.n?`Đã phân gói ${r.n} dòng`:'Không có dòng nào phân được thêm',r.bo?`${r.bo} dòng thuộc phiếu bạn không có quyền sửa.`:'Dòng còn lại cần chọn gói bằng tay.',r.n?'g':'');render()};
+  document.querySelectorAll('[data-gxem]').forEach(b=>b.onclick=()=>{GTV.xem=b.dataset.gxem;render()});
+  document.querySelectorAll('[data-spmo]').forEach(b=>b.onclick=()=>{const [k,id]=b.dataset.spmo.split('|');editPhieu(k,id)});
+  const soX=async(id,gs)=>{const b=$(id);b.disabled=true;try{await xuatSoPhieuGoi(gs)}catch(e){toast('Không xuất được sổ phiếu',e.message)}finally{b.disabled=false}};
+  $('#gSo').onclick=()=>soX('#gSo',[GTV.tab]);$('#gSoAll').onclick=()=>soX('#gSoAll',null);$('#gIn').onclick=()=>inSoPhieuGoi(GTV.tab);
   $('#gXuat').onclick=async()=>{const b=$('#gXuat');b.disabled=true;try{await xuatBaoCaoKho('goi')}catch(e){toast('Không xuất được Excel',e.message)}finally{b.disabled=false}};
   document.querySelectorAll('[data-gan]').forEach(s=>s.onchange=async()=>{const [k,id,i]=s.dataset.gan.split('|');const p=S[k].find(x=>x.id===id);if(!p||!s.value)return;p.lines[+i].goi=s.value;await save(k);render()});
   const cfg=()=>dsGoi().map((g,i)=>({ma:g.ma,ten:($(`[data-gten="${i}"]`)||{}).value?.trim()||g.ten,tu:($(`[data-gtu="${i}"]`)||{}).value?.trim()||''}));
@@ -2832,13 +2950,13 @@ function thanhGoi(v){
 const BO_DONG=/(phieu (nhap|xuat|linh|lanh|de nghi)|mau so|ban hanh|^so\s*[:.]|ngay\s*\d|thang\s*\d|nguoi (nhan|giao|lap|lanh)|ho (va )?ten|ly do|tai kho|dia chi|bo phan|don vi|^stt|ten,? ?nhan hieu|ten vat tu|quy cach|ma so|don vi tinh|so luong|don gia|thanh tien|yeu cau|thuc (xuat|nhap)|bang chu|tong (so|cong)|^cong\b|thu kho|ke toan|giam doc|ky,? ?ho ten|nguoi lap|chung tu goc)/;
 const DON_VI_KT=new Set(['w','kw','a','v','va','kva','mm','mm2','m2','m3','hz','lm','k']);
 function sauOCR(tk){return tk.length<=9&&/^[\dOoIlSB.,]+$/.test(tk)&&/\d/.test(tk)?tk.replace(/[Oo]/g,'0').replace(/[Il]/g,'1').replace(/S/g,'5').replace(/B/g,'8'):tk}
-function soVN(t){t=String(t);if(/^\d{1,3}(\.\d{3})+$/.test(t))return+t.replace(/\./g,'');if(/^\d{1,3}(,\d{3})+$/.test(t))return+t.replace(/,/g,'');return+t.replace(',','.')}
+function soVN(t){t=String(t);if(/^\d{1,3}(\.\d{3})+,\d+$/.test(t))return+t.replace(/\./g,'').replace(',','.');if(/^\d{1,3}(,\d{3})+\.\d+$/.test(t))return+t.replace(/,/g,'');if(/^\d{1,3}(\.\d{3})+$/.test(t))return+t.replace(/\./g,'');if(/^\d{1,3}(,\d{3})+$/.test(t))return+t.replace(/,/g,'');return+t.replace(',','.')}
 function tachDong(line){
   line=String(line||'').replace(/[|_\[\]{}“”"'`~*]/g,' ').replace(/\s+/g,' ').trim();if(line.length<3)return null;
   let tk=line.split(' ').map(sauOCR);
   for(let i=0;i<tk.length-1;i++)if(/^\d+([.,]\d+)?$/.test(tk[i])&&DON_VI_KT.has(norm(tk[i+1]))){tk[i]=tk[i]+tk[i+1];tk.splice(i+1,1)}
   if(/^\d{1,3}[.)]?$/.test(tk[0])&&tk.length>2)tk.shift();
-  const laSo=t=>/^\d[\d.,]*$/.test(t),laDVT=t=>!!DVT_MAP[norm(t)],laMa=t=>/^[A-Za-z][A-Za-z0-9\-_.\/]{2,}$/.test(t)&&/\d/.test(t)&&/[-_.\/]/.test(t);
+  const laSo=t=>/^\d[\d.,]*$/.test(t),laDVT=t=>!!DVT_MAP[norm(t)],laMa=t=>/^[A-Za-z][A-Za-z0-9\-_.\/,]{2,}$/.test(t)&&/[-_.\/]/.test(t)&&(/\d/.test(t)||/^[A-Z0-9\-_.\/]+$/.test(t)&&(t.match(/-/g)||[]).length>=2);
   const so=[];let dvt='',ma='',i=tk.length-1;
   for(;i>=0;i--){const t=tk[i];if(laSo(t))so.unshift(t);else if(!dvt&&laDVT(t)&&i>0)dvt=t;else if(!ma&&laMa(t))ma=t;else break}
   const chu=tk.slice(0,i+1);if(!so.length||!chu.length)return null;
@@ -2852,7 +2970,19 @@ function tachDong(line){
   return{tenVT:ten,maVT:ma,dvt,sl,donGia:gia||undefined};
 }
 function tachThoPhieu(text){
-  const out=[];for(const line of String(text||'').split(/\r?\n/)){const n=nds(line);if(BO_DONG.test(n))continue;const o=tachDong(line);if(o)out.push(o)}
+  const out=[];let prev=null,cach=0;
+  for(const raw of String(text||'').split(/\r?\n/)){const line=raw.replace(/[|_\[\]{}“”"`~*]/g,' ').replace(/\s+/g,' ').trim();if(!line){continue}
+    const n=nds(line);if(BO_DONG.test(n)){prev=null;continue}
+    const o=tachDong(line);if(o){out.push(o);prev=o;cach=0;continue}
+    if(!prev||++cach>3||line.length>90)continue;
+    // Dòng nối tiếp của ô nhiều dòng: phần tên vật tư, phần mã bị xuống dòng
+    let tk=line.split(' ');const moNgoac=(prev.tenVT.match(/\(/g)||[]).length>(prev.tenVT.match(/\)/g)||[]).length;
+    const iMa=tk.findIndex((t,i)=>i>=tk.length-2&&/^[0-9A-Z][0-9A-Za-z\-_.\/,]*$/.test(t)&&/\d/.test(t)&&/[-\/]/.test(t));
+    if(iMa>=0&&prev.maVT&&/[-_.\/]$/.test(prev.maVT)){prev.maVT+=tk[iMa];tk.splice(iMa,1)}
+    else if(iMa>=0&&!prev.maVT&&tk.length>1&&/\p{Lu}{2,}/u.test(tk[iMa])){prev.maVT=tk[iMa];tk.splice(iMa,1)}
+    const them=tk.join(' ').trim();
+    if(them&&(moNgoac||/^[\p{Ll}(Øø\d]/u.test(them)||them.length<=30&&!/^\p{Lu}[\p{Ll}]+ \p{Lu}[\p{Ll}]+ \p{Lu}/u.test(them)))prev.tenVT=(prev.tenVT+' '+them).replace(/\s+/g,' ').trim();
+  }
   return out;
 }
 const coSL=rows=>(rows||[]).filter(r=>numLoose(r.sl)>0&&(r.tenVT||r.maVT)).length;
@@ -2872,21 +3002,12 @@ async function anhSach(file){
     const o=v<m*0.86?Math.max(0,255*(v/(m*0.86))-60):255;const p=(y*w+xx)*4;d[p]=d[p+1]=d[p+2]=o}
   x.putImageData(im,0,0);return c;
 }
-async function docOCRMienPhi(file,prog){
-  await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js');
-  let src;try{src=await anhSach(file)}catch(e){src=await nenAnh(file)}
-  const wk=await Tesseract.createWorker('vie+eng',1,{logger:m=>{if(m.status==='recognizing text'&&prog)prog(Math.round(m.progress*100))}});
-  try{await wk.setParameters({tessedit_pageseg_mode:'4',preserve_interword_spaces:'1'});const r=await wk.recognize(src);return r.data.text||''}finally{wk.terminate()}
-}
-async function docOCRMayChu(file){
-  const img=await nenAnh(file);const r=await goiSV('ocr',{b64:await toB64(img),type:img.type||'image/jpeg'});return r.text||'';
-}
 /* Đọc ảnh: AI (nếu có khóa) → Google qua máy chủ (miễn phí) → OCR trong máy */
 async function docAnhPhieu(t,file,prog,ghi){
   if(S.cfg.aiKey){ghi('Đang đọc bằng AI…');return docAI(t,file,/pdf/.test(file.type)||/\.pdf$/i.test(file.name)?'pdf':'img')}
   let text='',nguon='';
-  if(SRV.on&&S.cfg.ocrMayChu!==false&&ROLE()!=='theodoi'){ghi('Đang gửi ảnh cho Google đọc…');try{text=await docOCRMayChu(file);nguon='Google'}catch(e){if(/Drive API/.test(e.message))S._ocrChuaBat=1;ghi('Máy chủ chưa đọc được ảnh, chuyển sang đọc trong máy…')}}
-  if(!text.trim()){ghi('Đang đọc chữ trong ảnh (lần đầu tải bộ đọc khoảng 10 MB)…');text=await docOCRMienPhi(file,prog);nguon='OCR trong máy'}
+  if(SRV.on&&S.cfg.ocrMayChu!==false&&ROLE()!=='theodoi'){ghi('Đang gửi ảnh cho Google đọc…');try{text=await docOCRMayChu(file,ghi);nguon='Google'}catch(e){if(/Drive API/.test(e.message))S._ocrChuaBat=1;ghi('Máy chủ chưa đọc được ảnh, chuyển sang đọc trong máy…')}}
+  if(!text.trim()){ghi('Đang đọc chữ trong ảnh (lần đầu tải bộ đọc khoảng 10 MB)…');text=await docOCRMienPhi(file,prog,ghi);nguon='OCR trong máy'}
   TXT_ALL=text;TXT_GOI+=' '+text.slice(0,1500);
   let r=textToRows(t,text);const fb=tachThoPhieu(text);if(coSL(fb)>coSL(r.rows))r={rows:fb,note:''};r.nguon=nguon;r.text=text;return r;
 }
@@ -2897,7 +3018,9 @@ function layDauPhieu(text){
     if(!o.ngay){let m=n.match(/ngay\s*(\d{1,2})\s*thang\s*(\d{1,2})\s*nam\s*(\d{4})/);if(m)o.ngay=`${m[1]}/${m[2]}/${m[3]}`;else{m=line.match(/\b(\d{1,2})[\/.\-](\d{1,2})[\/.\-](20\d{2})\b/);if(m&&/ngay|date/.test(n))o.ngay=`${m[1]}/${m[2]}/${m[3]}`}}
     if(!o.soPhieu){const m=n.match(/(?:^|\s)so(?:\s*phieu)?\s*[:.]\s*([a-z0-9][a-z0-9\/\-.]{0,24})/);if(m&&/\d/.test(m[1]))o.soPhieu=m[1].toUpperCase()}
     if(!o.nguoi){const m=line.match(/(?:h[oọ]\s*(?:v[aà]\s*)?t[eê]n\s*)?ng[uư][oờ]i\s*(?:nh[aậ]n|giao|l[aã]nh)(?:\s*h[aà]ng)?\s*[:.]\s*(.+)$/i);if(m&&m[1].replace(/[.…\s]/g,'').length>1)o.nguoi=m[1].split(/\s{2,}|\s+(?:b[oộ]\s*ph[aậ]n|đ[iị]a\s*ch[iỉ]|đ[oơ]n\s*v[iị])\s*:/i)[0].replace(/[.…]{2,}.*/,'').trim()}
-    if(!o.kho){const m=line.match(/(?:xu[aấ]t|nh[aậ]p)\s*t[aạ]i\s*kho\s*[:.]?\s*(.+)$/i);if(m&&m[1].replace(/[.…\s]/g,'').length>1)o.kho='Kho '+m[1].replace(/[.…]{2,}.*/,'').replace(/^kho\s*/i,'').trim()}}
+    if(!o.kho&&!o.khoGhi){const m=line.match(/(?:xu[aấ]t|nh[aậ]p)\s*t[aạ]i\s*kho\s*[:.]?\s*(.+)$/i);if(m&&m[1].replace(/[.…\s]/g,'').length>1){const ten=m[1].replace(/[.…]{2,}.*/,'').replace(/\s+(?:đ[iị]a\s*đi[eể]m|đ[iị]a\s*ch[iỉ]).*$/i,'').replace(/^kho\s*/i,'').trim();const kk=khoList().find(k=>nds(k).replace(/^kho\s*/,'')===nds(ten));if(kk)o.kho=kk;else o.khoGhi=ten}}
+    if(!o.lyDo){const m=line.match(/l[ýy]\s*do(?:\s*(?:xu[aấ]t|nh[aậ]p)(?:\s*kho)?)?\s*[:.]\s*(.+)$/i);if(m&&m[1].replace(/[.…\s]/g,'').length>2)o.lyDo=m[1].replace(/[.…]{2,}.*/,'').trim()}}
+  if(o.lyDo){const i=L.findIndex(x=>x.includes(o.lyDo));for(let j=i+1;j>0&&j<Math.min(L.length,i+3);j++){const n=nds(L[j]);if(/^(xuat|nhap)\s*tai|^(stt|so luong|ten)|dia diem|^ma/.test(n))break;o.lyDo+=' '+L[j]}}
   return o;
 }
 
@@ -2973,7 +3096,9 @@ async function themAnhQN(files){
       if(QN!==K)return;
       const dau=layDauPhieu(TXT_ALL||'');const r0=(r.rows||[])[0]||{};
       for(const k of ['ngay','soPhieu','nguoi','kho','maSC']){const v=dau[k]||r0[k];if(v&&(!K.head[k]||(k==='ngay'&&K.head.ngay===fmtD(new Date()))||(k==='kho'&&/^Kho (chính|thu hồi)$/.test(K.head.kho))))K.head[k]=k==='ngay'?(parseDate(v)?fmtD(parseDate(v)):K.head.ngay):String(v).trim()}
-      const fg=goiTuChu(a.file.name+' '+TXT_GOI);if(fg&&!K.head.goi)K.head.goi=tenGoi(fg);
+      if(dau.lyDo&&!K.head.ghiChu)K.head.ghiChu=dau.lyDo.slice(0,300);
+      if(dau.khoGhi&&!dau.kho&&!K.ghiChu.some(x=>x.includes(dau.khoGhi)))K.ghiChu.push(`Phiếu ghi xuất/nhập tại "${dau.khoGhi}": app giữ ${K.head.kho||'Kho chính'}. Đổi kho ở ô Kho nếu cần.`);
+      const fg=goiTuChu(a.file.name+' '+TXT_GOI+' '+(dau.lyDo||''));if(fg&&!K.head.goi)K.head.goi=tenGoi(fg);
       const rows=(r.rows||[]).map(o=>{const x={_a:a.id};for(const k of ['maVT','tenVT','dvt','sl','donGia','goi','maSC'])if(o[k]!=null&&String(o[k]).trim()!=='')x[k]=k==='goi'?tenGoi(normGoi(o[k])||'')||o[k]:k==='sl'?numLoose(o[k]):String(o[k]).trim();
         if(x.maVT&&!x.tenVT){const d=S.dmvt.find(z=>z.maVT===normMa(x.maVT));if(d)x.tenVT=d.tenVT}return x}).filter(x=>x.tenVT||x.maVT);
       a.text=r.text||TXT_ALL||'';a.nguon=r.nguon||'';K.rows=K.rows.filter(r=>r.tenVT||r.maVT||r.sl);K.rows.push(...rows);a.n=rows.length;a.st=rows.length?'xong':'loi';
@@ -3013,7 +3138,7 @@ const laZalo=()=>/zalo|FBAN|FBAV/i.test(navigator.userAgent);
 let hoiCai=null,anBanner=false,thamSoCho=null,swReg=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();hoiCai=e;document.querySelectorAll('.nut-cai').forEach(b=>b.classList.add('san'));if(['dash','caidat'].includes(cur)&&!$('#dlg').open)render()});
 window.addEventListener('appinstalled',()=>{hoiCai=null;capNhatNutCai();toast('Đã cài app','Mở "Kho vật tư" từ màn hình chính (điện thoại) hoặc menu Start (máy tính).','g');render()});
-const APP_VER='2026.10.20-tachso';
+const APP_VER='2026.10.20-sogoi';
 const APP_URL=()=>location.origin+location.pathname;
 function thietBi(){const u=navigator.userAgent;return{ios:laIOS(),android:/android/i.test(u),zalo:laZalo(),samsung:/SamsungBrowser/i.test(u),edge:/Edg\//i.test(u),firefox:/Firefox|FxiOS/i.test(u),chromeIOS:/CriOS/i.test(u),dt:chamTay()}}
 async function kiemTraCai(){
