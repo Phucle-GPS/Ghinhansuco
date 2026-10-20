@@ -277,6 +277,8 @@ dialog.qn-dlg{width:min(720px,100vw)}dialog.qn-dlg form{padding:0}
 .qn-foot{position:sticky;bottom:0;margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:var(--paper);border-top:1px solid var(--line);box-shadow:0 -6px 16px rgba(0,0,0,.06)}
 .qn-luu{font-size:16px;padding:11px 22px}.qn-meo{margin:0 16px 14px;font-size:13px;color:var(--muted)}.qn-meo summary{cursor:pointer}
 @media (max-width:520px){.qn-head2{grid-template-columns:1fr}}
+.db-ban{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.db-ban .b{margin-left:auto}
+.qn-raw{margin:0 16px 10px;font-size:13px}.qn-raw summary{cursor:pointer;color:var(--muted)}.qn-raw>div{display:flex;flex-direction:column;gap:3px;margin-top:6px;max-height:260px;overflow:auto}.qn-line{all:unset;cursor:pointer;padding:6px 8px;border-radius:6px;background:var(--head);font-size:13px;white-space:pre-wrap}.qn-line:hover{background:var(--amber-soft)}.qn-line.da{opacity:.5}
 ol.hl{margin:6px 0;padding-left:22px}ol.hl li{margin:4px 0}
 .hgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
 details.hd summary{cursor:pointer}
@@ -976,7 +978,7 @@ caidat(){
     <label>Đã xử lý chờ đóng <input type="number" min="5" id="n4" value="${c.nhip.choDong}" style="width:80px"></label></div></div>
   <div class="card qa"><h2 style="margin-top:0">Vật tư bắt buộc thu hồi</h2><p class="muted" style="margin-top:0">Tiền tố mã vật tư, cách nhau bằng dấu phẩy. Ví dụ DEN,DRIVER nghĩa là mọi mã bắt đầu bằng DEN hoặc DRIVER.</p><input id="thuHoi" value="${esc(c.thuHoi)}" style="width:100%"></div>
   <div class="card qa qsrv"><h2 style="margin-top:0">Trừ tồn kho</h2><label style="display:flex;gap:8px;align-items:flex-start"><input type="checkbox" id="truKho"${c.truKhoKhiDuyet?' checked':''}> <span>Chỉ trừ, cộng tồn kho khi phiếu đã được quản trị duyệt. Bỏ chọn thì phiếu người nhập liệu lập được tính vào tồn ngay (vẫn hiện "Chờ duyệt").</span></label></div>
-  ${theCaiDat()}<div class="card qe"><h2 style="margin-top:0">Đọc ảnh chứng từ bằng AI</h2><p class="muted" style="margin-top:0">Khi có khóa API của Anthropic, ảnh chụp và PDF scan được gửi tới Claude để đọc bảng số liệu, chính xác hơn nhiều so với OCR miễn phí; tính phí theo lượt dùng trên tài khoản API của đơn vị. Khóa chỉ lưu trên máy này và không nằm trong file sao lưu. Không có khóa, app dùng OCR miễn phí chạy ngay trong trình duyệt. File Excel, Word luôn được đọc trực tiếp, không gửi đi đâu.</p>
+  ${theDongBo()}${theCaiDat()}<div class="card qe"><h2 style="margin-top:0">Đọc ảnh chứng từ bằng AI</h2><p class="muted" style="margin-top:0">Khi có khóa API của Anthropic, ảnh chụp và PDF scan được gửi tới Claude để đọc bảng số liệu, chính xác hơn nhiều so với OCR miễn phí; tính phí theo lượt dùng trên tài khoản API của đơn vị. Khóa chỉ lưu trên máy này và không nằm trong file sao lưu. Không có khóa, app dùng OCR miễn phí chạy ngay trong trình duyệt. File Excel, Word luôn được đọc trực tiếp, không gửi đi đâu.</p>
   <div class="bar"><label>Khóa API <input type="password" id="aiKey" value="${esc(c.aiKey||'')}" placeholder="sk-ant-..." style="width:280px" autocomplete="off"></label><label>Mô hình <input id="aiModel" value="${esc(c.aiModel||'claude-sonnet-5')}" style="width:180px"></label><button class="b" id="aiTest" type="button">Kiểm tra kết nối</button></div></div>
   <div class="bar qe"><button class="b p" id="luuCD">Lưu cài đặt</button></div>
   <h2 class="qa">Sao lưu</h2><div class="bar qa"><label><input type="checkbox" id="bkAnh" checked> Kèm ảnh, file đính kèm</label><button class="b" id="bk">Xuất file sao lưu (.json)</button><label class="b qlocal">Khôi phục từ file sao lưu<input type="file" id="rs" accept=".json" hidden></label><button class="b" id="xuatAll">Xuất toàn bộ ra Excel</button></div>
@@ -1073,7 +1075,7 @@ const after={
   caidat(){
     if(navigator.storage&&navigator.storage.estimate)navigator.storage.estimate().then(e=>{const q=$('#quota');if(q&&e.quota)q.textContent=`Trình duyệt đang dùng ${fmtSize(e.usage)} trên ${fmtSize(e.quota)} cho phép.`});
     $('#luuCD').onclick=async()=>{const c=S.cfg;c.goiBatDau=$('#gBD').value;c.goiKetThuc=$('#gKT').value;c.nhip={thuong:Math.max(5,+$('#n1').value||120),qua24:Math.max(5,+$('#n2').value||60),qua48:Math.max(5,+$('#n3').value||30),choDong:Math.max(5,+$('#n4').value||240)};c.thuHoi=$('#thuHoi').value;if($('#truKho'))c.truKhoKhiDuyet=$('#truKho').checked;c.aiKey=$('#aiKey').value.trim();c.aiModel=$('#aiModel').value.trim()||'claude-sonnet-5';await DB.set('cfg',c);hen();toast('Đã lưu cài đặt','','g')};
-    ganCaiDat();$('#aiTest').onclick=async()=>{const k0=S.cfg.aiKey,m0=S.cfg.aiModel;S.cfg.aiKey=$('#aiKey').value.trim();S.cfg.aiModel=$('#aiModel').value.trim()||'claude-sonnet-5';try{await aiGoi([{type:'text',text:'Trả lời đúng một chữ: OK'}],10);toast('Kết nối AI thành công','Nhớ bấm "Lưu cài đặt".','g')}catch(e){toast('Kết nối AI không thành công',e.message)}finally{S.cfg.aiKey=k0;S.cfg.aiModel=m0}};
+    ganCaiDat();{const a=$('#dbNgay');if(a)a.onclick=()=>dongBoNgay(a);const k=$('#dbKet');if(k)k.onclick=()=>manDangNhap('');const l=$('#dbLai');if(l)l.onclick=async()=>{if(!confirm('Tải lại toàn bộ dữ liệu từ máy chủ? Dữ liệu chưa gửi trên máy này vẫn được giữ và gửi lên sau.'))return;SRV.rev=0;await dongBoNgay(l)}}$('#aiTest').onclick=async()=>{const k0=S.cfg.aiKey,m0=S.cfg.aiModel;S.cfg.aiKey=$('#aiKey').value.trim();S.cfg.aiModel=$('#aiModel').value.trim()||'claude-sonnet-5';try{await aiGoi([{type:'text',text:'Trả lời đúng một chữ: OK'}],10);toast('Kết nối AI thành công','Nhớ bấm "Lưu cài đặt".','g')}catch(e){toast('Kết nối AI không thành công',e.message)}finally{S.cfg.aiKey=k0;S.cfg.aiModel=m0}};
     $('#bk').onclick=async()=>{
       const b=$('#bk');b.disabled=true;b.textContent='Đang đóng gói…';const blobs={};
       if($('#bkAnh').checked)for(const f of S.files){const x=await getBlob(f.id);if(x)blobs[f.id]=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(x)})}
@@ -1735,14 +1737,20 @@ function apDungTuXa(list){
 }
 let henT=null;
 function hen(ms=1500){if(!SRV.on)return;clearTimeout(henT);henT=setTimeout(dongBo,ms)}
+async function taiAnhLen(){
+  // Đưa ảnh, file lên Drive sau khi dữ liệu đã đồng bộ; lỗi ảnh không chặn dữ liệu
+  if(ROLE()==='theodoi')return;let doi=false,n=0;
+  for(const f of S.files){if(f.driveId||f._khongTai||(f._loiTai||0)>=3)continue;if(n>=6)break;
+    const b=await getBlob(f.id);if(!b)continue;if(b.size>15*1048576){f._khongTai=1;doi=true;continue}
+    try{const r=await goiSV('upload',{id:f.id,name:f.ten,type:f.type,b64:await toB64(b)});f.driveId=r.driveId;doi=true;n++}catch(e){f._loiTai=(f._loiTai||0)+1;doi=true;SRV.loiAnh=e.message}}
+  if(doi){await DB.set('files',S.files);const ch=tinhThayDoi().filter(c=>c.loai==='files');if(ch.length){const r=await goiSV('push',{changes:ch.map(c=>({loai:c.loai,id:c.id,data:c.data}))});ch.forEach(c=>{if(c.data)SRV.shadow[c.key]=c.j;else delete SRV.shadow[c.key]});if(r.moi&&r.moi.length)apDungTuXa(r.moi)}}
+  SRV.anhCho=S.files.filter(f=>!f.driveId&&!f._khongTai&&(f._loiTai||0)<3).length;
+}
 async function dongBo(){
   if(!SRV.on)return;if(SRV.busy){hen(4000);return}
   SRV.busy=true;veTT();
   try{
-    if(ROLE()!=='theodoi'){let doi=false;
-      for(const f of S.files){if(f.driveId||f._khongTai)continue;const b=await getBlob(f.id);if(!b)continue;if(b.size>20*1048576){f._khongTai=1;doi=true;continue}
-        const r=await goiSV('upload',{id:f.id,name:f.ten,type:f.type,b64:await toB64(b)});f.driveId=r.driveId;doi=true}
-      if(doi)await DB.set('files',S.files);
+    if(ROLE()!=='theodoi'){
       const ch=tinhThayDoi();SRV.cho=ch.length;
       for(let i=0;i<ch.length;i+=150){
         const part=ch.slice(i,i+150);
@@ -1759,8 +1767,24 @@ async function dongBo(){
     SRV.rev=r.rev;await DB.set('srv_rev',r.rev);
     if(r.changes.length&&!$('#dlg').open&&!$('#viewer').open&&!(document.activeElement&&document.activeElement.matches('input,select,textarea')))render();
     SRV.loi='';SRV.lanCuoi=new Date();
+    try{await taiAnhLen()}catch(e){}
   }catch(e){SRV.loi=e.message}
-  finally{SRV.busy=false;await DB.set('srv_shadow',SRV.shadow).catch(()=>{});veTT()}
+  finally{SRV.busy=false;await DB.set('srv_shadow',SRV.shadow).catch(()=>{});veTT();const bn=$('#dbBan');if(bn)bn.outerHTML=bangDongBo()}
+}
+async function dongBoNgay(btn){if(!SRV.on){manDangNhap('');return}if(btn){btn.disabled=true;btn.textContent='Đang đồng bộ…'}SRV.busy=false;await dongBo();if(SRV.loi)toast('Chưa đồng bộ được',SRV.loi);else toast('Đã đồng bộ',`Lúc ${new Date().toTimeString().slice(0,5)}${SRV.anhCho?` · còn ${SRV.anhCho} ảnh đang gửi`:''}`,'g');render()}
+function bangDongBo(){
+  if(!SRV.on)return`<div class="msg r db-ban" id="dbBan"><b>Chế độ một máy:</b> phiếu nhập trên máy này <b>không đồng bộ</b> sang điện thoại, máy tính khác. <button class="b p" type="button" data-dbket>Kết nối máy chủ, đăng nhập</button></div>`;
+  if(SRV.loi)return`<div class="msg r db-ban" id="dbBan"><b>Chưa đồng bộ được:</b> ${esc(SRV.loi)}${SRV.cho?` · ${SRV.cho} thay đổi đang chờ gửi`:''}. Dữ liệu vẫn giữ trên máy, sẽ tự gửi khi kết nối lại. <button class="b" type="button" data-dbngay>Thử lại</button></div>`;
+  const cho=tinhThayDoi().length;if(cho||SRV.busy)return`<div class="msg a db-ban" id="dbBan">${SRV.busy?'Đang đồng bộ…':`${cho} thay đổi chưa gửi lên máy chủ.`} <button class="b" type="button" data-dbngay>Đồng bộ ngay</button></div>`;
+  return'<span id="dbBan" hidden></span>';
+}
+function theDongBo(){
+  const cho=SRV.on?tinhThayDoi().length:0;
+  return`<div class="card"><h2 style="margin-top:0">Đồng bộ giữa điện thoại và máy tính</h2>
+  ${SRV.on?`<p style="margin-top:0">Đang dùng máy chủ chung với tài khoản <b>${esc(SRV.user.hoTen||SRV.user.u)}</b>. Lần đồng bộ gần nhất: <b>${SRV.lanCuoi?fmtDT(SRV.lanCuoi):'chưa'}</b>. Thay đổi chờ gửi: <b>${cho}</b>.${SRV.anhCho?` Ảnh đang chờ gửi: <b>${SRV.anhCho}</b>.`:''}${SRV.loi?`<br><span style="color:var(--red)">Lỗi: ${esc(SRV.loi)}</span>`:''}</p>
+   <p class="muted">Địa chỉ máy chủ: <span style="word-break:break-all">${esc(SRV.url)}</span></p>
+   <div class="bar" style="margin:0"><button class="b p" type="button" id="dbNgay">Đồng bộ ngay</button><button class="b" type="button" id="dbLai">Tải lại toàn bộ từ máy chủ</button></div>`
+  :`<div class="msg r">Máy này đang ở chế độ một máy: dữ liệu không đồng bộ. Đăng nhập máy chủ chung để điện thoại và máy tính dùng chung dữ liệu.</div><div class="bar" style="margin:0"><button class="b p" type="button" id="dbKet">Kết nối máy chủ, đăng nhập</button></div>`}</div>`;
 }
 function veTT(){
   const md=$('#mSync');if(md){md.className=!SRV.on?'':SRV.busy?'dang':SRV.loi?'loi':'ok';md.title=SRV.loi||''}
@@ -1805,8 +1829,8 @@ async function dangNhap(u,p,url){
   const prev=await DB.get('srv_lastUser');const coDL=KEYS.some(k=>S[k].length);
   if(prev!==r.user.u){
     if(coDL){
-      if(!prev&&r.user.vaiTro==='admin'&&confirm('Máy này đang có dữ liệu nhập ở chế độ một máy.\nBấm OK để đưa toàn bộ lên máy chủ chung.\nBấm Hủy để xóa dữ liệu cũ trên máy này và tải dữ liệu từ máy chủ.')){SRV.shadow={};SRV.rev=0}
-      else{if(!prev&&r.user.vaiTro!=='admin')alert('Dữ liệu cũ trên máy này (chế độ một máy) sẽ được xóa và thay bằng dữ liệu từ máy chủ chung.');await xoaCucBo()}
+      if(!prev&&confirm('Máy này đang có dữ liệu nhập ở chế độ một máy (phiếu, ảnh).\nBấm OK để ĐƯA LÊN máy chủ chung (khuyên dùng).\nBấm Hủy để xóa dữ liệu cũ trên máy này và chỉ lấy dữ liệu từ máy chủ.')){SRV.shadow={};SRV.rev=0;if(r.user.vaiTro!=='admin'){const me=r.user.u,ten=r.user.hoTen;['pn','px','suco','kln'].forEach(k=>S[k].forEach(x=>{if(!x._by){x._by=me;x._byTen=ten}}))}}
+      else{await xoaCucBo()}
     }else{SRV.shadow={};SRV.rev=0}
   }
   SRV.token=r.token;SRV.user=r.user;SRV.on=true;
@@ -1882,6 +1906,7 @@ V.taikhoan=()=>{
   const link=location.origin+location.pathname+'?sv='+encodeURIComponent(SRV.url);
   return`<h1>Tài khoản, phân quyền</h1><p class="sub">Quản trị tạo tài khoản cho người dưới cấp, chọn vai trò Nhập liệu (ghi nhận, lập phiếu, chờ duyệt) hoặc Theo dõi (chỉ xem, xuất Excel). Phạm vi quận để trống là xem mọi quận; ghi nhiều quận cách nhau dấu phẩy. Tài khoản mới và tài khoản vừa đặt lại mật khẩu phải đổi mật khẩu ở lần đăng nhập đầu.</p>
   <div class="card"><h2 style="margin-top:0">Liên kết mời</h2><p class="muted" style="margin-top:0">Gửi liên kết này qua Zalo, email cho người dùng. Mở liên kết là app đã có sẵn địa chỉ máy chủ, chỉ cần nhập tên đăng nhập và mật khẩu.</p><div class="bar" style="margin:0"><input id="tkLink" value="${esc(link)}" readonly style="flex:1;min-width:260px"><button class="b" id="tkCopy">Sao chép</button></div></div>
+  <div class="card"><h2 style="margin-top:0">Điện thoại tự kết nối máy chủ</h2><p class="muted" style="margin-top:0">Tải file cấu hình rồi đưa lên GitHub cùng chỗ với quytrinh.html (link upload như mọi lần). Từ đó mọi điện thoại, máy tính mở app (kể cả app đã cài trên iPhone) tự biết địa chỉ máy chủ, chỉ cần đăng nhập.</p><button class="b p" type="button" id="tkCfg">Tải file kho-maychu.json</button></div>
   <div class="bar"><button class="b p" id="tkAdd">Thêm tài khoản</button><button class="b" id="tkReload">Tải lại danh sách</button></div>
   <div class="tw"><table><thead><tr><th>Tên đăng nhập</th><th>Họ tên</th><th>Vai trò</th><th>Phạm vi quận</th><th>Trạng thái</th><th>Đăng nhập gần nhất</th><th></th></tr></thead><tbody>
   ${DSU?DSU.map(u=>`<tr><td>${esc(u.u)}</td><td>${esc(u.hoTen)}</td><td><span class="pill ${u.vaiTro==='admin'?'pr':u.vaiTro==='nhaplieu'?'pa':'pn'}">${ROLE_TEN[u.vaiTro]||esc(u.vaiTro)}</span></td><td>${esc(u.phamVi||'Tất cả')}</td><td>${u.trangThai==='Hoạt động'?'<span class="pill pg">Hoạt động</span>':'<span class="pill pr">Khóa</span>'}</td><td>${u.lanCuoi?fmtDT(u.lanCuoi):'<span class="muted">chưa</span>'}</td><td><button class="b" data-tku="${esc(u.u)}">Sửa</button> <button class="b" data-tkp="${esc(u.u)}">Đặt lại mật khẩu</button></td></tr>`).join(''):'<tr><td colspan="7" class="muted">Đang tải…</td></tr>'}
@@ -1897,6 +1922,7 @@ after.taikhoan=()=>{
   $('#tkReload').onclick=()=>{DSU=null;render();tai()};
   $('#tkCopy').onclick=async()=>{try{await navigator.clipboard.writeText($('#tkLink').value);toast('Đã sao chép liên kết mời','','g')}catch(e){$('#tkLink').select()}};
   $('#tkAdd').onclick=()=>suaUser(null);
+  $('#tkCfg').onclick=()=>taiBlob(new Blob([JSON.stringify({url:SRV.url,ten:'Kho vật tư – CSKVTT'},null,2)],{type:'application/json'}),'kho-maychu.json');
   document.querySelectorAll('[data-tku]').forEach(b=>b.onclick=()=>suaUser(DSU.find(u=>u.u===b.dataset.tku)));
   document.querySelectorAll('[data-tkp]').forEach(b=>b.onclick=async()=>{const p=prompt('Mật khẩu tạm mới cho '+b.dataset.tkp+' (tối thiểu 6 ký tự). Người dùng sẽ phải đổi khi đăng nhập:');if(!p)return;try{await goiSV('resetPw',{u:b.dataset.tkp,p});toast('Đã đặt lại mật khẩu','Gửi mật khẩu tạm cho người dùng; các phiên đăng nhập cũ của họ bị đăng xuất.','g')}catch(e){toast('Không đặt lại được',e.message)}});
   $('#nkLoad').onclick=async()=>{try{NK=(await goiSV('nhatKy',{n:300})).rows;render()}catch(e){toast('Không tải được nhật ký',e.message)}};
@@ -1957,7 +1983,7 @@ V.huongdan=()=>{const R=ROLE();
   <h2>Cài máy chủ dữ liệu chung (quản trị làm một lần)</h2><div class="card"><p style="margin-top:0">Máy chủ là một Google Sheet kèm Apps Script của đơn vị, lưu dữ liệu chung, ảnh (trên Google Drive), tài khoản và nhật ký. Không có máy chủ, app chạy chế độ một máy: dữ liệu chỉ nằm trên máy đó và không phân quyền.</p><ol class="hl">${CAI_MAY_CHU.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div>`};
 after.huongdan=()=>{$('#inHD').onclick=()=>{document.querySelectorAll('details.hd').forEach(d=>d.open=true);window.print()}};
 function thanhTren(v){
-  let s=thanhCon(v)+thanhGoi(v)+`<div class="hbar"><button class="b" type="button" data-help="${v}">? Hướng dẫn mục này</button></div>`;
+  let s=thanhCon(v)+(v!=='huongdan'?bangDongBo():'')+thanhGoi(v)+`<div class="hbar"><button class="b" type="button" data-help="${v}">? Hướng dẫn mục này</button></div>`;
   if(v==='trangchu'&&SRV.on&&ROLE()==='admin'){const c=demChoDuyet();if(c.p)s+=`<div class="msg a" style="clear:none">Chờ duyệt: ${c.p} phiếu. <button class="b" type="button" data-go="nhapkho">Nhập Kho</button> <button class="b" type="button" data-go="xuatkho">Xuất Kho</button> <button class="b" type="button" data-go="nhaphoan">Nhập Hoàn</button></div>`}
   if(v==='trangchu'&&!daCai()&&!anBanner)s+=`<div class="msg a">Cài app lên ${chamTay()?'màn hình chính điện thoại':'máy tính'} để mở như ứng dụng riêng, chạy cả khi mất mạng. <button class="b p" type="button" data-cai>Cài app</button> <button class="b" type="button" data-anbn>Để sau</button></div>`;
   if(v==='tondong'&&S.cfg.truKhoKhiDuyet){const n=S.pn.concat(S.px).filter(p=>p.duyet===false).length;if(n)s+=`<div class="msg a">Đang chỉ tính phiếu đã duyệt: ${n} phiếu chờ duyệt chưa được trừ, cộng vào tồn.</div>`}
@@ -1965,6 +1991,7 @@ function thanhTren(v){
   return s;
 }
 function bindTren(){
+  document.querySelectorAll('#main [data-dbket]').forEach(b=>b.onclick=()=>manDangNhap(''));document.querySelectorAll('#main [data-dbngay]').forEach(b=>b.onclick=()=>dongBoNgay(b));
   document.querySelectorAll('#main [data-gloc]').forEach(b=>b.onclick=()=>{GOI.loc=b.dataset.gloc;render()});
   document.querySelectorAll('#main [data-cai]').forEach(b=>b.onclick=caiApp);document.querySelectorAll('#main [data-anbn]').forEach(b=>b.onclick=()=>{anBanner=true;DB.set('anBannerCai',true);render()});
   document.querySelectorAll('#main [data-help]').forEach(b=>b.onclick=()=>moHelp(b.dataset.help));
@@ -2801,6 +2828,35 @@ function thanhGoi(v){
 {const _nm=napMau;napMau=function(){const r=_nm.apply(this,arguments);const gan=()=>{const g=ma=>/^(DRIVER|DEN)/.test(ma)?'G1':/^(CB|CAP)/.test(ma)?'G2':'';S.pn.concat(S.px).forEach(p=>p.lines.forEach(l=>{if(!l.goi)l.goi=g(l.maVT)}));
   S.dmvt.forEach(d=>{const x=g(d.maVT);if(x&&!d.goiHD)d.goiHD={[x]:({'DRIVER-100W':40,'DEN-LED-100W':20,'CB-3P-63A':10,'CAP-CXV-4x16':500})[d.maVT]||10}});save('pn','px','dmvt')};
   if(r&&r.then)return r.then(x=>{gan();return x});gan();return r}}
+/* ================== TÁCH SỐ LIỆU TỪ CHỮ ĐỌC ĐƯỢC TRONG ẢNH ================== */
+const BO_DONG=/(phieu (nhap|xuat|linh|lanh|de nghi)|mau so|ban hanh|^so\s*[:.]|ngay\s*\d|thang\s*\d|nguoi (nhan|giao|lap|lanh)|ho (va )?ten|ly do|tai kho|dia chi|bo phan|don vi|^stt|ten,? ?nhan hieu|ten vat tu|quy cach|ma so|don vi tinh|so luong|don gia|thanh tien|yeu cau|thuc (xuat|nhap)|bang chu|tong (so|cong)|^cong\b|thu kho|ke toan|giam doc|ky,? ?ho ten|nguoi lap|chung tu goc)/;
+const DON_VI_KT=new Set(['w','kw','a','v','va','kva','mm','mm2','m2','m3','hz','lm','k']);
+function sauOCR(tk){return tk.length<=9&&/^[\dOoIlSB.,]+$/.test(tk)&&/\d/.test(tk)?tk.replace(/[Oo]/g,'0').replace(/[Il]/g,'1').replace(/S/g,'5').replace(/B/g,'8'):tk}
+function soVN(t){t=String(t);if(/^\d{1,3}(\.\d{3})+$/.test(t))return+t.replace(/\./g,'');if(/^\d{1,3}(,\d{3})+$/.test(t))return+t.replace(/,/g,'');return+t.replace(',','.')}
+function tachDong(line){
+  line=String(line||'').replace(/[|_\[\]{}“”"'`~*]/g,' ').replace(/\s+/g,' ').trim();if(line.length<3)return null;
+  let tk=line.split(' ').map(sauOCR);
+  for(let i=0;i<tk.length-1;i++)if(/^\d+([.,]\d+)?$/.test(tk[i])&&DON_VI_KT.has(norm(tk[i+1]))){tk[i]=tk[i]+tk[i+1];tk.splice(i+1,1)}
+  if(/^\d{1,3}[.)]?$/.test(tk[0])&&tk.length>2)tk.shift();
+  const laSo=t=>/^\d[\d.,]*$/.test(t),laDVT=t=>!!DVT_MAP[norm(t)],laMa=t=>/^[A-Za-z][A-Za-z0-9\-_.\/]{2,}$/.test(t)&&/\d/.test(t)&&/[-_.\/]/.test(t);
+  const so=[];let dvt='',ma='',i=tk.length-1;
+  for(;i>=0;i--){const t=tk[i];if(laSo(t))so.unshift(t);else if(!dvt&&laDVT(t)&&i>0)dvt=t;else if(!ma&&laMa(t))ma=t;else break}
+  const chu=tk.slice(0,i+1);if(!so.length||!chu.length)return null;
+  const v=so.map(soVN).filter(x=>!isNaN(x));if(!v.length)return null;
+  let sl=v[v.length-1],gia=0;const L=v.length;
+  if(L>=3&&v[L-2]>0&&Math.abs(v[L-1]-v[L-2]*v[L-3])<=Math.max(1,v[L-1]*0.02)){sl=v[L-3];gia=v[L-2]}
+  else if(L>=2&&v[L-1]>=1000&&v[L-2]>0&&v[L-2]<1000){sl=v[L-2];gia=v[L-1]}
+  if(!ma){const mi=chu.findIndex(laMa);if(mi>=0){ma=chu[mi];chu.splice(mi,1)}}
+  const ten=chu.join(' ').replace(/^[-–:.,;]+|[-–:.,;]+$/g,'').trim();
+  if(ten.replace(/[^\p{L}]/gu,'').length<2||!(sl>0)||sl>1e6)return null;
+  return{tenVT:ten,maVT:ma,dvt,sl,donGia:gia||undefined};
+}
+function tachThoPhieu(text){
+  const out=[];for(const line of String(text||'').split(/\r?\n/)){const n=nds(line);if(BO_DONG.test(n))continue;const o=tachDong(line);if(o)out.push(o)}
+  return out;
+}
+const coSL=rows=>(rows||[]).filter(r=>numLoose(r.sl)>0&&(r.tenVT||r.maVT)).length;
+
 /* ================== ĐỌC ẢNH TỐT HƠN ================== */
 let TXT_ALL='';
 async function anhSach(file){
@@ -2832,7 +2888,7 @@ async function docAnhPhieu(t,file,prog,ghi){
   if(SRV.on&&S.cfg.ocrMayChu!==false&&ROLE()!=='theodoi'){ghi('Đang gửi ảnh cho Google đọc…');try{text=await docOCRMayChu(file);nguon='Google'}catch(e){if(/Drive API/.test(e.message))S._ocrChuaBat=1;ghi('Máy chủ chưa đọc được ảnh, chuyển sang đọc trong máy…')}}
   if(!text.trim()){ghi('Đang đọc chữ trong ảnh (lần đầu tải bộ đọc khoảng 10 MB)…');text=await docOCRMienPhi(file,prog);nguon='OCR trong máy'}
   TXT_ALL=text;TXT_GOI+=' '+text.slice(0,1500);
-  const r=textToRows(t,text);r.nguon=nguon;return r;
+  let r=textToRows(t,text);const fb=tachThoPhieu(text);if(coSL(fb)>coSL(r.rows))r={rows:fb,note:''};r.nguon=nguon;r.text=text;return r;
 }
 /* Lấy thông tin chung trên phiếu: ngày, số phiếu, người giao/nhận, kho */
 function layDauPhieu(text){
@@ -2840,7 +2896,7 @@ function layDauPhieu(text){
   for(const line of L.slice(0,40)){const n=nds(line);
     if(!o.ngay){let m=n.match(/ngay\s*(\d{1,2})\s*thang\s*(\d{1,2})\s*nam\s*(\d{4})/);if(m)o.ngay=`${m[1]}/${m[2]}/${m[3]}`;else{m=line.match(/\b(\d{1,2})[\/.\-](\d{1,2})[\/.\-](20\d{2})\b/);if(m&&/ngay|date/.test(n))o.ngay=`${m[1]}/${m[2]}/${m[3]}`}}
     if(!o.soPhieu){const m=n.match(/(?:^|\s)so(?:\s*phieu)?\s*[:.]\s*([a-z0-9][a-z0-9\/\-.]{0,24})/);if(m&&/\d/.test(m[1]))o.soPhieu=m[1].toUpperCase()}
-    if(!o.nguoi){const m=line.match(/(?:h[oọ]\s*(?:v[aà]\s*)?t[eê]n\s*)?ng[uư][oờ]i\s*(?:nh[aậ]n|giao|l[aã]nh)(?:\s*h[aà]ng)?\s*[:.]\s*(.+)$/i);if(m&&m[1].replace(/[.…\s]/g,'').length>1)o.nguoi=m[1].replace(/[.…]{2,}.*/,'').trim()}
+    if(!o.nguoi){const m=line.match(/(?:h[oọ]\s*(?:v[aà]\s*)?t[eê]n\s*)?ng[uư][oờ]i\s*(?:nh[aậ]n|giao|l[aã]nh)(?:\s*h[aà]ng)?\s*[:.]\s*(.+)$/i);if(m&&m[1].replace(/[.…\s]/g,'').length>1)o.nguoi=m[1].split(/\s{2,}|\s+(?:b[oộ]\s*ph[aậ]n|đ[iị]a\s*ch[iỉ]|đ[oơ]n\s*v[iị])\s*:/i)[0].replace(/[.…]{2,}.*/,'').trim()}
     if(!o.kho){const m=line.match(/(?:xu[aấ]t|nh[aậ]p)\s*t[aạ]i\s*kho\s*[:.]?\s*(.+)$/i);if(m&&m[1].replace(/[.…\s]/g,'').length>1)o.kho='Kho '+m[1].replace(/[.…]{2,}.*/,'').replace(/^kho\s*/i,'').trim()}}
   return o;
 }
@@ -2852,7 +2908,7 @@ function nhapNhanh(tk,files){
   if(ROLE()==='theodoi'){toast('Tài khoản theo dõi chỉ xem','');return}
   const t=TG[tk==='tl'?'pn':tk];const g0=GOI.loc&&GOI.loc!=='_'?GOI.loc:'';
   QN={tk,t,anh:[],rows:[],head:{ngay:fmtD(new Date()),soPhieu:'',nguoi:'',kho:tk==='tl'?'Kho thu hồi':'Kho chính',goi:g0?tenGoi(g0):'',loai:tk==='tl'?'Thu hồi':tk==='pn'?'Mua mới':''},msg:'',dang:false,ghiChu:[]};
-  const dlg=moDialog();dlg.classList.add('qn-dlg');const toi=QN;dlg.addEventListener('close',()=>{if(QN===toi){QN=null;dlg.classList.remove('qn-dlg')}},{once:true});
+  const dlg=moDialog();dlg.classList.add('qn-dlg');const toi=QN;const onc=()=>{if(dlg.open)return;dlg.removeEventListener('close',onc);if(QN===toi){QN=null;dlg.classList.remove('qn-dlg')}};dlg.addEventListener('close',onc);
   veQN();if(files&&files.length)themAnhQN(files);
 }
 function dongQN(){const K=QN;if(!K)return;const f=$('#dlgForm');
@@ -2874,6 +2930,7 @@ function veQN(){
   ${K.msg?`<div class="msg ${K.dang?'a':'g'} qn-msg">${K.dang?'<span class="qn-quay"></span>':''}${esc(K.msg)}</div>`:''}
   ${S._ocrChuaBat&&ROLE()==='admin'?'<div class="msg a">Đọc ảnh bằng Google (chính xác hơn, miễn phí) chưa bật trên máy chủ. Xem Hướng dẫn → "Bật đọc ảnh bằng Google".</div>':''}
   ${K.ghiChu.map(x=>`<div class="msg a">${esc(x)}</div>`).join('')}
+  ${K.anh.filter(a=>a.text&&a.text.trim()).map(a=>{const L=a.text.split(/\r?\n/).map(x=>x.trim()).filter(x=>x.length>1);return`<details class="qn-raw"${a.n?'':' open'}><summary>Chữ đọc được từ ${esc(a.file.name)} (${L.length} dòng${a.nguon?', '+esc(a.nguon):''}) – bấm một dòng để thêm làm vật tư</summary>${a.nguon==='OCR trong máy'?'<p class="muted" style="margin:6px 0">Đang dùng bộ đọc trong máy (kém với ảnh tối, nghiêng, chữ viết tay). Bật đọc bằng Google hoặc AI để tách số liệu chính xác hơn: xem Hướng dẫn.</p>':''}<div>${L.map((x,i)=>`<button type="button" class="qn-line" data-qline="${esc(a.id)}|${i}">${esc(x)}</button>`).join('')}</div></details>`}).join('')}
   <div class="qn-head">
     <label>Ngày<input data-qh="ngay" value="${esc(K.head.ngay)}" inputmode="numeric"></label>
     <label>Gói thầu<select data-qh="goi">${opts([['','Tự xác định'],...G.map(g=>[g.ten,g.ten])],K.head.goi)}</select></label>
@@ -2897,6 +2954,7 @@ function veQN(){
   f.querySelectorAll('[data-qxa]').forEach(b=>b.onclick=()=>{dongQN();const a=K.anh.splice(+b.dataset.qxa,1)[0];K.rows=K.rows.filter(r=>r._a!==a.id);veQN()});
   f.querySelectorAll('[data-qxem]').forEach(im=>im.onclick=()=>{const a=K.anh[+im.dataset.qxem];window.open(a.url,'_blank')});
   f.querySelectorAll('[data-qxr]').forEach(b=>b.onclick=()=>{dongQN();K.rows.splice(+b.dataset.qxr,1);veQN()});
+  f.querySelectorAll('[data-qline]').forEach(bt=>bt.onclick=()=>{const [aid,i]=bt.dataset.qline.split('|');const a=K.anh.find(x=>x.id===aid);const L=a.text.split(/\r?\n/).map(x=>x.trim()).filter(x=>x.length>1);const line=L[+i];dongQN();const o=tachDong(line);K.rows=K.rows.filter(r=>r.tenVT||r.maVT||r.sl);K.rows.push(o?{tenVT:o.tenVT,maVT:o.maVT,dvt:o.dvt,sl:o.sl,donGia:o.donGia}:{tenVT:line.replace(/\s+\d[\d.,]*\s*$/,''),sl:''});bt.classList.add('da');veQN()});
   $('#qnAdd').onclick=()=>{dongQN();K.rows.push({});veQN();const all=f.querySelectorAll('[data-qf=tenVT]');all[all.length-1].focus()};
   f.querySelectorAll('[data-qh],[data-qf]').forEach(i=>i.onchange=()=>{dongQN();if(i.dataset.qf==='tenVT'){const r=K.rows[+i.closest('[data-qr]').dataset.qr];const m=khopVT('',i.value)||khopVT(i.value,'');r.maVT=m||'';if(m){const d=S.dmvt.find(x=>x.maVT===m);if(d){if(d.tenVT)r.tenVT=d.tenVT;if(!r.dvt)r.dvt=d.dvt}}}clearTimeout(K._t);K._t=setTimeout(()=>{if(QN===K)veQN()},0)});
   $('#capOK').onclick=luuQN;
@@ -2918,7 +2976,7 @@ async function themAnhQN(files){
       const fg=goiTuChu(a.file.name+' '+TXT_GOI);if(fg&&!K.head.goi)K.head.goi=tenGoi(fg);
       const rows=(r.rows||[]).map(o=>{const x={_a:a.id};for(const k of ['maVT','tenVT','dvt','sl','donGia','goi','maSC'])if(o[k]!=null&&String(o[k]).trim()!=='')x[k]=k==='goi'?tenGoi(normGoi(o[k])||'')||o[k]:k==='sl'?numLoose(o[k]):String(o[k]).trim();
         if(x.maVT&&!x.tenVT){const d=S.dmvt.find(z=>z.maVT===normMa(x.maVT));if(d)x.tenVT=d.tenVT}return x}).filter(x=>x.tenVT||x.maVT);
-      K.rows=K.rows.filter(r=>r.tenVT||r.maVT||r.sl);K.rows.push(...rows);a.n=rows.length;a.st=rows.length?'xong':'loi';
+      a.text=r.text||TXT_ALL||'';a.nguon=r.nguon||'';K.rows=K.rows.filter(r=>r.tenVT||r.maVT||r.sl);K.rows.push(...rows);a.n=rows.length;a.st=rows.length?'xong':'loi';
       K.msg=rows.length?`Đã đọc ${rows.length} dòng${r.nguon?' ('+r.nguon+')':''}. Kiểm tra tên, số lượng rồi bấm Lưu phiếu.`:'';
       if(!rows.length){K.ghiChu.push(`${a.file.name}: chưa đọc được dòng vật tư nào. Ảnh vẫn được lưu kèm phiếu; gõ nhanh các dòng bên dưới.`);if(!K.rows.length)K.rows.push({},{})}
     }catch(e){a.st='loi';K.ghiChu.push(`${a.file.name}: ${e.message}. Ảnh vẫn được lưu kèm phiếu; gõ nhanh các dòng bên dưới.`);if(!K.rows.length)K.rows.push({},{})}
@@ -2955,7 +3013,7 @@ const laZalo=()=>/zalo|FBAN|FBAV/i.test(navigator.userAgent);
 let hoiCai=null,anBanner=false,thamSoCho=null,swReg=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();hoiCai=e;document.querySelectorAll('.nut-cai').forEach(b=>b.classList.add('san'));if(['dash','caidat'].includes(cur)&&!$('#dlg').open)render()});
 window.addEventListener('appinstalled',()=>{hoiCai=null;capNhatNutCai();toast('Đã cài app','Mở "Kho vật tư" từ màn hình chính (điện thoại) hoặc menu Start (máy tính).','g');render()});
-const APP_VER='2026.10.16-nhapnhanh';
+const APP_VER='2026.10.20-tachso';
 const APP_URL=()=>location.origin+location.pathname;
 function thietBi(){const u=navigator.userAgent;return{ios:laIOS(),android:/android/i.test(u),zalo:laZalo(),samsung:/SamsungBrowser/i.test(u),edge:/Edg\//i.test(u),firefox:/Firefox|FxiOS/i.test(u),chromeIOS:/CriOS/i.test(u),dt:chamTay()}}
 async function kiemTraCai(){
@@ -3098,13 +3156,14 @@ const clock=()=>{$('#clock').textContent=fmtDT(new Date())};
   thamSoCho={v:qs.get('v'),lam:qs.get('lam'),ma:qs.get('ma'),share:qs.has('share')};
   if(sv)await DB.set('srv_url',sv);if(location.search)history.replaceState(null,'',location.pathname)
   SRV.url=sv||(await DB.get('srv_url'))||SERVER_URL||'';
+  if(!SRV.url){try{const r=await fetch('kho-maychu.json',{cache:'no-store'});if(r.ok){const j=await r.json();if(j&&/^https:\/\/script\.google(usercontent)?\.com\//.test(j.url||'')){SRV.url=j.url;await DB.set('srv_url',j.url)}}}catch(e){}}
   SRV.token=(await DB.get('srv_token'))||'';SRV.user=(await DB.get('srv_user'))||null;SRV.rev=(await DB.get('srv_rev'))||0;SRV.shadow=(await DB.get('srv_shadow'))||{};
   if(SRV.url&&SRV.token&&SRV.user){SRV.on=true;apDungVaiTro();go('dash');if(SRV.user.doiMK)doiMatKhau(true);else chayThamSo();dongBo()}
   else if(SRV.url){apDungVaiTro();manDangNhap('')}
   else{apDungVaiTro();go('dash');chayThamSo()}
   setInterval(clock,30000);
   setTimeout(tick1022,1500);setInterval(tick1022,60000);
-  setInterval(()=>{if(SRV.on)dongBo()},60000);
+  setInterval(()=>{if(SRV.on)dongBo()},30000);
   window.addEventListener('online',()=>SRV.on&&dongBo());
   document.addEventListener('visibilitychange',()=>{if(!document.hidden&&SRV.on)dongBo()});
   setInterval(()=>{if(!$('#dlg').open&&!$('#viewer').open&&['dash','s1022'].includes(cur)&&!document.activeElement.matches('input,select'))render()},120000);
