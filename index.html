@@ -4417,9 +4417,13 @@ function ledInstall(r){ const s=String(r.ngayNT||r.nam||""); let m;
   const ys=s.match(/\d{4}/g); if(ys) return new Date(Math.max(...ys.map(Number)),11,31); return null; }
 function ledKey(s){ return vnNorm(String(s||"").replace(/\(.*?\)/g," ").replace(/^(đường|duong)\s+/i,"")).replace(/\s+/g," ").trim(); }
 function ledMatchVB(r, vbs){
+  const them=(r.vbThem||[]).map(id=>vbs.find(v=>v.id===id)).filter(Boolean);
+  const base=ledMatchVB0(r,vbs); return base.concat(them.filter(v=>!base.includes(v)));
+}
+function ledMatchVB0(r, vbs){
   if(r.vb && r.vb.length) return vbs.filter(v=>r.vb.includes(v.id));
   const k=ledKey(r.tuyen); if(k.length<4) return [];
-  return vbs.filter(v=>{ const t=vnNorm(v.tuyen+" "+v.congTrinh); if(!t.includes(k)) return false;
+  return vbs.filter(v=>{ if(v.chiGan) return false; const t=vnNorm(v.tuyen+" "+v.congTrinh); if(!t.includes(k)) return false;
     const qd=(r.quan||"").replace("Quận ",""); return !qd || vnNorm(v.quan).includes(vnNorm(qd)) || /bình thạnh|binh thanh/.test(vnNorm(v.quan))===/bình thạnh/i.test(r.quan); }); }
 function ledData(){
   const ov=id=>ledOv.find(o=>o.data.refId===id);
@@ -4435,8 +4439,9 @@ function ledData(){
     r._exp=r._inst?new Date(r._inst.getFullYear()+y, r._inst.getMonth(), r._inst.getDate()):null;
     r._vbs=ledMatchVB(r,vbs);
     const isInvite=v=>/thư mời|mời kiểm tra/i.test((v.loai||"")+" "+(v.tinhTrang||""));
-    const vbDone=r._vbs.find(v=>!/^CV\d|^HD\d/.test(v.id||"") && !isInvite(v) && !/chưa|trùng lặp/i.test(v.tinhTrang||"") && /^(bb|biên bản|vb giao)/i.test(v.loai||"") && /hết bảo hành|kết thúc bảo hành|duy tu|bàn giao|tiếp nhận|giao thực hiện/i.test((v.loai||"")+" "+(v.tinhTrang||"")));
-    const vbProc=r._vbs.find(v=>!/^CV\d|^HD\d/.test(v.id||"") && (isInvite(v) || /chưa/i.test(v.tinhTrang||"")));
+    const vbAfter=v=>!(r._inst && v.ngay && new Date(v.ngay) < new Date(r._inst.getTime()+300*864e5)); // văn bản phải sau ngày lắp ≥ ~10 tháng mới tính là kết thúc BH
+    const vbDone=r._vbs.find(v=>!/^CV\d|^HD\d/.test(v.id||"") && vbAfter(v) && !isInvite(v) && !/chưa|trùng lặp/i.test(v.tinhTrang||"") && /^(bb|biên bản|vb giao)/i.test(v.loai||"") && /hết bảo hành|kết thúc bảo hành|duy tu|bàn giao|tiếp nhận|giao thực hiện/i.test((v.loai||"")+" "+(v.tinhTrang||"")));
+    const vbProc=r._vbs.find(v=>!/^CV\d|^HD\d/.test(v.id||"") && vbAfter(v) && (isInvite(v) || /chưa/i.test(v.tinhTrang||"")));
     if(r.trangThaiTay) r._st=r.trangThaiTay;
     else if(vbDone) r._st="done"; else if(vbProc) r._st="proc";
     else if(!r._exp) r._st="unk";
@@ -4596,7 +4601,7 @@ function ledOpenVB(v,D){
   const el=$("#ledDetail"); $("#ledTitle").textContent = isNew?"📄 Thêm văn bản / biên bản":"📄 "+(v.loai||"Văn bản");
   const rel=D.routes.filter(r=>r._vbs.includes(v));
   const F=(k,l,t)=>`<div class="ks-f ${t==="a"?"wide":""}"><label>${l}</label>${t==="a"?`<textarea data-k="${k}" rows="2" ${canEdit?"":"disabled"}>${escHtml(v[k]||"")}</textarea>`:`<input data-k="${k}" ${t==="d"?'type="date"':""} ${canEdit?"":"disabled"} value="${escHtml(v[k]||"")}">`}</div>`;
-  el.innerHTML=`<div class="ks-fields">${F("loai","Loại văn bản")}${F("ngay","Ngày lập","d")}${F("quan","Quận / địa bàn")}${F("soHD","Số hợp đồng")}${F("congTrinh","Công trình","a")}${F("hangMuc","Hạng mục","a")}${F("tuyen","Tuyến đường / địa điểm","a")}${F("benA","Đơn vị quản lý (Bên A)")}${F("benB","Đơn vị thi công / nhận thầu (Bên B)")}${F("tinhTrang","Tình trạng","a")}${F("ghiChu","Ghi chú","a")}</div>`+
+  el.innerHTML=`<div class="ks-fields">${F("loai","Loại văn bản")}${F("ngay","Ngày lập","d")}${F("quan","Quận / địa bàn")}${F("soHD","Số hợp đồng")}${F("congTrinh","Công trình","a")}${F("hangMuc","Hạng mục","a")}${F("tuyen","Tuyến đường / địa điểm","a")}${F("benA","Đơn vị quản lý (Bên A)")}${F("benB","Đơn vị thi công / nhận thầu (Bên B)")}${F("bbnt","Biên bản nghiệm thu đưa vào sử dụng (căn cứ tính BH)","a")}${F("tinhTrang","Tình trạng","a")}${F("ghiChu","Ghi chú","a")}</div>`+
     (v.file?`<div class="who" style="margin-top:6px">📁 Tên file gốc: ${escHtml(v.file)}</div>`:"")+
     `<div class="ks-g">Tuyến LED liên quan (${rel.length})</div>`+(rel.length?`<div class="bv-cabs">${rel.map(r=>`<span class="bv-cab">${escHtml(r.tuyen)} · ${r.soDen||"?"} đèn</span>`).join("")}</div>`:'<div class="who">Chưa khớp tuyến nào (khớp tự động theo tên đường trong mục Tuyến / Công trình).</div>')+
     `<div id="ledFiles"></div>${canEdit?`<button class="submit-btn" id="ledSaveV" style="margin-top:12px">💾 Lưu văn bản</button>`:""}<div class="gps-result" id="ledMsg"></div>`;
