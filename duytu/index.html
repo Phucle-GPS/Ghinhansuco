@@ -1030,10 +1030,10 @@ function seedState() {
   const sd = JSON.parse(document.getElementById('seed').textContent);
   return {
     settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)),
-    sc: sd.sc.map(r => ({ ma: r[0], t: new Date(r[1]).getTime(), quan: r[2], tu: r[3], duong: r[4], phuong: r[5], nd: r[6], nb: titleName(r[7]), tt1: r[8], tt2: r[9], xl: r[10], gs: r[11] })),
+    sc: sd.sc.map(r => ({ _at: Date.now(), ma: r[0], t: new Date(r[1]).getTime(), quan: r[2], tu: r[3], duong: r[4], phuong: r[5], nd: r[6], nb: titleName(r[7]), tt1: r[8], tt2: r[9], xl: r[10], gs: r[11] })),
     kl: sd.kl.map(r => ({ ma: String(r[0]).replace(/\.0$/, ''), d: new Date(+r[1].slice(0, 4), +r[1].slice(5, 7) - 1, +r[1].slice(8, 10)).getTime(), quan: r[2], tu: r[3], tru: r[4], hm: r[5], dvt: r[6], kl: r[7], msc: String(r[8]).replace(/\.0$/, ''), nt: titleName(r[9]), mt: r[10] })),
     kh: sd.kh.map(r => ({ quan: r[0], sec: r[1], stt: r[2], hm: r[3], dvt: r[4], dg: r[5], m: [r[6], r[7], r[8]] })),
-    br: [], cv: [], log: [{ at: Date.now(), msg: 'Nạp dữ liệu mẫu: sự cố & khối lượng đến 13/10/2026, kế hoạch Q4/2026 (4 quận).' }], seed: true,
+    br: [], cv: [], scArc: {}, log: [{ at: Date.now(), msg: 'Nạp dữ liệu mẫu: sự cố & khối lượng đến 13/10/2026, kế hoạch Q4/2026 (4 quận).' }], seed: true,
   };
 }
 const pack = (st) => ({ ...st, kl: st.kl.map(({ _tru, _hm, ...k }) => k) });
@@ -1130,7 +1130,7 @@ function vNap() {
   const qs = [...new Set([...QN, ...R.rows.map(r => r.quan)])].filter(Boolean);
   return vToPhieu() + vLast() + `<section class="card">
     <h3>Nạp dữ liệu – mọi định dạng</h3>
-    <p class="lead">Kéo thả nhiều file cùng lúc. Ứng dụng tự nhận loại dữ liệu theo tiêu đề cột, gộp với dữ liệu cũ, <b>tự lọc bỏ dòng trùng</b> và xuất Excel chỉ phần số liệu mới.</p>
+    <p class="lead">Kéo thả nhiều file cùng lúc (có thể mỗi quận một file). Ứng dụng tự nhận loại dữ liệu theo tiêu đề cột; file <b>sự cố thay dữ liệu sự cố cũ</b> của quận đó, tự lọc dòng trùng trong file.</p>
     <label class="drop" id="drop"><input type="file" id="fi" multiple hidden>
       <b>Chọn hoặc thả file vào đây</b><span>Excel .xlsx · .xlsm · .xls · OpenOffice .ods · .csv · .tsv · .txt · Word .docx · web .html · .json · PDF · ảnh chụp / scan (.jpg .png)</span></label>
     <ul class="kinds"><li><b>Sự cố</b> – có cột “Tên tủ”, “Nội dung” (và “Thời điểm ghi nhận” hoặc “Năm”, “Tháng”); cột “Nội dung xử lý” dùng để loại việc đã làm</li><li><b>Khối lượng duy tu</b> – có cột “Khối lượng thực hiện”</li><li><b>Kế hoạch</b> – theo mẫu kế hoạch của ứng dụng (Quận, Loại TX/KTX, Hạng mục, ĐVT, Đơn giá, T1, T2, T3)</li><li><b>Duy tu đầu vào</b> – có cột “Hạng mục / Vật tư” và “Khối lượng / Số lượng” → dùng ở mục Kế hoạch còn lại</li>
@@ -1168,6 +1168,18 @@ const SIG = {
 };
 const fv = (f, v) => (f === 't' || f === 'd') ? (v ? fdt(v) : '') : S(v);
 function diff(kind, a, b) { return FIELDS[kind].filter(([f]) => S(a[f]) !== S(b[f])).map(([f, t]) => `${t}: ${fv(f, a[f]) || '(trống)'} → ${fv(f, b[f]) || '(trống)'}`).join('; '); }
+const scHours = () => Math.max(1, +(ST.settings.scHours || 24));
+function scArchive(list) {
+  if (!list || !list.length || !R) return; ST.scArc = ST.scArc || {}; const m = new Map(R.rows.map(r => [r.ma, r]));
+  for (const x of list) { const r = m.get(x.ma); if (r && DONE.has(r.fin)) ST.scArc[r.ma] = { ma: r.ma, t: r.t, quan: r.quan, tu: r.tu, tru: r.tru, nd: r.nd, fin: r.fin, cat: r.cat, w: r.w, tech: r.tech, loai: r.loai, ym: r.ym }; }
+  const lim = Date.now() - 200 * 864e5; for (const k of Object.keys(ST.scArc)) if (ST.scArc[k].t < lim) delete ST.scArc[k];
+}
+function scExpire() {
+  if (!ST || !ST.sc.length) return; const lim = Date.now() - scHours() * 36e5, old = ST.sc.filter(x => (x._at || 0) < lim); if (!old.length) return;
+  scArchive(old); ST.sc = ST.sc.filter(x => !old.includes(x)); ST.last = null;
+  ST.log.push({ at: Date.now(), msg: `Tự xóa ${old.length} sự cố đã lưu quá ${scHours()} giờ (làm việc theo ngày, không cộng dồn)` });
+  recompute(); render(); save();
+}
 function newBatch(auto) { return { at: Date.now(), auto: !!auto, out: auto ? 'dir' : 'download', files: [], sc: [], scUp: [], kl: [], klUp: [], br: [], dups: [], prev: new Map(R.rows.map(r => [r.ma, r.fin])) }; }
 function merge(kind, items, src, B) {
   if (kind === 'kh') {
@@ -1175,8 +1187,14 @@ function merge(kind, items, src, B) {
     if (B) B.files.push({ src, kind, n: items.length, nw: items.length, up: 0, same: 0, dup: 0 });
     return `${src}: kế hoạch ${items.length} hạng mục (${[...qs].join(', ')}) – thay thế KH cũ của các quận này`;
   }
+  let cleared = [];
+  if (kind === 'sc' && B && !B.keep) { // sự cố làm theo ngày: file mới thay dữ liệu cũ của các quận có trong file
+    B.scOld = B.scOld || new Map(ST.sc.map(x => [x.ma, x])); B.scClr = B.scClr || new Set(); B.scIn = B.scIn || new Set();
+    const qs = [...new Set(items.map(x => x.quan))].filter(q => !B.scClr.has(q));
+    if (qs.length) { const rm = ST.sc.filter(x => qs.includes(x.quan) && !B.scIn.has(x.ma)); scArchive(rm); ST.sc = ST.sc.filter(x => !rm.includes(x)); qs.forEach(q => B.scClr.add(q)); cleared = qs; }
+  }
   const arr = ST[kind], idx = new Map(arr.map((x, i) => [x.ma, i])), sigs = new Map(arr.map(x => [SIG[kind](x), x.ma])), inFile = new Set();
-  let nw = 0, up = 0, same = 0, dup = 0;
+  let nw = 0, up = 0, same = 0, dup = 0; const at = B ? B.at : Date.now();
   for (const it of items) {
     if (inFile.has(it.ma)) { dup++; if (B) B.dups.push({ kind, it, why: 'Lặp mã trong cùng file', src }); continue; }
     inFile.add(it.ma);
@@ -1185,14 +1203,20 @@ function merge(kind, items, src, B) {
       const nx = Object.assign({}, old, Object.fromEntries(Object.entries(it).filter(([, v]) => S(v) !== ''))); // ô trống trong file mới không xóa dữ liệu cũ
       delete nx._tru; delete nx._hm; const d = diff(kind, old, nx);
       if (!d) { same++; continue; }                       // đã có, không đổi → bỏ qua
-      arr[i] = nx; up++; if (B) B[kind + 'Up'].push({ ma: it.ma, chg: d }); continue;
+      nx._at = at; arr[i] = nx; up++; if (B) B[kind + 'Up'].push({ ma: it.ma, chg: d }); continue;
     }
     const sg = SIG[kind](it);
     if (sigs.has(sg)) { dup++; if (B) B.dups.push({ kind, it, why: `Trùng nội dung với mã ${sigs.get(sg)}`, src }); continue; }
-    idx.set(it.ma, arr.length); sigs.set(sg, it.ma); arr.push(it); nw++; if (B) B[kind].push(it.ma);
+    it._at = at;
+    if (kind === 'sc' && B && B.scOld && B.scOld.has(it.ma)) { // đã có ở lần nạp trước → giữ lại, chỉ báo thay đổi
+      const o = B.scOld.get(it.ma), nx = Object.assign({}, o, Object.fromEntries(Object.entries(it).filter(([, v]) => S(v) !== ''))), d = diff(kind, o, nx);
+      idx.set(it.ma, arr.length); sigs.set(sg, it.ma); arr.push(nx); B.scIn.add(it.ma);
+      if (d) { up++; B.scUp.push({ ma: it.ma, chg: d }); } else same++; continue;
+    }
+    idx.set(it.ma, arr.length); sigs.set(sg, it.ma); arr.push(it); nw++; if (B) { B[kind].push(it.ma); if (B.scIn) B.scIn.add(it.ma); }
   }
   if (B) B.files.push({ src, kind, n: items.length, nw, up, same, dup });
-  return `${src}: ${kind === 'sc' ? 'sự cố' : 'khối lượng'} ${items.length} dòng → ${nw} mới, ${up} cập nhật, ${same} đã có (bỏ qua)${dup ? `, ${dup} trùng (bỏ)` : ''}`;
+  return `${src}: ${kind === 'sc' ? 'sự cố' : 'khối lượng'} ${items.length} dòng → ${nw} mới, ${up} cập nhật, ${same} ${kind === 'sc' && B && !B.keep ? 'như hôm trước' : 'đã có (bỏ qua)'}${dup ? `, ${dup} trùng (bỏ)` : ''}${cleared.length ? ` – thay dữ liệu sự cố cũ của ${cleared.join(', ')}` : ''}`;
 }
 function endBatch(B) {
   const now = new Map(R.rows.map(r => [r.ma, r])), isNew = new Set(B.sc), upMap = new Map(B.scUp.map(x => [x.ma, x.chg]));
@@ -1310,6 +1334,9 @@ function vToPhieu() {
   const lastN = ST.last ? (ST.last.sc || []).length + (ST.last.scCh || []).length : 0;
   const step = (n, t, s, cls) => `<div class="kpi ${cls}"><div class="n">${fmtN(n)}</div><div class="t">${t}</div><div class="s">${s}</div></div>`;
   return `<section class="card"><div class="cardhead"><h3>Lọc việc đã xử lý → phiếu sửa chữa</h3><button class="btn ghost" data-act="xlx"${xl.length + kl.length + oth.length ? '' : ' disabled'}>Xuất danh sách việc đã loại</button></div>
+    ${(() => { const ts = ST.sc.map(x => x._at || 0).filter(Boolean); if (!ts.length) return '<p class="wst"><span class="dot off"></span>Chưa có dữ liệu sự cố hôm nay – nạp file sự cố mới.</p>'; const a = Math.min(...ts), left = Math.max(0, a + scHours() * 36e5 - Date.now());
+      return `<p class="wst"><span class="dot"></span>Dữ liệu sự cố nạp lúc <b>${fdt(Math.max(...ts))}</b> · tự xóa sau <b>${Math.floor(left / 36e5)} giờ ${Math.floor(left % 36e5 / 6e4)} phút</b> <span class="mut">(lưu <input type="number" min="1" max="168" value="${scHours()}" data-chg="schours" style="width:58px;padding:2px 6px"> giờ, không cộng dồn)</span> <button class="btn ghost sm danger" data-act="scnow">Xóa ngay</button></p>`; })()}
+    <p class="lead"><b>Làm việc theo ngày:</b> mỗi lần nạp file sự cố, dữ liệu cũ của các quận có trong file được <b>thay mới hoàn toàn</b> (không cộng dồn); dữ liệu tự xóa sau ${scHours()} giờ. Việc đã sửa vẫn được ghi sổ riêng để trừ duy tu ở mục Kế hoạch còn lại.</p>
     <p class="lead">Sự cố có ghi <b>Nội dung xử lý</b> (vd “đã thay mới”) được coi là đã làm và <b>loại khỏi tổng hợp</b>, kể cả khi Trạng thái còn “Yêu cầu xử lý”. Nội dung xử lý dạng “chưa…, chờ vật tư, hẹn, đang xử lý, đề nghị…” vẫn tính là chưa xử lý. Chỉ việc còn lại mới đưa vào Phiếu sửa chữa.</p>
     <div class="kpis sm">${step(R.rows.length, 'Sự cố đã nạp', ST.last ? `lần nạp gần nhất: ${fmtN(lastN)} mới / thay đổi` : '', '')}
       ${step(xl.length, 'Đã xử lý – loại', 'có Nội dung xử lý hoặc trạng thái Đã xử lý', 'ok')}
@@ -1381,7 +1408,7 @@ function freeImport() {
   recs = recs.filter(x => x.nd && x.nd.length > 3 && !/^(stt|nội dung|danh sách)/i.test(x.nd));
   if (!recs.length) return toast('Không có dòng sự cố hợp lệ');
   const items = recs.map((x, i) => ({ ma: 'N' + String(now).slice(-7) + '-' + (i + 1), t: x.t || now, quan: x.quan || q0, tu: x.tu || tu0 || tuOf(x.nd), duong: x.duong || '', phuong: x.phuong || '', nd: x.nd, nb: cleanName(x.nb) || nb0, tt1: 'Chưa xử lý', tt2: '', xl: '', gs: '' }));
-  const B = newBatch(false); UI.pasteText = ''; finishImport([merge('sc', items, `Nhập tay (${q0})`, B)], B);
+  const B = Object.assign(newBatch(false), { keep: true }); UI.pasteText = ''; finishImport([merge('sc', items, `Nhập tay (${q0})`, B)], B);
 }
 const ACT = {
   paste() { const v = $('#paste').value; if (!v.trim()) return toast('Chưa có dữ liệu dán'); const B = newBatch(false); importTable(parseTSV(v), 'Dữ liệu dán', B).then(m => { if (!FAILRE.test(m)) UI.pasteText = ''; finishImport([m], B); }); },
@@ -1416,6 +1443,7 @@ const ACT = {
   phx1(a) { exportPhieu(a.dataset.g); },
   asgclr(a) { if (a.dataset.ok !== '1') { a.dataset.ok = '1'; a.textContent = 'Bấm lần nữa để bỏ'; return; } ST.asg = {}; recompute(); render(); save(); toast('Đã trả về người phụ trách tự động'); },
   goph(a) { const g = a.dataset.g; UI.pg = new Set(g === 'all' ? ['den', 'rcbo', 'tb', 'khac'] : [g]); UI.pnew = a.dataset.new === '1'; UI.tab = 'phieu'; try { localStorage.setItem('dt-tab', 'phieu'); } catch { } render(); window.scrollTo(0, 0); },
+  scnow(a) { if (a.dataset.ok !== '1') { a.dataset.ok = '1'; a.textContent = 'Bấm lần nữa để xóa'; return; } scArchive(ST.sc); const n = ST.sc.length; ST.sc = []; ST.last = null; ST.log.push({ at: Date.now(), msg: `Đã xóa ${n} sự cố (xóa ngay)` }); recompute(); render(); save(); },
   xlx() { const L = R.rows.filter(r => r.tt === 'Đã xử lý (chờ GS)' || r.tt === 'Đã xử lý' || r.fin === 'Đã có KL' || r.tt === 'Không thuộc quản lý' || r.tt === 'Chưa cần xử lý').sort((a, b) => a.quan.localeCompare(b.quan) || a.tu.localeCompare(b.tu, 'vi'));
     const sh = tableSheet('Da loai', rptTitle('VIỆC ĐÃ XỬ LÝ – LOẠI KHỎI PHIẾU SỬA', ''), `Xuất ${fdt(Date.now())} – ${L.length} việc`, ['STT', 'Quận', 'Tên tủ', 'Đường', 'Nội dung sự cố', 'Người báo', 'Nội dung xử lý', 'Người xử lý', 'Thời điểm xử lý', 'Lý do loại'], [5, 14, 22, 18, 46, 18, 30, 18, 16, 22],
       L.map((r, i) => [i + 1, r.quan, r.tu, r.duong, r.nd, r.nb, r.xl, r.nxl || '', r.txl || '', r.fin === 'Đã có KL' && r.tt === 'Còn tồn' ? 'Đã có phiếu khối lượng' : r.tt]), { styles: { 0: 9, 4: 10, 6: 10 } });
@@ -1428,6 +1456,7 @@ const CHG = {
   f(a) { UI.f[a.dataset.k] = a.value; render(); },
   pkt(a) { UI.pkt = a.checked; render(); },
   pnew(a) { UI.pnew = a.checked; render(); },
+  schours(a) { ST.settings.scHours = Math.max(1, Math.min(168, +a.value || 24)); save(); render(); scExpire(); },
   dvpm(a) { UI.dvp = { mode: a.value, v: defPeriod(a.value) }; render(); },
   dvpv(a) { UI.dvp.v = a.value; render(); },
   dvm(a) { UI.dvm = a.value; render(); },
@@ -1810,7 +1839,7 @@ async function brSend(auto) {
   finally { tgBusy = false; }
 }
 function tgTick() {
-  cvPurge();
+  scExpire(); cvPurge();
   const g = ST && ST.settings.tg; if (!g || !g.auto || !g.token || !g.chat || !(ST.br || []).length) return;
   const now = new Date(), today = locDay(now);
   if (ST.tgLast === today || now.getHours() < g.hour || Date.now() - tgFail < 30 * 60000) return;
@@ -2345,7 +2374,8 @@ function dvCompute() {
   };
   let nsrc = 0;
   if (mode === 'sc') {
-    for (const r of R.rows) {
+    const cur = new Set(R.rows.map(r => r.ma));
+    for (const r of [...R.rows, ...Object.values(ST.scArc || {}).filter(x => !cur.has(x.ma))]) {
       if (!DONE.has(r.fin) || !(r.t >= a && r.t < b)) continue;
       const src = { id: 'SC ' + r.ma, d: r.t, quan: r.quan, tu: r.tu, tru: r.tru, nd: r.nd, fin: r.fin }; nsrc++;
       let us = scUses(r);
@@ -2462,7 +2492,7 @@ function saveSettings() {
   try { const t = localStorage.getItem('dt-tab'); if (t && TABS.some(x => x[0] === t)) UI.tab = t; } catch { }
   let st = null;
   try { st = await DB.get('state'); } catch { }
-  if (st && st.sc && st.kl && st.kh) { const tg = Object.assign({}, DEFAULT_SETTINGS.tg, (st.settings || {}).tg || {}); st.settings = Object.assign(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), st.settings || {}); st.settings.tg = tg; st.br = st.br || []; st.cv = st.cv || []; for (const [k, v] of LSC_ADD) if (!st.settings.lsc.some(x => x[0] === k)) st.settings.lsc.push([k, v]); ST = st; }
+  if (st && st.sc && st.kl && st.kh) { const tg = Object.assign({}, DEFAULT_SETTINGS.tg, (st.settings || {}).tg || {}); st.settings = Object.assign(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), st.settings || {}); st.settings.tg = tg; st.br = st.br || []; st.cv = st.cv || []; for (const [k, v] of LSC_ADD) if (!st.settings.lsc.some(x => x[0] === k)) st.settings.lsc.push([k, v]); const now = Date.now(); for (const x of st.sc) if (!x._at) x._at = now; ST = st; }
   else ST = seedState();
   recompute();
   try { const q = new URLSearchParams(location.search), tb = q.get('tab'), sh = [q.get('title'), q.get('text'), q.get('url')].filter(Boolean).join('\n');
@@ -2471,7 +2501,7 @@ function saveSettings() {
     if (tb || sh) history.replaceState(null, '', location.pathname); } catch { }
   render();
   if ('launchQueue' in window) launchQueue.setConsumer(async (p) => { if (!p.files || !p.files.length) return; const fs = await Promise.all(p.files.map(f => f.getFile())); UI.tab = 'nap'; render(); importFiles(fs); });
-  setTimeout(tgTick, 3000); setInterval(tgTick, 5 * 60000); setTimeout(tgPoll, 4000); setInterval(tgPoll, 15000);
+  scExpire(); setTimeout(tgTick, 3000); setInterval(tgTick, 5 * 60000); setTimeout(tgPoll, 4000); setInterval(tgPoll, 15000);
   if (canWatch()) { try { const hd = await DB.get('dir'); if (hd && hd.queryPermission) { W.h = hd; await watchStart(false); } } catch { } }
 })();
 
