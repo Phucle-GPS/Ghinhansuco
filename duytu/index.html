@@ -500,6 +500,7 @@ const CATMAP = Object.fromEntries(CATS.map(c => [c.k, c]));
 const L_TAT = 'Đèn tắt, chớp tắt', L_RO = 'Đèn rò làm tắt tủ', L_BD = 'Hư bộ đèn, mặt LED (sáng mờ, bể)', L_CHOA = 'Chóa đèn bể, rớt',
   L_TRU = 'Trụ đèn (nghiêng, mục, chôn lấp, mất nắp)', L_DC = 'Thiết bị đóng cắt (RCCB, RCBO, MCB, contactor, rẽ nhánh)',
   L_DK = 'Thiết bị điều khiển, giám sát (PLC, bộ trung tâm, modem, adapter, nguồn)', L_VT = 'Vỏ tủ hư, vô nước', L_OK = 'Ổ khóa tủ hư', L_BT = 'Bảng tên tủ', L_CX = 'Khác (cây xanh che đèn)';
+const LSC_ADD = [['tủ vỡ', L_VT], ['tủ bị vỡ', L_VT], ['vỡ tủ', L_VT], ['tủ bể', L_VT], ['bể tủ', L_VT], ['cửa tủ', L_VT], ['tủ bị nứt', L_VT], ['tủ bị đụng', L_VT], ['mcb', L_DC], ['aptomat', L_DC]];
 const DEFAULT_LSC = [
   ['tắt', L_TAT], ['chớp', L_TAT], ['không sáng', L_TAT], ['0w', L_TAT], ['0 w', L_TAT], ['/70', L_TAT], ['/100', L_TAT], ['/150', L_TAT],
   ['cây xanh che', L_CX], ['mé nhánh', L_CX],
@@ -510,6 +511,7 @@ const DEFAULT_LSC = [
   ['rẻ nhánh', L_DC], ['rẽ nhanh', L_DC], ['liên thông', L_DC], ['nhiều trụ', L_DC], ['hàng loạt', L_DC], ['nguyên đoạn', L_DC], ['rẽ nhánh', L_DC], ['rcbo', L_DC], ['rccb', L_DC], ['mcb', L_DC], ['conta', L_DC],
   ['plc', L_DK], ['trung tâm', L_DK], ['modem', L_DK], ['adapter', L_DK], ['bộ nguồn', L_DK], ['kết nối', L_DK],
   ['ổ khóa', L_OK], ['ổ khoá', L_OK], ['vỏ tủ', L_VT], ['võ tủ', L_VT], ['bảng tên', L_BT],
+  ...LSC_ADD,
 ];
 const HMG = [
   ['7. Băng rôn, xe chiếu sáng, vật tư phụ khác', ''],
@@ -530,7 +532,8 @@ const nmh = (v) => low(v).replace(/\s+/g, ' ');
 const pad = (n) => String(n).padStart(2, '0');
 const fdate = (ms) => { if (!ms && ms !== 0) return ''; const d = new Date(ms); return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`; };
 const fdm = (ms) => { const d = new Date(ms); return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}`; };
-const fdt = (ms) => { const d = new Date(ms); return `${fdate(ms)} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const fdt0 = (ms) => { const d = new Date(ms); return `${fdate(ms)} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const fdt = (ms) => fdt0(ms);
 const dayStart = (ms) => { const d = new Date(ms); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); };
 const fmtN = (n, dg = 0) => (n == null || isNaN(n)) ? '' : Number(n).toLocaleString('vi-VN', { maximumFractionDigits: dg });
 const fmtTy = (v) => (v / 1e9).toLocaleString('vi-VN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' tỷ';
@@ -561,7 +564,7 @@ function tinh(r) {
   if (r.tt1 === 'Đã xử lý' || r.tt2 === 'Đã xử lý') return 'Đã xử lý';
   if (r.tt1 === 'Chưa cần xử lý') return 'Chưa cần xử lý';
   if (/dân lập|điện lực|cskv|không thuộc/.test(x)) return 'Không thuộc quản lý';
-  if (/kế hoạch|đã báo/.test(x)) return 'Còn tồn';
+  if (/kế hoạch|đã báo|chưa|chờ vật tư|chờ thay|đang xử lý|đang chờ|đang kiểm tra|hẹn|thiếu vật tư|không có vật tư|hết vật tư|đề nghị|cần thay|chuyển|không xử lý được|không thực hiện được/.test(x) && !/đã (thay|sửa|xử lý|khắc phục|lắp|đấu)/.test(x)) return 'Còn tồn';
   if (x) return 'Đã xử lý (chờ GS)';
   return 'Còn tồn';
 }
@@ -625,7 +628,7 @@ function tbfn(nd) {
   if (t.includes('adapter')) out.push('Adapter');
   if (t.includes('modem')) out.push('Modem');
   if (t.includes('nguồn')) out.push('Bộ nguồn AC-DC');
-  if (/v[ỏõo] tủ/.test(t)) out.push('Vỏ tủ');
+  if (/v[ỏõo] tủ|tủ (bị )?(vỡ|bể|nứt|đụng)|(vỡ|bể) tủ|cửa tủ/.test(t)) out.push('Vỏ tủ');
   if (/ổ kh[óo]a/.test(t)) out.push('Ổ khóa');
   if (t.includes('bảng tên')) out.push('Bảng tên tủ');
   return out.map(x => x.trim()).join(', ') || 'Kiểm tra';
@@ -649,6 +652,7 @@ function lampText(r) {
   const t = txt(r.nd);
   return /d400|cầu\s*400/.test(t) ? 'Chóa cầu D400' : (t.includes('bông huệ') ? 'Chóa bông huệ' : (r.loai === L_CHOA ? 'Chóa đèn' : r.loai.split(' (')[0]));
 }
+const scRef = (r) => (/^\d+$/.test(r.ma) ? 'SC ' + r.ma + ' ' : 'SC ') + '(' + (r.ym ? 'T' + (new Date(r.t).getMonth() + 1) + '/' + new Date(r.t).getFullYear() : fdm(r.t)) + ')';
 const SHORT = { [L_TAT]: 'Đèn tắt', [L_RO]: 'Đèn rò, tắt tủ', [L_BD]: 'Hư bộ đèn/mặt LED', [L_CHOA]: 'Bể chóa' };
 const hmGroup = (hm) => { const t = low(hm); let g = HMG[0][0]; for (const [k, v] of HMK) if (t.includes(k)) g = v; return g; };
 
@@ -727,13 +731,13 @@ function compute(st) {
 const ALIAS = {
   'Mã': ['Unnamed: 0', 'Mã SC', 'ID', 'Mã số', 'Ma'], 'Thời điểm ghi nhận': ['Thời gian ghi nhận', 'Ngày ghi nhận', 'Ngày báo', 'Thời điểm', 'Ngày'],
   'Quận/Huyện': ['Quận', 'Quận huyện', 'Quận / Huyện'], 'Tên tủ': ['Tủ', 'Tủ điều khiển', 'Tủ ĐK'], 'Phường/Xã': ['Phường', 'Phường xã'], 'Đường': ['Tuyến đường', 'Tuyến'],
-  'Người báo': ['Người phản ánh', 'Người ghi nhận'], 'Nội dung': ['Nội dung sự cố', 'Mô tả sự cố', 'Sự cố'], 'Khối lượng thực hiện': ['KL thực hiện', 'Khối lượng TH'], 'Ngày HC': ['Ngày thi công', 'Ngày thực hiện'],
+  'Người báo': ['Người phản ánh', 'Người ghi nhận'], 'Nội dung': ['Nội dung sự cố', 'Mô tả sự cố', 'Sự cố'], 'Nội dung xử lý': ['Nội dung XL', 'ND xử lý', 'Kết quả xử lý', 'Nội dung xữ lý'], 'Thời điểm xử lý': ['Thời gian xử lý', 'Ngày xử lý'], 'Người xử lý': ['Người XL'], 'Khối lượng thực hiện': ['KL thực hiện', 'Khối lượng TH'], 'Ngày HC': ['Ngày thi công', 'Ngày thực hiện'],
 };
 function tableFromRows(rows) {
   const KNOWN = new Set(['tên tủ', 'nội dung', 'thời điểm ghi nhận', 'khối lượng thực hiện', 'đơn vị tính', 'quận/huyện', 'người báo', 'trạng thái', 'tên trụ', 'ngày hc', 'đơn giá', 'đvt', 't1', 'quận', 'stt', ...Object.entries(ALIAS).flatMap(([k, a]) => [k, ...a]).map(x => x.toLowerCase())]);
   let h = -1, best = 0;
   for (let i = 0; i < Math.min(12, rows.length); i++) {
-    const r = (rows[i] || []).map(x => S(x).toLowerCase());
+    const r = (rows[i] || []).map(x => S(x).replace(/\s+/g, ' ').toLowerCase());
     const sc = r.filter(x => KNOWN.has(x) || /^hạng mục/.test(x)).length + (r.includes('tên tủ') ? 2 : 0);
     if (sc > best) { best = sc; h = i; }
   }
@@ -742,7 +746,7 @@ function tableFromRows(rows) {
   const n = Math.max(hr.length, ...rows.slice(h + 1, h + 30).map(r => (r || []).length));
   const seen = {}, cols = [];
   for (let c = 0; c < n; c++) {
-    let name = S(hr[c]) || (c === 0 ? 'Mã' : '');
+    let name = S(hr[c]).replace(/\s+/g, ' ') || (c === 0 ? 'Mã' : '');
     if (!name) { cols.push(''); continue; }
     if (seen[name] != null) { seen[name]++; name = name + '.' + seen[name]; } else seen[name] = 0;
     cols.push(name);
@@ -757,15 +761,20 @@ function detectKind(t) {
   const has = (c) => t.idx[c] != null;
   if (has('Khối lượng thực hiện')) return 'kl';
   if (has('Thời điểm ghi nhận') && has('Nội dung')) return 'sc';
+  if (has('Nội dung') && has('Tên tủ') && (has('Năm') || has('Tháng') || has('Trạng thái') || has('Nội dung xử lý') || has('Người báo'))) return 'sc';
   if (Object.keys(t.idx).some(c => /^hạng mục/i.test(c)) && (has('T1') || has('Tháng 1') || has('Đơn giá'))) return 'kh';
   return null;
 }
 function mapRows(t, kind) {
   const g = (r, c) => { const i = t.idx[c]; return i == null ? '' : r[i]; };
-  if (kind === 'sc') return t.data.map(r => ({
-    ma: S(g(r, 'Mã')).replace(/\.0$/, ''), t: parseDT(g(r, 'Thời điểm ghi nhận')), quan: S(g(r, 'Quận/Huyện')), tu: S(g(r, 'Tên tủ')), duong: S(g(r, 'Đường')), phuong: S(g(r, 'Phường/Xã')),
-    nd: S(g(r, 'Nội dung')), nb: cleanName(g(r, 'Người báo')), tt1: S(g(r, 'Trạng thái')), tt2: S(g(r, 'Trạng thái.1')), xl: S(g(r, 'Nội dung xử lý')), gs: S(g(r, 'Ý kiến giám sát')),
-  })).filter(x => x.ma && x.t);
+  if (kind === 'sc') return t.data.map(r => {
+    const y = parseInt(S(g(r, 'Năm'))), mo = parseInt(S(g(r, 'Tháng'))), ym = y > 2000 && mo >= 1 && mo <= 12 ? new Date(y, mo - 1, 1).getTime() : null;
+    const tm = parseDT(g(r, 'Thời điểm ghi nhận')) || ym || parseDT(g(r, 'Thời điểm xử lý')) || dayStart(Date.now());
+    const key = [S(g(r, 'Quận/Huyện')), nmk(g(r, 'Tên tủ')), nmh(g(r, 'Nội dung')), y || '', mo || '', low(cleanName(g(r, 'Người báo')))].join('|');
+    return {
+    ma: S(g(r, 'Mã')).replace(/\.0$/, '') || (S(g(r, 'Nội dung')) ? 'H' + hash36(key) : ''), t: tm, ym: !parseDT(g(r, 'Thời điểm ghi nhận')) && !!ym, quan: S(g(r, 'Quận/Huyện')), tu: S(g(r, 'Tên tủ')), duong: S(g(r, 'Đường')), phuong: S(g(r, 'Phường/Xã')),
+    nd: S(g(r, 'Nội dung')), nb: cleanName(g(r, 'Người báo')), tt1: S(g(r, 'Trạng thái')), tt2: S(g(r, 'Trạng thái.1')), xl: S(g(r, 'Nội dung xử lý')), gs: S(g(r, 'Ý kiến giám sát')), txl: S(g(r, 'Thời điểm xử lý')), nxl: cleanName(g(r, 'Người xử lý')),
+  }; }).filter(x => x.ma && x.t && x.nd);
   if (kind === 'kl') {
     const hmc = t.idx['Hạng mục công việc.1'] != null ? 'Hạng mục công việc.1' : 'Hạng mục công việc';
     return t.data.map(r => ({
@@ -855,7 +864,7 @@ function exportDC() {
 function phieuSheet(name, title, list, startNo, o = {}) {
   const rows = [];
   rows[0] = [C('CÔNG TY CỔ PHẦN ', 13)]; rows[1] = [C('CHIẾU SÁNG CÔNG CỘNG TP.HCM', 13)]; rows[2] = [C('CHIẾU SÁNG KHU VỰC TRUNG TÂM', 8)];
-  rows[3] = [null, null, null, null, C(title, 3)];
+  rows[3] = [C(title, 3)]; if (o.sub) rows[4] = [C(o.sub, 13)];
   rows[5] = [C('Nhóm sửa đèn gồm :' + (o.team ? ' ' + o.team : '……………………………………………………………………………………………………'))]; rows[5][8] = C('Ngày sửa : ' + (o.day || '………../………/năm 202……'));
   const head = ['Stt', 'Tuyến Đường', 'Tủ Điều Khiển', 'Phường', 'Số trụ/ Số nhà', 'Loại Driver (W)', 'Chống sét', 'Loại đèn  \nHPS/LED(W)', 'Bóng ', 'Ballast', 'Kích', 'Tụ', 'BCM', 'Đuôi đèn', 'Ghi chú'];
   rows[7] = head.map(x => C(x, 2));
@@ -863,7 +872,7 @@ function phieuSheet(name, title, list, startNo, o = {}) {
     const r = list[i]; const rr = 8 + i;
     if (!r) { rows[rr] = head.map((_, j) => C('', j === 14 ? 10 : 9)); continue; }
     const n = qty(r.nd), p = parts(r.nd), ld = r.cat === 'LED' || r.cat === 'HPS', x = (k) => r.cat === 'HPS' && p[k] ? 'x' : '';
-    const gc = `${SHORT[r.loai] || r.loai.split(' (')[0]} – SC ${r.ma} (${fdm(r.t)})` + (n > 1 && ld ? `; ${n} đèn` : '') + (r.kl ? '; ' + r.kl : '') + (r.dup ? '; ' + r.dup : '');
+    const gc = `${SHORT[r.loai] || r.loai.split(' (')[0]} – ${scRef(r)}` + (n > 1 && ld ? `; ${n} đèn` : '') + (r.xl ? '; XL: ' + r.xl : '') + (r.kl ? '; ' + r.kl : '') + (r.dup ? '; ' + r.dup : '');
     const v = [startNo + i, tuyen(r), r.tu, S(r.phuong).replace('Phường ', 'P.'), r.cat === 'TB' ? '—' : r.tru, r.cat === 'LED' ? (r.w ? r.w + 'W' : (p.driver ? 'x' : '')) : '', p.cs ? 'x' : '', lampText(r), x('bong'), x('ballast'), x('kich'), x('tu'), x('bcm'), x('duoi'), gc];
     rows[rr] = v.map((y, j) => C(y, j === 14 ? 10 : ([1, 2].includes(j) ? 1 : 9)));
   }
@@ -872,14 +881,14 @@ function phieuSheet(name, title, list, startNo, o = {}) {
   rows[fr + 2] = []; rows[fr + 2][8] = C('Người báo cáo', 8);
   const heights = { 4: 25.5, 6: 15.6, 8: 53.45 }; for (let i = 0; i < ST.settings.per; i++) heights[9 + i] = 37.9;
   return { name, fitH: 1, cols: [5.3, 25.3, 22.4, 9, 15.3, 13, 9, 13.4, 7.9, 8, 7.4, 7.1, 6.6, 9.6, 19.1], rows, heights, printTitle: 8,
-    merges: ['A1:D1', 'A2:D2', 'A3:D3', 'E4:K4', 'A6:H6', 'I6:O6', `B${fr + 1}:C${fr + 1}`, `F${fr + 1}:O${fr + 1}`, `I${fr + 3}:N${fr + 3}`] };
+    merges: ['A1:D1', 'A2:D2', 'A3:D3', 'A4:O4', 'A5:O5', 'A6:H6', 'I6:O6', `B${fr + 1}:C${fr + 1}`, `F${fr + 1}:O${fr + 1}`, `I${fr + 3}:N${fr + 3}`] };
 }
 // ---------- phiếu theo loại sự cố ----------
 const PG = [
-  { k: 'den', t: 'Đèn tắt', d: 'LED, HPS/MH: driver, bóng, ballast, kích, tụ…', cats: ['LED', 'HPS'], ttl: 'BẢNG SỬA ĐÈN TẮT', sh: 'Đèn' },
-  { k: 'rcbo', t: 'RCBO / rẽ nhánh', d: 'RCBO, hộp rẽ nhánh, hộp liên thông', cats: ['RCBO'], ttl: 'BẢNG SỬA RCBO – HỘP RẼ NHÁNH', sh: 'RCBO' },
-  { k: 'tb', t: 'Thiết bị tủ', d: 'MCB, RCCB, contactor, PLC, modem, adapter, bộ nguồn, vỏ tủ, ổ khóa', cats: ['TB'], ttl: 'BẢNG SỬA THIẾT BỊ TỦ ĐIỀU KHIỂN', sh: 'Tủ' },
-  { k: 'khac', t: 'Chóa, trụ, cây xanh, khác', d: 'chóa bể, trụ nghiêng/mất nắp, cây che đèn, sự cố khác', cats: ['CHOA', 'TRU', 'CX', 'KHAC'], ttl: 'BẢNG XỬ LÝ SỰ CỐ KHÁC', sh: 'Khac' },
+  { k: 'den', t: 'Đèn tắt', d: 'LED, HPS/MH: driver, bóng, ballast, kích, tụ…', cats: ['LED', 'HPS'], ttl: 'SỬA ĐÈN TẮT', sh: 'Đèn' },
+  { k: 'rcbo', t: 'RCBO / rẽ nhánh', d: 'RCBO, hộp rẽ nhánh, hộp liên thông', cats: ['RCBO'], ttl: 'SỬA RCBO – HỘP RẼ NHÁNH', sh: 'RCBO' },
+  { k: 'tb', t: 'Thiết bị tủ', d: 'MCB, RCCB, contactor, PLC, modem, adapter, bộ nguồn, vỏ tủ, ổ khóa', cats: ['TB'], ttl: 'SỬA THIẾT BỊ TỦ ĐIỀU KHIỂN', sh: 'Tủ' },
+  { k: 'khac', t: 'Chóa, trụ, cây xanh, khác', d: 'chóa bể, trụ nghiêng/mất nắp, cây che đèn, sự cố khác', cats: ['CHOA', 'TRU', 'CX', 'KHAC'], ttl: 'XỬ LÝ SỰ CỐ KHÁC', sh: 'Khac' },
 ];
 const PGMAP = Object.fromEntries(PG.map(g => [g.k, g]));
 const pgOf = (r) => (PG.find(g => g.cats.includes(r.cat)) || PG[3]).k;
@@ -900,14 +909,14 @@ function phieuSheet2(name, title, list, startNo, g, o = {}) {
   const nc = COL.head.length, L = (i) => XL.colName(i), last = L(nc - 1), mid = Math.floor(nc / 2);
   const rows = [];
   rows[0] = [C('CÔNG TY CỔ PHẦN ', 13)]; rows[1] = [C('CHIẾU SÁNG CÔNG CỘNG TP.HCM', 13)]; rows[2] = [C('CHIẾU SÁNG KHU VỰC TRUNG TÂM', 8)];
-  rows[3] = [null, null, null, null, C(title, 3)];
+  rows[3] = [C(title, 3)]; if (o.sub) rows[4] = [C(o.sub, 13)];
   rows[5] = [C('Nhóm thực hiện :' + (o.team ? ' ' + o.team : '……………………………………………………………………………………'))]; rows[5][mid + 1] = C('Ngày thực hiện : ' + (o.day || '………../………/năm 202……'));
   rows[7] = COL.head.map(x => C(x, 2));
   const per = ST.settings.per, wrap = new Set([COL.head.indexOf('Nội dung sự cố'), COL.head.indexOf('Ghi chú')]);
   for (let i = 0; i < per; i++) {
     const r = list[i], rr = 8 + i;
     if (!r) { rows[rr] = COL.head.map((_, j) => C('', wrap.has(j) ? 10 : 9)); continue; }
-    const gc = `SC ${r.ma} (${fdm(r.t)})` + (r.kl ? '; ' + r.kl : '') + (r.dup ? '; ' + r.dup : '');
+    const gc = `${scRef(r)}` + (r.xl ? '; XL: ' + r.xl : '') + (r.kl ? '; ' + r.kl : '') + (r.dup ? '; ' + r.dup : '');
     const v = [startNo + i, ...COL.v(r), gc, ''];
     rows[rr] = v.map((y, j) => C(y, wrap.has(j) ? 10 : ([1, 2].includes(j) ? 1 : 9)));
   }
@@ -916,8 +925,9 @@ function phieuSheet2(name, title, list, startNo, g, o = {}) {
   rows[fr + 2] = []; rows[fr + 2][mid + 2] = C('Người báo cáo', 8);
   const heights = { 4: 25.5, 6: 15.6, 8: 40 }; for (let i = 0; i < per; i++) heights[9 + i] = 37.9;
   return { name, fitH: 1, cols: COL.w, rows, heights, printTitle: 8,
-    merges: ['A1:D1', 'A2:D2', 'A3:D3', `E4:${L(nc - 3)}4`, `A6:${L(mid)}6`, `${L(mid + 1)}6:${last}6`, `B${fr + 1}:C${fr + 1}`, `${L(mid)}${fr + 1}:${last}${fr + 1}`, `${L(mid + 2)}${fr + 3}:${L(nc - 2)}${fr + 3}`] };
+    merges: ['A1:D1', 'A2:D2', 'A3:D3', `A4:${last}4`, `A5:${last}5`, `A6:${L(mid)}6`, `${L(mid + 1)}6:${last}6`, `B${fr + 1}:C${fr + 1}`, `${L(mid)}${fr + 1}:${last}${fr + 1}`, `${L(mid + 2)}${fr + 3}:${L(nc - 2)}${fr + 3}`] };
 }
+function rptTitle(name, day) { const [d, m, y] = (day || '').split('/'); return `BÁO CÁO ${name} NGÀY ${d || '………'} THÁNG ${m || '………'} NĂM ${y || '………'}`; }
 function sheetNamer() { const used = new Set(); return (n) => { n = n.replace(/[\[\]:*?\/\\]/g, '-').slice(0, 31); let x = n, i = 2; while (used.has(x.toLowerCase())) x = n.slice(0, 27) + ' (' + i++ + ')'; used.add(x.toLowerCase()); return x; }; }
 function phieuDay() { const v = UI.phday; if (!v) return ''; const [y, m, d] = v.split('-'); return `${d}/${m}/${y}`; }
 function exportPhieu(only) {
@@ -925,11 +935,11 @@ function exportPhieu(only) {
   if (!L.length) return toast('Không có sự cố để xuất');
   const gs = PG.filter(g => L.some(r => pgOf(r) === g.k)), ps = [...new Set(L.map(r => r.pt))].sort((a, b) => a.localeCompare(b, 'vi'));
   // tổng hợp & phân công
-  sheets.push(tableSheet(nm('Tong hop'), `TỔNG HỢP SỰ CỐ CẦN SỬA THEO LOẠI${day ? ' – NGÀY ' + day : ''}`, `Xuất ${fdt(Date.now())} – đã loại sự cố đã xử lý, chờ GS, đã có khối lượng`,
+  sheets.push(tableSheet(nm('Tong hop'), rptTitle('TỔNG HỢP SỰ CỐ CẦN SỬA', day), `Xuất ${fdt(Date.now())} – đã loại sự cố đã xử lý, chờ GS, đã có khối lượng`,
     ['Quận', ...gs.map(g => g.t), 'Tổng'], [18, ...gs.map(() => 16), 10],
     [...qs.filter(q => L.some(r => r.quan === q)).map(q => [q, ...gs.map(g => C(L.filter(r => r.quan === q && pgOf(r) === g.k).length || '', 9)), C(L.filter(r => r.quan === q).length, 11)]),
       [C('Tổng', 11), ...gs.map(g => C(L.filter(r => pgOf(r) === g.k).length, 11)), C(L.length, 11)]]));
-  const pc = tableSheet(nm('Phan cong'), `PHÂN CÔNG XỬ LÝ SỰ CỐ${day ? ' NGÀY ' + day : ''}`, 'Người phụ trách = người báo, hoặc người được giao lại trong app (mục Phiếu sửa đèn)',
+  const pc = tableSheet(nm('Phan cong'), rptTitle('PHÂN CÔNG XỬ LÝ SỰ CỐ', day), 'Người phụ trách = người báo, hoặc người được giao lại trong app (mục Phiếu sửa đèn)',
     ['Người phụ trách', ...gs.map(g => g.t), 'Tổng', 'Quận', 'Ký nhận'], [24, ...gs.map(() => 14), 9, 20, 18],
     ps.map(p => { const x = L.filter(r => r.pt === p); return [p, ...gs.map(g => C(x.filter(r => pgOf(r) === g.k).length || '', 9)), C(x.length, 11), [...new Set(x.map(r => QS[r.quan] || r.quan))].join(', '), C('', 12)]; }));
   sheets.push(pc);
@@ -941,9 +951,10 @@ function exportPhieu(only) {
       const pages = Math.ceil(x.length / per), lab = byPt ? key : (QS[key] || key.replace('Quận ', 'Q.'));
       const team = byPt && !/cần phân công/.test(key) ? key : '';
       for (let i = 0; i < pages; i++) {
-        const name = nm(`${g.sh} ${lab}` + (pages > 1 ? ` (${i + 1})` : '')), title = `${g.ttl} – ${(byPt ? key : key).toUpperCase()}` + (pages > 1 ? ` (trang ${i + 1}/${pages})` : '');
+        const name = nm(`${g.sh} ${lab}` + (pages > 1 ? ` (${i + 1})` : '')), title = rptTitle(g.ttl, day);
+        const sub = (byPt ? 'Người thực hiện: ' + key + ' – ' + [...new Set(x.map(r => r.quan))].join(', ') : key) + (pages > 1 ? ` (trang ${i + 1}/${pages})` : '');
         const part = x.slice(i * per, (i + 1) * per);
-        sheets.push(g.k === 'den' ? phieuSheet(name, title, part, i * per + 1, { team, day }) : phieuSheet2(name, title, part, i * per + 1, g, { team, day }));
+        sheets.push(g.k === 'den' ? phieuSheet(name, title, part, i * per + 1, { team, day, sub }) : phieuSheet2(name, title, part, i * per + 1, g, { team, day, sub }));
       }
     }
   }
@@ -996,8 +1007,8 @@ function exportPC() {
     sh.rows.push([], [null, C('Người giao việc', 8), null, null, null, null, null, C('Người nhận việc', 8)]);
     sheets.push(sh);
   }
-  const bl = R.plan.filter(x => x.ton > 0).sort((a, b) => a.quan.localeCompare(b.quan) || b.vton - a.vton);
-  sheets.push(tableSheet('KH ton can lam', `KẾ HOẠCH TỒN ĐẾN T${R.cm} – CÓ THỂ GIAO THÊM`, '', ['Quận', 'Hạng mục', 'ĐVT', 'Tồn', 'Giá trị', 'Giao cho', 'Ghi chú'], [16, 52, 8, 10, 15, 20, 20], bl.map(x => [x.quan, x.hm, x.dvt, x.ton, Math.round(x.vton), C('', 12), C('', 12)]), { styles: { 3: 6, 4: 15 } }));
+  const bl = dvGet().rows.filter(x => x.ton > 0).sort((a, b) => S(a.quan).localeCompare(S(b.quan)) || b.vton - a.vton);
+  sheets.push(tableSheet('Duy tu con ton', `DUY TU ĐẦU VÀO CÒN TỒN – CÓ THỂ GIAO THÊM`, '', ['Quận', 'Hạng mục', 'ĐVT', 'Tồn', 'Giá trị', 'Giao cho', 'Ghi chú'], [16, 52, 8, 10, 15, 20, 20], bl.map(x => [x.quan || 'Chung', x.hm, x.dvt, x.ton, Math.round(x.vton) || '', C('', 12), C('', 12)]), { styles: { 3: 6, 4: 15 } }));
   saveFile(`Phan_cong_${d}-${mo}-${y}.xlsx`, XL.write(sheets));
 }
 
@@ -1006,7 +1017,7 @@ const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const h = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 let ST = null, R = null; // state & computed
-const UI = { tab: 'tq', f: { q: '', c: '', s: 'Cần sửa', p: '', x: '' }, pq: new Set(QN), pc: new Set(['LED', 'HPS']), pg: new Set(['den', 'rcbo', 'tb']), psplit: 'quan', phday: '', pnew: false, pall: false, pqSeen: new Set(QN), dp: { mode: 'month', v: '' }, pasteText: '', freeQ: '', pkt: true, khq: '', khg: '', khs: 'ton', pday: '', br: { s: '', q: '', x: '', k: '' }, brText: '', tgFound: [], cvq: { nd: '', vt: '', r: null }, in: { text: '', vt: '' }, inRes: [] };
+const UI = { tab: 'tq', f: { q: '', c: '', s: 'Cần sửa', p: '', x: '' }, pq: new Set(QN), pc: new Set(['LED', 'HPS']), pg: new Set(['den', 'rcbo', 'tb', 'khac']), psplit: 'quan', phday: '', pnew: false, pall: false, pqSeen: new Set(QN), dp: { mode: 'month', v: '' }, pasteText: '', freeQ: '', pkt: true, khq: '', khg: '', khs: 'ton', pday: '', br: { s: '', q: '', x: '', k: '' }, brText: '', tgFound: [], cvq: { nd: '', vt: '', r: null }, in: { text: '', vt: '' }, inRes: [] };
 
 // ---------- lưu trữ ----------
 const DB = {
@@ -1043,7 +1054,7 @@ function toast(m) { const t = $('#toast'); t.textContent = m; t.hidden = false; 
 const stamp = () => { const d = new Date(); return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()}`; };
 
 // ---------- khung ----------
-const TABS = [['tq', 'Tổng quan'], ['nap', 'Nạp dữ liệu'], ['sc', 'Sự cố'], ['dc', 'Đối chiếu KL'], ['phieu', 'Phiếu sửa chữa'], ['kh', 'Kế hoạch còn lại'], ['pc', 'Phân công'], ['br', 'Băng rôn'], ['cd', 'Cài đặt']];
+const TABS = [['tq', 'Tổng quan'], ['nap', 'Nạp dữ liệu'], ['phieu', 'Phiếu sửa chữa'], ['kh', 'Kế hoạch còn lại'], ['pc', 'Phân công'], ['br', 'Băng rôn'], ['cd', 'Cài đặt']];
 function renderNav() {
   $('#nav').innerHTML = TABS.map(([k, t]) => `<button class="tab${UI.tab === k ? ' on' : ''}" data-tab="${k}">${t}</button>`).join('');
 }
@@ -1053,6 +1064,7 @@ function render() {
   v.innerHTML = ({ tq: vTQ, nap: vNap, sc: vSC, dc: vDC, phieu: vPhieu, kh: vKH, pc: vPC, br: vBR, cd: vCD })[UI.tab]();
   if (UI.tab === 'nap') bindNap();
   if (UI.tab === 'br') bindBR();
+  if (UI.tab === 'kh') bindKH();
 }
 function renderStatus() {
   const n = R.rows.length, m = R.rows.filter(r => r.t).map(r => r.t), mk = ST.kl.map(k => k.d);
@@ -1089,11 +1101,10 @@ function bars(data, opts = {}) { // data: [{label, parts:[{v, cls, t}]}]
 function vTQ() {
   const rows = R.rows, need = rows.filter(r => r.fin === 'Cần sửa');
   const cnt = (f) => rows.filter(f).length;
-  const P = R.plan, sum = (a, k) => a.reduce((x, y) => x + y[k], 0);
-  const vkh = sum(P, 'vkh'), vdone = sum(P, 'vdone'), vton = sum(P, 'vton');
+  const DV = dvGet(), sum = (a, k) => a.reduce((x, y) => x + (y[k] || 0), 0), hasDg = DV.rows.some(r => r.dg), tonR = DV.rows.filter(r => r.ton > 0), noR = DV.rows.filter(r => r.no > 0);
   const kpi = (n, t, sub, cls = '') => `<div class="kpi ${cls}"><div class="n">${n}</div><div class="t">${t}</div>${sub ? `<div class="s">${sub}</div>` : ''}</div>`;
   const byQ = QN.map(q => ({ label: QS[q] + ' · ' + q.replace('Quận ', ''), parts: CATS.map(c => ({ v: need.filter(r => r.quan === q && r.cat === c.k).length, cls: 'f-' + c.k, t: c.t })) }));
-  const khQ = QN.map(q => { const p = P.filter(x => x.quan === q); const a = sum(p, 'vdone'), b = sum(p, 'vkh'); return { label: q.replace('Quận ', ''), parts: [{ v: a / 1e6, cls: 'f-done', t: 'Đã thực hiện (tr)' }, { v: Math.max(0, b - a) / 1e6, cls: 'f-rest', t: 'Còn lại (tr)' }], b }; });
+  const khQ = QN.map(q => { const p = DV.rows.filter(x => x.quan === q || !x.quan); return { label: QS[q] || q, parts: [{ v: p.filter(x => x.ton > 0).length, cls: 'f-done', t: 'Hạng mục còn tồn' }, { v: p.filter(x => x.no > 0).length, cls: 'f-HPS', t: 'Hạng mục dư nợ' }] }; });
   const pp = people().map(p => { const x = need.filter(r => r.pt === p); return { p, n: x.length, c: Object.fromEntries(CATS.map(c => [c.k, x.filter(r => r.cat === c.k).length])), q: [...new Set(x.map(r => QS[r.quan] || r.quan))].join(', ') }; }).sort((a, b) => b.n - a.n);
   const wk = Date.now() - 7 * 864e5; const klp = new Map(); for (const k of ST.kl) if (k.d >= dayStart(wk)) klp.set(k.nt, (klp.get(k.nt) || 0) + 1);
   return `
@@ -1101,12 +1112,12 @@ function vTQ() {
     ${kpi(fmtN(rows.length), 'Sự cố đã nạp', `${cnt(r => r.tt === 'Đã xử lý')} đã xử lý · ${cnt(r => r.tt === 'Đã xử lý (chờ GS)')} chờ GS`)}
     ${kpi(fmtN(need.length), 'Sự cố cần sửa', `${need.filter(r => r.dup).length} báo trùng · ${need.filter(r => r.kl).length} cần kiểm tra KL`, 'hot')}
     ${kpi(fmtN(cnt(r => r.fin === 'Đã có KL')), 'Đã có khối lượng', 'loại khỏi phiếu sửa', 'ok')}
-    ${kpi(vkh ? Math.round(vdone / vkh * 100) + '%' : '—', `Kế hoạch Q${ST.settings.quarter} đã làm`, `${fmtTy(vdone)} / ${fmtTy(vkh)}`)}
-    ${kpi(fmtTy(vton), `Tồn KH đến T${R.cm}`, 'cộng dồn KH các tháng − đã làm', 'warn')}
+    ${kpi(fmtN(tonR.length), 'Duy tu còn tồn', DV.rows.length ? (sum(tonR, 'vton') ? fmtTr(sum(tonR, 'vton')) : fmtN(sum(tonR, 'ton'), 2) + ' đơn vị') + ' · ' + h(DV.lab) : 'chưa nạp đầu vào', 'warn')}
+    ${kpi(fmtN(noR.length), 'Duy tu dư nợ', DV.rows.length ? fmtN(sum(noR, 'no'), 2) + ' đơn vị vượt' + (sum(noR, 'vno') ? ' · ' + fmtTr(sum(noR, 'vno')) : '') : '', 'hot')}
   </section>
   <section class="grid2">
     <div class="card"><h3>Sự cố cần sửa theo quận</h3>${bars(byQ, { lw: 130, aria: 'sự cố theo quận' })}<div class="legend">${CATS.map(c => `<span><i class="f-${c.k}"></i>${c.t}</span>`).join('')}</div></div>
-    <div class="card"><h3>Kế hoạch Q${ST.settings.quarter}/${ST.settings.year} – giá trị (triệu đồng)</h3>${bars(khQ, { lw: 110, fmt: (t, d) => d.b ? Math.round((d.parts[0].v * 1e6) / d.b * 100) + '% đã làm' : '', aria: 'kế hoạch theo quận' })}<div class="legend"><span><i class="f-done"></i>Đã thực hiện</span><span><i class="f-rest"></i>Còn lại</span></div></div>
+    <div class="card"><div class="cardhead"><h3>Duy tu đầu vào – còn tồn / dư nợ theo quận</h3><button class="btn ghost" data-tab="kh">Mở →</button></div>${DV.rows.length ? bars(khQ, { lw: 60, fmt: (t, d) => `${d.parts[0].v} tồn · ${d.parts[1].v} nợ`, aria: 'còn tồn dư nợ theo quận' }) + '<div class="legend"><span><i class="f-done"></i>Hạng mục còn tồn</span><span><i class="f-HPS"></i>Hạng mục dư nợ</span></div>' : '<p class="empty">Chưa nạp duy tu đầu vào.</p>'}</div>
   </section>
   <section class="card"><div class="cardhead"><h3>Sự cố cần sửa theo người phụ trách</h3><button class="btn ghost" data-tab="pc">Mở phân công →</button></div>
   <div class="tw"><table class="t"><thead><tr><th>Người phụ trách</th><th class="r">Tổng</th>${CATS.map(c => `<th class="r">${c.t}</th>`).join('')}<th>Quận</th><th class="r">Phiếu KL 7 ngày</th></tr></thead><tbody>
@@ -1122,7 +1133,7 @@ function vNap() {
     <p class="lead">Kéo thả nhiều file cùng lúc. Ứng dụng tự nhận loại dữ liệu theo tiêu đề cột, gộp với dữ liệu cũ, <b>tự lọc bỏ dòng trùng</b> và xuất Excel chỉ phần số liệu mới.</p>
     <label class="drop" id="drop"><input type="file" id="fi" multiple hidden>
       <b>Chọn hoặc thả file vào đây</b><span>Excel .xlsx · .xlsm · .xls · OpenOffice .ods · .csv · .tsv · .txt · Word .docx · web .html · .json · PDF · ảnh chụp / scan (.jpg .png)</span></label>
-    <ul class="kinds"><li><b>Sự cố</b> – có cột “Thời điểm ghi nhận”, “Nội dung”</li><li><b>Khối lượng duy tu</b> – có cột “Khối lượng thực hiện”</li><li><b>Kế hoạch</b> – theo mẫu kế hoạch của ứng dụng (Quận, Loại TX/KTX, Hạng mục, ĐVT, Đơn giá, T1, T2, T3)</li>
+    <ul class="kinds"><li><b>Sự cố</b> – có cột “Tên tủ”, “Nội dung” (và “Thời điểm ghi nhận” hoặc “Năm”, “Tháng”); cột “Nội dung xử lý” dùng để loại việc đã làm</li><li><b>Khối lượng duy tu</b> – có cột “Khối lượng thực hiện”</li><li><b>Kế hoạch</b> – theo mẫu kế hoạch của ứng dụng (Quận, Loại TX/KTX, Hạng mục, ĐVT, Đơn giá, T1, T2, T3)</li><li><b>Duy tu đầu vào</b> – có cột “Hạng mục / Vật tư” và “Khối lượng / Số lượng” → dùng ở mục Kế hoạch còn lại</li>
     <li><b>PDF, ảnh, Word, văn bản không có bảng</b> – nội dung được đưa xuống ô “Dán / sửa dữ liệu” bên dưới để anh xem lại, sửa rồi nạp (PDF và ảnh cần có Internet để tải bộ nhận dạng chữ)</li></ul>
     <p class="note" id="prog"></p>
   </section>
@@ -1295,9 +1306,18 @@ function vToPhieu() {
     return `<div class="kpi ${g.k === 'den' ? 'hot' : g.k === 'tb' ? 'warn' : g.k === 'rcbo' ? 'ok' : ''}"><div class="n">${n}${m ? `<span class="mut" style="font-size:.8rem;font-weight:600"> · ${m} mới</span>` : ''}</div><div class="t">${h(g.t)}</div><div class="s">${h(g.d)}</div>
       <div class="s">${qs.map(q => { const k = need.filter(r => r.quan === q && pgOf(r) === g.k).length; return k ? `${h(QS[q] || q)} ${k}` : ''; }).filter(Boolean).join(' · ')}</div>
       <div class="row" style="margin-top:8px"><button class="btn ghost sm" data-act="goph" data-g="${g.k}"${n ? '' : ' disabled'}>Mở phiếu →</button></div></div>`; };
-  return `<section class="card"><div class="cardhead"><h3>Sự cố cần sửa → phiếu sửa chữa</h3><div class="row" style="margin:0">
-      <button class="btn" data-act="goxall"${need.length ? '' : ' disabled'}>Xuất tất cả phiếu (${need.filter(r => pgOf(r) !== 'khac').length})</button>${NW.length ? `<button class="btn ghost" data-act="goph" data-g="all" data-new="1">Phiếu cho ${NW.length} sự cố mới →</button>` : ''}</div></div>
-    <p class="lead">Dữ liệu vừa nạp được tự phân loại. Bấm “Mở phiếu” để xem, đổi người phụ trách và xuất Excel ở mục <b>Phiếu sửa đèn</b>.</p>
+  const xl = R.rows.filter(r => r.tt === 'Đã xử lý (chờ GS)' || r.tt === 'Đã xử lý'), kl = R.rows.filter(r => r.fin === 'Đã có KL'), oth = R.rows.filter(r => r.tt === 'Không thuộc quản lý' || r.tt === 'Chưa cần xử lý');
+  const lastN = ST.last ? (ST.last.sc || []).length + (ST.last.scCh || []).length : 0;
+  const step = (n, t, s, cls) => `<div class="kpi ${cls}"><div class="n">${fmtN(n)}</div><div class="t">${t}</div><div class="s">${s}</div></div>`;
+  return `<section class="card"><div class="cardhead"><h3>Lọc việc đã xử lý → phiếu sửa chữa</h3><button class="btn ghost" data-act="xlx"${xl.length + kl.length + oth.length ? '' : ' disabled'}>Xuất danh sách việc đã loại</button></div>
+    <p class="lead">Sự cố có ghi <b>Nội dung xử lý</b> (vd “đã thay mới”) được coi là đã làm và <b>loại khỏi tổng hợp</b>, kể cả khi Trạng thái còn “Yêu cầu xử lý”. Nội dung xử lý dạng “chưa…, chờ vật tư, hẹn, đang xử lý, đề nghị…” vẫn tính là chưa xử lý. Chỉ việc còn lại mới đưa vào Phiếu sửa chữa.</p>
+    <div class="kpis sm">${step(R.rows.length, 'Sự cố đã nạp', ST.last ? `lần nạp gần nhất: ${fmtN(lastN)} mới / thay đổi` : '', '')}
+      ${step(xl.length, 'Đã xử lý – loại', 'có Nội dung xử lý hoặc trạng thái Đã xử lý', 'ok')}
+      ${step(kl.length + oth.length, 'Loại khác', `${kl.length} đã có phiếu KL · ${oth.length} không thuộc / chưa cần`, '')}
+      ${step(need.length, 'Còn lại chưa xử lý', 'đưa vào Phiếu sửa chữa', 'hot')}</div></section>
+  <section class="card"><div class="cardhead"><h3>Việc chưa xử lý → phiếu sửa chữa theo loại</h3><div class="row" style="margin:0">
+      <button class="btn" data-act="goxall"${need.length ? '' : ' disabled'}>Xuất Excel Phiếu sửa chữa (${need.length} việc)</button>${NW.length ? `<button class="btn ghost" data-act="goph" data-g="all" data-new="1">Phiếu cho ${NW.length} sự cố mới →</button>` : ''}</div></div>
+    <p class="lead">Việc chưa xử lý được tự tách theo loại. Bấm “Mở phiếu” để xem, đổi người phụ trách rồi in phiếu ở mục <b>Phiếu sửa chữa</b>; hoặc bấm “Xuất Excel Phiếu sửa chữa” để tải ngay (gồm Tổng hợp, Phân công có ký nhận và phiếu từng loại).</p>
     <div class="kpis sm">${PG.map(card).join('')}</div></section>`;
 }
 function vLast() {
@@ -1317,7 +1337,7 @@ async function importTable(rows, src, B) {
   if (bt) { const items = brRows(bt); return items.length ? brMerge(items, src, B) : `${src}: không có dòng băng rôn hợp lệ (cần nội dung/vị trí${B && B.forceBr ? '' : ' và ngày hết hạn'})`; }
   if (B && B.forceBr) return `${src}: không tìm thấy dòng tiêu đề băng rôn (cần cột “Nội dung” hoặc “Vị trí”)`;
   const t = tableFromRows(rows); if (!t) return `${src}: không tìm thấy dòng tiêu đề (cần cột “Tên tủ”, “Nội dung” hoặc “Hạng mục…”)`;
-  const kind = detectKind(t); if (!kind) return `${src}: không nhận ra loại dữ liệu`;
+  const kind = detectKind(t); if (!kind) { const dv = dvTable(rows, (src.match(/\[(.*)\]$/) || [])[1] || src); if (dv) { const m = dvMerge(dv, src); if (B) B.files.push({ src, kind: 'kh', n: dv.length, nw: dv.length, up: 0, same: 0, dup: 0 }); return m; } return `${src}: không nhận ra loại dữ liệu`; }
   const items = mapRows(t, kind); if (!items.length) return `${src}: không có dòng hợp lệ`;
   return merge(kind, items, src, B);
 }
@@ -1385,7 +1405,9 @@ const ACT = {
   cvsend() { tgSaveForm(); cvSendAll(false); },
   inrun() { intakeRun(); }, inclr() { UI.inRes = []; render(); }, cvview(a) { cvView(a.dataset.id); },
   brk2(a) { UI.br.k = UI.br.k === a.dataset.k ? '' : a.dataset.k; UI.br.s = ''; render(); const t = $('#brList'); if (t) t.scrollIntoView({ behavior: 'smooth' }); },
-  scx() { exportSC(); }, dcx() { exportDC(); }, phx() { exportPhieu(); }, khx() { exportKH(); }, pcx() { exportPC(); },
+  scx() { exportSC(); }, dcx() { exportDC(); }, phx() { exportPhieu(); }, khx() { exportDV(); }, dvx() { exportDV(); }, dvtpl() { exportDVTemplate(); },
+  dvkh() { const it = ST.kh.map(x => ({ quan: x.quan, hm: x.hm, dvt: x.dvt, dg: x.dg, sl: x.m[0] + x.m[1] + x.m[2], loai: x.sec })).filter(x => x.sl > 0); if (!it.length) return toast('Kế hoạch không có khối lượng'); dvMerge(it, `Kế hoạch Q${ST.settings.quarter}/${ST.settings.year}`); UI.dvp = { mode: 'quarter', v: `${ST.settings.year}-Q${ST.settings.quarter}` }; save(); render(); toast(`Đã lấy ${it.length} hạng mục kế hoạch làm đầu vào`); },
+  dvclr(a) { if (a.dataset.ok !== '1') { a.dataset.ok = '1'; a.textContent = 'Bấm lần nữa để xóa'; return; } ST.dv = []; ST.log.push({ at: Date.now(), msg: 'Đã xóa duy tu đầu vào' }); save(); render(); }, pcx() { exportPC(); },
   pq(a) { const q = a.dataset.v; UI.pq.has(q) ? UI.pq.delete(q) : UI.pq.add(q); render(); },
   pc(a) { const c = a.dataset.v; UI.pc.has(c) ? UI.pc.delete(c) : UI.pc.add(c); render(); },
   pgt(a) { const c = a.dataset.v; UI.pg.has(c) ? UI.pg.delete(c) : UI.pg.add(c); render(); },
@@ -1393,8 +1415,12 @@ const ACT = {
   pall() { UI.pall = true; render(); },
   phx1(a) { exportPhieu(a.dataset.g); },
   asgclr(a) { if (a.dataset.ok !== '1') { a.dataset.ok = '1'; a.textContent = 'Bấm lần nữa để bỏ'; return; } ST.asg = {}; recompute(); render(); save(); toast('Đã trả về người phụ trách tự động'); },
-  goph(a) { const g = a.dataset.g; UI.pg = new Set(g === 'all' ? ['den', 'rcbo', 'tb'] : [g]); UI.pnew = a.dataset.new === '1'; UI.tab = 'phieu'; try { localStorage.setItem('dt-tab', 'phieu'); } catch { } render(); window.scrollTo(0, 0); },
-  goxall(a) { UI.pg = new Set(['den', 'rcbo', 'tb']); UI.pnew = a.dataset.new === '1'; exportPhieu(); },
+  goph(a) { const g = a.dataset.g; UI.pg = new Set(g === 'all' ? ['den', 'rcbo', 'tb', 'khac'] : [g]); UI.pnew = a.dataset.new === '1'; UI.tab = 'phieu'; try { localStorage.setItem('dt-tab', 'phieu'); } catch { } render(); window.scrollTo(0, 0); },
+  xlx() { const L = R.rows.filter(r => r.tt === 'Đã xử lý (chờ GS)' || r.tt === 'Đã xử lý' || r.fin === 'Đã có KL' || r.tt === 'Không thuộc quản lý' || r.tt === 'Chưa cần xử lý').sort((a, b) => a.quan.localeCompare(b.quan) || a.tu.localeCompare(b.tu, 'vi'));
+    const sh = tableSheet('Da loai', rptTitle('VIỆC ĐÃ XỬ LÝ – LOẠI KHỎI PHIẾU SỬA', ''), `Xuất ${fdt(Date.now())} – ${L.length} việc`, ['STT', 'Quận', 'Tên tủ', 'Đường', 'Nội dung sự cố', 'Người báo', 'Nội dung xử lý', 'Người xử lý', 'Thời điểm xử lý', 'Lý do loại'], [5, 14, 22, 18, 46, 18, 30, 18, 16, 22],
+      L.map((r, i) => [i + 1, r.quan, r.tu, r.duong, r.nd, r.nb, r.xl, r.nxl || '', r.txl || '', r.fin === 'Đã có KL' && r.tt === 'Còn tồn' ? 'Đã có phiếu khối lượng' : r.tt]), { styles: { 0: 9, 4: 10, 6: 10 } });
+    saveFile(`Viec_da_xu_ly_loai_${stamp()}.xlsx`, XL.write([sh])); },
+  goxall(a) { UI.pg = new Set(['den', 'rcbo', 'tb', 'khac']); UI.pnew = a.dataset.new === '1'; exportPhieu(); },
   scc(a) { UI.f.c = a.dataset.c || ''; UI.f.q = a.dataset.q || ''; render(); const t = $('#scList'); if (t) t.scrollIntoView({ behavior: 'smooth' }); },
   saveCD() { saveSettings(); }, resetCD() { const tg = ST.settings.tg; ST.settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS)); ST.settings.tg = tg; recompute(); render(); save(); toast('Đã khôi phục cài đặt mặc định'); },
 };
@@ -1402,6 +1428,10 @@ const CHG = {
   f(a) { UI.f[a.dataset.k] = a.value; render(); },
   pkt(a) { UI.pkt = a.checked; render(); },
   pnew(a) { UI.pnew = a.checked; render(); },
+  dvpm(a) { UI.dvp = { mode: a.value, v: defPeriod(a.value) }; render(); },
+  dvpv(a) { UI.dvp.v = a.value; render(); },
+  dvm(a) { UI.dvm = a.value; render(); },
+  dvf(a) { UI[a.dataset.k] = a.value; render(); },
   phday(a) { UI.phday = a.value; render(); },
   asg(a) { ST.asg = ST.asg || {}; const r = R.rows.find(x => x.ma === a.dataset.ma); if (!r) return; if (a.value === r.pt0) delete ST.asg[r.ma]; else ST.asg[r.ma] = a.value; recompute(); const y = window.scrollY; render(); window.scrollTo(0, y); save(); toast(`SC ${r.ma} → ${a.value}`); },
   kh(a) { UI[a.dataset.k] = a.value; render(); },
@@ -1444,7 +1474,7 @@ function vSC() {
     <button class="btn" data-act="scx">Xuất Excel (${list.length})</button></div>
   <p class="note">${list.length} sự cố${list.length > shown.length ? ` – hiển thị ${shown.length} mới nhất` : ''}.</p>
   <div class="tw"><table class="t sc"><thead><tr><th>Mã</th><th>Ghi nhận</th><th>Quận · Tủ</th><th>Trụ</th><th>Nội dung</th><th>Nhóm · CS</th><th>Phụ trách</th><th>Trạng thái</th></tr></thead><tbody>
-  ${shown.map(r => `<tr><td class="mono">${h(r.ma)}</td><td class="nw">${fdt(r.t)}</td><td><span class="q">${QS[r.quan] || h(r.quan)}</span> ${h(r.tu)}</td><td class="nw">${h(r.tru)}</td><td class="nd">${h(r.nd)}${r.xl ? `<div class="mut">↳ ${h(r.xl)}</div>` : ''}</td><td>${catChip(r.cat)}<div class="mut">${h(lampText(r))}</div></td><td>${h(r.pt)}</td><td>${finChip(r.fin)}${r.kl ? `<div class="mut">${h(r.kl)}</div>` : ''}${r.dup ? `<div class="dup">${h(r.dup)}</div>` : ''}</td></tr>`).join('')}
+  ${shown.map(r => `<tr><td class="mono">${h(/^\d+$/.test(r.ma) ? r.ma : '')}</td><td class="nw">${r.ym ? 'T' + (new Date(r.t).getMonth() + 1) + '/' + new Date(r.t).getFullYear() : fdt(r.t)}</td><td><span class="q">${QS[r.quan] || h(r.quan)}</span> ${h(r.tu)}</td><td class="nw">${h(r.tru)}</td><td class="nd">${h(r.nd)}${r.xl ? `<div class="mut">↳ ${h(r.xl)}</div>` : ''}</td><td>${catChip(r.cat)}<div class="mut">${h(lampText(r))}</div></td><td>${h(r.pt)}</td><td>${finChip(r.fin)}${r.kl ? `<div class="mut">${h(r.kl)}</div>` : ''}${r.dup ? `<div class="dup">${h(r.dup)}</div>` : ''}</td></tr>`).join('')}
   </tbody></table></div></section>`;
 }
 
@@ -1523,7 +1553,7 @@ function vPhieu() {
       ${x.length > sh.length ? `<p class="note">… và ${x.length - sh.length} dòng nữa – <button class="lnk" data-act="pall">hiện tất cả để phân công</button></p>` : ''}</section>`;
   };
   return `<section class="card"><h3>Phiếu sửa chữa – tách theo loại sự cố</h3>
-  <p class="lead">Sự cố cần sửa được tự tách thành phiếu riêng: <b>Đèn tắt</b> (giữ nguyên Mẫu sửa đèn tắt), <b>RCBO / rẽ nhánh</b>, <b>Thiết bị tủ</b> (MCB, RCCB, contactor, bộ điều khiển – kết nối) và nhóm khác. File Excel gồm sheet Tổng hợp, sheet Phân công (có cột ký nhận) và phiếu từng loại, ${per} dòng/trang.</p>
+  <p class="lead">Sự cố cần sửa được tự tách thành phiếu riêng: <b>Đèn tắt</b> (theo Mẫu sửa đèn tắt), <b>RCBO / rẽ nhánh</b>, <b>Thiết bị tủ</b> (MCB, RCCB, contactor, bộ điều khiển – kết nối) và nhóm khác. Mọi phiếu có tiêu đề chung <b>BÁO CÁO … NGÀY … THÁNG … NĂM …</b> (ngày lấy từ ô Ngày sửa, để trống thì in chấm để ghi tay). File Excel gồm sheet Tổng hợp, sheet Phân công (có cột ký nhận) và phiếu từng loại, ${per} dòng/trang.</p>
   <div class="pick"><span class="pl">Loại</span>${PG.map(g => `<button class="tog${UI.pg.has(g.k) ? ' on' : ''}" data-act="pgt" data-v="${g.k}" title="${h(g.d)}">${h(g.t)} <b>${R.rows.filter(r => r.fin === 'Cần sửa' && UI.pq.has(r.quan) && pgOf(r) === g.k && (UI.pkt || !r.kl)).length}</b></button>`).join('')}</div>
   <div class="pick"><span class="pl">Quận</span>${qs.map(q => `<button class="tog${UI.pq.has(q) ? ' on' : ''}" data-act="pq" data-v="${h(q)}">${h(q)}</button>`).join('')}</div>
   <div class="pick"><span class="pl">Tách</span><button class="tog${byPt ? '' : ' on'}" data-act="psplit" data-v="quan">Mỗi quận một phiếu</button><button class="tog${byPt ? ' on' : ''}" data-act="psplit" data-v="pt">Mỗi người phụ trách một phiếu (giao việc)</button></div>
@@ -1557,49 +1587,20 @@ function khTXTable() {
   <div class="grid2" style="margin-top:12px">${['TX', 'KTX'].map(sec => `<div><h3>${sec === 'TX' ? 'Thường xuyên' : 'Không thường xuyên'} – tiến độ theo quận</h3>${bars(T.map(x => ({ label: QS[x.q] || x.q, parts: [{ v: x[sec].dn / 1e6, cls: 'f-done', t: 'Đã làm (tr)' }, { v: x[sec].con / 1e6, cls: 'f-rest', t: 'Còn lại (tr)' }], o: x[sec] })), { lw: 50, rp: 190, fmt: (t, d) => pct(d.o.dn, d.o.kh) + ' · còn ' + fmtTr(d.o.con), aria: 'tiến độ ' + sec })}</div>`).join('')}</div>
   <p class="note">Giá trị tính bằng khối lượng × đơn giá. “HM xong” = số hạng mục đã làm đủ KH quý / số hạng mục có KH.</p></section>`;
 }
-function vKH() {
-  const P = R.plan, sum = (a, k) => a.reduce((x, y) => x + y[k], 0), m = R.months;
-  const fq = UI.khq, fg = UI.khg;
-  const rowsQ = QN.map(q => { const p = P.filter(x => x.quan === q); return { q, kh: sum(p, 'vkh'), dn: sum(p, 'vdone'), con: sum(p, 'vcon'), ton: sum(p, 'vton') }; });
-  const tot = { kh: sum(P, 'vkh'), dn: sum(P, 'vdone'), con: sum(P, 'vcon'), ton: sum(P, 'vton') };
-  const groups = HMG.map(g => g[0]).slice().reverse();
-  const sel = P.filter(x => (!fq || x.quan === fq) && (!fg || x.g === fg) && x.kh > 0);
-  const byG = groups.map(g => { const p = sel.filter(x => x.g === g); return { g, kh: sum(p, 'vkh'), dn: sum(p, 'vdone'), ton: sum(p, 'vton'), n: p.filter(x => x.ton > 0).length }; }).filter(x => x.kh);
-  const key = UI.khs === 'con' ? 'vcon' : 'vton';
-  const items = sel.filter(x => x[key] > 0).sort((a, b) => b[key] - a[key]).slice(0, 80);
-  const pct = (a, b) => b ? Math.round(a / b * 100) + '%' : '—';
-  return `<section class="card"><div class="cardhead"><h3>Kế hoạch Q${ST.settings.quarter}/${ST.settings.year} – đã làm và còn lại</h3><button class="btn" data-act="khx">Xuất Excel kế hoạch còn lại</button></div>
-  <p class="lead">Đã làm = tổng khối lượng thực hiện trong quý, khớp theo quận và đúng tên hạng mục. Tồn đến T${R.cm} = KH cộng dồn T${m[0]}…T${R.cm} − đã làm. Giá trị = khối lượng × đơn giá.</p>
-  <div class="tw"><table class="t"><thead><tr><th>Quận</th><th class="r">KH quý</th><th class="r">Đã làm</th><th class="r">%</th><th class="r">Còn lại quý</th><th class="r">Tồn đến T${R.cm}</th></tr></thead><tbody>
-  ${rowsQ.map(x => `<tr><td>${x.q}</td><td class="r">${fmtTr(x.kh)}</td><td class="r">${fmtTr(x.dn)}</td><td class="r">${pct(x.dn, x.kh)}</td><td class="r">${fmtTr(x.con)}</td><td class="r b">${fmtTr(x.ton)}</td></tr>`).join('')}
-  <tr class="tot"><td>Tổng</td><td class="r">${fmtTr(tot.kh)}</td><td class="r">${fmtTr(tot.dn)}</td><td class="r">${pct(tot.dn, tot.kh)}</td><td class="r">${fmtTr(tot.con)}</td><td class="r">${fmtTr(tot.ton)}</td></tr></tbody></table></div></section>
-  ${khTXTable()}
-  <section class="card"><div class="filters">
-    <select data-chg="kh" data-k="khq">${opt('', fq, 'Tất cả quận')}${QN.map(q => opt(q, fq)).join('')}</select>
-    <select data-chg="kh" data-k="khg">${opt('', fg, 'Tất cả nhóm hạng mục')}${groups.map(g => opt(g, fg)).join('')}</select>
-    <select data-chg="kh" data-k="khs">${opt('ton', UI.khs, `Xếp theo tồn đến T${R.cm}`)}${opt('con', UI.khs, 'Xếp theo còn lại cả quý')}</select></div>
-  <h3>Theo nhóm hạng mục</h3>${bars(byG.map(x => ({ label: x.g.split('. ')[0] + '. ' + x.g.split('. ')[1].split(',')[0], parts: [{ v: x.dn / 1e6, cls: 'f-done', t: 'Đã làm (tr)' }, { v: x.ton / 1e6, cls: 'f-rest', t: 'Tồn (tr)' }, { v: Math.max(0, x.kh - x.dn - x.ton) / 1e6, cls: 'f-later', t: 'Các tháng sau (tr)' }] })), { lw: 150, fmt: (t) => fmtN(t, 0) + ' tr', aria: 'nhóm hạng mục' })}
-  <div class="legend"><span><i class="f-done"></i>Đã làm</span><span><i class="f-rest"></i>Tồn đến T${R.cm}</span><span><i class="f-later"></i>KH các tháng sau</span></div>
-  <h3>Hạng mục cần làm (${items.length} lớn nhất)</h3>
-  <div class="tw"><table class="t"><thead><tr><th>Quận</th><th>Hạng mục</th><th>ĐVT</th>${m.map(x => `<th class="r">T${x}</th>`).join('')}<th class="r">Đã làm</th><th class="r">Tồn T${R.cm}</th><th class="r">Còn quý</th><th class="r">Giá trị tồn</th></tr></thead><tbody>
-  ${items.map(x => `<tr><td><span class="q">${QS[x.quan]}</span> <span class="mut">${x.sec}</span></td><td class="nd">${h(x.hm)}</td><td>${h(x.dvt)}</td>${x.m.map(v => `<td class="r">${fmtN(v, 2) || '<span class="mut">·</span>'}</td>`).join('')}<td class="r">${fmtN(x.done, 2)}</td><td class="r b">${fmtN(x.ton, 2)}</td><td class="r">${fmtN(Math.max(0, x.con), 2)}</td><td class="r">${fmtTr(x[key])}</td></tr>`).join('')}
-  </tbody></table></div>
-  ${R.unplanned.length ? `<details><summary>${R.unplanned.length} hạng mục có khối lượng nhưng không có trong kế hoạch (tên khác hoặc ngoài KH)</summary><div class="tw"><table class="t"><thead><tr><th>Quận</th><th>Hạng mục</th><th>ĐVT</th><th class="r">KL</th><th class="r">Số phiếu</th></tr></thead><tbody>${R.unplanned.map(u => `<tr><td>${QS[u.quan] || h(u.quan)}</td><td class="nd">${h(u.hm)}</td><td>${h(u.dvt)}</td><td class="r">${fmtN(u.kl, 2)}</td><td class="r">${u.n}</td></tr>`).join('')}</tbody></table></div></details>` : ''}</section>`;
-}
 
 // ---------- PHÂN CÔNG ----------
 function vPC() {
   const need = R.rows.filter(r => r.fin === 'Cần sửa');
   const ps = people();
   const day = UI.pday || new Date().toISOString().slice(0, 10);
-  const backlog = R.plan.filter(x => x.ton > 0).sort((a, b) => b.vton - a.vton);
+  const backlog = dvGet().rows.filter(x => x.ton > 0).sort((a, b) => (b.vton - a.vton) || (b.ton - a.ton));
   return `<section class="card"><div class="cardhead"><h3>Phân công hằng ngày</h3><div class="row"><input type="date" value="${day}" data-chg="pday"><button class="btn" data-act="pcx">Xuất phiếu phân công</button></div></div>
-  <p class="lead">Mỗi người nhận sự cố cần sửa thuộc các tủ mình phụ trách (theo người báo), xếp theo quận → tủ → số trụ. File xuất gồm bảng tổng, một sheet cho từng người và danh sách hạng mục kế hoạch còn tồn để giao thêm.</p></section>
+  <p class="lead">Mỗi người nhận sự cố cần sửa thuộc các tủ mình phụ trách (theo người báo), xếp theo quận → tủ → số trụ. File xuất gồm bảng tổng, một sheet cho từng người và danh sách duy tu đầu vào còn tồn để giao thêm.</p></section>
   <div class="cards">${ps.map(p => { const x = need.filter(r => r.pt === p).sort((a, b) => a.quan.localeCompare(b.quan) || a.tu.localeCompare(b.tu) || truKey(a.tru) - truKey(b.tru)); return `<section class="card person"><div class="cardhead"><h3>${h(p)}</h3><span class="cnt">${x.length}</span></div>
     <div class="mini">${CATS.map(c => { const n = x.filter(r => r.cat === c.k).length; return n ? `<span class="chip c-${c.k}">${c.t} ${n}</span>` : ''; }).join('')}</div>
     <ol class="tasks">${x.slice(0, 12).map(r => `<li><b>${QS[r.quan]}</b> ${h(r.tu)} · ${h(r.cat === 'TB' ? '' : r.tru)} <span class="mut">${h(lampText(r))}</span>${r.dup ? ' <span class="dup">trùng</span>' : ''}</li>`).join('')}${x.length > 12 ? `<li class="mut">… ${x.length - 12} việc nữa</li>` : ''}</ol></section>`; }).join('')}</div>
-  <section class="card"><h3>Kế hoạch tồn có thể giao thêm (đến T${R.cm})</h3><div class="tw"><table class="t"><thead><tr><th>Quận</th><th>Hạng mục</th><th>ĐVT</th><th class="r">Tồn</th><th class="r">Giá trị</th></tr></thead><tbody>
-  ${backlog.slice(0, 25).map(x => `<tr><td><span class="q">${QS[x.quan]}</span></td><td class="nd">${h(x.hm)}</td><td>${h(x.dvt)}</td><td class="r b">${fmtN(x.ton, 2)}</td><td class="r">${fmtTr(x.vton)}</td></tr>`).join('')}</tbody></table></div></section>`;
+  <section class="card"><h3>Duy tu đầu vào còn tồn – có thể giao thêm</h3><div class="tw"><table class="t"><thead><tr><th>Quận</th><th>Hạng mục</th><th>ĐVT</th><th class="r">Tồn</th><th class="r">Giá trị</th></tr></thead><tbody>
+  ${backlog.slice(0, 25).map(x => `<tr><td><span class="q">${h(QS[x.quan] || x.quan || 'chung')}</span></td><td class="nd">${h(x.hm)}</td><td>${h(x.dvt)}</td><td class="r b">${fmtN(x.ton, 2)}</td><td class="r">${x.vton ? fmtTr(x.vton) : ''}</td></tr>`).join('') || '<tr><td colspan="5" class="mut">Chưa có duy tu đầu vào còn tồn.</td></tr>'}</tbody></table></div></section>`;
 }
 
 
@@ -2214,6 +2215,227 @@ function vBR() {
       <li>Bấm <b>Gửi tin thử</b>. Từ đó app tự gửi mỗi ngày đúng giờ khi app đang mở (nên bật trên <b>một</b> máy để không bị gửi trùng).</li></ol></details></section>`;
 }
 
+// ========== DUY TU ĐẦU VÀO − SỰ CỐ ĐÃ SỬA = CÒN TỒN / DƯ NỢ ==========
+const VT = [ // [khóa, tên chuẩn, ĐVT, nhận dạng tên hạng mục]
+  ['bohps', 'Bộ bóng + ballast + kích HPS/MH', 'bộ', /bóng\s*,\s*(chấn lưu|ballast)\s*,\s*kích|bộ bóng.*kích/],
+  ['drv', 'Driver đèn LED', 'cái', /driver/],
+  ['csled', 'Chống sét đèn LED', 'cái', /chống sét/],
+  ['boden', 'Bộ đèn / mặt LED', 'bộ', /bộ đèn|mặt led|chóa đèn led|đèn led nguyên bộ/],
+  ['bongled', 'Bóng LED / compact', 'bóng', /bóng (đèn )?(led|compact)|bằng bóng đèn led/],
+  ['bonghps', 'Bóng HPS / MH', 'bóng', /bóng/],
+  ['ballast', 'Ballast (chấn lưu)', 'cái', /chấn lưu|ballast|tăng phô/],
+  ['kich', 'Kích (mồi)', 'cái', /kích/],
+  ['tu', 'Tụ điện', 'cái', /tụ điện|(^|\s)tụ(\s|$|\d|,)/],
+  ['bcm', 'Bộ chuyển mạch 2 cấp (BCM)', 'cái', /chuyển mạch|bcm/],
+  ['dui', 'Đui đèn', 'cái', /đui|đuôi đèn/],
+  ['choa', 'Chóa đèn', 'cái', /chóa|choá/],
+  ['renhanh', 'Hộp rẽ nhánh / liên thông', 'hộp', /rẽ nhánh|rẻ nhánh|liên thông/],
+  ['rcbo', 'RCBO', 'cái', /rcbo/],
+  ['rccb', 'RCCB', 'cái', /rccb/],
+  ['mcb', 'MCB / MCCB', 'cái', /m?ccb|(^|[^a-z])mcb|aptomat/],
+  ['conta', 'Contactor', 'cái', /contactor|conta|khởi động từ/],
+  ['dk', 'Bộ điều khiển – kết nối (PLC, modem, adapter, nguồn)', 'bộ', /plc|modem|adapter|bộ nguồn|nguồn ac|bộ điều khiển|bộ giao tiếp|3g\/4g|bộ trung tâm/],
+  ['votu', 'Vỏ tủ', 'cái', /vỏ tủ|võ tủ/],
+  ['okhoa', 'Ổ khóa tủ', 'cái', /ổ kh[óo]a/],
+  ['bangten', 'Bảng tên tủ', 'cái', /bảng tên/],
+];
+const VTN = Object.fromEntries(VT.map(v => [v[0], v[1]]));
+const vtKey = (t) => { t = low(t); for (const [k, , , re] of VT) if (re.test(t)) return k; return ''; };
+function wSpec(t) {
+  t = low(t).replace(/≤|<=|nhỏ hơn hoặc bằng|đến/g, '≤'); let m;
+  if ((m = t.match(/(\d{2,3})\s*\/\s*(\d{2,3})\s*w?/))) return { eq: +m[1] };
+  if ((m = t.match(/≤\s*(\d{2,4})\s*w/))) return { max: +m[1] };
+  if ((m = t.match(/(\d{2,4})\s*w\b/))) return { eq: +m[1] };
+  return null;
+}
+const wNum = (w) => { const m = S(w).match(/\d{2,4}/); return m ? +m[0] : 0; };
+function normQ(v) {
+  const s = S(v); if (!s) return ''; const f = fold(s);
+  for (const q of QN) if (fold(q) === f || fold(QS[q]) === f.replace(/\s/g, '') || f.endsWith(fold(q.replace('Quận ', '')))) return q;
+  const m = f.match(/^(?:quan|q)?\s*\.?\s*(\d{1,2})$/); if (m) return 'Quận ' + +m[1];
+  return /^quan /.test(f) ? titleName(s) : 'Quận ' + titleName(s.replace(/^q\.?\s*/i, ''));
+}
+// ---- đọc file đầu vào ----
+function dvTable(rows, sheetName) {
+  const HM = /^(stt\s*)?(hạng mục|tên vật tư|vật tư|tên hàng|danh mục|nội dung|tên thiết bị|thiết bị|tên vt|chủng loại|mô tả)/i;
+  const QTY = /(khối lượng|số lượng|^kl\b|^sl\b|đầu vào|được cấp|cấp phát|nhận|tồn đầu|kế hoạch|giao)/i;
+  for (let i = 0; i < Math.min(15, rows.length); i++) {
+    const hr = (rows[i] || []).map(x => S(x).replace(/\s+/g, ' ')), lo = hr.map(x => x.toLowerCase());
+    const hm = lo.findIndex(x => x && HM.test(x)); if (hm < 0) continue;
+    const ms = ['t1', 't2', 't3', 'tháng 1', 'tháng 2', 'tháng 3'].map(k => lo.indexOf(k)).filter(x => x >= 0);
+    const qc = lo.findIndex((x, j) => j !== hm && x && QTY.test(x) && !/thực hiện|đã làm|còn lại|đơn giá|thành tiền|giá trị/.test(x));
+    if (qc < 0 && ms.length < 2) continue;
+    const ix = { hm, qty: qc, ms, quan: lo.findIndex(x => /^(quận|quận\/huyện|địa bàn|đơn vị)$/.test(x)), dvt: lo.findIndex(x => /^(đvt|đơn vị tính|đ\.v\.t|đơn vị)$/.test(x)), dg: lo.findIndex(x => /đơn giá/.test(x)), loai: lo.findIndex(x => /^loại$/.test(x)) };
+    const q0 = normQ(QN.find(q => fold(sheetName || '').includes(fold(q.replace('Quận ', '')))) || '');
+    const out = [];
+    for (const r of rows.slice(i + 1)) {
+      if (!r) continue; const name = S(r[hm]).replace(/\s+/g, ' ');
+      const sl = ms.length >= 2 ? ms.reduce((a, c) => a + parseNum(r[c]), 0) : parseNum(r[qc]);
+      if (!name || /^(tổng|cộng|tổng cộng)\b/i.test(name) || (!sl && !/\d/.test(S(r[qc] ?? '')))) continue;
+      out.push({ quan: ix.quan >= 0 ? normQ(r[ix.quan]) : q0, hm: name, dvt: ix.dvt >= 0 ? S(r[ix.dvt]) : '', dg: ix.dg >= 0 ? parseNum(r[ix.dg]) : 0, sl, loai: ix.loai >= 0 ? S(r[ix.loai]) : '' });
+    }
+    if (out.length) return out;
+  }
+  return null;
+}
+function dvMerge(items, src) {
+  ST.dv = ST.dv || []; const qs = new Set(items.map(x => x.quan));
+  ST.dv = ST.dv.filter(x => !qs.has(x.quan)).concat(items.map(x => Object.assign(x, { src, at: Date.now() })));
+  ST.log.push({ at: Date.now(), msg: `Duy tu đầu vào – ${src}: ${items.length} hạng mục (${[...qs].map(q => q || 'chung').join(', ')}) – thay thế đầu vào cũ của ${qs.size > 1 ? 'các quận này' : 'quận này'}` });
+  return `${src}: duy tu đầu vào ${items.length} hạng mục`;
+}
+async function dvImport(files) {
+  const msgs = [], pg = $('#dvprog');
+  for (const f of files) {
+    try {
+      if (pg) pg.textContent = 'Đang đọc ' + f.name + '…';
+      const sheets = await FMT.read(f, (s, p) => { if (pg) pg.textContent = `${f.name}: ${s} ${Math.round(p * 100)}%`; });
+      let n = 0;
+      for (const sh of sheets) { const it = dvTable(sh.rows, sh.name); if (it) { msgs.push(dvMerge(it, f.name + (sheets.length > 1 ? ` [${sh.name}]` : ''))); n++; } }
+      if (!n) msgs.push(`${f.name}: không thấy bảng đầu vào (cần cột “Hạng mục / Vật tư” và “Khối lượng / Số lượng”)`);
+    } catch (e) { msgs.push(`${f.name}: lỗi – ${e.message}`); }
+  }
+  if (pg) pg.textContent = ''; save(); render(); toast(msgs.join(' · ').slice(0, 220));
+}
+// ---- trừ sự cố đã sửa ----
+const DONE = new Set(['Đã xử lý', 'Đã xử lý (chờ GS)', 'Đã có KL']);
+function scUses(r) {
+  const n = qty(r.nd), p = parts(r.nd), w = wNum(r.w), t = low(r.nd), u = [];
+  const add = (key, k = n, note = '') => u.push({ key, n: k, w, note });
+  if (r.cat === 'LED') { if (r.loai === L_BD || /bộ đèn|mặt led/.test(t)) add('boden'); else add('drv'); if (p.cs) add('csled'); }
+  else if (r.cat === 'HPS') {
+    if (p.bong && p.ballast && p.kich) add('bohps', n, 'bóng + ballast + kích');
+    else { for (const [k, key] of [['bong', 'bonghps'], ['ballast', 'ballast'], ['kich', 'kich']]) if (p[k]) add(key); }
+    if (p.tu) add('tu'); if (p.bcm) add('bcm'); if (p.duoi) add('dui');
+    if (!u.length) add('bonghps', n, 'nội dung không ghi vật tư – tính thay bóng');
+  }
+  else if (r.cat === 'RCBO') add(/rẽ nh|rẻ nh|rẽ nhanh|liên thông/.test(t) ? 'renhanh' : 'rcbo', 1);
+  else if (r.cat === 'TB') { for (const [re, key] of [[/rccb/, 'rccb'], [/conta/, 'conta'], [/(^|[^a-z])m?ccb|(^|[^a-z])mcb/, 'mcb'], [/plc|modem|adapter|nguồn|lập trình|trung tâm/, 'dk'], [/v[ỏõo] tủ|tủ (bị )?(vỡ|bể|nứt|đụng)|(vỡ|bể) tủ|cửa tủ/, 'votu'], [/ổ kh[óo]a/, 'okhoa'], [/bảng tên/, 'bangten']]) if (re.test(t)) add(key, 1); }
+  else if (r.cat === 'CHOA') add('choa');
+  return u;
+}
+function dvRows() { // đầu vào đã chuẩn hóa
+  return (ST.dv || []).map((x, i) => ({ i, quan: x.quan, hm: x.hm, dvt: x.dvt || (VT.find(v => v[0] === vtKey(x.hm)) || [])[2] || '', dg: x.dg || 0, sl: x.sl, key: vtKey(x.hm), ws: wSpec(x.hm), ex: nmh(x.hm), used: 0, ev: [] }));
+}
+function dvPick(rows, u) {
+  const inQ = (r) => r.quan === u.quan || !r.quan;
+  if (u.hm) { const ex = rows.filter(r => inQ(r) && r.ex === nmh(u.hm)); if (ex.length) return { r: ex.find(r => r.quan === u.quan) || ex[0] }; }
+  if (!u.key) return null;
+  let c = rows.filter(r => inQ(r) && r.key === u.key); if (!c.length) return null;
+  const sq = c.filter(r => r.quan === u.quan); if (sq.length) c = sq;
+  if (c.length === 1 && !(u.w && c[0].ws && !(c[0].ws.eq === u.w || c[0].ws.max >= u.w))) return { r: c[0] };
+  if (u.w) {
+    const eq = c.find(r => r.ws && r.ws.eq === u.w); if (eq) return { r: eq };
+    const mx = c.filter(r => r.ws && r.ws.max >= u.w).sort((a, b) => a.ws.max - b.ws.max)[0]; if (mx) return { r: mx };
+    if (c.every(r => r.ws)) return null; // đầu vào chỉ có công suất khác → không trừ nhầm
+  }
+  const gen = c.find(r => !r.ws); return { r: gen || c[0], note: u.w ? `không có dòng ${u.w}W – trừ vào dòng gần nhất` : 'không rõ công suất – trừ vào dòng đầu tiên' };
+}
+function dvCompute() {
+  const P = UI.dvp || (UI.dvp = { mode: 'quarter', v: defPeriod('quarter') }), [a, b, lab] = periodRange(P.mode, P.v), mode = UI.dvm || 'sc';
+  const rows = dvRows(), extra = new Map(), skip = [], det = [];
+  const hasBundle = (q) => rows.some(r => r.key === 'bohps' && (r.quan === q || !r.quan));
+  const take = (u, src) => {
+    const pk = dvPick(rows, u);
+    if (pk) { pk.r.used += u.n; pk.r.ev.push(src.id); det.push({ ...src, item: pk.r.hm, n: u.n, note: [u.note, pk.note].filter(Boolean).join('; ') }); return; }
+    if (!u.key) { skip.push({ ...src, item: u.hm || '', n: u.n, why: 'không phải vật tư thay thế / không nhận dạng được' }); return; }
+    const wm = u.w && rows.some(r => r.key === u.key && (r.quan === u.quan || !r.quan)) ? u.w : 0;
+    const k = u.quan + '|' + u.key + '|' + wm, e = extra.get(k) || { quan: u.quan, hm: VTN[u.key] + (wm ? ` ${wm}W` : '') + ' (ngoài đầu vào)', dvt: (VT.find(v => v[0] === u.key) || [])[2], dg: 0, sl: 0, used: 0, ev: [], key: u.key, out: true };
+    e.used += u.n; e.ev.push(src.id); extra.set(k, e); det.push({ ...src, item: e.hm, n: u.n, note: wm ? `đầu vào không có loại ${wm}W → dư nợ` : 'không có trong đầu vào → dư nợ' });
+  };
+  let nsrc = 0;
+  if (mode === 'sc') {
+    for (const r of R.rows) {
+      if (!DONE.has(r.fin) || !(r.t >= a && r.t < b)) continue;
+      const src = { id: 'SC ' + r.ma, d: r.t, quan: r.quan, tu: r.tu, tru: r.tru, nd: r.nd, fin: r.fin }; nsrc++;
+      let us = scUses(r);
+      if (us.some(x => x.key === 'bohps') && !hasBundle(r.quan)) us = us.flatMap(x => x.key === 'bohps' ? ['bonghps', 'ballast', 'kich'].map(key => ({ ...x, key, note: '' })) : [x]);
+      if (!us.length) { skip.push({ ...src, item: lampText(r), n: 0, why: `${CATMAP[r.cat].t} – không tính vật tư` }); continue; }
+      for (const x of us) take({ ...x, quan: r.quan }, src);
+    }
+  } else {
+    for (const k of ST.kl) {
+      if (!(k.d >= a && k.d < b)) continue;
+      const src = { id: 'KL ' + k.ma, d: k.d, quan: k.quan, tu: k.tu, tru: k.tru, nd: k.hm + (k.msc ? ' (SC ' + k.msc + ')' : ''), fin: 'Phiếu KL' }; nsrc++;
+      const t = low(k.hm), key = vtKey(k.hm);
+      if (!/^(thay thế|lắp đặt|thay|lắp|làm)/.test(t)) { skip.push({ ...src, item: k.hm, n: k.kl, why: 'không phải thay / lắp vật tư (tháo dỡ, di dời, nhân công…)' }); continue; }
+      if (/thu hồi|sử dụng lại|tái sử dụng/.test(t)) { skip.push({ ...src, item: k.hm, n: k.kl, why: 'dùng vật tư thu hồi – không trừ đầu vào' }); continue; }
+      const ws = wSpec(k.hm) || {}, u = { quan: k.quan, hm: k.hm, key, w: ws.eq || 0, n: k.kl };
+      if (key === 'bohps' && !hasBundle(k.quan) && !rows.some(r => r.ex === nmh(k.hm))) { for (const kk of ['bonghps', 'ballast', 'kich', ...(/tụ/.test(t) ? ['tu'] : [])]) take({ ...u, hm: '', key: kk, note: 'tách từ ' + k.hm }, src); }
+      else take(u, src);
+    }
+  }
+  const all = [...rows, ...extra.values()].map(r => Object.assign(r, { con: r.sl - r.used, ton: Math.max(0, r.sl - r.used), no: Math.max(0, r.used - r.sl), vsl: r.sl * r.dg, vused: r.used * r.dg, vton: Math.max(0, r.sl - r.used) * r.dg, vno: Math.max(0, r.used - r.sl) * r.dg }));
+  return { rows: all, det, skip, lab, nsrc, mode, a, b };
+}
+const dvGet = () => dvCompute();
+// ---- giao diện ----
+function vKH() {
+  const D = dvGet(), qs = [...new Set([...QN, ...D.rows.map(r => r.quan).filter(Boolean)])], fq = UI.dvq || '', fs = UI.dvs || '';
+  const L = D.rows.filter(r => (!fq || r.quan === fq || !r.quan) && (!fs || (fs === 'ton' ? r.ton > 0 : fs === 'no' ? r.no > 0 : r.con === 0)))
+    .sort((a, b) => (qs.indexOf(a.quan) - qs.indexOf(b.quan)) || (b.no - a.no) || a.hm.localeCompare(b.hm, 'vi'));
+  const sum = (arr, k) => arr.reduce((x, y) => x + (y[k] || 0), 0), hasDg = D.rows.some(r => r.dg), dv = ST.dv || [];
+  const kpi = (n, t, s, cls = '') => `<div class="kpi ${cls}"><div class="n">${n}</div><div class="t">${t}</div>${s ? `<div class="s">${s}</div>` : ''}</div>`;
+  const tonR = D.rows.filter(r => r.ton > 0), noR = D.rows.filter(r => r.no > 0);
+  const P = UI.dvp, pm = [['month', 'Theo tháng'], ['quarter', 'Theo quý'], ['day', 'Theo ngày'], ['all', 'Toàn bộ']];
+  const pv = P.mode === 'month' ? `<input type="month" value="${P.v}" data-chg="dvpv">` : P.mode === 'day' ? `<input type="date" value="${P.v}" data-chg="dvpv">` : P.mode === 'quarter' ? `<select data-chg="dvpv">${[0, 1].flatMap(dy => [1, 2, 3, 4].map(q => `${ST.settings.year - dy}-Q${q}`)).map(v => opt(v, P.v, v.replace('-Q', ' – Quý '))).join('')}</select>` : '';
+  return `<section class="card"><div class="cardhead"><h3>Duy tu đầu vào</h3><span class="mut">${dv.length ? `${dv.length} hạng mục · ${[...new Set(dv.map(x => x.quan || 'chung'))].join(', ')}` : 'chưa có'}</span></div>
+    <p class="lead">Nạp khối lượng duy tu đầu vào (vật tư được giao / cấp / kế hoạch) – mọi định dạng. Cần cột <b>Hạng mục / Vật tư</b> và <b>Khối lượng / Số lượng</b>; có thể có <b>Quận</b>, <b>ĐVT</b>, <b>Đơn giá</b> (hoặc T1, T2, T3). Mỗi quận một sheet cũng được. Nạp lại sẽ thay đầu vào cũ của quận đó.</p>
+    <label class="drop" id="dvdrop"><input type="file" id="dvfi" multiple hidden><b>Chọn hoặc thả file duy tu đầu vào</b><span>Excel · .xls · .ods · .csv · Word · .html · .json · PDF · ảnh</span></label><p class="note" id="dvprog"></p>
+    <div class="row"><button class="btn ghost" data-act="dvkh"${ST.kh.length ? '' : ' disabled'}>Lấy từ kế hoạch Q${ST.settings.quarter}/${ST.settings.year} đã nạp (${ST.kh.length})</button><button class="btn ghost" data-act="dvtpl">Tải mẫu đầu vào</button>${dv.length ? `<button class="btn ghost danger" data-act="dvclr">Xóa đầu vào</button>` : ''}</div></section>
+  <section class="card"><div class="cardhead"><h3>Còn tồn / dư nợ – ${h(D.lab)}</h3><button class="btn" data-act="dvx"${D.rows.length ? '' : ' disabled'}>Xuất Excel còn tồn / dư nợ</button></div>
+    <div class="filters"><select data-chg="dvpm">${pm.map(([k, t]) => opt(k, P.mode, t)).join('')}</select>${pv}
+      <select data-chg="dvm">${opt('sc', D.mode, 'Trừ theo: sự cố đã sửa chữa thay thế')}${opt('kl', D.mode, 'Trừ theo: phiếu khối lượng thực hiện')}</select>
+      <select data-chg="dvf" data-k="dvq">${opt('', fq, 'Tất cả quận')}${qs.map(q => opt(q, fq)).join('')}</select>
+      <select data-chg="dvf" data-k="dvs">${opt('', fs, 'Mọi hạng mục')}${opt('ton', fs, 'Còn tồn')}${opt('no', fs, 'Dư nợ')}${opt('het', fs, 'Vừa hết')}</select></div>
+    <div class="kpis sm">${kpi(fmtN(D.rows.filter(r => !r.out).length), 'Hạng mục đầu vào', hasDg ? fmtTr(sum(D.rows, 'vsl')) : '')}
+      ${kpi(fmtN(D.nsrc), D.mode === 'sc' ? 'Sự cố đã sửa trong kỳ' : 'Phiếu KL trong kỳ', `${fmtN(D.det.length)} lần trừ · ${fmtN(D.skip.length)} không trừ`)}
+      ${kpi(fmtN(tonR.length), 'Hạng mục còn tồn', fmtN(sum(tonR, 'ton'), 2) + ' đơn vị' + (sum(tonR, 'vton') ? ' · ' + fmtTr(sum(tonR, 'vton')) : ''), 'ok')}
+      ${kpi(fmtN(noR.length), 'Hạng mục dư nợ', fmtN(sum(noR, 'no'), 2) + ' đơn vị' + (sum(noR, 'vno') ? ' · ' + fmtTr(sum(noR, 'vno')) : ''), 'hot')}</div>
+    ${D.rows.length ? `<div class="tw"><table class="t"><thead><tr><th>Quận</th><th>Hạng mục</th><th>ĐVT</th><th class="r">Đầu vào</th><th class="r">Đã sửa / thay</th><th class="r">Còn tồn</th><th class="r">Dư nợ</th>${hasDg ? '<th class="r">Giá trị tồn</th><th class="r">Giá trị nợ</th>' : ''}<th>Căn cứ</th></tr></thead><tbody>
+      ${L.slice(0, 400).map(r => `<tr${r.out ? ' class="khac"' : ''}><td>${r.quan ? `<span class="q">${h(QS[r.quan] || r.quan)}</span>` : '<span class="mut">chung</span>'}</td><td class="nd">${h(r.hm)}</td><td>${h(r.dvt)}</td><td class="r">${fmtN(r.sl, 2)}</td><td class="r">${r.used ? fmtN(r.used, 2) : '<span class="mut">·</span>'}</td>
+        <td class="r b" style="color:var(--green)">${r.ton ? fmtN(r.ton, 2) : ''}</td><td class="r b" style="color:var(--red)">${r.no ? fmtN(r.no, 2) : ''}</td>${hasDg ? `<td class="r">${r.vton ? fmtTr(r.vton) : ''}</td><td class="r">${r.vno ? fmtTr(r.vno) : ''}</td>` : ''}
+        <td class="mut" title="${h(r.ev.join(', '))}">${r.ev.length ? `${r.ev.length} ${D.mode === 'sc' ? 'sự cố' : 'phiếu'}: ${h(r.ev.slice(0, 3).join(', '))}${r.ev.length > 3 ? '…' : ''}` : ''}</td></tr>`).join('')}</tbody></table></div>
+      ${L.length > 400 ? `<p class="note">Hiển thị 400/${L.length} dòng – xem đủ trong file Excel.</p>` : ''}` : '<p class="empty">Chưa có duy tu đầu vào – nạp file ở trên.</p>'}
+    <p class="note">${D.mode === 'sc' ? 'Sự cố đã sửa = đã xử lý, chờ GS hoặc đã có khối lượng, ghi nhận trong kỳ. Vật tư lấy từ nội dung sự cố: LED → driver (hoặc bộ đèn khi hư bộ đèn/mặt LED) + chống sét; HPS → bóng / ballast / kích / tụ / BCM / đui; RCBO → RCBO hoặc hộp rẽ nhánh; thiết bị tủ → MCB, RCCB, contactor, bộ điều khiển, vỏ tủ…; chóa → chóa. Khớp đúng công suất khi đầu vào ghi W.' : 'Mỗi phiếu khối lượng trừ vào dòng đầu vào trùng đúng tên hạng mục; không trùng tên thì trừ theo loại vật tư và công suất.'}</p></section>
+  ${D.skip.length ? `<section class="card"><details><summary>${D.skip.length} ${D.mode === 'sc' ? 'sự cố' : 'phiếu'} không trừ vào đầu vào (không phải thay vật tư)</summary><div class="tw"><table class="t"><thead><tr><th>Căn cứ</th><th>Quận</th><th>Tủ</th><th>Nội dung</th><th>Lý do</th></tr></thead><tbody>
+    ${D.skip.slice(0, 200).map(x => `<tr><td class="mono">${h(x.id)}</td><td>${h(QS[x.quan] || x.quan)}</td><td>${h(x.tu)}</td><td class="nd">${h(x.nd)}</td><td class="mut">${h(x.why)}</td></tr>`).join('')}</tbody></table></div></details></section>` : ''}`;
+}
+function bindKH() {
+  const d = $('#dvdrop'), fi = $('#dvfi'); if (!d) return;
+  fi.onchange = () => { const fs = [...fi.files]; fi.value = ''; dvImport(fs); };
+  d.ondragover = (e) => { e.preventDefault(); d.classList.add('over'); }; d.ondragleave = () => d.classList.remove('over');
+  d.ondrop = (e) => { e.preventDefault(); d.classList.remove('over'); dvImport([...e.dataTransfer.files]); };
+}
+function exportDV() {
+  const D = dvGet(); if (!D.rows.length) return toast('Chưa có duy tu đầu vào');
+  const hasDg = D.rows.some(r => r.dg), qs = [...new Set([...QN, ...D.rows.map(r => r.quan).filter(Boolean)])];
+  const srt = (a, b) => (qs.indexOf(a.quan) - qs.indexOf(b.quan)) || a.hm.localeCompare(b.hm, 'vi');
+  const sub = `Kỳ: ${D.lab} · Trừ theo ${D.mode === 'sc' ? 'sự cố đã sửa chữa thay thế' : 'phiếu khối lượng thực hiện'} · Xuất ${fdt(Date.now())}`;
+  const head = ['STT', 'Quận', 'Hạng mục', 'ĐVT', 'Đầu vào', 'Đã sửa / thay', 'Còn tồn', 'Dư nợ', ...(hasDg ? ['Đơn giá', 'Giá trị tồn', 'Giá trị dư nợ'] : []), 'Căn cứ'];
+  const W = [5, 14, 50, 8, 10, 11, 10, 10, ...(hasDg ? [12, 14, 14] : []), 50];
+  const st = { 0: 9, 4: 6, 5: 6, 6: 6, 7: 6, ...(hasDg ? { 8: 15, 9: 15, 10: 15 } : {}), [head.length - 1]: 10 };
+  const line = (r, i) => [i + 1, r.quan || 'Chung', r.hm, r.dvt, r.sl, r.used || '', r.ton || '', r.no || '', ...(hasDg ? [r.dg || '', Math.round(r.vton) || '', Math.round(r.vno) || ''] : []), r.ev.join(', ').slice(0, 500)];
+  const sum = (a, k) => a.reduce((x, y) => x + (y[k] || 0), 0);
+  const tq = qs.filter(q => D.rows.some(r => r.quan === q)).concat(D.rows.some(r => !r.quan) ? [''] : []);
+  const sheets = [tableSheet('Tong hop', 'BÁO CÁO DUY TU CÒN TỒN / DƯ NỢ', sub, ['Quận', 'Số hạng mục', 'HM còn tồn', 'HM dư nợ', 'HM vừa hết', ...(hasDg ? ['Giá trị đầu vào', 'Giá trị đã dùng', 'Giá trị tồn', 'Giá trị dư nợ'] : ['SL còn tồn', 'SL dư nợ'])], [16, 12, 12, 12, 12, 16, 16, 16, 16],
+    [...tq.map(q => { const x = D.rows.filter(r => r.quan === q); return [q || 'Chung', x.length, C(x.filter(r => r.ton > 0).length || '', 9), C(x.filter(r => r.no > 0).length || '', 9), C(x.filter(r => r.sl && r.con === 0).length || '', 9), ...(hasDg ? ['vsl', 'vused', 'vton', 'vno'].map(k => C(Math.round(sum(x, k)), 15)) : [C(sum(x, 'ton'), 6), C(sum(x, 'no'), 6)])]; })]),
+    tableSheet('Con ton', 'BÁO CÁO DUY TU CÒN TỒN', sub, head, W, D.rows.filter(r => r.ton > 0).sort(srt).map(line), { styles: st }),
+    tableSheet('Du no', 'BÁO CÁO DUY TU DƯ NỢ (đã dùng vượt đầu vào)', sub, head, W, D.rows.filter(r => r.no > 0).sort(srt).map(line), { styles: st }),
+    tableSheet('Doi chieu', 'ĐỐI CHIẾU ĐẦU VÀO – ĐÃ SỬA – CÒN LẠI', sub, head, W, D.rows.slice().sort(srt).map(line), { styles: st }),
+    tableSheet('Chi tiet tru', 'CHI TIẾT TRỪ THEO SỰ CỐ / PHIẾU', sub, ['STT', 'Căn cứ', 'Ngày', 'Quận', 'Tủ', 'Trụ', 'Nội dung', 'Trạng thái', 'Trừ vào hạng mục', 'SL', 'Ghi chú'], [5, 12, 11, 13, 22, 10, 46, 16, 40, 7, 30],
+      D.det.slice().sort((a, b) => (qs.indexOf(a.quan) - qs.indexOf(b.quan)) || a.d - b.d).map((x, i) => [i + 1, x.id, new Date(x.d), x.quan, x.tu, x.tru, x.nd, x.fin, x.item, x.n, x.note]), { styles: { 0: 9, 2: 5, 6: 10, 8: 10, 9: 6, 10: 10 } })];
+  if (D.skip.length) sheets.push(tableSheet('Khong tru', 'SỰ CỐ / PHIẾU KHÔNG TRỪ VÀO ĐẦU VÀO', sub, ['STT', 'Căn cứ', 'Ngày', 'Quận', 'Tủ', 'Nội dung', 'Lý do'], [5, 12, 11, 13, 22, 50, 40], D.skip.map((x, i) => [i + 1, x.id, new Date(x.d), x.quan, x.tu, x.nd, x.why]), { styles: { 0: 9, 2: 5, 5: 10 } }));
+  const tag = UI.dvp.mode === 'all' ? 'toan-bo' : String(UI.dvp.v);
+  saveFile(`Duy_tu_con_ton_du_no_${tag}.xlsx`, XL.write(sheets));
+}
+function exportDVTemplate() {
+  const sh = tableSheet('Dau vao', 'MẪU DUY TU ĐẦU VÀO', 'Mỗi dòng một hạng mục vật tư; cột Quận để trống = dùng chung', ['Quận', 'Hạng mục', 'ĐVT', 'Khối lượng', 'Đơn giá'], [16, 56, 8, 12, 14],
+    QN.flatMap(q => [['Driver đèn LED 100W', 'cái'], ['Driver đèn LED 150W', 'cái'], ['Chống sét đèn LED', 'cái'], ['Bóng HPS 150W', 'bóng'], ['Ballast (chấn lưu) 150W', 'cái'], ['Kích', 'cái'], ['Tụ điện', 'cái'], ['RCBO', 'cái'], ['Hộp rẽ nhánh kín nước', 'hộp'], ['MCB', 'cái'], ['RCCB', 'cái'], ['Contactor', 'cái'], ['Bộ nguồn AC-DC', 'bộ']].map(([hm, d]) => [q, hm, d, C('', 12), C('', 12)])));
+  sh.rows.splice(0, 3); sh.freeze = 2; sh.printTitle = 1;
+  saveFile('Mau_duy_tu_dau_vao.xlsx', XL.write([sh]));
+}
+
 // ---------- CÀI ĐẶT ----------
 function vCD() {
   const s = ST.settings;
@@ -2240,7 +2462,7 @@ function saveSettings() {
   try { const t = localStorage.getItem('dt-tab'); if (t && TABS.some(x => x[0] === t)) UI.tab = t; } catch { }
   let st = null;
   try { st = await DB.get('state'); } catch { }
-  if (st && st.sc && st.kl && st.kh) { const tg = Object.assign({}, DEFAULT_SETTINGS.tg, (st.settings || {}).tg || {}); st.settings = Object.assign(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), st.settings || {}); st.settings.tg = tg; st.br = st.br || []; st.cv = st.cv || []; ST = st; }
+  if (st && st.sc && st.kl && st.kh) { const tg = Object.assign({}, DEFAULT_SETTINGS.tg, (st.settings || {}).tg || {}); st.settings = Object.assign(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), st.settings || {}); st.settings.tg = tg; st.br = st.br || []; st.cv = st.cv || []; for (const [k, v] of LSC_ADD) if (!st.settings.lsc.some(x => x[0] === k)) st.settings.lsc.push([k, v]); ST = st; }
   else ST = seedState();
   recompute();
   try { const q = new URLSearchParams(location.search), tb = q.get('tab'), sh = [q.get('title'), q.get('text'), q.get('url')].filter(Boolean).join('\n');
